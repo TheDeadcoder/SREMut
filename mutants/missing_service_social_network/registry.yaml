@@ -1,0 +1,47 @@
+schema_version: 1
+registry_id: sremut/missing-service-social-network/pilot-mutants-v1
+status: PREREGISTERED_NOT_EXECUTED
+frozen_at: '2026-08-16T15:08:35.027016+00:00'
+contract_id: sremut/missing-service-social-network/v1
+mutants:
+- id: MS-M01
+  name: no_op_after_service_deletion
+  action: Perform no mitigation after SREGym deletes user-service.
+  violates:
+  - MS-I1
+  - MS-I2
+  - MS-I3
+  - MS-I4
+  - MS-I6
+  expected_original_oracle: PASS_HYPOTHESIS_NOT_A_RESULT
+  expected_contract: REJECT
+- id: MS-M02
+  name: service_with_nonmatching_selector
+  action: Recreate user-service with the frozen public port but a selector that matches
+    no pod.
+  violates:
+  - MS-I2
+  - MS-I3
+  - MS-I4
+  - MS-I6
+  expected_original_oracle: PASS_HYPOTHESIS_NOT_A_RESULT
+  expected_contract: REJECT
+- id: MS-M03
+  name: service_with_wrong_target_port
+  action: Recreate user-service with a correct backend selector but route port 9090
+    to TCP port 65535.
+  violates:
+  - MS-I2
+  - MS-I4
+  - MS-I6
+  expected_original_oracle: PASS_HYPOTHESIS_NOT_A_RESULT
+  expected_contract: REJECT
+execution_policy:
+  fresh_fault_injection_per_mutant: true
+  repetitions_per_mutant: 3
+  mutant_order:
+  - MS-M01
+  - MS-M02
+  - MS-M03
+  original_verifier_evaluated_before_active_challenges: true
+  no_mutant_result_available_at_freeze_time: true

@@ -1,0 +1,305 @@
+schema_version: 1
+contract_id: sremut/missing-service-social-network/v1
+status: FROZEN_BEFORE_MUTATION_EXECUTION
+frozen_at: '2026-08-16T15:08:35.027016+00:00'
+problem_id: missing_service_social_network
+namespace: social-network
+target_component: user-service
+research_definition:
+  false_acceptance: The original mitigation oracle returns success for a post-fault
+    state that violates one or more required operational invariants.
+  valid_repair: A repair that restores the stable user-service interface, routes to
+    the correct workload, preserves baseline capacity, passes functional workload
+    validation, and survives a fresh-pod challenge.
+baseline_evidence:
+  reproducibility_report_sha256: d413a3f836e25fa73c284af94e5c4a92ec496224e42aecbd0831307c6818450f
+  healthy_runs:
+  - run_id: missing-service-baseline-01
+    result_sha256: 4a74e903d313b87d905bfb6a36b6de00c7f139fb9135fdaa105f6d45a2829464
+    summary_sha256: 1d57560f8b8e4c6b6a5e7737cace256c3f23c13fc9780fa073bfc3350b48d786
+    service_sha256: 56007aa402b3f4d0f58d5f0db3d061eb5375f9bc7a726af21829d3148f23620f
+    endpoints_sha256: 2de291baafeabe58ef38fdb49f0c7619c2a5eaf39a6aec80d4cd56860307a1ae
+    deployments_sha256: c6dab0235406d1725024ae6cbe631d8ef5d455b8578d1e0577608a3484e363f5
+    deployment_seconds: 155.347
+    endpoint_ips_observed:
+    - 10.244.195.208
+  - run_id: missing-service-baseline-02
+    result_sha256: 3c02e9e13a5eb8e58bc85e761b7a7687a498c1f34f788f07c828e35a323d091b
+    summary_sha256: e535ca0be8eedb0a408cbb6b5f6a1a99107edb05cec14992d1c304d6f63f59e0
+    service_sha256: 440f324a4a9c0bfe1500706f9c2edf4d3ab9681abbbddde7be9bd6af437406e3
+    endpoints_sha256: 9991e27d8dbd86c8b7421773a6443482d7921156c8df71f134b8aafb8f1a4f91
+    deployments_sha256: f49e6cc0526706180715bfea9cccd0de0d150d15001f9b41b6b0b44634c7096e
+    deployment_seconds: 160.103
+    endpoint_ips_observed:
+    - 10.244.110.166
+  - run_id: missing-service-baseline-03
+    result_sha256: 7cfbfee2b8ea5669958f99a2d754a2dca8102336a8fdb7b0a4086c0c74c87598
+    summary_sha256: 1eac52b593388c7aca76872cf2cc8fc345f7b78da593d34a49cea92c67e05278
+    service_sha256: a4d7d0871783da7487025117c459409fb0b230a15b755db6bf3afc44d9aaa0b4
+    endpoints_sha256: 346dbea51832b257d09bc204b6c67cb6b6ff7d9e293264654651a10822b7ade2
+    deployments_sha256: 886f6e9a5bdcd9d2fb225c3fe5caba8ffa10ac6b844e5422671d5b5f83abb23c
+    deployment_seconds: 157.516
+    endpoint_ips_observed:
+    - 10.244.195.230
+  deployment_time_cv_percent: 1.51
+  stable_service_interface:
+    name: user-service
+    namespace: social-network
+    baseline_type: ClusterIP
+    baseline_selector:
+      service: user-service
+    ports:
+    - name: '9090'
+      protocol: TCP
+      port: 9090
+      targetPort: 9090
+  baseline_deployment_replica_floor:
+    compose-post-service: 1
+    home-timeline-redis: 1
+    home-timeline-service: 1
+    jaeger: 1
+    media-frontend: 1
+    media-memcached: 1
+    media-mongodb: 1
+    media-service: 1
+    nginx-thrift: 1
+    post-storage-memcached: 1
+    post-storage-mongodb: 1
+    post-storage-service: 1
+    social-graph-mongodb: 1
+    social-graph-redis: 1
+    social-graph-service: 1
+    text-service: 1
+    unique-id-service: 1
+    url-shorten-memcached: 1
+    url-shorten-mongodb: 1
+    url-shorten-service: 1
+    user-memcached: 1
+    user-mention-service: 1
+    user-mongodb: 1
+    user-service: 1
+    user-timeline-mongodb: 1
+    user-timeline-redis: 1
+    user-timeline-service: 1
+  dynamic_endpoint_ips_observed:
+  - 10.244.110.166
+  - 10.244.195.208
+  - 10.244.195.230
+required_invariants:
+- id: MS-I1
+  name: stable_service_identity
+  requirement: A Kubernetes Service named user-service must exist in namespace social-network
+    and remain resolvable through the standard user-service DNS identity.
+- id: MS-I2
+  name: correct_backend_routing
+  requirement: Port 9090/TCP must route to Ready instances of the actual user-service
+    workload. Selector-based and explicitly managed endpoint repairs are both allowed
+    if they route only to the correct backend and pass the persistence challenge.
+- id: MS-I3
+  name: ready_endpoint_availability
+  requirement: The user-service interface must expose at least one Ready endpoint
+    after stabilization.
+- id: MS-I4
+  name: functional_workload
+  requirement: SREGym's workload verifier must collect at least 50 post-stabilization
+    requests without a Non-2xx or 3xx response.
+- id: MS-I5
+  name: capacity_preservation
+  requirement: Every deployment present in the healthy baseline must remain present
+    with desired, Ready, and available replicas at least equal to its frozen baseline
+    replica floor.
+- id: MS-I6
+  name: repair_persistence
+  requirement: After deleting the current user-service pod, Kubernetes must create
+    a replacement, the Service must regain a Ready endpoint, and a fresh workload
+    window must pass.
+active_challenges:
+- id: MS-C1
+  name: dns_and_endpoint_probe
+  checks:
+  - user-service DNS resolves
+  - at least one Ready endpoint exists
+  - endpoint belongs to the correct workload
+- id: MS-C2
+  name: functional_workload_window
+  minimum_requests: 50
+  allowed_failed_response_rounds: 0
+- id: MS-C3
+  name: fresh_pod_reconciliation
+  action: Delete the current user-service pod and wait for the owning deployment to
+    replace it.
+  postconditions:
+  - replacement pod is Ready
+  - Service endpoint is restored
+  - functional workload window passes
+challenge_protocol:
+  challenge_pod:
+    namespace: social-network
+    lifecycle: fresh_dedicated_pod
+    purpose: isolated_contract_probes
+  dns_identity:
+    probe_namespace: social-network
+    canonical_fqdn: user-service.social-network.svc.cluster.local
+    service:
+      api_version: v1
+      kind: Service
+      namespace: social-network
+      name: user-service
+      required: true
+      cluster_ip:
+        required: true
+        nonempty: true
+        headless_allowed: false
+        rejected_values:
+        - ''
+        - None
+      port: 9090
+      protocol: TCP
+    resolution:
+      source: challenge_pod
+      record_type: A
+      required_address_source: Service.spec.clusterIP
+      comparison: result_contains_required_address
+  eligible_backend_set:
+    source:
+      api_version: discovery.k8s.io/v1
+      kind: EndpointSlice
+      namespace: social-network
+      label_selector:
+        kubernetes.io/service-name: user-service
+    endpoint_eligibility:
+      address_type: IPv4
+      address_validation: parse_as_ipaddress.IPv4Address
+      conditions:
+        ready: true
+        terminating: absent_or_false
+    minimum_eligible_endpoints: 1
+    validation_scope: every_address_of_every_eligible_endpoint
+    pod_mapping:
+      required_lookup: endpoint_address_equals_Pod.status.podIP
+      target_ref: permitted_as_hint_not_required
+      pod_requirements:
+        namespace: social-network
+        ready_condition: true
+        deletion_timestamp: absent
+      controller_ownership_chain:
+      - from_kind: Pod
+        to_kind: ReplicaSet
+        controller: true
+      - from_kind: ReplicaSet
+        to_kind: Deployment
+        controller: true
+      terminal_controller:
+        kind: Deployment
+        namespace: social-network
+        name: user-service
+    reject_unmapped_eligible_endpoint: true
+    reject_unrelated_workload_endpoint: true
+  routing_predicate:
+    source: challenge_pod
+    transport: TCP
+    destination_host: user-service.social-network.svc.cluster.local
+    destination_port: 9090
+    required_result: connection_succeeds
+    connection_timeout_seconds: 3
+    backend_ownership_also_required: true
+  fresh_workload_predicate:
+    oracle_semantics: sregym.conductor.oracles.workload.WorkloadOracle
+    start_boundary:
+      required: true
+      observation_relation: strictly_after_challenge_start_boundary
+    minimum_requests: 50
+    maximum_non_2xx_or_3xx_responses: 0
+    required_evidence:
+      raw_workload_evidence: true
+      exact_start_boundary: true
+      observed_request_count: true
+      parsed_status_result: true
+      sha256_checksum: true
+  replacement_challenge:
+    ordering: after_original_verifier_evaluation
+    selection:
+      namespace: social-network
+      pod_ready: true
+      pod_deletion_timestamp: absent
+      terminal_controller_kind: Deployment
+      terminal_controller_name: user-service
+      controller_ownership_chain: Pod_to_ReplicaSet_to_Deployment
+      number_of_pods: 1
+      tie_breaker: lexicographically_smallest_pod_name
+    record_before_deletion:
+    - Pod.metadata.name
+    - Pod.metadata.uid
+    deletion:
+      target: exactly_the_recorded_pod
+      uid_precondition: recorded_Pod.metadata.uid
+    replacement:
+      required: true
+      ready_condition: true
+      uid_comparison: different_from_deleted_pod_uid
+    repeated_predicates:
+    - dns_identity
+    - eligible_backend_set
+    - routing_predicate
+    - fresh_workload_predicate
+    pass_rule: replacement_ready_and_all_repeated_predicates_pass
+  timing:
+    poll_interval_seconds: 2
+    tcp_connection_timeout_seconds: 3
+    dns_predicate_deadline_seconds: 30
+    endpoint_backend_predicate_deadline_seconds: 30
+    initial_stabilization_deadline_seconds: 180
+    fresh_workload_deadline_seconds: 60
+    replacement_pod_ready_and_endpoint_restoration_deadline_seconds: 120
+    post_replacement_fresh_workload_deadline_seconds: 60
+  adjudication:
+    target_predicate_timeout_outcome: REJECT
+    target_predicate_timeout_is_infrastructure_failure: false
+    target_predicates:
+    - target_service
+    - dns_identity
+    - eligible_backend_set
+    - routing_predicate
+    - fresh_workload_predicate
+    - replacement_challenge
+    infrastructure_failure_scope: conditions_independent_of_the_tested_mutant
+    infrastructure_failure_examples:
+    - Kubernetes API unavailable
+    - CoreDNS unhealthy before mutation
+    - a non-target baseline deployment failing to recover before initial evaluation
+    - challenge pod unschedulable because of unrelated cluster failure
+    - node loss or cluster-wide resource failure
+    required_failure_record:
+    - failed_predicate
+    - first_observation_timestamp
+    - last_observation_timestamp
+    - attempts
+    - elapsed_time
+    - raw_evidence_reference
+    never_infer_infrastructure_failure_from: target_invariant_timeout
+allowed_repair_variation:
+- A new ClusterIP value
+- Different pod names and pod IP addresses
+- Different node placement
+- Additional non-conflicting labels or annotations
+- A semantically equivalent Service selector
+- Explicitly managed endpoints that survive MS-C3
+- Any repair command sequence satisfying all invariants
+explicitly_invalid_states:
+- user-service is absent
+- user-service DNS does not resolve
+- the Service has no Ready endpoint
+- the Service selects an unrelated workload
+- port 9090 routes to a non-listening backend port
+- clients are modified to depend on ephemeral pod IPs
+- the workload generator is disabled or removed
+- a baseline deployment is deleted or scaled below its floor
+- the repair fails after user-service pod replacement
+adjudication:
+  pass_rule: All six required invariants must pass.
+  failure_rule: Violation of any required invariant makes the mitigation operationally
+    invalid.
+  infrastructure_failure_rule: A setup, image-pull, or harness failure is recorded
+    separately and is not counted as a verifier acceptance or rejection.
+  timing_rule: All application pods must stabilize before the original verifier and
+    SREMut are evaluated.
