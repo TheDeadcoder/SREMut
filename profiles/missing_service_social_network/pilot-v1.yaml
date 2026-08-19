@@ -1,0 +1,742 @@
+schema_version: 1
+profile_id: sremut/missing-service-social-network/pilot-execution-v1
+status: FROZEN_BEFORE_MUTANT_EXECUTION
+frozen_at: '2026-08-16T19:02:00.748953+00:00'
+schema:
+  path: schemas/missing-service-execution-profile-v1.schema.json
+  draft: https://json-schema.org/draft/2020-12/schema
+  sha256: dbf715f7df6ff2f06ab27d19064d83c0d1e9c9beb21389daa27e89015fc0be2b
+frozen_bindings:
+  contract:
+    tag: sremut-missing-service-contract-v1
+    tag_object: 378e9e9180438910611e7642402220e76bb302ca
+    commit: abed58d67e3f91e61f3ad666a47f0101cc680b93
+    tree: 2648659b56a7d472bcedb38b8ffb6bc085aea650
+    contract_path: contracts/missing_service_social_network.yaml
+    contract_sha256: bda78e1b07b5eb0628954bcafd8fae3fc1bb2f3b22770046584bd873b72a2488
+    registry_path: mutants/missing_service_social_network/registry.yaml
+    registry_sha256: 688411986f75cb83c25ac6913e2868a075eb90fd755a1c0acd553a466ed87c72
+  sregym:
+    repository: /home/sakibbuet2k19/sremut/SREGym
+    commit: ba07faf1a322f9b6d4a279643bb796aa2f36f64b
+    applications_repository: /home/sakibbuet2k19/sremut/SREGym/SREGym-applications
+    applications_commit: 2b2f9c6c2e97c44abbfcc44af1cf2f994bbb04f8
+  kubectl:
+    path: /home/sakibbuet2k19/.local/lib/sremut/kubectl/v1.32.0/kubectl
+    version: v1.32.0
+    platform: linux/amd64
+    sha256: 646d58f6d98ee670a71d9cdffbf6625aeea2849d567f214bc43a35f8ccb7bf70
+  kubernetes_context: kind-kind
+  namespace: social-network
+  target_service: user-service
+original_oracle_runtime:
+  purpose: preserve the original benchmark implementation and its baselined behavior
+  virtual_environment:
+    path: /home/sakibbuet2k19/sremut/SREGym/.venv
+    python:
+      implementation: CPython
+      version: 3.12.3
+      executable: /home/sakibbuet2k19/sremut/SREGym/.venv/bin/python
+  dependencies:
+    PyYAML: 6.0.2
+    kubernetes: 30.1.0
+    jsonschema: 4.23.0
+  compatibility:
+    generated_for_kubernetes: '1.30'
+    target_server: 1.32.0
+    compatibility: COMMON_APIS_ONLY
+  allowed_role: read-only stock original-oracle invocation
+  prohibited_roles:
+  - runner mutation
+  - runner restoration
+  - active challenges
+  source_identity:
+    repository_commit: ba07faf1a322f9b6d4a279643bb796aa2f36f64b
+    module_path: sregym/conductor/oracles/mitigation.py
+    module_sha256: a087fd38399cfca4c2de764dbbab837d6100350ab9f71b89552cafe2c91fca8b
+  execution:
+    stock_implementation_unchanged_required: true
+    isolated_subprocess_required: true
+    mutable_python_module_state_shared_with_runner: false
+    run_before_any_active_challenge: true
+    upgrade_to_match_runner_environment_forbidden: true
+    source_hashes_and_dependency_versions_required_in_evidence: true
+  adapter:
+    kind: narrow original-oracle subprocess adapter
+    runner_import_and_in_process_execution_forbidden: true
+    communication: immutable JSON input/output artifacts
+    permitted_input_fields:
+    - kubernetes_context
+    - namespace
+    - captured_replica_baseline
+    - evidence_paths
+    additional_input_fields_forbidden: true
+    preserved_outputs:
+    - stdout
+    - stderr
+    - exit_status
+    - source_hashes
+    - dependency_versions
+    - returned_boolean
+    challenge_pod_creation_forbidden: true
+    mutation_forbidden: true
+    restoration_forbidden: true
+    interrupted_invocation_policy: frozen one-shot policy
+    oracle_exception_outcome: preserve exception; never reinterpret as Boolean rejection
+sremut_runner_runtime:
+  purpose: execute the future SREMut runner with exact Kubernetes 1.32 API parity
+  python:
+    implementation: CPython
+    version: 3.12.3
+  dependencies:
+    PyYAML: 6.0.2
+    kubernetes: 32.0.1
+    jsonschema: 4.23.0
+  tooling:
+    uv: 0.12.5
+    exact_version_required_for_lock_generation: true
+    exact_version_required_for_frozen_execution: true
+  compatibility:
+    generated_for_kubernetes: '1.32'
+    target_server: 1.32.0
+    compatibility: EXACT_API_PARITY
+  allowed_role: SREMut runner orchestration and active execution
+  prohibited_role: stock original-oracle in-process execution
+  responsibilities:
+  - typed UID-preconditioned Kubernetes mutations
+  - guarded Service creation and restoration
+  - evidence recording
+  - contract evaluation
+  - orchestration and state transitions
+  execution_prerequisites:
+    runner_execution_allowed: false
+    pyproject:
+      repository_path: pyproject.toml
+      required_before_runner_execution: true
+      present_at_profile_freeze: false
+    uv_lock:
+      repository_path: uv.lock
+      required_before_runner_execution: true
+      present_at_profile_freeze: false
+      dependency_resolution_during_experiment_execution_allowed: false
+      frozen_execution_required: true
+      sha256_required_in_run_identity: true
+    runner_bundle:
+      required_before_runner_execution: true
+      algorithm: sha256
+      canonical_input: sorted_relative_path_two_spaces_sha256_newline_manifest
+      sha256_required_in_run_identity: true
+pilot_scope:
+  mutants:
+  - MS-M01
+  - MS-M02
+  - MS-M03
+  planned_repetitions_per_mutant: 3
+  schedule:
+  - mutant: MS-M01
+    repetition: 1
+  - mutant: MS-M02
+    repetition: 1
+  - mutant: MS-M03
+    repetition: 1
+  - mutant: MS-M01
+    repetition: 2
+  - mutant: MS-M02
+    repetition: 2
+  - mutant: MS-M03
+    repetition: 2
+  - mutant: MS-M01
+    repetition: 3
+  - mutant: MS-M02
+    repetition: 3
+  - mutant: MS-M03
+    repetition: 3
+  agent_launched: false
+  maximum_active_mutation_runs: 1
+reset_model:
+  healthy_semantic_state_required_before_every_attempt: true
+  full_redeployment_required_between_attempts: false
+  capture_new_healthy_prestate_before_every_attempt: true
+  fresh_fault_injection_before_every_attempt: true
+  next_attempt_requires_restore_verified: true
+  restoration_blocked_stops_schedule: true
+fault_setup:
+  capture_before_injection:
+  - Service/user-service raw object
+  - Service/user-service UID and resourceVersion
+  - MitigationOracle replica_count baseline
+  service_deletion:
+    namespace: social-network
+    name: user-service
+    uid_precondition: captured metadata.uid
+    resource_version_precondition: captured metadata.resourceVersion
+  namespace_pod_recycle:
+    capture_every_current_pod_name_uid_and_resource_version: true
+    delete_each_captured_uid_once: true
+    uid_precondition_required: true
+    resource_version_precondition_required: true
+    namespace_wide_unguarded_deletion_forbidden: true
+    newly_observed_pods_must_not_be_added_to_delete_set: true
+  stabilization:
+    deadline_seconds: 180
+    poll_interval_seconds: 2
+    pod_phase: Running
+    pod_ready_condition: true
+    pod_deletion_timestamp: absent
+    all_container_statuses_present_and_ready: true
+    baseline_deployment_capacity_floor_required: true
+    workload_pod_running_and_ready: true
+  apply_mutant_after_fault_setup: true
+service_normalization:
+  source: captured Service/user-service raw object
+  derive_and_seal_during_healthy_state_capture: true
+  stripped_fields:
+  - /metadata/creationTimestamp
+  - /metadata/deletionGracePeriodSeconds
+  - /metadata/deletionTimestamp
+  - /metadata/generation
+  - /metadata/managedFields
+  - /metadata/resourceVersion
+  - /metadata/selfLink
+  - /metadata/uid
+  - /status
+  - /spec/clusterIP
+  - /spec/clusterIPs
+  - /spec/healthCheckNodePort
+  - /spec/ports/*/nodePort
+  preserve_all_other_fields: true
+  helm_or_registry_reconstruction_forbidden: true
+  dynamic_cluster_ip_change_allowed: true
+mutants:
+  MS-M01:
+    action: leave Service/user-service absent
+    activation:
+      service_absent: true
+      strict_stabilization_required: true
+    expected_original_oracle: PASS_HYPOTHESIS_NOT_A_RESULT
+    expected_contract: REJECT
+  MS-M02:
+    action: create captured-normalized Service with exact nonmatching selector
+    selector:
+      sremut-mutant-backend: ms-m02
+    preflight_zero_matching_pods_required: true
+    preserve_service_port: 9090
+    preserve_target_port: 9090
+    activation:
+      exact_selector_required: true
+      zero_matching_pods_required: true
+      zero_eligible_endpoints_required: true
+    expected_original_oracle: PASS_HYPOTHESIS_NOT_A_RESULT
+    expected_contract: REJECT
+  MS-M03:
+    action: create captured-normalized Service with wrong targetPort
+    selector:
+      service: user-service
+    service_port: 9090
+    target_port: 65535
+    activation:
+      exact_selector_required: true
+      exact_target_port_required: true
+      eligible_user_service_backend_required: true
+    expected_original_oracle: PASS_HYPOTHESIS_NOT_A_RESULT
+    expected_contract: REJECT
+  common:
+    preserve_unmodified_normalized_service_fields: true
+    activation_verified_before_original_oracle: true
+    activation_uses_structural_observation_only: true
+oracle_protocol:
+  order:
+  - verify_mutant_activation
+  - start_original_stock_MitigationOracle
+  - seal_original_oracle_evidence_and_result
+  - create_active_challenge_resources
+  - evaluate_all_contract_predicates
+  - continue_safe_diagnostic_predicates_after_first_reject
+  - restore_application
+  original_oracle:
+    class: sregym.conductor.oracles.mitigation.MitigationOracle
+    source_commit: ba07faf1a322f9b6d4a279643bb796aa2f36f64b
+    invocations_per_attempt: 1
+    resume_or_repeat_after_start_forbidden: true
+    interruption_before_sealed_result: HARNESS_TIMING_FAILURE
+    active_challenge_before_sealed_result_forbidden: true
+retry_policy:
+  maximum_attempts_per_planned_repetition: 2
+  retry_eligible_classifications:
+  - HARNESS_TIMING_FAILURE
+  - INFRASTRUCTURE_FAILURE
+  retry_forbidden_classifications:
+  - MUTANT_ACTIVATION_FAILURE
+  - PROTOCOL_VIOLATION
+  - INVALID_OR_EQUIVALENT_MUTANT
+  - RESTORATION_FAILURE
+  completed_research_verdict_retry_forbidden: true
+  every_attempt_preserved: true
+  first_eligible_completed_attempt_counts: true
+  retry_requires_restore_verified: true
+workload_protocol:
+  deadline_seconds: 60
+  overrides_stock_collector_timeout_seconds: 90
+  parser: sregym.generators.workload.wrk2.Wrk2WorkloadManager._parse_log
+  preserve_workload_oracle_success_semantics: true
+  boundary:
+    record_before_observation: true
+    required_fields:
+    - pod_name
+    - pod_uid
+    - container_restart_count
+    - raw_log
+    - raw_log_byte_length
+    - raw_log_sha256
+    - utc_wall_time
+    - monotonic_time
+    - boot_identity
+    later_log_requires_exact_boundary_byte_prefix: true
+    parse_only_complete_rounds_wholly_in_appended_suffix: true
+  minimum_fresh_requests: 50
+  maximum_non_2xx_or_3xx_responses: 0
+  non_2xx_or_3xx_marker_presence_rejects: true
+  class_level_log_history_isolated_per_evaluation: true
+  unexpected_evidence_change:
+    log_truncation: deterministic_non_contract_unless_target_causal
+    pod_uid_change: deterministic_non_contract_unless_target_causal
+    container_restart: deterministic_non_contract_unless_target_causal
+    target_causal_outcome: CONTRACT_REJECT
+    independent_harness_outcome: HARNESS_TIMING_FAILURE
+    independent_infrastructure_outcome: INFRASTRUCTURE_FAILURE
+replacement_challenge:
+  selection: lexicographically_smallest_eligible_ready_user-service_pod
+  record_fields:
+  - metadata.name
+  - metadata.uid
+  delete_exact_recorded_uid_once: true
+  second_deletion_target_forbidden: true
+  replacement_uid_must_differ: true
+  recheck_predicates:
+  - dns_identity
+  - eligible_backend_set
+  - routing_predicate
+  - fresh_workload_predicate
+  final_capacity_MS_I5_recheck_required: true
+restoration:
+  restoration_body_source: sealed captured-normalized Service
+  delete_only_recorded_mutant_service_uid: true
+  mutant_service_resource_version_precondition_required: true
+  recreate_captured_semantic_service: true
+  dynamic_cluster_ip_change_allowed: true
+  capture_current_namespace_pods_before_recovery_recycle: true
+  recycle_only_captured_recovery_pod_uids_once: true
+  delete_only_recorded_challenge_pod_uid: true
+  all_six_invariants_required: true
+  fresh_workload_window_required: true
+  restored_state_contract_pass_is_positive_control: true
+  unexpected_target_object_change_outcome: PROTOCOL_VIOLATION
+state_machine:
+  states:
+  - CREATED
+  - PREFLIGHT_PASS
+  - HEALTHY_STATE_CAPTURED
+  - MUTANT_INJECTED
+  - MUTANT_STATE_VERIFIED
+  - ORIGINAL_ORACLE_STARTED
+  - ORIGINAL_ORACLE_EVALUATED
+  - CONTRACT_EVALUATED
+  - RESTORE_STARTED
+  - RESTORE_VERIFIED
+  - FINALIZED
+  - ABORTED_SAFE
+  - RESTORATION_BLOCKED
+  legal_transitions:
+  - CREATED->PREFLIGHT_PASS
+  - CREATED->ABORTED_SAFE
+  - PREFLIGHT_PASS->HEALTHY_STATE_CAPTURED
+  - PREFLIGHT_PASS->ABORTED_SAFE
+  - HEALTHY_STATE_CAPTURED->MUTANT_INJECTED
+  - HEALTHY_STATE_CAPTURED->RESTORE_STARTED
+  - HEALTHY_STATE_CAPTURED->ABORTED_SAFE
+  - MUTANT_INJECTED->MUTANT_STATE_VERIFIED
+  - MUTANT_INJECTED->RESTORE_STARTED
+  - MUTANT_STATE_VERIFIED->ORIGINAL_ORACLE_STARTED
+  - MUTANT_STATE_VERIFIED->RESTORE_STARTED
+  - ORIGINAL_ORACLE_STARTED->ORIGINAL_ORACLE_EVALUATED
+  - ORIGINAL_ORACLE_STARTED->RESTORE_STARTED
+  - ORIGINAL_ORACLE_EVALUATED->CONTRACT_EVALUATED
+  - ORIGINAL_ORACLE_EVALUATED->RESTORE_STARTED
+  - CONTRACT_EVALUATED->RESTORE_STARTED
+  - RESTORE_STARTED->RESTORE_VERIFIED
+  - RESTORE_STARTED->RESTORATION_BLOCKED
+  - RESTORE_VERIFIED->FINALIZED
+  terminal_states:
+  - FINALIZED
+  - ABORTED_SAFE
+  - RESTORATION_BLOCKED
+  backward_transitions_forbidden: true
+  challenge_creation_minimum_state: ORIGINAL_ORACLE_EVALUATED
+  later_run_after_restoration_blocked_forbidden: true
+adjudication:
+  execution_status_values:
+  - RUNNING
+  - COMPLETED
+  - ABORTED_SAFE
+  - RESTORATION_BLOCKED
+  original_oracle_verdict_values:
+  - NOT_EVALUATED
+  - PASS
+  - REJECT
+  - INTERRUPTED
+  contract_verdict_values:
+  - NOT_EVALUATED
+  - PASS
+  - REJECT
+  - INCOMPLETE
+  classifications:
+  - CONTRACT_REJECT
+  - ORIGINAL_ORACLE_REJECT
+  - MUTANT_ACTIVATION_FAILURE
+  - HARNESS_TIMING_FAILURE
+  - INFRASTRUCTURE_FAILURE
+  - RESTORATION_FAILURE
+  - PROTOCOL_VIOLATION
+  - INVALID_OR_EQUIVALENT_MUTANT
+  - COMPLETED
+  target_predicate_deadline_failure: CONTRACT_REJECT
+  target_timeout_never_implies_infrastructure_failure: true
+  execution_status_separate_from_research_verdicts: true
+failure_evidence:
+  FINALIZED_manifest: complete_SHA256SUMS
+  ABORTED_SAFE_manifest: complete_SHA256SUMS
+  RESTORATION_BLOCKED_manifest: sealed_partial_SHA256SUMS
+  RESTORATION_BLOCKED_global_stop_marker: true
+  incomplete_stage_attempts_append_only: true
+  overwrite_forbidden: true
+challenge_pod:
+  namespace: social-network
+  name_derivation: sremut-ms-{mutant_token}-r{repetition:02d}-a{attempt:02d}-{run_identity_sha256_first12}
+  mutant_tokens:
+    MS-M01: m01
+    MS-M02: m02
+    MS-M03: m03
+  image: docker.io/library/busybox@sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f
+  image_platform: linux/amd64
+  image_pull_policy: IfNotPresent
+  oci_evidence:
+    tag_lookup: docker.io/library/busybox:1.36.1
+    index_digest: sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    index_media_type: application/vnd.oci.image.index.v1+json
+    platform_manifest_digest: sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f
+    platform_manifest_media_type: application/vnd.oci.image.manifest.v1+json
+    local_baseline_evidence: /home/sakibbuet2k19/sremut/baselines/missing_service_social_network/teardown-after-run-02/nodes-after.json
+    local_source_probe_evidence:
+    - sregym.conductor.oracles.dns_resolution_mitigation
+    - sregym.conductor.oracles.service_endpoint_mitigation
+  container_command:
+  - sh
+  - -c
+  - trap 'exit 0' TERM INT; sleep 600 & wait
+  dns_probe_command:
+  - sh
+  - -c
+  - nslookup user-service.social-network.svc.cluster.local
+  dns_result_parser: parse IPv4 addresses and require Service.spec.clusterIP membership
+  tcp_probe_command:
+  - sh
+  - -c
+  - nc -z -w 3 user-service.social-network.svc.cluster.local 9090
+  automount_service_account_token: false
+  restart_policy: Never
+  active_deadline_seconds: 600
+  termination_grace_period_seconds: 5
+  security_context:
+    run_as_non_root: true
+    run_as_user: 65532
+    run_as_group: 65532
+    read_only_root_filesystem: true
+    allow_privilege_escalation: false
+    capabilities_drop:
+    - ALL
+    seccomp_profile: RuntimeDefault
+  resources:
+    requests:
+      cpu: 5m
+      memory: 8Mi
+    limits:
+      cpu: 50m
+      memory: 32Mi
+  labels:
+    app.kubernetes.io/name: sremut-challenge
+    app.kubernetes.io/managed-by: sremut
+    sremut-run-id: derived run identity
+    sremut-mutant: derived frozen mutant ID
+    sremut-attempt: derived attempt number
+  spec_hash:
+    algorithm: sha256
+    canonical_input: sorted compact JSON of derived metadata.name, metadata.namespace, labels
+      and Pod spec
+    required_before_creation: true
+  exec_uid_verification: immediately_before_and_after_every_exec
+  deletion:
+    record_uid_before_delete: true
+    uid_precondition_required: true
+    delete_exact_uid_once: true
+cache_isolation:
+  kubectl_path: /home/sakibbuet2k19/.local/lib/sremut/kubectl/v1.32.0/kubectl
+  kubeconfig_path: /home/sakibbuet2k19/.kube/config
+  context: kind-kind
+  per_run_cache_dir_required: true
+  kubectl_global_flag: --cache-dir=<run>/harness/kubectl-cache
+  default_cache_path: /home/sakibbuet2k19/.kube/cache
+  default_cache_tree_hash_before_and_after_required: true
+  default_cache_must_remain_unchanged: true
+  per_run_cache_retained: true
+  per_run_cache_separate_harness_manifest: true
+  caches_are_research_evidence: false
+  home_or_shell_configuration_change_forbidden: true
+  live_preflight_must_prove_discovery_and_http_cache_redirection: true
+evidence_safety:
+  subprocess_argv_arrays_required: true
+  subprocess_shell: false
+  typed_kubernetes_api_mutations_required: true
+  uid_and_resource_version_safeguards_required: true
+  atomic_write_sequence:
+  - write unique temporary file
+  - fsync file
+  - rename without overwrite
+  - fsync parent directory
+  append_only_journal: true
+  global_host_lock: fcntl exclusive lock
+  forbidden_operations:
+  - namespace deletion
+  - Helm mutation
+  - rollout
+  - broad label deletion
+  - cluster-scoped mutation
+  - automatic cluster reconciliation
+  destructive_scope: only captured target object UIDs and exact runner-owned challenge Pod
+    UID
+mutation_operation_protocol:
+  schema_version: 1
+  scope:
+    applies_to_every_kubernetes_mutation: true
+    allowed_operation_kinds:
+    - INITIAL_USER_SERVICE_DELETION
+    - INITIAL_CAPTURED_POD_RECYCLE_DELETE
+    - MUTANT_SERVICE_CREATION
+    - CHALLENGE_POD_CREATION
+    - REPLACEMENT_POD_DELETION
+    - CHALLENGE_POD_DELETION
+    - MUTANT_SERVICE_DELETION
+    - RESTORED_SERVICE_CREATION
+    - RECOVERY_POD_RECYCLE_DELETE
+    unlisted_future_mutation_forbidden: true
+  intent:
+    immutable: true
+    status: INTENT_DURABLE
+    required_fields:
+    - operation_id
+    - run_id
+    - attempt_id
+    - operation_ordinal
+    - operation_kind
+    - namespace
+    - resource_kind
+    - object_name
+    - expected_uid_when_existing
+    - expected_resource_version_when_applicable
+    - desired_canonical_body_sha256_when_creation
+    - captured_prestate_evidence_path
+    - captured_prestate_evidence_sha256
+    - exact_idempotency_and_adoption_labels
+    - request_preconditions
+    - permitted_postconditions
+    - forbidden_postconditions
+    - created_utc
+    - monotonic_time
+    - boot_identity
+    - evaluator_or_runner_bundle_sha256
+    - status
+    durability_sequence_before_dispatch:
+    - write unique immutable intent file
+    - fsync intent file
+    - rename without overwrite
+    - fsync intent parent directory
+    request_dispatch_before_intent_durable_forbidden: true
+  receipt:
+    immutable: true
+    status: RECEIPT_DURABLE
+    required_fields:
+    - operation_id
+    - dispatch_start_utc
+    - dispatch_finish_utc
+    - api_method
+    - fixed_target
+    - http_status_or_typed_client_exception
+    - returned_uid_when_present
+    - returned_resource_version_when_present
+    - raw_response_evidence_path
+    - raw_response_evidence_sha256
+    - post_operation_get_or_list_evidence_paths
+    - post_operation_get_or_list_evidence_sha256
+    - observed_effect_classification
+    - effect_directly_acknowledged_or_recovered_from_observation
+    - status
+    post_operation_observation_required: true
+    durability_sequence_before_state_advance:
+    - write unique immutable receipt file
+    - fsync receipt file
+    - rename without overwrite
+    - fsync receipt parent directory
+    state_advance_before_receipt_durable_forbidden: true
+    api_return_without_durable_post_observation_cannot_advance: true
+  observed_effect_classifications:
+  - NOT_DISPATCHED
+  - ACKNOWLEDGED_APPLIED
+  - ACKNOWLEDGED_REJECTED
+  - OUTCOME_UNKNOWN
+  - OBSERVED_APPLIED_AFTER_RECOVERY
+  - OBSERVED_NOT_APPLIED_AFTER_RECOVERY
+  - CONFLICTING_STATE
+  crash_reconciliation:
+    intent_without_receipt_requires_observation: true
+    delete_existing_uid:
+      exact_uid_still_exists_unchanged: same guarded delete may be retried
+      name_absent: record OBSERVED_APPLIED_AFTER_RECOVERY and never repeat
+      same_name_different_uid: record OBSERVED_APPLIED_AFTER_RECOVERY; never act destructively
+        against replacement UID; continue only under operation-specific protocol
+      inconsistent_or_unavailable_beyond_infrastructure_deadline: record OUTCOME_UNKNOWN and
+        stop safely
+      delete_replacement_uid_to_reproduce_request_forbidden: true
+    runner_owned_create:
+      absent: creation may be retried
+      adoption_requires_exact_deterministic_name: true
+      adoption_requires_exact_runner_ownership_labels: true
+      adoption_requires_exact_attempt_identity: true
+      adoption_requires_exact_canonical_spec_hash: true
+      exact_match: record OBSERVED_APPLIED_AFTER_RECOVERY and adopt
+      ownership_or_spec_mismatch: record CONFLICTING_STATE and classify PROTOCOL_VIOLATION
+      automatic_overwrite_or_delete_of_conflict_forbidden: true
+    service_restoration:
+      captured_semantic_service_present_and_verified: adopt
+      service_absent: create only from durable captured restoration body
+      unexpected_service_present: do not overwrite
+      safe_restored_state_not_established: RESTORATION_BLOCKED
+    replacement_pod_deletion:
+      selected_old_uid_remains: same guarded delete may be retried
+      selected_old_uid_absent: never select or delete a second Pod
+      wait_condition: different Ready Pod UID
+      new_target_within_same_challenge_forbidden: true
+    namespace_pod_recycle:
+      each_captured_pod_uid_is_independent_operation: true
+      intent_and_receipt_required_per_uid: true
+      reconcile_each_uid_separately: true
+      one_delete_never_implies_another: true
+      broad_delete_forbidden: true
+adjudication_evidence_protocol:
+  schema_version: 1
+  scope: every Boolean or categorical adjudication
+  result_types:
+  - BOOLEAN
+  - CATEGORICAL
+  required_fields:
+  - adjudication_id
+  - predicate_oracle_or_classification_id
+  - result_type
+  - boolean_or_categorical_value
+  - reason
+  - first_observation_utc
+  - last_observation_utc
+  - monotonic_elapsed_time
+  - observation_count
+  - applicable_deadline
+  - evaluator_source_or_runner_bundle_sha256
+  - raw_evidence_references
+  - raw_evidence_sha256_per_reference
+  - kubernetes_uid_and_resource_version_references_when_applicable
+  - dependency_and_toolchain_identity
+  - attempt_id
+  - run_id
+  summary_only_boolean_forbidden: true
+  summary_result_must_reference_full_adjudication_object: true
+  minimum_immutable_raw_evidence_objects: 1
+  sha256_required_for_every_raw_evidence_reference: true
+  raw_evidence_sealed_before_adjudication: true
+  missing_raw_evidence_outcome: PROTOCOL_VIOLATION
+  checksum_mismatch_outcome: PROTOCOL_VIOLATION
+  infrastructure_classification_requires_target_independent_evidence: true
+  contract_deadline_rejection_requires_complete_observation_series: true
+state_authority_protocol:
+  schema_version: 1
+  authoritative_sources:
+  - append-only journal entries
+  - immutable mutation intent records
+  - immutable mutation receipt records
+  - immutable state-transition entries
+  mutable_current_pointer:
+    path: state/current.json or equivalent
+    authority: convenience cache only
+    authorize_mutation_or_resume_alone_forbidden: true
+    missing_or_stale_pointer_may_be_rebuilt: true
+    unsupported_claim_outcome: PROTOCOL_VIOLATION
+    completed_evidence_rewrite_to_repair_pointer_forbidden: true
+  startup:
+    reconstruct_from_append_only_journal_required: true
+    verify_journal_hash_chain_required: true
+    compare_reconstructed_state_with_mutable_pointer_required: true
+  journal_hash_chain:
+    required_fields:
+    - sequence_number
+    - previous_entry_sha256
+    - canonical_current_entry_sha256
+    - run_id
+    - attempt_id
+    - transition
+    - referenced_intent_receipt_and_adjudication_sha256
+    - utc_time
+    - monotonic_time
+    - boot_identity
+    genesis_previous_entry_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+    canonical_hash_algorithm: sha256
+    sequence_strictly_increases_by_one: true
+    previous_hash_must_match_prior_canonical_entry: true
+sensitive_material_policy:
+  schema_version: 1
+  control_model: explicit capture allowlists and prohibited operations
+  perfect_arbitrary_output_secret_scanning_claimed: false
+  kubeconfig:
+    contents_capture_allowed: false
+    recordable_fields:
+    - path
+    - sha256
+  prohibited_material:
+  - client certificates
+  - client private keys
+  - bearer tokens
+  - ServiceAccount tokens
+  - cloud credentials
+  - API keys
+  - SSH keys
+  - environment secrets
+  - Kubernetes Secret values
+  - raw HTTP Authorization headers
+  - TLS private material
+  process_environment_wholesale_dump_allowed: false
+  kubernetes_secret_objects_list_or_fetch_allowed: false
+  command_recording:
+    fixed_argv_required: true
+    sensitive_values_must_be_redacted: true
+  evidence_capture_requires_explicit_kubernetes_kind_and_field_allowlist: true
+  violation_outcome: PROTOCOL_VIOLATION
+  evidence_finalization_after_violation_allowed: false
+  explicitly_allowable_nonsecret_records:
+  - hashes
+  - non-secret identifiers
+  - public certificate fingerprints
+freeze_readiness:
+  profile_semantics_complete: true
+  runner_implemented: false
+  runner_execution_allowed: false
+  execution_prerequisites:
+  - committed implementation
+  - repository uv.lock
+  - canonical runner-bundle SHA-256
+  - passing unit and non-mutating live preflight tests
+  unresolved_profile_freeze_blockers: []
