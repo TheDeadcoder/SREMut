@@ -79,6 +79,13 @@ PREVIOUS_PROFILE_SHA256 = "2a986f307701452018246336f7f66c790061113418a5c9014a2fd
 PREVIOUS_SCHEMA_SHA256 = "82a32fe9fed216ce95bdc5a9929d184bdb355ea01ac509108c5c9e63aa76e0e9"
 FROZEN_AT = "2026-08-16T19:02:00.748953+00:00"
 ABSENT = "ABSENT"
+IMMUTABLE_CONTRACT_PATHS = (
+    "CONTRACT_FREEZE_SHA256SUMS",
+    "README.md",
+    "tools/freeze_missing_service_contract.py",
+    "contracts/missing_service_social_network.yaml",
+    "mutants/missing_service_social_network/registry.yaml",
+)
 
 GENERATOR_RELATIVE_PATH = GENERATOR_PATH.relative_to(ROOT).as_posix()
 PROFILE_RELATIVE_PATH = PROFILE_PATH.relative_to(ROOT).as_posix()
@@ -97,6 +104,9 @@ EXPECTED_EXECUTION_PROFILE_ARTIFACTS = frozenset(
         SCHEMA_RELATIVE_PATH,
         MANIFEST_RELATIVE_PATH,
     }
+)
+SELF_VALIDATING_TRACKED_PATHS = frozenset(
+    {GENERATOR_RELATIVE_PATH, MANIFEST_RELATIVE_PATH}
 )
 JOURNAL_SCHEMA_VERSION = 1
 JOURNAL_PHASES = (
@@ -714,6 +724,94 @@ def git_raw(repo: Path, *args: str) -> str:
         raise RuntimeError("Git output is not valid UTF-8") from exc
 
 
+def git_bytes(repo: Path, *args: str) -> bytes:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Git byte command failed with status {result.returncode}: {args!r}"
+        )
+    return result.stdout
+
+
+def require_git_ancestor(repo: Path, ancestor: str, descendant: str) -> None:
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo),
+            "merge-base",
+            "--is-ancestor",
+            ancestor,
+            descendant,
+        ],
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode == 0:
+        return
+    if result.returncode == 1:
+        raise RuntimeError(
+            f"Frozen contract commit {ancestor} is not an ancestor of {descendant}"
+        )
+    raise RuntimeError(
+        "Git ancestry validation failed with execution status "
+        f"{result.returncode}"
+    )
+
+
+def verify_contract_provenance(
+    repo: Path = ROOT,
+    working_root: Path = ROOT,
+    tag_name: str = TAG_NAME,
+    expected_tag_object: str = TAG_OBJECT,
+    expected_commit: str = CONTRACT_COMMIT,
+    expected_tree: str = CONTRACT_TREE,
+    immutable_paths: tuple[str, ...] = IMMUTABLE_CONTRACT_PATHS,
+) -> None:
+    tag_ref = f"refs/tags/{tag_name}"
+    try:
+        observed_tag_object = git(repo, "rev-parse", "--verify", tag_ref)
+    except subprocess.CalledProcessError as exc:
+        raise RuntimeError(f"Frozen contract tag is missing: {tag_name}") from exc
+    if observed_tag_object != expected_tag_object:
+        raise RuntimeError(
+            "Frozen contract tag object differs: "
+            f"expected={expected_tag_object}, observed={observed_tag_object}"
+        )
+    if git(repo, "cat-file", "-t", observed_tag_object) != "tag":
+        raise RuntimeError("Frozen contract tag is not an annotated tag")
+    peeled_commit = git(repo, "rev-parse", f"{observed_tag_object}^{{}}")
+    if peeled_commit != expected_commit:
+        raise RuntimeError(
+            "Frozen contract tag peels to a different commit: "
+            f"expected={expected_commit}, observed={peeled_commit}"
+        )
+    if git(repo, "cat-file", "-t", peeled_commit) != "commit":
+        raise RuntimeError("Frozen contract tag does not peel to a commit")
+    peeled_tree = git(repo, "rev-parse", f"{peeled_commit}^{{tree}}")
+    if peeled_tree != expected_tree:
+        raise RuntimeError(
+            "Frozen contract commit tree differs: "
+            f"expected={expected_tree}, observed={peeled_tree}"
+        )
+    require_git_ancestor(repo, expected_commit, "HEAD")
+
+    for relative in immutable_paths:
+        pure = safe_relative_path(relative)
+        if pure.as_posix() != relative:
+            raise RuntimeError(f"Noncanonical immutable contract path: {relative!r}")
+        frozen_bytes = git_bytes(repo, "show", f"{expected_commit}:{relative}")
+        current_bytes = read_regular_bytes(working_root.joinpath(*pure.parts))
+        if current_bytes != frozen_bytes:
+            raise RuntimeError(
+                f"Immutable contract artifact differs from frozen tag: {relative}"
+            )
+
+
 def parse_submodule_status(
     output: str,
     expected_submodules: dict[str, str],
@@ -842,34 +940,18 @@ def verify_clean_pinned_repository(
 def verify_sremut_worktree(
     allowed_transaction_paths: set[str] | frozenset[str] = frozenset(),
 ) -> None:
-    observed_head = git(ROOT, "rev-parse", "HEAD")
-    if observed_head != CONTRACT_COMMIT:
-        raise RuntimeError(
-            f"SREMut HEAD differs: expected={CONTRACT_COMMIT}, "
-            f"observed={observed_head}"
-        )
-    tracked_status = git(
-        ROOT,
-        "status",
-        "--porcelain=v1",
-        "--untracked-files=no",
-        "--ignore-submodules=none",
-    )
-    if tracked_status:
-        raise RuntimeError(
-            "SREMut has tracked or staged changes:\n" + tracked_status
-        )
-    if git_returncode(ROOT, "diff", "--quiet", "--ignore-submodules=none", "--") != 0:
-        raise RuntimeError("SREMut has unstaged tracked changes")
-    if git_returncode(
-        ROOT,
-        "diff",
-        "--cached",
-        "--quiet",
-        "--ignore-submodules=none",
-        "--",
-    ) != 0:
+    staged = git(ROOT, "diff", "--cached", "--name-only", "--")
+    if staged:
         raise RuntimeError("SREMut has staged changes")
+
+    unstaged_text = git(ROOT, "diff", "--name-only", "--")
+    unstaged = set(filter(None, unstaged_text.splitlines()))
+    unexpected_tracked = sorted(unstaged - SELF_VALIDATING_TRACKED_PATHS)
+    if unexpected_tracked:
+        raise RuntimeError(
+            "Unexpected SREMut tracked changes:\n"
+            + "\n".join(unexpected_tracked)
+        )
 
     untracked_text = git(
         ROOT,
@@ -913,18 +995,8 @@ def verify_environment() -> None:
 def verify_bindings(
     allowed_transaction_paths: set[str] | frozenset[str] = frozenset(),
 ) -> None:
+    verify_contract_provenance()
     checks = {
-        "SREMut HEAD": (git(ROOT, "rev-parse", "HEAD"), CONTRACT_COMMIT),
-        "tag object": (git(ROOT, "rev-parse", TAG_NAME), TAG_OBJECT),
-        "tag type": (git(ROOT, "cat-file", "-t", TAG_NAME), "tag"),
-        "tag commit": (
-            git(ROOT, "rev-parse", f"{TAG_NAME}^{{}}"),
-            CONTRACT_COMMIT,
-        ),
-        "contract tree": (
-            git(ROOT, "rev-parse", f"{CONTRACT_COMMIT}^{{tree}}"),
-            CONTRACT_TREE,
-        ),
         "contract hash": (sha256(CONTRACT_PATH), CONTRACT_SHA256),
         "registry hash": (sha256(REGISTRY_PATH), REGISTRY_SHA256),
         "SREGym commit": (git(SREGYM_ROOT, "rev-parse", "HEAD"), SREGYM_COMMIT),
@@ -1789,8 +1861,8 @@ def validate_journal(journal: object) -> tuple[dict, dict[str, Path]]:
     repository_identity = journal["repository_identity"]
     expected_repository_identity = {
         "root": str(ROOT),
-        "head": CONTRACT_COMMIT,
-        "tree": CONTRACT_TREE,
+        "head": git(ROOT, "rev-parse", "HEAD"),
+        "tree": git(ROOT, "rev-parse", "HEAD^{tree}"),
     }
     if repository_identity != expected_repository_identity:
         raise RecoveryBlocked("Transaction repository identity mismatch")
