@@ -1,0 +1,19 @@
+[build-system]
+requires = ["uv_build==0.12.5"]
+build-backend = "uv_build"
+
+[project]
+name = "sremut"
+version = "0.1.0.dev0"
+requires-python = "==3.12.3"
+dependencies = [
+    "PyYAML==6.0.2",
+    "kubernetes==32.0.1",
+    "jsonschema==4.23.0",
+]
+
+[project.scripts]
+sremut = "sremut.cli:main"
+
+[tool.uv]
+required-version = "==0.12.5"
