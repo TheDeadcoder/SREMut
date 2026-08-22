@@ -1,0 +1,3783 @@
+document_type: EVIDENCE_POLICY_DOCUMENT_V1
+schema_version: 1
+policy_id: sremut/missing-service-social-network/evidence-capture-v1
+status: FROZEN_BEFORE_EVIDENCE_IMPLEMENTATION
+frozen_at: '2026-08-20T10:53:22.794810+00:00'
+future_annotated_tag: sremut-missing-service-evidence-policy-v1
+bindings:
+  contract:
+    tag: sremut-missing-service-contract-v1
+    tag_object: 378e9e9180438910611e7642402220e76bb302ca
+    commit: abed58d67e3f91e61f3ad666a47f0101cc680b93
+    tree: 2648659b56a7d472bcedb38b8ffb6bc085aea650
+    path: contracts/missing_service_social_network.yaml
+    sha256: bda78e1b07b5eb0628954bcafd8fae3fc1bb2f3b22770046584bd873b72a2488
+    registry_path: mutants/missing_service_social_network/registry.yaml
+    registry_sha256: 688411986f75cb83c25ac6913e2868a075eb90fd755a1c0acd553a466ed87c72
+  execution_profile:
+    tag: sremut-missing-service-execution-profile-v1
+    tag_object: 7c6493eb7dce68370fd0d5be572edd968654a1d6
+    commit: 35fcaeecd6cca02aaec6ebed63455f662bc28176
+    tree: c55ac0748275b9b3ea1ec133700cb7eeec54325b
+    path: profiles/missing_service_social_network/pilot-v1.yaml
+    sha256: 79cb2d45298e6221d78fcc3aea82df52c71f60f0ab4ba872e1f0579a908703c7
+    schema_path: schemas/missing-service-execution-profile-v1.schema.json
+    schema_sha256: dbf715f7df6ff2f06ab27d19064d83c0d1e9c9beb21389daa27e89015fc0be2b
+  project:
+    pyproject_sha256: 93e3c59d74450ab9df1e09128a929fd50804ddbf693a2bc4d005e5620579e0f7
+    uv_lock_sha256: 700c432b80e151da281f8052451be13ef28b8bf61cfdff21c8c215367db79f01
+  sregym:
+    commit: ba07faf1a322f9b6d4a279643bb796aa2f36f64b
+    applications_commit: 2b2f9c6c2e97c44abbfcc44af1cf2f994bbb04f8
+    source_sha256:
+      sregym/conductor/problems/missing_service.py: adf9a93aee8e016ca70d3aeb6270c94f5cc3bcf41aa36f00d538f6d6d9c8405f
+      sregym/conductor/oracles/mitigation.py: a087fd38399cfca4c2de764dbbab837d6100350ab9f71b89552cafe2c91fca8b
+      sregym/conductor/oracles/workload.py: d1bb10c9230ab1b2bba541df16552013323b0160a928d9854fad41210a356468
+      sregym/generators/workload/base.py: dbe8538e835dc8603b9ecabe33b66f7c8a5fe1e4c334f3d2ae85488c787b9e2c
+      sregym/generators/workload/stream.py: 5a6c317c4261572087d4d64a6ac1cfda4db0b1e029ce2717167689f577c0d06d
+      sregym/generators/workload/wrk2.py: ef5ffa18815c55e781a1a162eae744b47e4e91689e29ddf693ac66f4451e268e
+      sregym/generators/fault/inject_virtual.py: 1c381fec5f47c9c724396e6b8b0c0598cbf6cb7dce98cd2f94e0a8823104934f
+      sregym/service/apps/social_network.py: 246b3d060d02d4665bc6b2e366495ab212da9ba3b4da1ab2a6a1a6bd7cc3d607
+runner_release_binding:
+  binding_mode: SEPARATELY_FROZEN_EXECUTION_RELEASE
+  canonical_input: sorted_relative_path_two_spaces_sha256_newline_manifest
+  required_before_non_mutating_live_preflight: true
+  required_before_mutant_execution: true
+  policy_update_on_binding_forbidden: true
+  required_release_artifact: RUNNER_BUNDLE_SHA256SUMS
+  required_release_identity_fields:
+  - manifest_sha256
+  - bundle_sha256
+  - git_commit
+  - git_tree
+  - annotated_tag_name
+  - annotated_tag_object
+  - pyproject_sha256
+  - uv_lock_sha256
+  future_run_identity_must_cite_release_artifact_and_annotated_tag: true
+  required_evidence_policy_fields:
+  - evidence_policy_annotated_tag
+  - evidence_policy_checksum_manifest_sha256
+  - evidence_policy_sha256
+  - evidence_policy_schema_sha256
+  - dispatcher_id
+canonicalization:
+  descriptor_encoding: CANONICAL_COMPACT_SORTED_UTF8_JSON_V1
+  json_separators:
+  - ','
+  - ':'
+  ensure_ascii: false
+  floating_point_values_forbidden_recursively: true
+  descriptor_sha256_domain: canonical descriptor bytes excluding evidence_id and descriptor_sha256
+  descriptor_sha256_stored_inside_descriptor: false
+runtime_validation:
+  schema_dialect: https://json-schema.org/draft/2020-12/schema
+  public_entrypoint_discriminated_one_of: true
+  named_validator_hooks:
+  - VALIDATE_CANONICAL_NO_FLOATS_V1
+  - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+  - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+  - VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1
+  - VALIDATE_WORKLOAD_CARDINALITY_V1
+  - VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1
+  - VALIDATE_ADJUDICATION_RAW_BACKING_V1
+  - VALIDATE_JOURNAL_HASH_CHAIN_V1
+  - VALIDATE_KUBERNETES_REQUEST_V1
+  - VALIDATE_KUBERNETES_RESPONSE_V1
+  - VALIDATE_SERVICE_RESTORATION_BODY_V1
+  - VALIDATE_SENSITIVE_CAPTURE_V1
+  json_schema_cross_document_comparison_claimed: false
+  validation_levels:
+  - STRUCTURAL_SCHEMA_VALIDATION
+  - FULL_ADMISSIBILITY_VALIDATION
+  structural_schema_validation_scope: Draft 2020-12 document structure only; never sufficient for evidence
+    admissibility
+  structural_schema_validation_authorities: []
+  full_admissibility_dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+  full_admissibility_is_only_admissible_result: true
+  silent_structural_downgrade_forbidden: true
+common_metadata:
+  required_fields:
+  - schema_version
+  - evidence_id
+  - run_id
+  - attempt_id
+  - producer
+  - source_kind
+  - created_utc
+  - monotonic_ns
+  - boot_identity
+  - redaction_status
+  schema_version: 1
+  evidence_id_grammar: ^ev-[0-9a-f]{32}$
+  evidence_id_derivation: ev- plus first32 lowercase hex of descriptor_sha256
+  run_id_grammar: ^sremut-ms-(m01|m02|m03)-r0[1-3]-a0[1-2]-[0-9a-f]{12}$
+  attempt_id_grammar: ^a0[1-2]$
+  attempt_id_nullable: false
+  created_utc_grammar: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{9}Z$
+  monotonic_ns_type: NONNEGATIVE_INTEGER
+  boot_identity_grammar: RFC4122_LOWERCASE_UUID
+  producer_enum:
+  - RUNNER_IDENTITY_RECORDER
+  - RUNNER_PREFLIGHT_RECORDER
+  - RUNNER_KUBERNETES_CLIENT
+  - ORIGINAL_ORACLE_ADAPTER
+  - CHALLENGE_EXEC_ADAPTER
+  - WORKLOAD_EVIDENCE_ADAPTER
+  - MUTATION_CONTROLLER
+  - ADJUDICATOR
+  - TERMINALIZER
+  source_kind_enum:
+  - KUBERNETES
+  - SUBPROCESS
+  - IN_PROCESS_WORKLOAD
+  - GENERATED_DESCRIPTOR
+  - JOURNAL
+  - LOCAL_IDENTITY
+  redaction_status_const: NOT_REDACTED
+evidence_reference:
+  variants:
+  - PAYLOAD_BACKED
+  - DESCRIPTOR_ONLY
+  common_fields:
+  - schema_version
+  - evidence_id
+  - role
+  - media_type
+  - storage_class
+  - descriptor_sha256
+  - descriptor_relative_path
+  - redaction_status
+  payload_backed_additional_fields:
+  - payload_sha256
+  - payload_size_bytes
+  - payload_relative_path
+  descriptor_cross_check: descriptor role, media_type, storage_class and payload identity must equal EvidenceRef
+  payload_relative_path_grammar: objects/sha256/{sha256[0:2]}/{sha256}
+  descriptor_relative_path_grammar: descriptors/sha256/{sha256[0:2]}/{sha256}.json
+  absolute_path_forbidden: true
+  filesystem_relative_path_security:
+    attempt_root_preopened_directory_descriptor_required: true
+    absolute_paths_forbidden: true
+    dot_and_dotdot_components_forbidden: true
+    backslash_forbidden: true
+    symlink_components_forbidden: true
+    resolution_requirement: OPENAT_DIRECTORY_FD_COMPONENT_WALK_WITH_O_NOFOLLOW
+    resolved_target_must_remain_beneath_attempt_root: true
+  zero_byte_payload:
+    present_is_not_absent: true
+    size_bytes: 0
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+storage_model:
+  payload:
+    content_addressed: true
+    sha256_domain: exact supplied payload bytes
+    contains_self_hash_metadata: false
+  descriptor:
+    content_addressed: true
+    sha256_domain: canonical descriptor bytes excluding descriptor_sha256
+    descriptor_sha256_location: EvidenceRef and journal only
+  journal:
+    authority: APPEND_ONLY_HASH_CHAIN
+    record_hash_domain: canonical compact sorted UTF-8 JSON excluding canonical_current_entry_sha256
+    required_fields:
+    - schema_version
+    - document_type
+    - journal_record_type
+    - sequence_number
+    - previous_entry_sha256
+    - canonical_current_entry_sha256
+    - run_id
+    - attempt_id
+    - transition
+    - referenced_intent_receipt_and_adjudication_sha256
+    - utc_time
+    - monotonic_ns
+    - boot_identity
+    supplementary_closed_fields:
+    - referenced_descriptor_sha256
+    - referenced_payload_sha256
+    genesis_previous_entry_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+    sequence_increments_by_one: true
+    capture_rejection_is_journal_only: true
+    capture_rejection_required_fields:
+    - schema_version
+    - document_type
+    - journal_record_type
+    - sequence_number
+    - previous_entry_sha256
+    - canonical_current_entry_sha256
+    - run_id
+    - attempt_id
+    - intended_role
+    - rejection_code
+    - detector_id
+    - source_kind
+    - observed_size
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    capture_rejection_forbidden_fields:
+    - rejected_payload
+    - rejected_descriptor
+    - rejected_content_sha256
+    - matched_bytes
+    - surrounding_text
+    - secret_values
+    - resolved_absolute_paths
+  terminal_manifest:
+    storage_class: TERMINAL_MANIFEST
+    sha256sums_line_grammar: lowercase_sha256 + two ASCII spaces + attempt-relative-path + LF
+    lines_sorted_by_relative_path_utf8_bytes: true
+    covers:
+    - published payload objects
+    - published descriptors
+    - append-only journal files
+    - terminal journal record
+    - global stop marker only for RESTORATION_BLOCKED
+    excludes:
+    - terminal manifest itself
+    - state/current.json
+    - transaction temporary files
+    contains_manifest_sha256: false
+    contains_descriptor_sha256: false
+    has_descriptor: false
+    has_self_evidence_reference: false
+    hash_size_line_count_recomputed_from_sealed_file: true
+    terminal_state_established_by: terminal journal record and selected terminal manifest path
+    last_durable_attempt_artifact: true
+    sealed_attempt_modification_after_install_forbidden: true
+  publication_atomicity_claim: INDIVIDUALLY_ATOMIC_SAME_FILESYSTEM_REPLACEMENTS_ONLY
+roles:
+  run_identity:
+    ordinal: 1
+    storage_class: DESCRIPTOR_ONLY
+    producer: RUNNER_IDENTITY_RECORDER
+    source_kind: LOCAL_IDENTITY
+    consumers:
+    - LIVE_PREFLIGHT
+    - ADJUDICATOR
+    - TERMINALIZER
+    - EXTERNAL_AGGREGATOR
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 32768
+    raw_or_derived: DERIVED
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - phase
+    terminal_outcomes_allowed: &id001
+    - FINALIZED
+    - ABORTED_SAFE
+    - RESTORATION_BLOCKED
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  healthy_prestate:
+    ordinal: 2
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: RUNNER_PREFLIGHT_RECORDER
+    source_kind: GENERATED_DESCRIPTOR
+    consumers:
+    - MUTATION_CONTROLLER
+    - CONTRACT_EVALUATOR
+    - RESTORATION_CONTROLLER
+    - ADJUDICATOR
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 32768
+    raw_or_derived: RAW_PROJECTION
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - captured_replica_baseline
+    - captured_service_reference
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  kubernetes_request_identity:
+    ordinal: 3
+    storage_class: DESCRIPTOR_ONLY
+    producer: RUNNER_KUBERNETES_CLIENT
+    source_kind: KUBERNETES
+    consumers:
+    - CONTRACT_EVALUATOR
+    - MUTATION_CONTROLLER
+    - RESTORATION_CONTROLLER
+    - ADJUDICATOR
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 8192
+    raw_or_derived: DERIVED
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - request_rule_id
+    - operation
+    - resource
+    - subresource
+    - namespace
+    - name_rule
+    - selector
+    - projection_paths
+    - canonical_request
+    - request_identity_sha256
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  kubernetes_object_projection:
+    ordinal: 4
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: RUNNER_KUBERNETES_CLIENT
+    source_kind: KUBERNETES
+    consumers:
+    - ORIGINAL_ORACLE
+    - CONTRACT_EVALUATOR
+    - MUTATION_CONTROLLER
+    - RESTORATION_CONTROLLER
+    - ADJUDICATOR
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 131072
+    raw_or_derived: RAW_PROJECTION
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - request_identity_reference
+    - object_count
+    - projection_class
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+    conditional_required_metadata:
+    - projection_schema_id
+    - capture_state
+    - replicaset_projection_reference
+    - deployment_projection_reference
+    - selection_evidence_reference
+    - trusted_source_sha256
+    - source_list_resource_version
+  kubernetes_api_status:
+    ordinal: 5
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: RUNNER_KUBERNETES_CLIENT
+    source_kind: KUBERNETES
+    consumers:
+    - MUTATION_CONTROLLER
+    - RESTORATION_CONTROLLER
+    - ADJUDICATOR
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 16384
+    raw_or_derived: RAW_PROJECTION
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - request_identity_reference
+    - http_status
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  kubernetes_api_error_body:
+    ordinal: 6
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: RUNNER_KUBERNETES_CLIENT
+    source_kind: KUBERNETES
+    consumers:
+    - MUTATION_CONTROLLER
+    - RESTORATION_CONTROLLER
+    - ADJUDICATOR
+    media_type: application/octet-stream
+    zero_byte_payload_allowed: true
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 65536
+    raw_or_derived: RAW
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - request_identity_reference
+    - http_status
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: false
+    strict_utf8_required: false
+  original_oracle_input:
+    ordinal: 7
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: ORIGINAL_ORACLE_ADAPTER
+    source_kind: SUBPROCESS
+    consumers:
+    - ORIGINAL_ORACLE
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 32768
+    raw_or_derived: DERIVED
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - invocation_ordinal
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  original_oracle_stdout:
+    ordinal: 8
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: ORIGINAL_ORACLE_ADAPTER
+    source_kind: SUBPROCESS
+    consumers:
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/octet-stream
+    zero_byte_payload_allowed: true
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 65536
+    raw_or_derived: RAW
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - invocation_reference
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: false
+    strict_utf8_required: false
+  original_oracle_stderr:
+    ordinal: 9
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: ORIGINAL_ORACLE_ADAPTER
+    source_kind: SUBPROCESS
+    consumers:
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/octet-stream
+    zero_byte_payload_allowed: true
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 65536
+    raw_or_derived: RAW
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - invocation_reference
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: false
+    strict_utf8_required: false
+  original_oracle_result:
+    ordinal: 10
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: ORIGINAL_ORACLE_ADAPTER
+    source_kind: SUBPROCESS
+    consumers:
+    - ADJUDICATOR
+    - CONTRACT_EVALUATOR
+    - TERMINALIZER
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 32768
+    raw_or_derived: DERIVED
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - input_reference
+    - stdout_reference
+    - stderr_reference
+    - exit_status
+    - returned_boolean_or_exception
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  challenge_invocation:
+    ordinal: 11
+    storage_class: DESCRIPTOR_ONLY
+    producer: CHALLENGE_EXEC_ADAPTER
+    source_kind: KUBERNETES
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 8192
+    raw_or_derived: DERIVED
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - template_id
+    - parameters
+    - pod_name
+    - pod_uid
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  challenge_stdout:
+    ordinal: 12
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: CHALLENGE_EXEC_ADAPTER
+    source_kind: KUBERNETES
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/octet-stream
+    zero_byte_payload_allowed: true
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 16384
+    raw_or_derived: RAW_SERIALIZED_TEXT
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - invocation_reference
+    - channel
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: false
+    strict_utf8_required: true
+  challenge_stderr:
+    ordinal: 13
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: CHALLENGE_EXEC_ADAPTER
+    source_kind: KUBERNETES
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/octet-stream
+    zero_byte_payload_allowed: true
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 16384
+    raw_or_derived: RAW_SERIALIZED_TEXT
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - invocation_reference
+    - channel
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: false
+    strict_utf8_required: true
+  challenge_result:
+    ordinal: 14
+    storage_class: DESCRIPTOR_ONLY
+    producer: CHALLENGE_EXEC_ADAPTER
+    source_kind: KUBERNETES
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 8192
+    raw_or_derived: DERIVED
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - invocation_reference
+    - stdout_reference
+    - stderr_reference
+    - exit_status
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  workload_log_bytes:
+    ordinal: 15
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: WORKLOAD_EVIDENCE_ADAPTER
+    source_kind: IN_PROCESS_WORKLOAD
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/octet-stream
+    zero_byte_payload_allowed: true
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 262144
+    raw_or_derived: RAW_SERIALIZATION
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - complete_entry_count
+    - entry_time_ieee754_binary64_hex
+    - workload_window
+    - entry_indexes
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: false
+    strict_utf8_required: true
+  workload_boundary:
+    ordinal: 16
+    storage_class: DESCRIPTOR_ONLY
+    producer: WORKLOAD_EVIDENCE_ADAPTER
+    source_kind: IN_PROCESS_WORKLOAD
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 8192
+    raw_or_derived: DERIVED
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - workload_pod_projection_reference
+    - pod_name
+    - pod_uid
+    - container_restart_count
+    - raw_log_reference
+    - raw_log_byte_length
+    - raw_log_sha256
+    - complete_entry_count
+    - request_count
+    - entry_time_ieee754_binary64_hex
+    - workload_window
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  workload_parse_result:
+    ordinal: 17
+    storage_class: PAYLOAD_WITH_DESCRIPTOR
+    producer: WORKLOAD_EVIDENCE_ADAPTER
+    source_kind: IN_PROCESS_WORKLOAD
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 65536
+    raw_or_derived: DERIVED
+    required_metadata:
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - boundary_reference
+    - raw_log_reference
+    - fresh_request_count
+    - failure_marker_count
+    - workload_window
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+  mutation_intent:
+    ordinal: 18
+    storage_class: DESCRIPTOR_ONLY
+    producer: MUTATION_CONTROLLER
+    source_kind: GENERATED_DESCRIPTOR
+    consumers:
+    - MUTATION_CONTROLLER
+    - RESTORATION_CONTROLLER
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 32768
+    raw_or_derived: DERIVED
+    required_metadata: &id018
+    - operation_id
+    - run_id
+    - attempt_id
+    - operation_ordinal
+    - operation_kind
+    - namespace
+    - resource_kind
+    - object_name
+    - expected_uid_when_existing
+    - expected_resource_version_when_applicable
+    - desired_canonical_body_sha256_when_creation
+    - captured_prestate_evidence_path
+    - captured_prestate_evidence_sha256
+    - exact_idempotency_and_adoption_labels
+    - request_preconditions
+    - permitted_postconditions
+    - forbidden_postconditions
+    - created_utc
+    - monotonic_time
+    - boot_identity
+    - evaluator_or_runner_bundle_sha256
+    - status
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+    conditional_required_metadata:
+    - service_restoration_body_reference
+    - service_restoration_body_sha256
+  mutation_receipt:
+    ordinal: 19
+    storage_class: DESCRIPTOR_ONLY
+    producer: MUTATION_CONTROLLER
+    source_kind: GENERATED_DESCRIPTOR
+    consumers:
+    - MUTATION_CONTROLLER
+    - RESTORATION_CONTROLLER
+    - ADJUDICATOR
+    - TERMINALIZER
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 65536
+    raw_or_derived: DERIVED
+    required_metadata: &id019
+    - schema_version
+    - evidence_id
+    - run_id
+    - attempt_id
+    - producer
+    - source_kind
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - redaction_status
+    - operation_id
+    - dispatch_start_utc
+    - dispatch_finish_utc
+    - api_method
+    - fixed_target
+    - http_status_or_typed_client_exception
+    - returned_uid_when_present
+    - returned_resource_version_when_present
+    - raw_response_evidence_path
+    - raw_response_evidence_sha256
+    - post_operation_get_or_list_evidence_paths
+    - post_operation_get_or_list_evidence_sha256
+    - observed_effect_classification
+    - effect_directly_acknowledged_or_recovered_from_observation
+    - status
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+    conditional_required_metadata:
+    - operation_request_reference
+    - service_restoration_body_reference
+    - service_restoration_body_sha256
+    - post_create_observation_reference
+  adjudication:
+    ordinal: 20
+    storage_class: DESCRIPTOR_ONLY
+    producer: ADJUDICATOR
+    source_kind: GENERATED_DESCRIPTOR
+    consumers:
+    - TERMINALIZER
+    - EXTERNAL_AGGREGATOR
+    media_type: application/json
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 131072
+    raw_or_derived: DERIVED
+    required_metadata: &id020
+    - adjudication_id
+    - predicate_oracle_or_classification_id
+    - result_type
+    - boolean_or_categorical_value
+    - reason
+    - first_observation_utc
+    - last_observation_utc
+    - monotonic_elapsed_time
+    - observation_count
+    - applicable_deadline
+    - evaluator_source_or_runner_bundle_sha256
+    - raw_evidence_references
+    - raw_evidence_sha256_per_reference
+    - kubernetes_uid_and_resource_version_references_when_applicable
+    - dependency_and_toolchain_identity
+    - attempt_id
+    - run_id
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: true
+    strict_utf8_required: false
+    conditional_required_metadata:
+    - workload_window_adjudication_identity
+  terminal_manifest:
+    ordinal: 21
+    storage_class: TERMINAL_MANIFEST
+    producer: TERMINALIZER
+    source_kind: JOURNAL
+    consumers:
+    - EXTERNAL_AGGREGATOR
+    media_type: text/plain; charset=utf-8
+    zero_byte_payload_allowed: false
+    redaction_status: NOT_REDACTED
+    maximum_bytes: 262144
+    raw_or_derived: SEAL
+    required_metadata: []
+    terminal_outcomes_allowed: *id001
+    retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
+    canonical_json_required: false
+    strict_utf8_required: true
+responsibility_provenance:
+- focused_identity: SREMUT_RUNNER
+  generated_identities:
+  - RUNNER_IDENTITY_RECORDER
+  - RUNNER_PREFLIGHT_RECORDER
+  classification: RESPONSIBILITY_SPLIT
+  exact_responsibilities:
+  - record immutable run identities
+  - capture healthy prestate
+  evidence_roles_produced:
+  - run_identity
+  - healthy_prestate
+  consumers_served:
+  - ADJUDICATOR
+  - CONTRACT_EVALUATOR
+  - EXTERNAL_AGGREGATOR
+  - LIVE_PREFLIGHT
+  - MUTATION_CONTROLLER
+  - RESTORATION_CONTROLLER
+  - TERMINALIZER
+  mutation_authority: false
+  restoration_authority: false
+  kubernetes_request_authority: false
+  raw_evidence_access: true
+  terminalization_authority: false
+- focused_identity: KUBERNETES_API_PROJECTOR
+  generated_identities:
+  - RUNNER_KUBERNETES_CLIENT
+  classification: NAME_SPECIALIZATION
+  exact_responsibilities:
+  - issue allowlisted read requests
+  - publish closed Kubernetes projections
+  evidence_roles_produced:
+  - kubernetes_request_identity
+  - kubernetes_object_projection
+  - kubernetes_api_status
+  - kubernetes_api_error_body
+  consumers_served:
+  - ADJUDICATOR
+  - CONTRACT_EVALUATOR
+  - MUTATION_CONTROLLER
+  - ORIGINAL_ORACLE
+  - RESTORATION_CONTROLLER
+  mutation_authority: false
+  restoration_authority: false
+  kubernetes_request_authority: true
+  raw_evidence_access: true
+  terminalization_authority: false
+- focused_identity: CHALLENGE_EXECUTOR
+  generated_identities:
+  - CHALLENGE_EXEC_ADAPTER
+  classification: NAME_SPECIALIZATION
+  exact_responsibilities:
+  - record fixed challenge invocations and streams
+  evidence_roles_produced:
+  - challenge_invocation
+  - challenge_stdout
+  - challenge_stderr
+  - challenge_result
+  consumers_served:
+  - ADJUDICATOR
+  - CONTRACT_EVALUATOR
+  - TERMINALIZER
+  mutation_authority: false
+  restoration_authority: false
+  kubernetes_request_authority: true
+  raw_evidence_access: true
+  terminalization_authority: false
+- focused_identity: WORKLOAD_HISTORY_SERIALIZER
+  generated_identities:
+  - WORKLOAD_EVIDENCE_ADAPTER
+  classification: RESPONSIBILITY_MERGE
+  exact_responsibilities:
+  - serialize complete workload history and boundaries
+  evidence_roles_produced:
+  - workload_log_bytes
+  - workload_boundary
+  consumers_served:
+  - ADJUDICATOR
+  - CONTRACT_EVALUATOR
+  - TERMINALIZER
+  mutation_authority: false
+  restoration_authority: false
+  kubernetes_request_authority: false
+  raw_evidence_access: true
+  terminalization_authority: false
+- focused_identity: WORKLOAD_RESULT_PARSER
+  generated_identities:
+  - WORKLOAD_EVIDENCE_ADAPTER
+  classification: RESPONSIBILITY_MERGE
+  exact_responsibilities:
+  - parse frozen workload windows
+  evidence_roles_produced:
+  - workload_parse_result
+  consumers_served:
+  - ADJUDICATOR
+  - CONTRACT_EVALUATOR
+  - TERMINALIZER
+  mutation_authority: false
+  restoration_authority: false
+  kubernetes_request_authority: false
+  raw_evidence_access: true
+  terminalization_authority: false
+- focused_identity: MUTATION_COORDINATOR
+  generated_identities:
+  - MUTATION_CONTROLLER
+  classification: NAME_SPECIALIZATION
+  exact_responsibilities:
+  - seal mutation intent
+  - dispatch profile-authorized mutation
+  - seal receipt
+  - perform profile-authorized restoration
+  evidence_roles_produced:
+  - mutation_intent
+  - mutation_receipt
+  consumers_served:
+  - ADJUDICATOR
+  - MUTATION_CONTROLLER
+  - RESTORATION_CONTROLLER
+  - TERMINALIZER
+  mutation_authority: true
+  restoration_authority: true
+  kubernetes_request_authority: true
+  raw_evidence_access: true
+  terminalization_authority: false
+- focused_identity: TERMINAL_SEALER
+  generated_identities:
+  - TERMINALIZER
+  classification: NAME_SPECIALIZATION
+  exact_responsibilities:
+  - install terminal identity and final manifest
+  evidence_roles_produced:
+  - terminal_manifest
+  consumers_served:
+  - EXTERNAL_AGGREGATOR
+  mutation_authority: false
+  restoration_authority: false
+  kubernetes_request_authority: false
+  raw_evidence_access: true
+  terminalization_authority: true
+- focused_identity: ORIGINAL_ORACLE_ADAPTER
+  generated_identities:
+  - ORIGINAL_ORACLE_ADAPTER
+  classification: NAME_SPECIALIZATION
+  exact_responsibilities:
+  - execute isolated stock original-oracle adapter read-only
+  evidence_roles_produced:
+  - original_oracle_input
+  - original_oracle_stdout
+  - original_oracle_stderr
+  - original_oracle_result
+  consumers_served:
+  - ADJUDICATOR
+  - CONTRACT_EVALUATOR
+  - ORIGINAL_ORACLE
+  - TERMINALIZER
+  mutation_authority: false
+  restoration_authority: false
+  kubernetes_request_authority: false
+  raw_evidence_access: true
+  terminalization_authority: false
+- focused_identity: ADJUDICATOR
+  generated_identities:
+  - ADJUDICATOR
+  classification: NAME_SPECIALIZATION
+  exact_responsibilities:
+  - classify outcomes from cited immutable evidence
+  evidence_roles_produced:
+  - adjudication
+  consumers_served:
+  - EXTERNAL_AGGREGATOR
+  - TERMINALIZER
+  mutation_authority: false
+  restoration_authority: false
+  kubernetes_request_authority: false
+  raw_evidence_access: true
+  terminalization_authority: false
+service_restoration_projection:
+  projection_class: SERVICE_RESTORATION_BODY_V1
+  role: kubernetes_object_projection
+  source: captured healthy Service/user-service
+  derivation_algorithm: KUBERNETES_SERVICE_CREATE_BODY_NORMALIZATION_V1
+  sensitive_screening_before_publication_and_mutation: true
+  source_service_identity_fields:
+  - uid
+  - resourceVersion
+  exact_stripped_field_token_paths:
+  - - metadata
+    - creationTimestamp
+  - - metadata
+    - deletionGracePeriodSeconds
+  - - metadata
+    - deletionTimestamp
+  - - metadata
+    - generation
+  - - metadata
+    - managedFields
+  - - metadata
+    - resourceVersion
+  - - metadata
+    - selfLink
+  - - metadata
+    - uid
+  - - status
+  - - spec
+    - clusterIP
+  - - spec
+    - clusterIPs
+  - - spec
+    - healthCheckNodePort
+  - - spec
+    - ports
+    - '[]'
+    - nodePort
+  wildcard_token_normalization: '* becomes []'
+  preserve_every_other_field_and_value: true
+  required_metadata:
+  - projection_class
+  - derivation_algorithm
+  - source_service_uid
+  - source_service_resource_version
+  - exact_stripped_field_token_paths
+  - normalized_body_sha256
+  - canonical_json_identity
+  - capture_timestamp
+  - source_request_reference
+  healthy_prestate_reference_must_match_projection_class: true
+  mutation_intent_must_cite_before_service_deletion: true
+  restoration_uses_only_sealed_body: true
+  restoration_receipt_cites_same_body_hash_and_post_create_observation: true
+  capture_rejection_forbids_mutation: true
+  dynamic_cluster_ip_rule: true
+  canonical_round_trip_required: true
+run_identity_protocol:
+  role: run_identity
+  instances_per_attempt: 2
+  phases_in_order:
+  - START
+  - TERMINAL
+  exactly_once_for_terminal_outcomes:
+  - FINALIZED
+  - ABORTED_SAFE
+  - RESTORATION_BLOCKED
+  start_required_fields:
+  - runtime_identity
+  - contract_binding
+  - execution_profile_binding
+  - runner_release_binding
+  - pyproject_sha256
+  - uv_lock_sha256
+  - source_alias_sha256
+  - kubeconfig_content_sha256
+  - kubectl_default_cache_before_sha256
+  start_forbidden_fields:
+  - kubectl_default_cache_after_sha256
+  - terminal_outcome
+  terminal_required_fields:
+  - start_identity_reference
+  - terminal_release_identity
+  - terminal_source_alias_sha256
+  - kubectl_default_cache_before_sha256
+  - kubectl_default_cache_after_sha256
+  - terminal_outcome
+  terminal_start_reference_must_be_descriptor_only_run_identity_start: true
+  kubeconfig_contents_forbidden: true
+  no_kubernetes_or_kubectl_operation_after_terminal_after_cache_snapshot: true
+workload_evidence_protocol:
+  source_alias: WORKLOAD_HISTORY
+  source: sregym.generators.workload.stream.StreamWorkloadManager.log_history
+  source_type: class-level list[WorkloadEntry] isolated per evaluation
+  complete_entry_fields:
+    time: finite Python float
+    number: integer request count
+    log: Python str
+    ok: boolean
+  raw_log_bytes_serialization: b'\n'.join(entry.log.encode('utf-8', errors='strict') for entry in log_history)
+  entry_time_identity: struct.pack('>d', entry.time).hex()
+  entry_time_ieee754_binary64_hex_grammar: ^[0-9a-f]{16}$
+  nonfinite_time_forbidden: true
+  time_identity_array_length_equals_complete_entry_count: true
+  ordering: log_history order
+  boundary_sequence:
+  - isolate class-level log_history
+  - collect one request using stock WorkloadOracle semantics
+  - seal prefix raw bytes and exact complete-entry count
+  - collect at least fifty fresh requests
+  - require later bytes have exact prefix
+  - parse only complete appended entries
+  boundary_raw_log_is_evidence_reference_not_duplicate_text: true
+  new_direct_pod_log_capture_for_evidence_forbidden: true
+  minimum_fresh_requests: 50
+  maximum_non_2xx_or_3xx_responses: 0
+  fresh_workload_deadline_seconds: 60
+  strict_utf8_required: true
+  window_identity:
+    phase_ordinal_enum:
+      INITIAL_MUTANT_CHALLENGE: 1
+      POST_REPLACEMENT_PERSISTENCE: 2
+      RESTORATION_POSITIVE_CONTROL: 3
+    required_fields:
+    - phase
+    - ordinal
+    - run_id
+    - attempt_id
+    - mutant_id
+    - repetition
+    - boundary_reference
+    - raw_log_reference
+    - parse_result_reference
+    references_must_share_exact_identity: true
+    cross_window_substitution_forbidden: true
+    descriptor_required_fields:
+    - phase
+    - ordinal
+    - run_id
+    - attempt_id
+    - mutant_id
+    - repetition
+    adjudication_required_fields:
+    - phase
+    - ordinal
+    - run_id
+    - attempt_id
+    - mutant_id
+    - repetition
+    - boundary_reference
+    - raw_log_reference
+    - parse_result_reference
+    content_address_cycle_forbidden: true
+  entry_index_identity: zero-based integer index in authoritative log_history order
+challenge_stream_protocol:
+  mechanism: PERSISTENT_HARDENED_CHALLENGE_POD_THEN_PODS_EXEC
+  pod_namespace: social-network
+  exec_python_client_method: CoreV1Api.connect_get_namespaced_pod_exec
+  exec_http_operation: CONNECT_GET
+  pod_uid_check: immediately before and after every exec
+  stdout_serialization: PYTHON_STRICT_UTF8_OF_KUBERNETES_WS_CHANNEL_TEXT_V1
+  stderr_serialization: PYTHON_STRICT_UTF8_OF_KUBERNETES_WS_CHANNEL_TEXT_V1
+  serialization_definition:
+  - collect Kubernetes client channel-1 or channel-2 text in observed order
+  - preserve every Python string character without newline normalization
+  - encode final Python string as UTF-8 with errors=strict
+  raw_websocket_frame_bytes_claimed: false
+  exit_status_source: Kubernetes WebSocket status channel as interpreted by kubernetes-client stream API
+  pod_log_subresource_used: false
+  approved_templates:
+    CHALLENGE_DNS_V1:
+      argv:
+      - sh
+      - -c
+      - nslookup user-service.social-network.svc.cluster.local
+      parameters: []
+    CHALLENGE_TCP_V1:
+      argv:
+      - sh
+      - -c
+      - nc -z -w 3 user-service.social-network.svc.cluster.local 9090
+      parameters: []
+    WORKLOAD_CLOCK_V1:
+      argv:
+      - date
+      - -Ins
+      parameters: []
+    ORIGINAL_ORACLE_ADAPTER_V1:
+      argv_tokens:
+      - ORIGINAL_ORACLE_EXECUTABLE
+      - -B
+      - SEPARATELY_FROZEN_ADAPTER
+      - --input
+      - ATTEMPT_RELATIVE_INPUT
+      - --output
+      - ATTEMPT_RELATIVE_OUTPUT
+      parameters:
+      - ATTEMPT_RELATIVE_INPUT
+      - ATTEMPT_RELATIVE_OUTPUT
+  arbitrary_argv_forbidden: true
+  template_id_and_non_sensitive_parameters_reconstruct_exact_argv: true
+  sensitive_parameter_rejects_invocation_evidence: true
+  redacted_invocation_cannot_satisfy_reference: true
+challenge_pod_template:
+  image: docker.io/library/busybox@sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f
+  image_pull_policy: IfNotPresent
+  command:
+  - sh
+  - -c
+  - trap 'exit 0' TERM INT; sleep 600 & wait
+  automount_service_account_token: false
+  restart_policy: Never
+  active_deadline_seconds: 600
+  termination_grace_period_seconds: 5
+  label_keys:
+  - app.kubernetes.io/name
+  - app.kubernetes.io/managed-by
+  - sremut-run-id
+  - sremut-mutant
+  - sremut-attempt
+  security_context:
+    run_as_non_root: true
+    run_as_user: 65532
+    run_as_group: 65532
+    read_only_root_filesystem: true
+    allow_privilege_escalation: false
+    capabilities_drop:
+    - ALL
+    seccomp_profile: RuntimeDefault
+  resources:
+    requests:
+      cpu: 5m
+      memory: 8Mi
+    limits:
+      cpu: 50m
+      memory: 32Mi
+kubernetes_evidence_surface:
+  core_api_group_representation: ''
+  response_kind_semantics: SINGULAR_KIND_OF_EACH_PROJECTED_RESOURCE; LIST_ENVELOPE_IS_NOT_PUBLISHED
+  list_response_envelope_publication: FORBIDDEN
+  field_path_encoding:
+    representation: TOKEN_ARRAY_V1
+    list_traversal_token: '[]'
+    map_keys_are_single_tokens: true
+    dotted_path_strings_forbidden: true
+    jsonpath_jq_json_pointer_interpretation: false
+  resource_rules:
+  - id: DEPLOYMENTS_SOCIAL_READ
+    api_group: apps
+    api_version: v1
+    resource: deployments
+    response_kind: Deployment
+    subresource: ''
+    operations:
+    - GET
+    - LIST
+    namespace: social-network
+    names: &id002
+    - compose-post-service
+    - home-timeline-redis
+    - home-timeline-service
+    - jaeger
+    - media-frontend
+    - media-memcached
+    - media-mongodb
+    - media-service
+    - nginx-thrift
+    - post-storage-memcached
+    - post-storage-mongodb
+    - post-storage-service
+    - social-graph-mongodb
+    - social-graph-redis
+    - social-graph-service
+    - text-service
+    - unique-id-service
+    - url-shorten-memcached
+    - url-shorten-mongodb
+    - url-shorten-service
+    - user-memcached
+    - user-mention-service
+    - user-mongodb
+    - user-service
+    - user-timeline-mongodb
+    - user-timeline-redis
+    - user-timeline-service
+    name_rule: EXACT_BASELINE_DEPLOYMENT_OR_LIST
+    projection_paths: &id003
+    - &id004
+      - apiVersion
+    - &id005
+      - kind
+    - &id006
+      - metadata
+      - name
+    - &id007
+      - metadata
+      - namespace
+    - &id008
+      - metadata
+      - uid
+    - &id009
+      - metadata
+      - resourceVersion
+    - &id010
+      - metadata
+      - generation
+    - &id011
+      - metadata
+      - deletionTimestamp
+    - - spec
+      - replicas
+    - - status
+      - replicas
+    - - status
+      - updatedReplicas
+    - - status
+      - readyReplicas
+    - - status
+      - availableReplicas
+    - - status
+      - unavailableReplicas
+    - - status
+      - conditions
+      - '[]'
+      - type
+    - - status
+      - conditions
+      - '[]'
+      - status
+    - - status
+      - conditions
+      - '[]'
+      - reason
+    - - status
+      - conditions
+      - '[]'
+      - lastTransitionTime
+    context: kind-kind
+    name_predicates_by_operation:
+      GET:
+      - type: EXACT_NAME
+        allowed_names: *id002
+      LIST:
+      - type: LIST_NO_NAME
+    label_selectors:
+    - ''
+    field_selectors:
+    - ''
+    request_options:
+      dry_run: false
+      pretty: false
+      watch: false
+    purpose: CAPTURE_ADMISSIBLE_EVIDENCE_OR_PROFILE_AUTHORIZED_OPERATION
+    consumers:
+    - LIVE_PREFLIGHT
+    - CONTRACT_EVALUATOR
+    - RESTORATION_CONTROLLER
+    projection_class: KUBERNETES_OBJECT_PROJECTION_V1
+    maximum_list_items: 64
+    list_item_name_predicate:
+      type: EXACT_NAME
+      allowed_names: *id002
+    list_metadata_projection:
+    - - resourceVersion
+    - - continue
+    - - remainingItemCount
+    evidence_policy_grants_mutation_authority: false
+    mutation_requires_frozen_profile_operation_kind: false
+    mutation_requires_intent_evidence_reference: false
+    profile_operation_kinds_by_operation: {}
+  - id: COREDNS_DEPLOYMENT_READ
+    api_group: apps
+    api_version: v1
+    resource: deployments
+    response_kind: Deployment
+    subresource: ''
+    operations:
+    - GET
+    namespace: kube-system
+    names:
+    - coredns
+    name_rule: EXACT_NAME
+    projection_paths: *id003
+    context: kind-kind
+    name_predicates_by_operation:
+      GET:
+      - type: EXACT_NAME
+        allowed_names:
+        - coredns
+    label_selectors:
+    - ''
+    field_selectors:
+    - ''
+    request_options:
+      dry_run: false
+      pretty: false
+      watch: false
+    purpose: CAPTURE_ADMISSIBLE_EVIDENCE_OR_PROFILE_AUTHORIZED_OPERATION
+    consumers:
+    - LIVE_PREFLIGHT
+    - ADJUDICATOR
+    projection_class: KUBERNETES_OBJECT_PROJECTION_V1
+    maximum_list_items: 0
+    list_item_name_predicate:
+      type: NOT_A_LIST_RULE
+    list_metadata_projection:
+    - - resourceVersion
+    - - continue
+    - - remainingItemCount
+    evidence_policy_grants_mutation_authority: false
+    mutation_requires_frozen_profile_operation_kind: false
+    mutation_requires_intent_evidence_reference: false
+    profile_operation_kinds_by_operation: {}
+  - id: REPLICASET_OWNER_READ
+    api_group: apps
+    api_version: v1
+    resource: replicasets
+    response_kind: ReplicaSet
+    subresource: ''
+    operations:
+    - GET
+    namespace: social-network
+    names: []
+    name_rule: EXACT_CONTROLLER_OWNER_REFERENCE_FROM_CAPTURED_POD
+    projection_paths:
+    - *id004
+    - *id005
+    - *id006
+    - *id007
+    - *id008
+    - *id009
+    - *id010
+    - *id011
+    - &id012
+      - metadata
+      - ownerReferences
+      - '[]'
+      - apiVersion
+    - &id013
+      - metadata
+      - ownerReferences
+      - '[]'
+      - kind
+    - &id014
+      - metadata
+      - ownerReferences
+      - '[]'
+      - name
+    - &id015
+      - metadata
+      - ownerReferences
+      - '[]'
+      - uid
+    - &id016
+      - metadata
+      - ownerReferences
+      - '[]'
+      - controller
+    context: kind-kind
+    name_predicates_by_operation:
+      GET:
+      - type: CAPTURED_OBJECT_NAME
+        capture_role: kubernetes_object_projection
+        captured_kind: ReplicaSet
+    label_selectors:
+    - ''
+    field_selectors:
+    - ''
+    request_options:
+      dry_run: false
+      pretty: false
+      watch: false
+    purpose: CAPTURE_ADMISSIBLE_EVIDENCE_OR_PROFILE_AUTHORIZED_OPERATION
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    projection_class: KUBERNETES_OBJECT_PROJECTION_V1
+    maximum_list_items: 0
+    list_item_name_predicate:
+      type: NOT_A_LIST_RULE
+    list_metadata_projection:
+    - - resourceVersion
+    - - continue
+    - - remainingItemCount
+    evidence_policy_grants_mutation_authority: false
+    mutation_requires_frozen_profile_operation_kind: false
+    mutation_requires_intent_evidence_reference: false
+    profile_operation_kinds_by_operation: {}
+  - id: PODS_SOCIAL_READ_AND_GUARDED_MUTATION
+    api_group: ''
+    api_version: v1
+    resource: pods
+    response_kind: Pod
+    subresource: ''
+    operations:
+    - GET
+    - LIST
+    - CREATE
+    - DELETE
+    namespace: social-network
+    names: []
+    name_rule: CAPTURED_UID_PRECONDITIONED_POD_OR_EXACT_DERIVED_CHALLENGE_NAME
+    projection_paths: &id017
+    - *id004
+    - *id005
+    - *id006
+    - *id007
+    - *id008
+    - *id009
+    - *id010
+    - *id011
+    - *id012
+    - *id013
+    - *id014
+    - *id015
+    - *id016
+    - - metadata
+      - labels
+      - service
+    - - metadata
+      - labels
+      - job-name
+    - - metadata
+      - labels
+      - sremut-mutant-backend
+    - - metadata
+      - labels
+      - app.kubernetes.io/name
+    - - metadata
+      - labels
+      - app.kubernetes.io/managed-by
+    - - metadata
+      - labels
+      - sremut-run-id
+    - - metadata
+      - labels
+      - sremut-mutant
+    - - metadata
+      - labels
+      - sremut-attempt
+    - - status
+      - phase
+    - - status
+      - podIP
+    - - status
+      - conditions
+      - '[]'
+      - type
+    - - status
+      - conditions
+      - '[]'
+      - status
+    - - status
+      - conditions
+      - '[]'
+      - reason
+    - - status
+      - conditions
+      - '[]'
+      - lastTransitionTime
+    - - status
+      - containerStatuses
+      - '[]'
+      - name
+    - - status
+      - containerStatuses
+      - '[]'
+      - ready
+    - - status
+      - containerStatuses
+      - '[]'
+      - restartCount
+    - - status
+      - containerStatuses
+      - '[]'
+      - state
+      - waiting
+      - reason
+    - - status
+      - containerStatuses
+      - '[]'
+      - state
+      - terminated
+      - reason
+    - - metadata
+      - labels
+      - k8s-app
+    context: kind-kind
+    name_predicates_by_operation:
+      GET:
+      - type: CAPTURED_OBJECT_NAME
+        capture_role: kubernetes_object_projection
+        captured_kind: Pod
+      LIST:
+      - type: LIST_NO_NAME
+      CREATE:
+      - type: DETERMINISTIC_CHALLENGE_NAME
+        prefix: sremut-challenge-
+        required_identity_labels:
+        - app.kubernetes.io/name
+        - app.kubernetes.io/managed-by
+        - sremut-run-id
+        - sremut-mutant
+        - sremut-attempt
+      DELETE:
+      - type: CAPTURED_REPLACEMENT_POD_NAME
+        capture_role: kubernetes_object_projection
+        captured_kind: Pod
+        uid_precondition_required: true
+      - type: DETERMINISTIC_CHALLENGE_NAME
+        prefix: sremut-challenge-
+        required_identity_labels:
+        - app.kubernetes.io/name
+        - app.kubernetes.io/managed-by
+        - sremut-run-id
+        - sremut-mutant
+        - sremut-attempt
+        uid_precondition_required: true
+    label_selectors:
+    - ''
+    - service=user-service
+    - job-name=wrk2-job
+    - sremut-mutant-backend=ms-m02
+    field_selectors:
+    - ''
+    request_options:
+      dry_run: false
+      pretty: false
+      watch: false
+    purpose: CAPTURE_ADMISSIBLE_EVIDENCE_OR_PROFILE_AUTHORIZED_OPERATION
+    consumers:
+    - LIVE_PREFLIGHT
+    - MUTATION_CONTROLLER
+    - RESTORATION_CONTROLLER
+    - CONTRACT_EVALUATOR
+    projection_class: KUBERNETES_OBJECT_PROJECTION_V1
+    maximum_list_items: 256
+    list_item_name_predicate:
+      type: DNS_SUBDOMAIN_MATCHING_REQUEST_SELECTOR
+    list_metadata_projection:
+    - - resourceVersion
+    - - continue
+    - - remainingItemCount
+    evidence_policy_grants_mutation_authority: false
+    mutation_requires_frozen_profile_operation_kind: true
+    mutation_requires_intent_evidence_reference: true
+    profile_operation_kinds_by_operation:
+      CREATE:
+      - CHALLENGE_POD_CREATION
+      DELETE:
+      - INITIAL_CAPTURED_POD_RECYCLE_DELETE
+      - REPLACEMENT_POD_DELETION
+      - CHALLENGE_POD_DELETION
+      - RECOVERY_POD_RECYCLE_DELETE
+  - id: COREDNS_PODS_READ
+    api_group: ''
+    api_version: v1
+    resource: pods
+    response_kind: Pod
+    subresource: ''
+    operations:
+    - LIST
+    namespace: kube-system
+    names: []
+    name_rule: LIST_ONLY
+    projection_paths: *id017
+    context: kind-kind
+    name_predicates_by_operation:
+      LIST:
+      - type: LIST_NO_NAME
+    label_selectors:
+    - k8s-app=kube-dns
+    field_selectors:
+    - ''
+    request_options:
+      dry_run: false
+      pretty: false
+      watch: false
+    purpose: CAPTURE_ADMISSIBLE_EVIDENCE_OR_PROFILE_AUTHORIZED_OPERATION
+    consumers:
+    - LIVE_PREFLIGHT
+    - ADJUDICATOR
+    projection_class: KUBERNETES_OBJECT_PROJECTION_V1
+    maximum_list_items: 16
+    list_item_name_predicate:
+      type: DNS_SUBDOMAIN_MATCHING_REQUEST_SELECTOR
+    list_metadata_projection:
+    - - resourceVersion
+    - - continue
+    - - remainingItemCount
+    evidence_policy_grants_mutation_authority: false
+    mutation_requires_frozen_profile_operation_kind: false
+    mutation_requires_intent_evidence_reference: false
+    profile_operation_kinds_by_operation: {}
+  - id: USER_SERVICE_READ_AND_GUARDED_MUTATION
+    api_group: ''
+    api_version: v1
+    resource: services
+    response_kind: Service
+    subresource: ''
+    operations:
+    - GET
+    - CREATE
+    - DELETE
+    namespace: social-network
+    names:
+    - user-service
+    name_rule: EXACT_NAME
+    projection_paths:
+    - *id004
+    - *id005
+    - *id006
+    - *id007
+    - *id008
+    - *id009
+    - *id010
+    - *id011
+    - - metadata
+      - labels
+      - app.kubernetes.io/managed-by
+    - - metadata
+      - annotations
+      - meta.helm.sh/release-name
+    - - metadata
+      - annotations
+      - meta.helm.sh/release-namespace
+    - - spec
+      - type
+    - - spec
+      - clusterIP
+    - - spec
+      - clusterIPs
+      - '[]'
+    - - spec
+      - ipFamilies
+      - '[]'
+    - - spec
+      - ipFamilyPolicy
+    - - spec
+      - internalTrafficPolicy
+    - - spec
+      - sessionAffinity
+    - - spec
+      - selector
+      - service
+    - - spec
+      - selector
+      - sremut-mutant-backend
+    - - spec
+      - ports
+      - '[]'
+      - name
+    - - spec
+      - ports
+      - '[]'
+      - protocol
+    - - spec
+      - ports
+      - '[]'
+      - port
+    - - spec
+      - ports
+      - '[]'
+      - targetPort
+    - - spec
+      - ports
+      - '[]'
+      - nodePort
+    - - spec
+      - healthCheckNodePort
+    - - spec
+      - publishNotReadyAddresses
+    - - spec
+      - allocateLoadBalancerNodePorts
+    context: kind-kind
+    name_predicates_by_operation:
+      GET:
+      - type: EXACT_NAME
+        allowed_names:
+        - user-service
+      CREATE:
+      - type: EXACT_NAME
+        allowed_names:
+        - user-service
+      DELETE:
+      - type: EXACT_NAME
+        allowed_names:
+        - user-service
+        uid_precondition_required: true
+    label_selectors:
+    - ''
+    field_selectors:
+    - ''
+    request_options:
+      dry_run: false
+      pretty: false
+      watch: false
+    purpose: CAPTURE_ADMISSIBLE_EVIDENCE_OR_PROFILE_AUTHORIZED_OPERATION
+    consumers:
+    - LIVE_PREFLIGHT
+    - MUTATION_CONTROLLER
+    - RESTORATION_CONTROLLER
+    - CONTRACT_EVALUATOR
+    projection_class: KUBERNETES_OBJECT_PROJECTION_V1
+    maximum_list_items: 0
+    list_item_name_predicate:
+      type: NOT_A_LIST_RULE
+    list_metadata_projection:
+    - - resourceVersion
+    - - continue
+    - - remainingItemCount
+    evidence_policy_grants_mutation_authority: false
+    mutation_requires_frozen_profile_operation_kind: true
+    mutation_requires_intent_evidence_reference: true
+    profile_operation_kinds_by_operation:
+      CREATE:
+      - MUTANT_SERVICE_CREATION
+      - RESTORED_SERVICE_CREATION
+      DELETE:
+      - INITIAL_USER_SERVICE_DELETION
+      - MUTANT_SERVICE_DELETION
+  - id: USER_SERVICE_ENDPOINT_SLICES_READ
+    api_group: discovery.k8s.io
+    api_version: v1
+    resource: endpointslices
+    response_kind: EndpointSlice
+    subresource: ''
+    operations:
+    - LIST
+    namespace: social-network
+    names: []
+    name_rule: LIST_ONLY
+    projection_paths:
+    - *id004
+    - *id005
+    - *id006
+    - *id007
+    - *id008
+    - *id009
+    - *id010
+    - *id011
+    - - metadata
+      - labels
+      - kubernetes.io/service-name
+    - - addressType
+    - - ports
+      - '[]'
+      - name
+    - - ports
+      - '[]'
+      - protocol
+    - - ports
+      - '[]'
+      - port
+    - - endpoints
+      - '[]'
+      - addresses
+      - '[]'
+    - - endpoints
+      - '[]'
+      - conditions
+      - ready
+    - - endpoints
+      - '[]'
+      - conditions
+      - terminating
+    - - endpoints
+      - '[]'
+      - targetRef
+      - apiVersion
+    - - endpoints
+      - '[]'
+      - targetRef
+      - kind
+    - - endpoints
+      - '[]'
+      - targetRef
+      - namespace
+    - - endpoints
+      - '[]'
+      - targetRef
+      - name
+    - - endpoints
+      - '[]'
+      - targetRef
+      - uid
+    context: kind-kind
+    name_predicates_by_operation:
+      LIST:
+      - type: LIST_NO_NAME
+    label_selectors:
+    - kubernetes.io/service-name=user-service
+    field_selectors:
+    - ''
+    request_options:
+      dry_run: false
+      pretty: false
+      watch: false
+    purpose: CAPTURE_ADMISSIBLE_EVIDENCE_OR_PROFILE_AUTHORIZED_OPERATION
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    projection_class: KUBERNETES_OBJECT_PROJECTION_V1
+    maximum_list_items: 64
+    list_item_name_predicate:
+      type: DNS_SUBDOMAIN_MATCHING_REQUEST_SELECTOR
+    list_metadata_projection:
+    - - resourceVersion
+    - - continue
+    - - remainingItemCount
+    evidence_policy_grants_mutation_authority: false
+    mutation_requires_frozen_profile_operation_kind: false
+    mutation_requires_intent_evidence_reference: false
+    profile_operation_kinds_by_operation: {}
+  subresource_rules:
+  - id: CHALLENGE_POD_EXEC
+    api_group: ''
+    api_version: v1
+    resource: pods
+    response_kind: Pod
+    subresource: exec
+    operations:
+    - CONNECT_GET
+    namespace: social-network
+    name_rule: EXACT_DERIVED_CHALLENGE_POD_WITH_UID_CHECK_BEFORE_AND_AFTER
+    python_client_method: CoreV1Api.connect_get_namespaced_pod_exec
+    projection_paths: []
+    context: kind-kind
+    name_predicates_by_operation:
+      CONNECT_GET:
+      - type: DETERMINISTIC_CHALLENGE_NAME
+        prefix: sremut-challenge-
+        required_identity_labels:
+        - app.kubernetes.io/name
+        - app.kubernetes.io/managed-by
+        - sremut-run-id
+        - sremut-mutant
+        - sremut-attempt
+    label_selectors:
+    - ''
+    field_selectors:
+    - ''
+    request_options:
+      stdin: false
+      tty: false
+      preload_content: false
+    purpose: FIXED_CHALLENGE_EXECUTION
+    consumers:
+    - CONTRACT_EVALUATOR
+    - ADJUDICATOR
+    projection_class: KUBERNETES_EXEC_RESULT_V1
+    maximum_list_items: 0
+    evidence_policy_grants_mutation_authority: false
+    mutation_requires_frozen_profile_operation_kind: false
+    mutation_requires_intent_evidence_reference: false
+  typed_api_status_projection:
+    is_resource_rule: false
+    projection_paths:
+    - - apiVersion
+    - - kind
+    - - status
+    - - reason
+    - - details
+      - name
+    - - details
+      - group
+    - - details
+      - kind
+    - - details
+      - uid
+    - - details
+      - causes
+      - '[]'
+      - reason
+    - - details
+      - causes
+      - '[]'
+      - field
+    - - code
+  projection_value_semantics:
+    missing_field: ABSENT
+    explicit_json_null: 'NULL'
+    list_order: KUBERNETES_RESPONSE_ORDER_UNLESS_RULE_STATES_SORTING
+    target_port_allowed_scalar_types:
+    - integer
+    - string
+    complete_metadata_maps_forbidden: true
+  explicitly_forbidden_resources:
+  - secrets
+  - configmaps
+  - serviceaccounts
+  - roles
+  - rolebindings
+  - clusterroles
+  - clusterrolebindings
+  - persistentvolumes
+  - persistentvolumeclaims
+  - events
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  - customresources
+  pod_log_evidence_capture: FORBIDDEN_AS_DIRECT_EVIDENCE_SOURCE
+  stock_workload_internal_calls_documented_not_runner_capture_authority:
+  - CoreV1Api.list_namespaced_pod(job-name=wrk2-job)
+  - CoreV1Api.connect_get_namespaced_pod_exec(command=date -Ins)
+  - CoreV1Api.read_namespaced_pod_log(timestamps=true)
+  stock_original_oracle_internal_deserialization_not_restricted_by_publication_allowlist: true
+  request_validation:
+    document_type: KUBERNETES_REQUEST_V1
+    arbitrary_empty_name_is_never_accepted: true
+    pod_delete_requires_captured_or_deterministic_name: true
+    pod_delete_requires_captured_uid_and_uid_precondition: true
+    pod_delete_requires_mutation_intent_evidence_reference: true
+    unrelated_pod_delete_rejected: true
+  list_response_validation:
+    document_type: KUBERNETES_LIST_RESPONSE_V1
+    metadata_validated_separately: true
+    every_item_validated: true
+    mixed_kinds_rejected: true
+    unapproved_items_rejected: true
+    excess_items_rejected: true
+local_source_aliases:
+  SREMUT_REPOSITORY:
+    kind: GIT_REPOSITORY
+    published_resolution: repository-relative-paths-only
+  SREGYM_REPOSITORY:
+    kind: GIT_REPOSITORY
+    published_resolution: source-alias-and-relative-path-only
+  SREGYM_APPLICATIONS_REPOSITORY:
+    kind: GIT_REPOSITORY
+    published_resolution: source-alias-and-relative-path-only
+  EXECUTION_PROFILE:
+    kind: IMMUTABLE_REPOSITORY_FILE
+    published_resolution: EXECUTION_PROFILE
+  CONTRACT:
+    kind: IMMUTABLE_REPOSITORY_FILE
+    published_resolution: CONTRACT
+  EXECUTION_PROFILE_SCHEMA:
+    kind: IMMUTABLE_REPOSITORY_FILE
+    published_resolution: EXECUTION_PROFILE_SCHEMA
+  EVIDENCE_POLICY_SCHEMA:
+    kind: IMMUTABLE_REPOSITORY_FILE
+    published_resolution: EVIDENCE_POLICY_SCHEMA
+  PYPROJECT:
+    kind: IMMUTABLE_REPOSITORY_FILE
+    published_resolution: PYPROJECT
+  UV_LOCK:
+    kind: IMMUTABLE_REPOSITORY_FILE
+    published_resolution: UV_LOCK
+  ORIGINAL_ORACLE_EXECUTABLE:
+    kind: LOCAL_EXECUTABLE
+    published_resolution: alias-plus-hash-only
+  ATTEMPT_ROOT:
+    kind: RUN_LOCAL_DIRECTORY
+    published_resolution: attempt-relative-paths-only
+  WORKLOAD_HISTORY:
+    kind: IN_PROCESS_SOURCE
+    published_resolution: alias-only
+  BOOT_ID_SOURCE:
+    kind: LOCAL_IDENTITY_SOURCE
+    published_resolution: value-only
+  KUBECONFIG_HASH_SOURCE:
+    kind: LOCAL_HASH_SOURCE
+    published_resolution: content-sha256-only
+  KUBECTL_CACHE_SNAPSHOT:
+    kind: LOCAL_TREE_HASH_SOURCE
+    published_resolution: tree-sha256-only
+sensitive_capture_policy:
+  accepted_redaction_status: NOT_REDACTED
+  rejected_capture_publication_forbidden: true
+  detectors:
+    SENSITIVE_AUTHORIZATION_HEADER:
+      kind: BYTE_REGEX
+      grammar: (?im)^Authorization:[ \t]*[^\r\n]+(?=\r?$)
+    SENSITIVE_BEARER_CREDENTIAL:
+      kind: BYTE_REGEX
+      grammar: (?i)\bBearer[ \t]+[A-Za-z0-9._~+/=-]{16,4096}\b
+    SENSITIVE_PEM_PRIVATE_KEY:
+      kind: BYTE_MARKERS
+      begin_markers:
+      - '-----BEGIN PRIVATE KEY-----'
+      - '-----BEGIN RSA PRIVATE KEY-----'
+      - '-----BEGIN EC PRIVATE KEY-----'
+      - '-----BEGIN OPENSSH PRIVATE KEY-----'
+    SENSITIVE_STRUCTURED_SECRET:
+      kind: CONTEXTUAL_STRUCTURED_KEYS
+      token_keys:
+      - access_token
+      - api_key
+      - bearer_token
+      - client_secret
+      - id_token
+      - refresh_token
+      - token
+      password_keys:
+      - passphrase
+      - password
+      private_key_keys:
+      - client_key_data
+      - private_key
+      - private_key_data
+      - ssh_private_key
+      nonempty_values_only: true
+      recursive_mappings_and_lists: true
+    SENSITIVE_KUBECONFIG_STRUCTURE:
+      kind: RECOGNIZED_KUBECONFIG_CONTEXT_ONLY
+      recognition:
+        apiVersion: v1
+        kind: Config
+        required_root_keys:
+        - clusters
+        - contexts
+        - users
+      credential_keys:
+      - client-key-data
+      - client-key
+      - client-certificate-data
+      - client-certificate
+      - token
+      - token-file
+      - username
+      - password
+      - auth-provider
+      - exec
+      ordinary_json_username_or_exec_does_not_trigger: true
+    SENSITIVE_CREDENTIAL_URL:
+      kind: PARSED_URL_USERINFO
+      schemes:
+      - http
+      - https
+      require_nonempty_username_and_password: true
+    SENSITIVE_KUBERNETES_SECRET_OBJECT:
+      kind: STRUCTURED_KUBERNETES_OBJECT
+      apiVersion: v1
+      kind_value: Secret
+    SENSITIVE_ENVIRONMENT_ASSIGNMENT:
+      kind: ANCHORED_LINE
+      grammar: ^[A-Za-z_][A-Za-z0-9_]{0,127}=.*$
+      sensitive_normalized_keys:
+      - API_KEY
+      - AUTH_TOKEN
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AZURE_CLIENT_SECRET
+      - GITHUB_TOKEN
+      - GOOGLE_APPLICATION_CREDENTIALS
+      - KUBECONFIG
+      - PASSWORD
+      - PRIVATE_KEY
+      - SECRET
+      - TOKEN
+      nonempty_value_required: true
+    SENSITIVE_DENSE_ENVIRONMENT_DUMP:
+      kind: CONSECUTIVE_LINE_THRESHOLD
+      line_grammar: ^[A-Za-z_][A-Za-z0-9_]{0,127}=.*$
+      minimum_consecutive_lines: 4
+  generic_cloud_or_api_credential_detector: false
+  generic_high_entropy_detector: false
+  safe_rejection_codes:
+  - CAPTURE_REJECTED_AUTHORIZATION
+  - CAPTURE_REJECTED_BEARER
+  - CAPTURE_REJECTED_PRIVATE_KEY
+  - CAPTURE_REJECTED_STRUCTURED_SECRET
+  - CAPTURE_REJECTED_KUBECONFIG
+  - CAPTURE_REJECTED_CREDENTIAL_URL
+  - CAPTURE_REJECTED_KUBERNETES_SECRET
+  - CAPTURE_REJECTED_ENVIRONMENT
+  - CAPTURE_REJECTED_SIZE
+  - CAPTURE_REJECTED_INVALID_ENCODING
+  - CAPTURE_REJECTED_UNAUTHORIZED_SOURCE
+  journal_safe_fields:
+  - schema_version
+  - document_type
+  - journal_record_type
+  - sequence_number
+  - previous_entry_sha256
+  - canonical_current_entry_sha256
+  - run_id
+  - attempt_id
+  - intended_role
+  - rejection_code
+  - detector_id
+  - source_kind
+  - observed_size
+  - created_utc
+  - monotonic_ns
+  - boot_identity
+  false_positive_controls:
+  - token_count
+  - password_policy_text
+  - automountServiceAccountToken=false
+  - public certificate fingerprints
+  - unanchored source-code text mentioning Authorization
+  - ordinary username and exec keys outside kubeconfig scope
+expanded_frozen_metadata:
+  source_execution_profile_sha256: 79cb2d45298e6221d78fcc3aea82df52c71f60f0ab4ba872e1f0579a908703c7
+  mutation_intent_required_metadata: *id018
+  mutation_receipt_required_metadata: *id019
+  adjudication_required_metadata: *id020
+  runtime_source_pointer_required: false
+  exact_order_required: true
+adjudication_vocabularies:
+  execution_status_values:
+  - RUNNING
+  - COMPLETED
+  - ABORTED_SAFE
+  - RESTORATION_BLOCKED
+  original_oracle_verdict_values:
+  - NOT_EVALUATED
+  - PASS
+  - REJECT
+  - INTERRUPTED
+  contract_verdict_values:
+  - NOT_EVALUATED
+  - PASS
+  - REJECT
+  - INCOMPLETE
+  classifications:
+  - CONTRACT_REJECT
+  - ORIGINAL_ORACLE_REJECT
+  - MUTANT_ACTIVATION_FAILURE
+  - HARNESS_TIMING_FAILURE
+  - INFRASTRUCTURE_FAILURE
+  - RESTORATION_FAILURE
+  - PROTOCOL_VIOLATION
+  - INVALID_OR_EQUIVALENT_MUTANT
+  - COMPLETED
+  target_predicate_deadline_failure: CONTRACT_REJECT
+  target_timeout_never_implies_infrastructure_failure: true
+adjudication_raw_evidence_rule:
+  scope: EVERY_BOOLEAN_OR_CATEGORICAL_RESULT
+  minimum_payload_backed_raw_evidence_references: 1
+  descriptor_only_reference_alone_sufficient: false
+  redacted_or_rejected_reference_sufficient: false
+terminalization:
+  required_run_identity_phases:
+  - START
+  - TERMINAL
+  required_phase_count:
+    START: 1
+    TERMINAL: 1
+  outcomes:
+    FINALIZED: COMPLETE
+    ABORTED_SAFE: COMPLETE
+    RESTORATION_BLOCKED: SEALED_PARTIAL_WITH_GLOBAL_STOP
+  manifest_is_last_durable_write: true
+  nothing_in_sealed_attempt_modified_after_manifest: true
+semantic_non_interference:
+  governs_evidence_admissibility_only: true
+  grants_mutation_authority: false
+  contract_invariants_unchanged:
+  - MS-I1
+  - MS-I2
+  - MS-I3
+  - MS-I4
+  - MS-I5
+  - MS-I6
+  mutants_unchanged:
+  - MS-M01
+  - MS-M02
+  - MS-M03
+  original_oracle_verdict_hypotheses_unchanged: true
+  expected_contract_verdicts_unchanged: true
+  repetition_schedule_retry_state_machine_timeouts_restoration_unchanged: true
+  repetition_count_and_order_unchanged: true
+  retry_policy_unchanged: true
+  state_machine_unchanged: true
+  timeouts_unchanged: true
+  no_agent_policy_unchanged: true
+  challenge_semantics_unchanged: true
+  restoration_semantics_unchanged: true
+  separately_frozen_runner_release_rule_unchanged: true
+  stock_original_oracle_source_unchanged: true
+challenge_request_binding:
+  namespace: social-network
+  name_derivation: sremut-ms-{mutant_token}-r{repetition:02d}-a{attempt:02d}-{run_identity_sha256_first12}
+  mutant_tokens:
+    MS-M01: m01
+    MS-M02: m02
+    MS-M03: m03
+  image: docker.io/library/busybox@sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f
+  image_platform: linux/amd64
+  image_pull_policy: IfNotPresent
+  oci_evidence:
+    tag_lookup: docker.io/library/busybox:1.36.1
+    index_digest: sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    index_media_type: application/vnd.oci.image.index.v1+json
+    platform_manifest_digest: sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f
+    platform_manifest_media_type: application/vnd.oci.image.manifest.v1+json
+    local_baseline_evidence: /home/sakibbuet2k19/sremut/baselines/missing_service_social_network/teardown-after-run-02/nodes-after.json
+    local_source_probe_evidence:
+    - sregym.conductor.oracles.dns_resolution_mitigation
+    - sregym.conductor.oracles.service_endpoint_mitigation
+  container_command:
+  - sh
+  - -c
+  - trap 'exit 0' TERM INT; sleep 600 & wait
+  dns_probe_command:
+  - sh
+  - -c
+  - nslookup user-service.social-network.svc.cluster.local
+  dns_result_parser: parse IPv4 addresses and require Service.spec.clusterIP membership
+  tcp_probe_command:
+  - sh
+  - -c
+  - nc -z -w 3 user-service.social-network.svc.cluster.local 9090
+  automount_service_account_token: false
+  restart_policy: Never
+  active_deadline_seconds: 600
+  termination_grace_period_seconds: 5
+  security_context:
+    run_as_non_root: true
+    run_as_user: 65532
+    run_as_group: 65532
+    read_only_root_filesystem: true
+    allow_privilege_escalation: false
+    capabilities_drop:
+    - ALL
+    seccomp_profile: RuntimeDefault
+  resources:
+    requests:
+      cpu: 5m
+      memory: 8Mi
+    limits:
+      cpu: 50m
+      memory: 32Mi
+  labels:
+    app.kubernetes.io/name: sremut-challenge
+    app.kubernetes.io/managed-by: sremut
+    sremut-run-id: derived run identity
+    sremut-mutant: derived frozen mutant ID
+    sremut-attempt: derived attempt number
+  spec_hash:
+    algorithm: sha256
+    canonical_input: sorted compact JSON of derived metadata.name, metadata.namespace, labels and Pod
+      spec
+    required_before_creation: true
+  exec_uid_verification: immediately_before_and_after_every_exec
+  deletion:
+    record_uid_before_delete: true
+    uid_precondition_required: true
+    delete_exact_uid_once: true
+verified_attempt_state_machine:
+  states:
+  - CREATED
+  - PREFLIGHT_PASS
+  - HEALTHY_STATE_CAPTURED
+  - MUTANT_INJECTED
+  - MUTANT_STATE_VERIFIED
+  - ORIGINAL_ORACLE_STARTED
+  - ORIGINAL_ORACLE_EVALUATED
+  - CONTRACT_EVALUATED
+  - RESTORE_STARTED
+  - RESTORE_VERIFIED
+  - FINALIZED
+  - ABORTED_SAFE
+  - RESTORATION_BLOCKED
+  legal_transitions:
+  - CREATED->PREFLIGHT_PASS
+  - CREATED->ABORTED_SAFE
+  - PREFLIGHT_PASS->HEALTHY_STATE_CAPTURED
+  - PREFLIGHT_PASS->ABORTED_SAFE
+  - HEALTHY_STATE_CAPTURED->MUTANT_INJECTED
+  - HEALTHY_STATE_CAPTURED->RESTORE_STARTED
+  - HEALTHY_STATE_CAPTURED->ABORTED_SAFE
+  - MUTANT_INJECTED->MUTANT_STATE_VERIFIED
+  - MUTANT_INJECTED->RESTORE_STARTED
+  - MUTANT_STATE_VERIFIED->ORIGINAL_ORACLE_STARTED
+  - MUTANT_STATE_VERIFIED->RESTORE_STARTED
+  - ORIGINAL_ORACLE_STARTED->ORIGINAL_ORACLE_EVALUATED
+  - ORIGINAL_ORACLE_STARTED->RESTORE_STARTED
+  - ORIGINAL_ORACLE_EVALUATED->CONTRACT_EVALUATED
+  - ORIGINAL_ORACLE_EVALUATED->RESTORE_STARTED
+  - CONTRACT_EVALUATED->RESTORE_STARTED
+  - RESTORE_STARTED->RESTORE_VERIFIED
+  - RESTORE_STARTED->RESTORATION_BLOCKED
+  - RESTORE_VERIFIED->FINALIZED
+  terminal_states:
+  - FINALIZED
+  - ABORTED_SAFE
+  - RESTORATION_BLOCKED
+  backward_transitions_forbidden: true
+  challenge_creation_minimum_state: ORIGINAL_ORACLE_EVALUATED
+  later_run_after_restoration_blocked_forbidden: true
+full_admissibility_validation:
+  schema_version: 1
+  dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+  candidate_count: 1
+  inputs:
+  - one candidate runtime document
+  - authenticated policy input
+  - closed resolved-evidence context
+  algorithm:
+  - validate the public Draft 2020-12 schema branch
+  - validate and authenticate the complete resolved-evidence context
+  - select every applicable hook from the closed matrix
+  - invoke hooks in exact ascending order
+  - require every applicable hook to succeed
+  - return one closed validation result
+  missing_context_or_unresolved_evidence: FAIL_CLOSED
+  structural_only_result_is_never_admissible: true
+  unknown_role_or_document_combination: UNKNOWN_DOCUMENT_ROLE
+  unexpected_validator_error: VALIDATOR_EXECUTION_FAILURE_WITHOUT_REJECTED_CONTENT
+  result_document: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+  resolved_context_document: RESOLVED_EVIDENCE_CONTEXT_V1
+  failure_codes:
+  - STRUCTURAL_SCHEMA_INVALID
+  - MISSING_RESOLVED_CONTEXT
+  - RESOLVED_CONTEXT_INVALID
+  - UNKNOWN_DOCUMENT_ROLE
+  - HOOK_CONTEXT_MISSING
+  - CANONICAL_FLOAT_FORBIDDEN
+  - EVIDENCE_REFERENCE_INVALID
+  - EVIDENCE_REFERENCE_UNRESOLVED
+  - DESCRIPTOR_BYTES_MISSING
+  - DESCRIPTOR_HASH_MISMATCH
+  - DESCRIPTOR_CANONICAL_MISMATCH
+  - DESCRIPTOR_REFERENCE_MISMATCH
+  - PAYLOAD_BYTES_MISSING
+  - PAYLOAD_HASH_MISMATCH
+  - PAYLOAD_SIZE_MISMATCH
+  - PUBLICATION_RECORD_MISSING
+  - PUBLICATION_ORDER_INVALID
+  - RUN_ATTEMPT_MISMATCH
+  - ATTEMPT_FINALITY_INVALID
+  - WORKLOAD_CARDINALITY_INVALID
+  - WORKLOAD_WINDOW_MISMATCH
+  - WORKLOAD_RAW_PREFIX_MISMATCH
+  - WORKLOAD_TIMESTAMP_ORDER_INVALID
+  - WORKLOAD_ENTRY_ORDER_INVALID
+  - WORKLOAD_POD_IDENTITY_MISMATCH
+  - WORKLOAD_RESTART_COUNT_MISMATCH
+  - WORKLOAD_EVALUATION_CONTEXT_MISMATCH
+  - ADJUDICATION_RAW_REFERENCE_REQUIRED
+  - ADJUDICATION_RAW_ROLE_INVALID
+  - ADJUDICATION_DEADLINE_MISMATCH
+  - ADJUDICATION_EVALUATION_PHASE_MISMATCH
+  - JOURNAL_CHAIN_INVALID
+  - KUBERNETES_REQUEST_RULE_INVALID
+  - KUBERNETES_CAPTURE_UNRESOLVED
+  - KUBERNETES_CAPTURE_IDENTITY_MISMATCH
+  - KUBERNETES_CHALLENGE_IDENTITY_MISMATCH
+  - KUBERNETES_CHALLENGE_BODY_INVALID
+  - KUBERNETES_PROJECTION_FIELD_FORBIDDEN
+  - KUBERNETES_PROJECTION_REQUEST_MISMATCH
+  - KUBERNETES_LIST_INVALID
+  - RESTORATION_INTENT_UNRESOLVED
+  - RESTORATION_INTENT_ROLE_INVALID
+  - RESTORATION_OPERATION_MISMATCH
+  - RESTORATION_TARGET_MISMATCH
+  - RESTORATION_UID_MISMATCH
+  - RESTORATION_REFERENCE_MISSING
+  - RESTORATION_BODY_UNRESOLVED
+  - RESTORATION_BODY_HASH_MISMATCH
+  - RESTORATION_SERVICE_MISMATCH
+  - RESTORATION_PREPUBLICATION_FAILURE
+  - STATE_OPERATION_FORBIDDEN
+  - POST_TERMINAL_OPERATION
+  - SERVICE_RESTORATION_BODY_INVALID
+  - SENSITIVE_CAPTURE_REJECTED
+  - VALIDATOR_EXECUTION_FAILURE
+  - POLICY_BINDING_MISSING
+  - POLICY_MANIFEST_HASH_MISMATCH
+  - POLICY_MANIFEST_INVALID
+  - POLICY_HASH_MISMATCH
+  - POLICY_SCHEMA_HASH_MISMATCH
+  - POLICY_PARSED_CONTENT_MISMATCH
+  - HOOK_MATRIX_MISMATCH
+  - HOOK_ORDER_MISMATCH
+  - JOURNAL_BYTES_MISSING
+  - JOURNAL_CANONICALIZATION_INVALID
+  - JOURNAL_STATE_DERIVATION_FAILED
+  - JOURNAL_CONTEXT_MISMATCH
+  - JOURNAL_EVALUATION_MARKER_MISSING
+  - JOURNAL_OPERATION_MARKER_MISSING
+  - RESTORATION_SOURCE_REFERENCE_MISSING
+  - RESTORATION_SOURCE_UNRESOLVED
+  - RESTORATION_SOURCE_CLASS_INVALID
+  - RESTORATION_DERIVATION_MISMATCH
+  - MUTATION_RECEIPT_IDENTITY_INVALID
+  - MUTATION_RECEIPT_REQUEST_MISMATCH
+  - MUTATION_RECEIPT_PUBLICATION_INVALID
+  - KUBERNETES_CAPTURE_CLASS_INVALID
+  - KUBERNETES_CAPTURE_STATE_INVALID
+  - KUBERNETES_CAPTURE_OWNER_INVALID
+  - KUBERNETES_CAPTURE_SELECTION_INVALID
+  - KUBERNETES_REQUEST_IDENTITY_MISMATCH
+  - KUBERNETES_SOURCE_PROJECTION_MISMATCH
+  - KUBERNETES_LIST_RESOURCE_VERSION_MISMATCH
+  - WORKLOAD_PARSE_SCHEMA_INVALID
+  - WORKLOAD_PARSE_RECOMPUTATION_MISMATCH
+  - WORKLOAD_PARSE_REFERENCE_MISMATCH
+  - WORKLOAD_PARSER_IDENTITY_MISMATCH
+  - EXTERNAL_SEAL_MISSING
+  - EXTERNAL_MANIFEST_HASH_MISMATCH
+  - EXTERNAL_MANIFEST_INVALID
+  - EXTERNAL_MANIFEST_COVERAGE_MISMATCH
+  - VALIDATION_MODE_INVALID
+  hook_contracts:
+  - hook_id: VALIDATE_CANONICAL_NO_FLOATS_V1
+    order: 1
+    version: 1
+    applicable_document_kinds:
+    - EVIDENCE_POLICY_DOCUMENT_V1
+    - PAYLOAD_EVIDENCE_REF_V1
+    - DESCRIPTOR_EVIDENCE_REF_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - ATTEMPT_VALIDATION_ENVELOPE_V1
+    - JOURNAL_RECORD_V1
+    - KUBERNETES_REQUEST_V1
+    - KUBERNETES_LIST_RESPONSE_V1
+    - SERVICE_RESTORATION_BODY_V1
+    - WORKLOAD_PARSE_RESULT_V1
+    - TERMINAL_GLOBAL_STOP_V1
+    applicable_roles:
+    - NONE
+    - adjudication
+    - challenge_invocation
+    - challenge_result
+    - challenge_stderr
+    - challenge_stdout
+    - healthy_prestate
+    - kubernetes_api_error_body
+    - kubernetes_api_status
+    - kubernetes_object_projection
+    - kubernetes_request_identity
+    - mutation_intent
+    - mutation_receipt
+    - original_oracle_input
+    - original_oracle_result
+    - original_oracle_stderr
+    - original_oracle_stdout
+    - run_identity
+    - workload_boundary
+    - workload_log_bytes
+    - workload_parse_result
+    required_candidate_fields:
+    - complete candidate document
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors: []
+    required_resolved_payload_bytes: []
+    required_journal_state_context: []
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - CANONICAL_FLOAT_FORBIDDEN
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: DOCUMENT_LOCAL
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: false
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    order: 2
+    version: 1
+    applicable_document_kinds:
+    - PAYLOAD_EVIDENCE_REF_V1
+    - DESCRIPTOR_EVIDENCE_REF_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - ATTEMPT_VALIDATION_ENVELOPE_V1
+    - KUBERNETES_REQUEST_V1
+    - KUBERNETES_LIST_RESPONSE_V1
+    - SERVICE_RESTORATION_BODY_V1
+    - WORKLOAD_PARSE_RESULT_V1
+    - TERMINAL_GLOBAL_STOP_V1
+    applicable_roles:
+    - NONE
+    - adjudication
+    - challenge_invocation
+    - challenge_result
+    - challenge_stderr
+    - challenge_stdout
+    - healthy_prestate
+    - kubernetes_api_error_body
+    - kubernetes_api_status
+    - kubernetes_object_projection
+    - kubernetes_request_identity
+    - mutation_intent
+    - mutation_receipt
+    - original_oracle_input
+    - original_oracle_result
+    - original_oracle_stderr
+    - original_oracle_stdout
+    - run_identity
+    - workload_boundary
+    - workload_log_bytes
+    - workload_parse_result
+    required_candidate_fields:
+    - every recursively contained EvidenceRef
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes: []
+    required_journal_state_context: []
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - EVIDENCE_REFERENCE_INVALID
+    - EVIDENCE_REFERENCE_UNRESOLVED
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: CROSS_DOCUMENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: false
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    order: 3
+    version: 1
+    applicable_document_kinds:
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    applicable_roles:
+    - adjudication
+    - challenge_invocation
+    - challenge_result
+    - challenge_stderr
+    - challenge_stdout
+    - healthy_prestate
+    - kubernetes_api_error_body
+    - kubernetes_api_status
+    - kubernetes_object_projection
+    - kubernetes_request_identity
+    - mutation_intent
+    - mutation_receipt
+    - original_oracle_input
+    - original_oracle_result
+    - original_oracle_stderr
+    - original_oracle_stdout
+    - run_identity
+    - workload_boundary
+    - workload_log_bytes
+    - workload_parse_result
+    required_candidate_fields:
+    - document_type
+    - role
+    - producer
+    - source_kind
+    - media_type
+    - storage_class
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes:
+    - every applicable payload-backed EvidenceRef exact payload bytes
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - DESCRIPTOR_BYTES_MISSING
+    - DESCRIPTOR_HASH_MISMATCH
+    - DESCRIPTOR_CANONICAL_MISMATCH
+    - DESCRIPTOR_REFERENCE_MISMATCH
+    - PAYLOAD_BYTES_MISSING
+    - PAYLOAD_HASH_MISMATCH
+    - PAYLOAD_SIZE_MISMATCH
+    - PUBLICATION_RECORD_MISSING
+    - PUBLICATION_ORDER_INVALID
+    - RUN_ATTEMPT_MISMATCH
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: BYTE_DEPENDENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1
+    order: 4
+    version: 1
+    applicable_document_kinds:
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - ATTEMPT_VALIDATION_ENVELOPE_V1
+    - TERMINAL_GLOBAL_STOP_V1
+    applicable_roles:
+    - NONE
+    - run_identity
+    required_candidate_fields:
+    - run_id
+    - attempt_id
+    - terminal state and operations when applicable
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes: []
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - ATTEMPT_FINALITY_INVALID
+    - POST_TERMINAL_OPERATION
+    - STATE_OPERATION_FORBIDDEN
+    - JOURNAL_BYTES_MISSING
+    - JOURNAL_CANONICALIZATION_INVALID
+    - JOURNAL_STATE_DERIVATION_FAILED
+    - JOURNAL_CONTEXT_MISMATCH
+    - JOURNAL_EVALUATION_MARKER_MISSING
+    - JOURNAL_OPERATION_MARKER_MISSING
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: CROSS_RECORD
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_WORKLOAD_CARDINALITY_V1
+    order: 5
+    version: 1
+    applicable_document_kinds:
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - WORKLOAD_PARSE_RESULT_V1
+    applicable_roles:
+    - NONE
+    - adjudication
+    - workload_boundary
+    - workload_log_bytes
+    - workload_parse_result
+    required_candidate_fields:
+    - workload_window_adjudication_identity or workload_window
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes:
+    - every applicable payload-backed EvidenceRef exact payload bytes
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - WORKLOAD_CARDINALITY_INVALID
+    - WORKLOAD_TIMESTAMP_ORDER_INVALID
+    - WORKLOAD_ENTRY_ORDER_INVALID
+    - WORKLOAD_PARSE_SCHEMA_INVALID
+    - WORKLOAD_PARSE_RECOMPUTATION_MISMATCH
+    - WORKLOAD_PARSE_REFERENCE_MISMATCH
+    - WORKLOAD_PARSER_IDENTITY_MISMATCH
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: BYTE_DEPENDENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1
+    order: 6
+    version: 1
+    applicable_document_kinds:
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - WORKLOAD_PARSE_RESULT_V1
+    applicable_roles:
+    - NONE
+    - adjudication
+    - workload_boundary
+    - workload_log_bytes
+    - workload_parse_result
+    required_candidate_fields:
+    - workload_window_adjudication_identity or workload_window
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes: []
+    required_journal_state_context: []
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - WORKLOAD_WINDOW_MISMATCH
+    - WORKLOAD_RAW_PREFIX_MISMATCH
+    - WORKLOAD_POD_IDENTITY_MISMATCH
+    - WORKLOAD_RESTART_COUNT_MISMATCH
+    - WORKLOAD_EVALUATION_CONTEXT_MISMATCH
+    - ADJUDICATION_DEADLINE_MISMATCH
+    - RUN_ATTEMPT_MISMATCH
+    - JOURNAL_EVALUATION_MARKER_MISSING
+    - JOURNAL_CONTEXT_MISMATCH
+    - WORKLOAD_PARSE_SCHEMA_INVALID
+    - WORKLOAD_PARSE_RECOMPUTATION_MISMATCH
+    - WORKLOAD_PARSE_REFERENCE_MISMATCH
+    - WORKLOAD_PARSER_IDENTITY_MISMATCH
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: CROSS_DOCUMENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: false
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_ADJUDICATION_RAW_BACKING_V1
+    order: 7
+    version: 1
+    applicable_document_kinds:
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - ATTEMPT_VALIDATION_ENVELOPE_V1
+    applicable_roles:
+    - NONE
+    - adjudication
+    required_candidate_fields:
+    - predicate_oracle_or_classification_id
+    - result_type
+    - boolean_or_categorical_value
+    - applicable_deadline
+    - raw_evidence_references
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes:
+    - every applicable payload-backed EvidenceRef exact payload bytes
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - ADJUDICATION_RAW_REFERENCE_REQUIRED
+    - EVIDENCE_REFERENCE_UNRESOLVED
+    - ADJUDICATION_RAW_ROLE_INVALID
+    - PAYLOAD_BYTES_MISSING
+    - PAYLOAD_HASH_MISMATCH
+    - PAYLOAD_SIZE_MISMATCH
+    - PUBLICATION_ORDER_INVALID
+    - RUN_ATTEMPT_MISMATCH
+    - ADJUDICATION_DEADLINE_MISMATCH
+    - ADJUDICATION_EVALUATION_PHASE_MISMATCH
+    - JOURNAL_EVALUATION_MARKER_MISSING
+    - JOURNAL_CONTEXT_MISMATCH
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: BYTE_DEPENDENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_JOURNAL_HASH_CHAIN_V1
+    order: 8
+    version: 1
+    applicable_document_kinds:
+    - ATTEMPT_VALIDATION_ENVELOPE_V1
+    - JOURNAL_RECORD_V1
+    applicable_roles:
+    - NONE
+    required_candidate_fields:
+    - journal records or authoritative resolved attempt journal
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes: []
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - JOURNAL_CHAIN_INVALID
+    - PUBLICATION_RECORD_MISSING
+    - PUBLICATION_ORDER_INVALID
+    - JOURNAL_BYTES_MISSING
+    - JOURNAL_CANONICALIZATION_INVALID
+    - JOURNAL_STATE_DERIVATION_FAILED
+    - JOURNAL_CONTEXT_MISMATCH
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: CROSS_RECORD
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_KUBERNETES_REQUEST_V1
+    order: 9
+    version: 1
+    applicable_document_kinds:
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - KUBERNETES_REQUEST_V1
+    applicable_roles:
+    - NONE
+    - kubernetes_request_identity
+    required_candidate_fields:
+    - request_rule_id
+    - operation
+    - resource
+    - namespace
+    - name
+    - captured_object_reference
+    - intent_reference
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes: []
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - KUBERNETES_REQUEST_RULE_INVALID
+    - KUBERNETES_CAPTURE_UNRESOLVED
+    - KUBERNETES_CAPTURE_IDENTITY_MISMATCH
+    - KUBERNETES_CHALLENGE_IDENTITY_MISMATCH
+    - KUBERNETES_CHALLENGE_BODY_INVALID
+    - RESTORATION_INTENT_UNRESOLVED
+    - RESTORATION_INTENT_ROLE_INVALID
+    - RESTORATION_OPERATION_MISMATCH
+    - RESTORATION_TARGET_MISMATCH
+    - RESTORATION_UID_MISMATCH
+    - RESTORATION_REFERENCE_MISSING
+    - RESTORATION_BODY_UNRESOLVED
+    - RESTORATION_BODY_HASH_MISMATCH
+    - RESTORATION_SERVICE_MISMATCH
+    - RESTORATION_PREPUBLICATION_FAILURE
+    - STATE_OPERATION_FORBIDDEN
+    - POST_TERMINAL_OPERATION
+    - JOURNAL_OPERATION_MARKER_MISSING
+    - JOURNAL_CONTEXT_MISMATCH
+    - KUBERNETES_CAPTURE_CLASS_INVALID
+    - KUBERNETES_CAPTURE_STATE_INVALID
+    - KUBERNETES_CAPTURE_OWNER_INVALID
+    - KUBERNETES_CAPTURE_SELECTION_INVALID
+    - KUBERNETES_REQUEST_IDENTITY_MISMATCH
+    - RESTORATION_SOURCE_REFERENCE_MISSING
+    - RESTORATION_SOURCE_UNRESOLVED
+    - RESTORATION_SOURCE_CLASS_INVALID
+    - RESTORATION_DERIVATION_MISMATCH
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: CROSS_DOCUMENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_KUBERNETES_RESPONSE_V1
+    order: 10
+    version: 1
+    applicable_document_kinds:
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - KUBERNETES_LIST_RESPONSE_V1
+    applicable_roles:
+    - NONE
+    - kubernetes_object_projection
+    required_candidate_fields:
+    - request
+    - list_metadata
+    - items
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes:
+    - every applicable payload-backed EvidenceRef exact payload bytes
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - KUBERNETES_PROJECTION_FIELD_FORBIDDEN
+    - KUBERNETES_PROJECTION_REQUEST_MISMATCH
+    - KUBERNETES_LIST_INVALID
+    - RUN_ATTEMPT_MISMATCH
+    - KUBERNETES_REQUEST_IDENTITY_MISMATCH
+    - KUBERNETES_SOURCE_PROJECTION_MISMATCH
+    - KUBERNETES_LIST_RESOURCE_VERSION_MISMATCH
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: BYTE_DEPENDENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_SERVICE_RESTORATION_BODY_V1
+    order: 11
+    version: 1
+    applicable_document_kinds:
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    - KUBERNETES_REQUEST_V1
+    - SERVICE_RESTORATION_BODY_V1
+    applicable_roles:
+    - NONE
+    - kubernetes_object_projection
+    - mutation_intent
+    - mutation_receipt
+    required_candidate_fields:
+    - source_service_uid
+    - source_service_resource_version
+    - normalized_body_sha256
+    - normalized_service_create_body
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes:
+    - every applicable payload-backed EvidenceRef exact payload bytes
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - SERVICE_RESTORATION_BODY_INVALID
+    - RESTORATION_BODY_HASH_MISMATCH
+    - RESTORATION_SERVICE_MISMATCH
+    - SENSITIVE_CAPTURE_REJECTED
+    - RESTORATION_SOURCE_REFERENCE_MISSING
+    - RESTORATION_SOURCE_UNRESOLVED
+    - RESTORATION_SOURCE_CLASS_INVALID
+    - RESTORATION_DERIVATION_MISMATCH
+    - MUTATION_RECEIPT_IDENTITY_INVALID
+    - MUTATION_RECEIPT_REQUEST_MISMATCH
+    - MUTATION_RECEIPT_PUBLICATION_INVALID
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: BYTE_DEPENDENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  - hook_id: VALIDATE_SENSITIVE_CAPTURE_V1
+    order: 12
+    version: 1
+    applicable_document_kinds:
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    - KUBERNETES_LIST_RESPONSE_V1
+    - SERVICE_RESTORATION_BODY_V1
+    applicable_roles:
+    - NONE
+    - challenge_stderr
+    - challenge_stdout
+    - healthy_prestate
+    - kubernetes_api_error_body
+    - kubernetes_api_status
+    - kubernetes_object_projection
+    - original_oracle_input
+    - original_oracle_result
+    - original_oracle_stderr
+    - original_oracle_stdout
+    - workload_log_bytes
+    - workload_parse_result
+    required_candidate_fields:
+    - exact resolved descriptor and payload bytes when present
+    required_policy_sections:
+    - full_admissibility_validation
+    - runtime_validation
+    required_resolved_descriptors:
+    - every applicable EvidenceRef descriptor and exact descriptor bytes
+    required_resolved_payload_bytes:
+    - every applicable payload-backed EvidenceRef exact payload bytes
+    required_journal_state_context:
+    - journal publication records
+    - authoritative ordered attempt journal
+    - current verified attempt state
+    success_output:
+      document_type: FULL_ADMISSIBILITY_VALIDATION_RESULT_V1
+      schema_version: 1
+      valid: true
+      dispatcher_id: SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1
+      hook_id: null
+      failure_code: null
+      subject_evidence_id: null
+    failure_codes:
+    - SENSITIVE_CAPTURE_REJECTED
+    missing_input_behavior: FAIL_CLOSED_WITH_FIRST_APPLICABLE_STABLE_FAILURE_CODE
+    validation_scope: BYTE_DEPENDENT
+    authenticated_policy_required: true
+    canonical_journal_bytes_required: true
+    validation_modes:
+    - CAPTURE_TIME_FULL_ADMISSIBILITY
+    - OFFLINE_SEALED_REVALIDATION
+  hook_applicability_matrix:
+  - document_kind: EVIDENCE_POLICY_DOCUMENT_V1
+    roles:
+    - NONE
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+  - document_kind: PAYLOAD_EVIDENCE_REF_V1
+    roles:
+    - healthy_prestate
+    - kubernetes_object_projection
+    - kubernetes_api_status
+    - kubernetes_api_error_body
+    - original_oracle_input
+    - original_oracle_stdout
+    - original_oracle_stderr
+    - original_oracle_result
+    - challenge_stdout
+    - challenge_stderr
+    - workload_log_bytes
+    - workload_parse_result
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+  - document_kind: DESCRIPTOR_EVIDENCE_REF_V1
+    roles:
+    - run_identity
+    - kubernetes_request_identity
+    - challenge_invocation
+    - challenge_result
+    - workload_boundary
+    - mutation_intent
+    - mutation_receipt
+    - adjudication
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+  - document_kind: PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - healthy_prestate
+    - kubernetes_api_status
+    - kubernetes_api_error_body
+    - original_oracle_input
+    - original_oracle_stdout
+    - original_oracle_stderr
+    - original_oracle_result
+    - challenge_stdout
+    - challenge_stderr
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    - VALIDATE_SENSITIVE_CAPTURE_V1
+  - document_kind: PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - kubernetes_object_projection
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    - VALIDATE_KUBERNETES_RESPONSE_V1
+    - VALIDATE_SERVICE_RESTORATION_BODY_V1
+    - VALIDATE_SENSITIVE_CAPTURE_V1
+  - document_kind: PAYLOAD_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - workload_log_bytes
+    - workload_parse_result
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    - VALIDATE_WORKLOAD_CARDINALITY_V1
+    - VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1
+    - VALIDATE_SENSITIVE_CAPTURE_V1
+  - document_kind: DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - challenge_invocation
+    - challenge_result
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+  - document_kind: DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - run_identity
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    - VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1
+  - document_kind: DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - kubernetes_request_identity
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    - VALIDATE_KUBERNETES_REQUEST_V1
+  - document_kind: DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - workload_boundary
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    - VALIDATE_WORKLOAD_CARDINALITY_V1
+    - VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1
+  - document_kind: DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - mutation_intent
+    - mutation_receipt
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    - VALIDATE_SERVICE_RESTORATION_BODY_V1
+  - document_kind: DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1
+    roles:
+    - adjudication
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1
+    - VALIDATE_WORKLOAD_CARDINALITY_V1
+    - VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1
+    - VALIDATE_ADJUDICATION_RAW_BACKING_V1
+  - document_kind: ATTEMPT_VALIDATION_ENVELOPE_V1
+    roles:
+    - NONE
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1
+    - VALIDATE_ADJUDICATION_RAW_BACKING_V1
+    - VALIDATE_JOURNAL_HASH_CHAIN_V1
+  - document_kind: JOURNAL_RECORD_V1
+    roles:
+    - NONE
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_JOURNAL_HASH_CHAIN_V1
+  - document_kind: KUBERNETES_REQUEST_V1
+    roles:
+    - NONE
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_KUBERNETES_REQUEST_V1
+    - VALIDATE_SERVICE_RESTORATION_BODY_V1
+  - document_kind: KUBERNETES_LIST_RESPONSE_V1
+    roles:
+    - NONE
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_KUBERNETES_RESPONSE_V1
+    - VALIDATE_SENSITIVE_CAPTURE_V1
+  - document_kind: SERVICE_RESTORATION_BODY_V1
+    roles:
+    - NONE
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_SERVICE_RESTORATION_BODY_V1
+    - VALIDATE_SENSITIVE_CAPTURE_V1
+  - document_kind: WORKLOAD_PARSE_RESULT_V1
+    roles:
+    - NONE
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_WORKLOAD_CARDINALITY_V1
+    - VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1
+  - document_kind: TERMINAL_GLOBAL_STOP_V1
+    roles:
+    - NONE
+    hooks:
+    - VALIDATE_CANONICAL_NO_FLOATS_V1
+    - VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1
+    - VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1
+  adjudication_predicate_raw_role_context_deadline_matrix:
+    INITIAL_INVARIANT_EVALUATION:
+      phase: INITIAL_MUTANT_CHALLENGE
+      deadline_identity: INITIAL_FRESH_WORKLOAD_60S
+      allowed_raw_roles:
+      - workload_log_bytes
+      - workload_parse_result
+      - kubernetes_object_projection
+      - challenge_stdout
+      - challenge_stderr
+      - kubernetes_api_error_body
+      allowed_states:
+      - ORIGINAL_ORACLE_EVALUATED
+      - CONTRACT_EVALUATED
+    REPLACEMENT_PERSISTENCE_EVALUATION:
+      phase: POST_REPLACEMENT_PERSISTENCE
+      deadline_identity: POST_REPLACEMENT_FRESH_WORKLOAD_60S
+      allowed_raw_roles:
+      - workload_log_bytes
+      - workload_parse_result
+      - kubernetes_object_projection
+      - challenge_stdout
+      - challenge_stderr
+      - kubernetes_api_error_body
+      allowed_states:
+      - CONTRACT_EVALUATED
+    RESTORATION_POSITIVE_CONTROL:
+      phase: RESTORATION_POSITIVE_CONTROL
+      deadline_identity: RESTORATION_FRESH_WORKLOAD_60S
+      allowed_raw_roles:
+      - workload_log_bytes
+      - workload_parse_result
+      - kubernetes_object_projection
+      - challenge_stdout
+      - challenge_stderr
+      - kubernetes_api_error_body
+      allowed_states:
+      - RESTORE_STARTED
+      - RESTORE_VERIFIED
+  service_delete_operation_kinds:
+  - INITIAL_USER_SERVICE_DELETION
+  - MUTANT_SERVICE_DELETION
+  service_create_operation_kinds:
+  - MUTANT_SERVICE_CREATION
+  - RESTORED_SERVICE_CREATION
+  caller_assertions_are_never_authoritative:
+  - name
+  - uid
+  - resourceVersion
+  - hash
+  - phase
+  - role
+  - evaluation context
+  - operation context
+  deterministic_challenge_name_seed_hash_domain: canonical compact sorted JSON containing exact derived
+    labels, metadata.namespace, and Pod spec; metadata.name excluded to prevent a content-address cycle
+  profile_challenge_canonical_body_hash_domain: canonical compact sorted JSON containing derived metadata.name,
+    metadata.namespace, exact labels, and Pod spec, preserving execution-profile spec_hash semantics
+  deterministic_challenge_name_derivation: sremut-challenge- plus first16 lowercase SHA-256 hex of canonical
+    compact sorted JSON containing exact run_id, mutant_id, repetition, attempt_id, and frozen_spec_sha256
+  runner_conformance_requirement: Future runner validation MUST be byte-for-byte behaviorally equivalent
+    to this generator reference implementation and its stable failure-code semantics and MUST NOT import
+    mutable external policy logic
+  authenticated_policy_required_before_hook_selection: true
+  validation_modes:
+  - CAPTURE_TIME_FULL_ADMISSIBILITY
+  - OFFLINE_SEALED_REVALIDATION
+  dispatcher_uses_caller_selected_hook_list: false
+  dispatcher_extracts_hooks_only_from_authenticated_policy_bytes: true
+threat_and_trust_model:
+  model_id: SREMUT_EVIDENCE_TRUST_MODEL_V1
+  provided_guarantees:
+  - deterministic capture
+  - least-data evidence projection
+  - structural and semantic validation
+  - content-addressed integrity
+  - journal ordering and finality
+  - detection of accidental corruption
+  - detection of missing or mismatched references
+  - detection of post-publication tampering relative to an externally anchored terminal-manifest hash
+  - reproducible adjudication from retained evidence
+  capture_time_trusted_computing_base:
+  - checksum-verified runner release
+  - frozen evidence policy and schema
+  - pinned runtime dependencies
+  - capture adapters
+  - host kernel and filesystem durable-publication primitives
+  - configured Kubernetes API and TLS connection
+  - pinned SREGym workload and oracle implementation
+  explicitly_out_of_scope:
+  - malicious runner or compromised host fabricating an entirely self-consistent false evidence universe
+    before sealing
+  - compromised Kubernetes API server returning false state
+  - attacker replacing the external terminal-manifest anchor and every release identity
+  forbidden_claims:
+  - cryptographic attestation
+  - trusted execution
+  - Kubernetes API-server signatures
+  - malicious-runner resistance
+validation_modes:
+  CAPTURE_TIME_FULL_ADMISSIBILITY:
+    authenticated_inputs: in-process source objects and exact bytes supplied by trusted frozen adapters
+    requirements:
+    - validate source-to-projection derivation before publication
+    - validate sensitive-material policy
+    - publish immutable evidence and journal records
+  OFFLINE_SEALED_REVALIDATION:
+    authenticated_inputs: sealed attempt tree plus externally recorded terminal-manifest SHA-256
+    requirements:
+    - verify external manifest anchor
+    - verify every covered path and hash
+    - verify canonical journal
+    - verify descriptors, payloads, references, and adjudications
+    unretained_live_cluster_truth_reconstruction_claimed: false
+authenticated_policy_input:
+  document_type: AUTHENTICATED_EVIDENCE_POLICY_INPUT_V1
+  manifest_format: 'three sorted sha256sum-compatible lines: generator, policy, schema'
+  expected_entry_paths:
+  - tools/freeze_missing_service_evidence_policy.py
+  - policies/missing_service_social_network/evidence-capture-v1.yaml
+  - schemas/evidence-capture-policy-v1.schema.json
+  required_exact_bytes:
+  - policies/missing_service_social_network/evidence-capture-v1.yaml
+  - schemas/evidence-capture-policy-v1.schema.json
+  - EVIDENCE_CAPTURE_POLICY_V1_SHA256SUMS
+  expected_manifest_sha256_source: frozen runner release or generator conformance oracle
+  caller_policy_or_hook_override_forbidden: true
+  authentication_algorithm:
+  - verify manifest SHA-256
+  - parse exactly three canonical manifest rows
+  - verify exact policy and schema bytes
+  - parse policy and schema
+  - validate policy through authenticated schema
+  - extract hook contracts and applicability only from authenticated policy bytes
+  - reject supplied parsed-content, hook-contract, matrix, or hook-order disagreement
+authoritative_journal_derivation:
+  input: exact canonical JSON-lines journal bytes
+  algorithm:
+  - strict UTF-8 decode
+  - canonical JSON line verification
+  - closed record schema validation
+  - sequence and hash-chain verification
+  - run and attempt verification
+  - derive current and terminal state from verified state-transition records
+  - derive operation from OPERATION_AUTHORIZED canonical-JSON-hex marker
+  - derive evaluation predicate from EVALUATION_AUTHORIZED marker
+  - derive phase and deadline from authenticated policy mapping
+  - reject every caller convenience-context disagreement
+  caller_verified_state_authoritative: false
+service_restoration_source_binding:
+  projection_class: SERVICE_RESTORATION_SOURCE_V1
+  source_role: kubernetes_object_projection
+  source_payload: complete sensitive-screened allowlisted core/v1 Service capture including fields stripped
+    from CREATE
+  derivation_algorithm: resolve exact source bytes; apply authenticated exact_stripped_field_token_paths;
+    canonicalize; compare exact normalized bytes and SHA-256
+  required_order:
+  - source capture
+  - normalized restoration body
+  - mutation intent
+  - destructive request
+  fabricated_source_and_body_by_malicious_runner: OUT_OF_SCOPE
+kubernetes_captured_identity_binding:
+  rules:
+    CAPTURED_OBJECT_NAME:
+      allowed_projection_schema_ids:
+      - SERVICE_RESTORATION_SOURCE_V1
+      - POD_IDENTITY_CAPTURE_V1
+      allowed_capture_states:
+      - HEALTHY_STATE_CAPTURED
+      - MUTANT_STATE_VERIFIED
+      - ORIGINAL_ORACLE_EVALUATED
+      - CONTRACT_EVALUATED
+      - RESTORE_STARTED
+      uid_comparison_required: true
+      resource_version_comparison_required: true
+    CAPTURED_REPLACEMENT_POD_NAME:
+      allowed_projection_schema_ids:
+      - POD_IDENTITY_CAPTURE_V1
+      allowed_capture_states:
+      - HEALTHY_STATE_CAPTURED
+      - CONTRACT_EVALUATED
+      - RESTORE_STARTED
+      uid_comparison_required: true
+      resource_version_comparison_required: true
+    DETERMINISTIC_CHALLENGE_NAME:
+      allowed_projection_schema_ids:
+      - KUBERNETES_OBJECT_PROJECTION_V1
+      allowed_capture_states:
+      - ORIGINAL_ORACLE_EVALUATED
+      - CONTRACT_EVALUATED
+      - RESTORE_STARTED
+      uid_comparison_required: false
+      resource_version_comparison_required: false
+  pod_owner_chain:
+  - Pod
+  - ReplicaSet
+  - Deployment/user-service
+  pod_projection_classes:
+  - POD_IDENTITY_CAPTURE_V1
+  - REPLICASET_OWNER_CAPTURE_V1
+  - DEPLOYMENT_OWNER_CAPTURE_V1
+  required_pod_descriptor_bindings:
+  - replicaset_projection_reference
+  - deployment_projection_reference
+  - selection_evidence_reference
+  - capture_state
+  caller_name_uid_state_authoritative: false
+kubernetes_request_response_binding:
+  request_identity_algorithm: SHA-256 of canonical compact sorted JSON over every field of KUBERNETES_REQUEST_V1
+  request_identity_fields:
+  - api_group
+  - api_version
+  - resource
+  - subresource
+  - operation
+  - context
+  - namespace
+  - name
+  - label_selector
+  - field_selector
+  - request_options
+  - purpose
+  - consumer
+  - projection_class
+  - captured_object_name
+  - captured_object_uid
+  - captured_object_resource_version
+  - captured_object_reference
+  - uid_precondition
+  - authorized_operation_kind
+  - intent_reference
+  - run_id
+  - attempt_id
+  capture_time_source_required: true
+  offline_source_truth_claimed: false
+  list_resource_version_source_binding_required: true
+workload_parse_result_protocol:
+  document_type: WORKLOAD_PARSE_RESULT_V1
+  payload_schema: closed canonical JSON defined by public schema
+  parser_identity:
+    sregym_commit: ba07faf1a322f9b6d4a279643bb796aa2f36f64b
+    module_path: sregym/conductor/oracles/workload.py
+    source_sha256: d1bb10c9230ab1b2bba541df16552013323b0160a928d9854fad41210a356468
+    python_runtime: 3.12.3
+    algorithm: SREMUT_PINNED_WORKLOAD_ENTRY_JSONL_V1
+    version: 1
+  raw_serialization: one canonical compact JSON WorkloadEntry per UTF-8 line with index, time_binary64_hex,
+    number, log, and ok
+  recompute_fields:
+  - complete_entry_count
+  - entry_indexes
+  - entry_time_ieee754_binary64_hex
+  - fresh_request_count
+  - failure_marker_count
+  - prefix_byte_length
+  - prefix_sha256
+  - suffix_sha256
+  parse_before_adjudication_required: true
+offline_external_seal:
+  document_type: OFFLINE_SEALED_REVALIDATION_INPUT_V1
+  manifest_format: sorted sha256sum-compatible relative-path rows
+  external_anchor:
+    recorded_by: future runner terminalizer into the immutable run index outside the attempt root
+    cited_by: external result aggregation using run_id, attempt_id, attempt-root identifier, manifest
+      relative path, and terminal-manifest SHA-256
+    replaceable_with_attempt_tree: false
+  post_seal_consistent_internal_reseal_with_original_anchor: REJECT
+  different_manifest_requires_different_external_anchor: true
