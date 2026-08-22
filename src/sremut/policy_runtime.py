@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import hashlib
 import json
 from pathlib import Path
@@ -46,6 +46,7 @@ EXPECTED_STATE_SECTION_SHA256 = "c5d01548d46d416167a3adaff5cdd19a5e33e325464fd35
 EXPECTED_SENSITIVE_SECTION_SHA256 = "0a909390e35eb5b2daefe6379f23b7a9e10874c0167266112d8f82cbd8198feb"
 
 _MANIFEST_LINE = re.compile(rb"([0-9a-f]{64})  ([A-Za-z0-9._/-]+)\n")
+_SCHEMA_VALIDATOR_CACHE: dict[str, Draft202012Validator] = {}
 
 
 @dataclass(slots=True)
@@ -142,6 +143,12 @@ class ApplicabilityRule:
     hooks: tuple[str, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class HookOutcome:
+    hook_id: str
+    outcome: str
+
+
 @dataclass(frozen=True, slots=True, init=False)
 class ValidationResult:
     valid: bool
@@ -151,6 +158,13 @@ class ValidationResult:
     subject_evidence_id: str | None
     document_type: str = "FULL_ADMISSIBILITY_VALIDATION_RESULT_V1"
     schema_version: int = 1
+    _hook_outcomes: tuple[HookOutcome, ...] = field(repr=False, compare=False)
+
+    @property
+    def hook_outcomes(self) -> tuple[HookOutcome, ...]:
+        """Non-sensitive execution evidence; not part of the frozen result document."""
+
+        return self._hook_outcomes
 
 
 def _validation_result(
@@ -159,6 +173,7 @@ def _validation_result(
     hook_id: str | None,
     failure_code: str | None,
     subject_evidence_id: str | None,
+    hook_outcomes: tuple[HookOutcome, ...] = (),
 ) -> ValidationResult:
     result = object.__new__(ValidationResult)
     object.__setattr__(result, "valid", valid)
@@ -168,6 +183,7 @@ def _validation_result(
     object.__setattr__(result, "subject_evidence_id", subject_evidence_id)
     object.__setattr__(result, "document_type", "FULL_ADMISSIBILITY_VALIDATION_RESULT_V1")
     object.__setattr__(result, "schema_version", 1)
+    object.__setattr__(result, "_hook_outcomes", hook_outcomes)
     return result
 
 
@@ -207,8 +223,13 @@ class AuthenticatedPolicy:
     def structural_validate(self, candidate: Any) -> None:
         try:
             validate_canonical_value(candidate)
-            schema = json.loads(self.schema_bytes.decode("utf-8", errors="strict"))
-            Draft202012Validator(schema).validate(candidate)
+            schema_digest = _sha256(self.schema_bytes)
+            validator = _SCHEMA_VALIDATOR_CACHE.get(schema_digest)
+            if validator is None:
+                schema = json.loads(self.schema_bytes.decode("utf-8", errors="strict"))
+                validator = Draft202012Validator(schema)
+                _SCHEMA_VALIDATOR_CACHE[schema_digest] = validator
+            validator.validate(candidate)
         except Exception:
             _reject("STRUCTURAL_SCHEMA_INVALID")
 
@@ -217,13 +238,19 @@ class AuthenticatedPolicy:
         candidate: Any,
         resolved_context: Any | None = None,
     ) -> ValidationResult:
-        """Fail closed until the frozen resolved-context authenticator is implemented."""
+        """Run the closed frozen dispatcher and fail closed on unavailable hooks."""
 
+        outcomes: list[HookOutcome] = []
+        subject = None
         try:
             self.structural_validate(candidate)
             if not isinstance(candidate, dict):
                 _reject("STRUCTURAL_SCHEMA_INVALID")
-            subject = candidate.get("evidence_id") if isinstance(candidate.get("evidence_id"), str) else None
+            subject = (
+                candidate.get("evidence_id")
+                if isinstance(candidate.get("evidence_id"), str)
+                else None
+            )
             if resolved_context is None:
                 return _validation_result(
                     False,
@@ -232,27 +259,90 @@ class AuthenticatedPolicy:
                     "MISSING_RESOLVED_CONTEXT",
                     subject,
                 )
-            plan = self.hook_plan(candidate.get("document_type", ""), candidate.get("role"))
-            for hook in plan:
-                if hook.hook_id == "VALIDATE_CANONICAL_NO_FLOATS_V1":
-                    validate_canonical_value(candidate)
-                    continue
+            from sremut.resolved_context import (
+                CONNECTED_HOOKS,
+                ResolvedContextError,
+                ResolvedEvidenceContext,
+            )
+
+            if (
+                not isinstance(resolved_context, ResolvedEvidenceContext)
+                or not resolved_context.authenticates(self)
+            ):
                 return _validation_result(
                     False,
                     self.dispatcher_id,
-                    hook.hook_id,
-                    "RUNNER_IMPLEMENTATION_INCOMPLETE",
+                    "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
+                    "RESOLVED_CONTEXT_INVALID",
                     subject,
                 )
+            expected_connected = frozenset(
+                {
+                    "VALIDATE_CANONICAL_NO_FLOATS_V1",
+                    "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
+                    "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
+                    "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
+                    "VALIDATE_JOURNAL_HASH_CHAIN_V1",
+                    "VALIDATE_SENSITIVE_CAPTURE_V1",
+                }
+            )
+            if CONNECTED_HOOKS != expected_connected:
+                _reject("HOOK_MATRIX_MISMATCH")
+            plan = self.hook_plan(candidate.get("document_type", ""), candidate.get("role"))
+            first_unavailable: str | None = None
+            for hook in plan:
+                if hook.hook_id not in CONNECTED_HOOKS:
+                    outcomes.append(HookOutcome(hook.hook_id, "RUNNER_IMPLEMENTATION_INCOMPLETE"))
+                    if first_unavailable is None:
+                        first_unavailable = hook.hook_id
+                    continue
+                try:
+                    if hook.hook_id == "VALIDATE_CANONICAL_NO_FLOATS_V1":
+                        validate_canonical_value(candidate)
+                    else:
+                        resolved_context.validate_hook(hook.hook_id, candidate)
+                except ResolvedContextError as error:
+                    outcomes.append(HookOutcome(hook.hook_id, error.code))
+                    return _validation_result(
+                        False,
+                        self.dispatcher_id,
+                        hook.hook_id,
+                        error.code,
+                        subject,
+                        tuple(outcomes),
+                    )
+                outcomes.append(HookOutcome(hook.hook_id, "PASS"))
+            if first_unavailable is not None:
+                return _validation_result(
+                    False,
+                    self.dispatcher_id,
+                    first_unavailable,
+                    "RUNNER_IMPLEMENTATION_INCOMPLETE",
+                    subject,
+                    tuple(outcomes),
+                )
+            # The runtime boundary stays globally non-admissible until every
+            # frozen semantic handler exists, including for narrow documents.
+            unavailable = next(
+                hook_id for hook_id in EXPECTED_HOOK_ORDER if hook_id not in CONNECTED_HOOKS
+            )
             return _validation_result(
                 False,
                 self.dispatcher_id,
-                "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
+                unavailable,
                 "RUNNER_IMPLEMENTATION_INCOMPLETE",
                 subject,
+                tuple(outcomes),
             )
         except PolicyRuntimeError as error:
-            return _validation_result(False, self.dispatcher_id, None, error.code, None)
+            return _validation_result(
+                False,
+                self.dispatcher_id,
+                None,
+                error.code,
+                subject,
+                tuple(outcomes),
+            )
         except Exception:
             return _validation_result(
                 False,
@@ -260,7 +350,9 @@ class AuthenticatedPolicy:
                 None,
                 "VALIDATOR_EXECUTION_FAILURE",
                 None,
+                tuple(outcomes),
             )
+
 
 
 def load_policy_bundle(

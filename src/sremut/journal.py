@@ -125,7 +125,33 @@ class SafeRoot:
             os.close(descriptor)
             _reject("EVIDENCE_SYMLINK_REFUSED")
 
-    def read_bytes(self, relative: str) -> bytes:
+    def read_bytes_bounded(
+        self,
+        relative: str,
+        *,
+        maximum_bytes: int | None = None,
+        exact_size: int | None = None,
+    ) -> bytes:
+        """Read one regular file after enforcing bounds on its opened descriptor."""
+
+        if (
+            maximum_bytes is not None
+            and (
+                not isinstance(maximum_bytes, int)
+                or isinstance(maximum_bytes, bool)
+                or maximum_bytes < 0
+            )
+        ):
+            _reject("EVIDENCE_SIZE_INVALID")
+        if (
+            exact_size is not None
+            and (
+                not isinstance(exact_size, int)
+                or isinstance(exact_size, bool)
+                or exact_size < 0
+            )
+        ):
+            _reject("EVIDENCE_SIZE_INVALID")
         parts = _relative_parts(relative)
         parent = self._open_directory(parts[:-1], create=False)
         try:
@@ -134,12 +160,34 @@ class SafeRoot:
                 info = os.fstat(descriptor)
                 if not stat.S_ISREG(info.st_mode):
                     _reject("EVIDENCE_TARGET_INVALID")
+                if maximum_bytes is not None and info.st_size > maximum_bytes:
+                    _reject("EVIDENCE_SIZE_INVALID")
+                if exact_size is not None and info.st_size != exact_size:
+                    _reject("EVIDENCE_SIZE_INVALID")
                 chunks: list[bytes] = []
+                total = 0
+                limits = tuple(
+                    value for value in (maximum_bytes, exact_size) if value is not None
+                )
+                read_limit = min(limits) if limits else None
                 while True:
-                    chunk = os.read(descriptor, 1024 * 1024)
+                    count = 1024 * 1024
+                    if read_limit is not None:
+                        count = min(count, read_limit - total + 1)
+                    try:
+                        chunk = os.read(descriptor, count)
+                    except InterruptedError:
+                        continue
                     if not chunk:
                         break
+                    total += len(chunk)
+                    if maximum_bytes is not None and total > maximum_bytes:
+                        _reject("EVIDENCE_SIZE_INVALID")
+                    if exact_size is not None and total > exact_size:
+                        _reject("EVIDENCE_SIZE_INVALID")
                     chunks.append(chunk)
+                if exact_size is not None and total != exact_size:
+                    _reject("EVIDENCE_SIZE_INVALID")
                 return b"".join(chunks)
             finally:
                 os.close(descriptor)
@@ -151,6 +199,9 @@ class SafeRoot:
             _reject("EVIDENCE_READ_FAILED")
         finally:
             os.close(parent)
+
+    def read_bytes(self, relative: str) -> bytes:
+        return self.read_bytes_bounded(relative)
 
     def exists(self, relative: str) -> bool:
         parts = _relative_parts(relative)
@@ -259,6 +310,17 @@ class SafeRoot:
                 os.close(base)
         return tuple(sorted(result, key=lambda item: item.encode("utf-8")))
 
+    def list_all_regular_files(self) -> tuple[str, ...]:
+        """Enumerate every regular file beneath the already-open root."""
+
+        descriptor = os.dup(self._fd)
+        result: list[str] = []
+        try:
+            self._walk_directory(descriptor, "", result)
+        finally:
+            os.close(descriptor)
+        return tuple(sorted(result, key=lambda item: item.encode("utf-8")))
+
     def _walk_directory(self, descriptor: int, prefix: str, result: list[str]) -> None:
         try:
             names = sorted(os.listdir(descriptor), key=lambda item: os.fsencode(item))
@@ -269,7 +331,7 @@ class SafeRoot:
                 info = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
             except OSError:
                 _reject("EVIDENCE_READ_FAILED")
-            relative = f"{prefix}/{name}"
+            relative = f"{prefix}/{name}" if prefix else name
             if stat.S_ISLNK(info.st_mode):
                 _reject("EVIDENCE_SYMLINK_REFUSED")
             if stat.S_ISREG(info.st_mode):
@@ -348,7 +410,37 @@ class Journal:
         # The pointer argument is intentionally ignored; it is never authority.
         if mutable_pointer_relative_path is not None:
             _relative_parts(mutable_pointer_relative_path)
-        data = self._bytes()
+        return self.reconstruct_bytes(self._bytes())
+
+    @classmethod
+    def reconstruct_retained(
+        cls,
+        policy: AuthenticatedPolicy,
+        run_id: str,
+        attempt_id: str,
+        data: bytes,
+    ) -> JournalState:
+        """Validate retained bytes without acquiring or reopening a filesystem root."""
+
+        journal = object.__new__(cls)
+        journal.policy = policy
+        journal.run_id = run_id
+        journal.attempt_id = attempt_id
+        state_machine = policy.policy["verified_attempt_state_machine"]
+        journal._states = frozenset(state_machine["states"])
+        journal._legal = frozenset(state_machine["legal_transitions"])
+        journal._terminal = frozenset(state_machine["terminal_states"])
+        full = policy.policy["full_admissibility_validation"]
+        journal._evaluations = frozenset(
+            full["adjudication_predicate_raw_role_context_deadline_matrix"]
+        )
+        return journal.reconstruct_bytes(data)
+
+    def reconstruct_bytes(self, data: bytes) -> JournalState:
+        """Reconstruct authority from exact retained journal bytes without rereading."""
+
+        if not isinstance(data, bytes):
+            _reject("JOURNAL_CANONICALIZATION_INVALID")
         if data and not data.endswith(b"\n"):
             _reject("JOURNAL_CANONICALIZATION_INVALID")
         records: list[Mapping[str, Any]] = []

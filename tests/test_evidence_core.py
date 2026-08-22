@@ -280,8 +280,8 @@ class PolicyAuthenticationTests(TemporaryRootCase):
         }
         result = self.policy.full_admissibility(candidate, {})
         self.assertFalse(result.valid)
-        self.assertEqual(result.failure_code, "RUNNER_IMPLEMENTATION_INCOMPLETE")
-        self.assertIn(result.hook_id, EXPECTED_HOOK_ORDER)
+        self.assertEqual(result.failure_code, "RESOLVED_CONTEXT_INVALID")
+        self.assertEqual(result.hook_id, "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1")
 
     def test_full_dispatch_requires_context_and_success_result_is_not_forgeable(self):
         candidate = yaml.safe_load(self.policy.policy_bytes)
@@ -290,7 +290,7 @@ class PolicyAuthenticationTests(TemporaryRootCase):
         self.assertEqual(missing.failure_code, "MISSING_RESOLVED_CONTEXT")
         supplied_but_unsupported = self.policy.full_admissibility(candidate, {})
         self.assertFalse(supplied_but_unsupported.valid)
-        self.assertEqual(supplied_but_unsupported.failure_code, "RUNNER_IMPLEMENTATION_INCOMPLETE")
+        self.assertEqual(supplied_but_unsupported.failure_code, "RESOLVED_CONTEXT_INVALID")
         with self.assertRaises(TypeError):
             ValidationResult(True, self.policy.dispatcher_id, None, None, None)
 
