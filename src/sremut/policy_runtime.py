@@ -283,6 +283,8 @@ class AuthenticatedPolicy:
                     "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
                     "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
                     "VALIDATE_JOURNAL_HASH_CHAIN_V1",
+                    "VALIDATE_KUBERNETES_REQUEST_V1",
+                    "VALIDATE_KUBERNETES_RESPONSE_V1",
                     "VALIDATE_SENSITIVE_CAPTURE_V1",
                 }
             )

@@ -449,6 +449,8 @@ class ConnectedHookTests(ResolvedContextCase):
             "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
             "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
             "VALIDATE_JOURNAL_HASH_CHAIN_V1",
+            "VALIDATE_KUBERNETES_REQUEST_V1",
+            "VALIDATE_KUBERNETES_RESPONSE_V1",
             "VALIDATE_SENSITIVE_CAPTURE_V1",
         }
         self.assertEqual(CONNECTED_HOOKS, expected_connected)
@@ -458,8 +460,6 @@ class ConnectedHookTests(ResolvedContextCase):
                 "VALIDATE_WORKLOAD_CARDINALITY_V1",
                 "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
                 "VALIDATE_ADJUDICATION_RAW_BACKING_V1",
-                "VALIDATE_KUBERNETES_REQUEST_V1",
-                "VALIDATE_KUBERNETES_RESPONSE_V1",
                 "VALIDATE_SERVICE_RESTORATION_BODY_V1",
             ),
         )

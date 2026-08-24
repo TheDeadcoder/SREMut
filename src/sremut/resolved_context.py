@@ -39,6 +39,8 @@ CONNECTED_HOOKS = frozenset(
         "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
         "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
         "VALIDATE_JOURNAL_HASH_CHAIN_V1",
+        "VALIDATE_KUBERNETES_REQUEST_V1",
+        "VALIDATE_KUBERNETES_RESPONSE_V1",
         "VALIDATE_SENSITIVE_CAPTURE_V1",
     }
 )
@@ -190,6 +192,8 @@ class ResolvedEvidenceContext:
             "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1": self._validate_descriptor,
             "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1": self._validate_attempt,
             "VALIDATE_JOURNAL_HASH_CHAIN_V1": self._validate_journal,
+            "VALIDATE_KUBERNETES_REQUEST_V1": self._validate_kubernetes_request,
+            "VALIDATE_KUBERNETES_RESPONSE_V1": self._validate_kubernetes_response,
             "VALIDATE_SENSITIVE_CAPTURE_V1": self._validate_sensitive,
         }
         handler = handlers.get(hook_id)
@@ -369,6 +373,28 @@ class ResolvedEvidenceContext:
         manifest_digest = dict(self.manifest_rows).get("journal/attempt.jsonl")
         if manifest_digest != sha256_hex(self.journal_bytes):
             _reject("JOURNAL_CHAIN_INVALID")
+
+    def _validate_kubernetes_request(self, candidate: Mapping[str, Any]) -> None:
+        from sremut.kubernetes_readonly import (
+            KubernetesReadOnlyError,
+            validate_resolved_kubernetes_request,
+        )
+
+        try:
+            validate_resolved_kubernetes_request(self, candidate)
+        except KubernetesReadOnlyError as error:
+            _reject(error.code)
+
+    def _validate_kubernetes_response(self, candidate: Mapping[str, Any]) -> None:
+        from sremut.kubernetes_readonly import (
+            KubernetesReadOnlyError,
+            validate_resolved_kubernetes_response,
+        )
+
+        try:
+            validate_resolved_kubernetes_response(self, candidate)
+        except KubernetesReadOnlyError as error:
+            _reject(error.code)
 
     def _validate_sensitive(self, candidate: Mapping[str, Any]) -> None:
         rows: list[ResolvedEvidence] = []
