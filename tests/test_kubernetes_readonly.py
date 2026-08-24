@@ -1124,16 +1124,10 @@ class CaptureTimeIdentityTests(KubernetesReadOnlyCase):
                 ),
                 "PASS",
             )
-            self.assertFalse(request_result.valid)
-            self.assertFalse(response_result.valid)
-            self.assertEqual(
-                request_result.failure_code,
-                "RUNNER_IMPLEMENTATION_INCOMPLETE",
-            )
-            self.assertEqual(
-                response_result.failure_code,
-                "RUNNER_IMPLEMENTATION_INCOMPLETE",
-            )
+            self.assertTrue(request_result.valid)
+            self.assertTrue(response_result.valid)
+            self.assertIsNone(request_result.failure_code)
+            self.assertIsNone(response_result.failure_code)
 
 
 
@@ -1362,8 +1356,8 @@ class ResolvedHookIntegrationTests(KubernetesReadOnlyCase):
         context, request, response = self._context()
         request_result = self.policy.full_admissibility(request, context)
         response_result = self.policy.full_admissibility(response, context)
-        self.assertFalse(request_result.valid)
-        self.assertFalse(response_result.valid)
+        self.assertTrue(request_result.valid)
+        self.assertTrue(response_result.valid)
         request_rows = [row for row in request_result.hook_outcomes if row.hook_id == request_hook]
         response_rows = [row for row in response_result.hook_outcomes if row.hook_id == response_hook]
         self.assertEqual([(row.hook_id, row.outcome) for row in request_rows], [(request_hook, "PASS")])
@@ -1376,7 +1370,7 @@ class ResolvedHookIntegrationTests(KubernetesReadOnlyCase):
         self.assertEqual(result.hook_id, "VALIDATE_KUBERNETES_RESPONSE_V1")
         self.assertEqual(result.failure_code, "KUBERNETES_PROJECTION_REQUEST_MISMATCH")
 
-    def test_wrong_list_resource_version_beats_unavailable_restoration_hook(self):
+    def test_wrong_list_resource_version_fails_before_later_restoration_hook(self):
         context, _request, response = self._context(wrong_list_rv=True)
         result = self.policy.full_admissibility(response, context)
         self.assertFalse(result.valid)

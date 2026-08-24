@@ -442,34 +442,22 @@ class ConnectedHookTests(ResolvedContextCase):
         )
         return self.resolve(anchor), references[0]
 
-    def test_exact_connected_and_unimplemented_sets(self):
-        expected_connected = {
-            "VALIDATE_CANONICAL_NO_FLOATS_V1",
-            "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
-            "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
-            "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
-            "VALIDATE_WORKLOAD_CARDINALITY_V1",
-            "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
-            "VALIDATE_JOURNAL_HASH_CHAIN_V1",
-            "VALIDATE_KUBERNETES_REQUEST_V1",
-            "VALIDATE_KUBERNETES_RESPONSE_V1",
-            "VALIDATE_SENSITIVE_CAPTURE_V1",
-        }
-        self.assertEqual(CONNECTED_HOOKS, expected_connected)
-        self.assertEqual(
-            tuple(hook for hook in EXPECTED_HOOK_ORDER if hook not in CONNECTED_HOOKS),
-            (
-                "VALIDATE_ADJUDICATION_RAW_BACKING_V1",
-                "VALIDATE_SERVICE_RESTORATION_BODY_V1",
-            ),
-        )
+    def test_final_hooks_are_wired_in_frozen_dispatch_positions(self):
+        adjudication = "VALIDATE_ADJUDICATION_RAW_BACKING_V1"
+        restoration = "VALIDATE_SERVICE_RESTORATION_BODY_V1"
+        self.assertIn(adjudication, CONNECTED_HOOKS)
+        self.assertIn(restoration, CONNECTED_HOOKS)
+        self.assertEqual(EXPECTED_HOOK_ORDER.index(adjudication), 6)
+        self.assertEqual(EXPECTED_HOOK_ORDER.index(restoration), 10)
+        self.assertEqual(EXPECTED_HOOK_ORDER.count(adjudication), 1)
+        self.assertEqual(EXPECTED_HOOK_ORDER.count(restoration), 1)
 
     def test_valid_reference_descriptor_and_sensitive_hooks_pass_in_order(self):
         context, reference = self.context_with_input()
         candidate = parse_canonical_json(context.evidence[reference.evidence_id].descriptor_bytes)
         result = self.policy.full_admissibility(candidate, context)
-        self.assertFalse(result.valid)
-        self.assertEqual(result.failure_code, "RUNNER_IMPLEMENTATION_INCOMPLETE")
+        self.assertTrue(result.valid)
+        self.assertIsNone(result.failure_code)
         self.assertEqual(
             tuple(outcome.hook_id for outcome in result.hook_outcomes),
             (
@@ -623,7 +611,8 @@ class ConnectedHookTests(ResolvedContextCase):
             result = self.policy.full_admissibility(
                 parse_canonical_json(context.evidence[refs[-1].evidence_id].descriptor_bytes), context
             )
-            self.assertEqual(result.failure_code, "RUNNER_IMPLEMENTATION_INCOMPLETE")
+            self.assertTrue(result.valid)
+            self.assertIsNone(result.failure_code)
         finally:
             self.root = old
 

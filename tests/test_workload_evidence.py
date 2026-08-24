@@ -308,38 +308,15 @@ class WorkloadPureTests(unittest.TestCase):
                 self.assertEqual(set(requests), {1024})
                 self.assertEqual(failures, 0)
 
-    def test_global_hook_state_is_exact_ten_connected_two_unavailable(self):
-        expected = frozenset(
-            {
-                "VALIDATE_CANONICAL_NO_FLOATS_V1",
-                "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
-                "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
-                "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
-                "VALIDATE_WORKLOAD_CARDINALITY_V1",
-                "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
-                "VALIDATE_JOURNAL_HASH_CHAIN_V1",
-                "VALIDATE_KUBERNETES_REQUEST_V1",
-                "VALIDATE_KUBERNETES_RESPONSE_V1",
-                "VALIDATE_SENSITIVE_CAPTURE_V1",
-            }
-        )
-        self.assertEqual(CONNECTED_HOOKS, expected)
-        self.assertEqual(tuple(hook for hook in EXPECTED_HOOK_ORDER if hook not in CONNECTED_HOOKS), (
-            "VALIDATE_ADJUDICATION_RAW_BACKING_V1",
-            "VALIDATE_SERVICE_RESTORATION_BODY_V1",
-        ))
-        self.assertEqual(len(EXPECTED_HOOK_ORDER), 12)
-        self.assertEqual(
-            EXPECTED_HOOK_ORDER,
-            (
-                "VALIDATE_CANONICAL_NO_FLOATS_V1", "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
-                "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1", "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
-                "VALIDATE_WORKLOAD_CARDINALITY_V1", "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
-                "VALIDATE_ADJUDICATION_RAW_BACKING_V1", "VALIDATE_JOURNAL_HASH_CHAIN_V1",
-                "VALIDATE_KUBERNETES_REQUEST_V1", "VALIDATE_KUBERNETES_RESPONSE_V1",
-                "VALIDATE_SERVICE_RESTORATION_BODY_V1", "VALIDATE_SENSITIVE_CAPTURE_V1",
-            ),
-        )
+    def test_workload_hooks_remain_connected_in_frozen_positions(self):
+        cardinality = "VALIDATE_WORKLOAD_CARDINALITY_V1"
+        window = "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1"
+        self.assertIn(cardinality, CONNECTED_HOOKS)
+        self.assertIn(window, CONNECTED_HOOKS)
+        self.assertEqual(EXPECTED_HOOK_ORDER.index(cardinality), 4)
+        self.assertEqual(EXPECTED_HOOK_ORDER.index(window), 5)
+        self.assertEqual(EXPECTED_HOOK_ORDER.count(cardinality), 1)
+        self.assertEqual(EXPECTED_HOOK_ORDER.count(window), 1)
 
 
 class WorkloadResolvedHookTests(unittest.TestCase):
@@ -460,16 +437,16 @@ class WorkloadResolvedHookTests(unittest.TestCase):
                 },
             )
             transitions = (
-                ("CREATED->PREFLIGHT_PASS", (pod_ref,)),
-                ("PREFLIGHT_PASS->HEALTHY_STATE_CAPTURED", (prefix_ref,)),
-                ("HEALTHY_STATE_CAPTURED->MUTANT_INJECTED", (boundary_ref,)),
-                ("MUTANT_INJECTED->MUTANT_STATE_VERIFIED", (raw_ref,)),
+                ("CREATED->PREFLIGHT_PASS", ()),
+                ("PREFLIGHT_PASS->HEALTHY_STATE_CAPTURED", ()),
+                ("HEALTHY_STATE_CAPTURED->MUTANT_INJECTED", ()),
+                ("MUTANT_INJECTED->MUTANT_STATE_VERIFIED", ()),
                 ("MUTANT_STATE_VERIFIED->ORIGINAL_ORACLE_STARTED", ()),
                 ("ORIGINAL_ORACLE_STARTED->ORIGINAL_ORACLE_EVALUATED", ()),
-                ("EVALUATION_AUTHORIZED:INITIAL_INVARIANT_EVALUATION", (parse_ref,)),
-                ("ORIGINAL_ORACLE_EVALUATED->CONTRACT_EVALUATED", (adjudication_ref,)),
-                ("CONTRACT_EVALUATED->RESTORE_STARTED", ()),
-                ("RESTORE_STARTED->RESTORE_VERIFIED", ()),
+                ("EVALUATION_AUTHORIZED:INITIAL_INVARIANT_EVALUATION", ()),
+                ("ORIGINAL_ORACLE_EVALUATED->CONTRACT_EVALUATED", (pod_ref, prefix_ref)),
+                ("CONTRACT_EVALUATED->RESTORE_STARTED", (boundary_ref, raw_ref, parse_ref)),
+                ("RESTORE_STARTED->RESTORE_VERIFIED", (adjudication_ref,)),
                 ("RESTORE_VERIFIED->FINALIZED", ()),
             )
             with Journal(root, self.policy, RUN_ID, ATTEMPT_ID) as journal:
@@ -502,15 +479,15 @@ class WorkloadResolvedHookTests(unittest.TestCase):
         candidate = parse_canonical_json(context.evidence[raw_ref.evidence_id].descriptor_bytes)
         return context, candidate
 
-    def test_both_hooks_pass_through_public_dispatcher_and_global_stays_false(self):
+    def test_both_workload_hooks_pass_through_public_dispatcher(self):
         context, candidate = self.build_context()
         result = self.policy.full_admissibility(candidate, context)
         outcomes = {row.hook_id: row.outcome for row in result.hook_outcomes}
         self.assertEqual(outcomes["VALIDATE_WORKLOAD_CARDINALITY_V1"], "PASS")
         self.assertEqual(outcomes["VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1"], "PASS")
-        self.assertFalse(result.valid)
-        self.assertEqual(result.failure_code, "RUNNER_IMPLEMENTATION_INCOMPLETE")
-        self.assertEqual(result.hook_id, "VALIDATE_ADJUDICATION_RAW_BACKING_V1")
+        self.assertTrue(result.valid)
+        self.assertIsNone(result.failure_code)
+        self.assertIsNone(result.hook_id)
 
     def test_forty_nine_requests_rejected_through_public_dispatcher(self):
         context, candidate = self.build_context(requests=49)

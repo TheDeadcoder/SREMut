@@ -249,7 +249,7 @@ class AuthenticatedPolicy:
         candidate: Any,
         resolved_context: Any | None = None,
     ) -> ValidationResult:
-        """Run the closed frozen dispatcher and fail closed on unavailable hooks."""
+        """Run every applicable frozen semantic hook in exact order."""
 
         outcomes: list[HookOutcome] = []
         subject = None
@@ -295,22 +295,18 @@ class AuthenticatedPolicy:
                     "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
                     "VALIDATE_WORKLOAD_CARDINALITY_V1",
                     "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
+                    "VALIDATE_ADJUDICATION_RAW_BACKING_V1",
                     "VALIDATE_JOURNAL_HASH_CHAIN_V1",
                     "VALIDATE_KUBERNETES_REQUEST_V1",
                     "VALIDATE_KUBERNETES_RESPONSE_V1",
+                    "VALIDATE_SERVICE_RESTORATION_BODY_V1",
                     "VALIDATE_SENSITIVE_CAPTURE_V1",
                 }
             )
             if CONNECTED_HOOKS != expected_connected:
                 _reject("HOOK_MATRIX_MISMATCH")
             plan = self.hook_plan(candidate.get("document_type", ""), candidate.get("role"))
-            first_unavailable: str | None = None
             for hook in plan:
-                if hook.hook_id not in CONNECTED_HOOKS:
-                    outcomes.append(HookOutcome(hook.hook_id, "RUNNER_IMPLEMENTATION_INCOMPLETE"))
-                    if first_unavailable is None:
-                        first_unavailable = hook.hook_id
-                    continue
                 try:
                     if hook.hook_id == "VALIDATE_CANONICAL_NO_FLOATS_V1":
                         validate_canonical_value(candidate)
@@ -327,25 +323,11 @@ class AuthenticatedPolicy:
                         tuple(outcomes),
                     )
                 outcomes.append(HookOutcome(hook.hook_id, "PASS"))
-            if first_unavailable is not None:
-                return _validation_result(
-                    False,
-                    self.dispatcher_id,
-                    first_unavailable,
-                    "RUNNER_IMPLEMENTATION_INCOMPLETE",
-                    subject,
-                    tuple(outcomes),
-                )
-            # The runtime boundary stays globally non-admissible until every
-            # frozen semantic handler exists, including for narrow documents.
-            unavailable = next(
-                hook_id for hook_id in EXPECTED_HOOK_ORDER if hook_id not in CONNECTED_HOOKS
-            )
             return _validation_result(
-                False,
+                True,
                 self.dispatcher_id,
-                unavailable,
-                "RUNNER_IMPLEMENTATION_INCOMPLETE",
+                None,
+                None,
                 subject,
                 tuple(outcomes),
             )

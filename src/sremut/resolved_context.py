@@ -40,9 +40,11 @@ CONNECTED_HOOKS = frozenset(
         "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
         "VALIDATE_WORKLOAD_CARDINALITY_V1",
         "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
+        "VALIDATE_ADJUDICATION_RAW_BACKING_V1",
         "VALIDATE_JOURNAL_HASH_CHAIN_V1",
         "VALIDATE_KUBERNETES_REQUEST_V1",
         "VALIDATE_KUBERNETES_RESPONSE_V1",
+        "VALIDATE_SERVICE_RESTORATION_BODY_V1",
         "VALIDATE_SENSITIVE_CAPTURE_V1",
     }
 )
@@ -195,9 +197,11 @@ class ResolvedEvidenceContext:
             "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1": self._validate_attempt,
             "VALIDATE_WORKLOAD_CARDINALITY_V1": self._validate_workload_cardinality,
             "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1": self._validate_workload_window,
+            "VALIDATE_ADJUDICATION_RAW_BACKING_V1": self._validate_adjudication,
             "VALIDATE_JOURNAL_HASH_CHAIN_V1": self._validate_journal,
             "VALIDATE_KUBERNETES_REQUEST_V1": self._validate_kubernetes_request,
             "VALIDATE_KUBERNETES_RESPONSE_V1": self._validate_kubernetes_response,
+            "VALIDATE_SERVICE_RESTORATION_BODY_V1": self._validate_service_restoration,
             "VALIDATE_SENSITIVE_CAPTURE_V1": self._validate_sensitive,
         }
         handler = handlers.get(hook_id)
@@ -400,6 +404,14 @@ class ResolvedEvidenceContext:
         except WorkloadEvidenceError as error:
             _reject(error.code)
 
+    def _validate_adjudication(self, candidate: Mapping[str, Any]) -> None:
+        from sremut.adjudication import AdjudicationError, validate_resolved_adjudication
+
+        try:
+            validate_resolved_adjudication(self, candidate)
+        except AdjudicationError as error:
+            _reject(error.code)
+
     def _validate_kubernetes_request(self, candidate: Mapping[str, Any]) -> None:
         from sremut.kubernetes_readonly import (
             KubernetesReadOnlyError,
@@ -420,6 +432,17 @@ class ResolvedEvidenceContext:
         try:
             validate_resolved_kubernetes_response(self, candidate)
         except KubernetesReadOnlyError as error:
+            _reject(error.code)
+
+    def _validate_service_restoration(self, candidate: Mapping[str, Any]) -> None:
+        from sremut.service_restoration import (
+            ServiceRestorationError,
+            validate_resolved_service_restoration,
+        )
+
+        try:
+            validate_resolved_service_restoration(self, candidate)
+        except ServiceRestorationError as error:
             _reject(error.code)
 
     def _validate_sensitive(self, candidate: Mapping[str, Any]) -> None:
