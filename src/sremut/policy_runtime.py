@@ -1,4 +1,4 @@
-"""Authenticated, immutable runtime view of evidence-policy v1."""
+"""Authenticated, immutable runtime view of evidence-policy v1.1."""
 
 from __future__ import annotations
 
@@ -16,10 +16,21 @@ import yaml
 from sremut.canonical_json import canonical_json_bytes, validate_canonical_value
 
 
-POLICY_MANIFEST_SHA256 = "7b99a435afbd5b8d692fa6654997a06baabd51209176b13103ecb68be21eee3d"
-POLICY_RELATIVE_PATH = "policies/missing_service_social_network/evidence-capture-v1.yaml"
-SCHEMA_RELATIVE_PATH = "schemas/evidence-capture-policy-v1.schema.json"
-GENERATOR_RELATIVE_PATH = "tools/freeze_missing_service_evidence_policy.py"
+POLICY_MANIFEST_SHA256 = "9ef4415ce50193eb615b0cf0313ad05f1ea3806bae43fffae83bd85616454cb7"
+POLICY_RELATIVE_PATH = "policies/missing_service_social_network/evidence-capture-v1.1.yaml"
+SCHEMA_RELATIVE_PATH = "schemas/evidence-capture-policy-v1.1.schema.json"
+GENERATOR_RELATIVE_PATH = "tools/freeze_missing_service_evidence_policy_v1_1.py"
+POLICY_ID = "sremut/missing-service-social-network/evidence-capture-v1.1"
+POLICY_SEMANTIC_VERSION = "1.1"
+HISTORICAL_V1_MANIFEST_SHA256 = "7b99a435afbd5b8d692fa6654997a06baabd51209176b13103ecb68be21eee3d"
+HISTORICAL_V1_RELATIVE_PATHS = frozenset(
+    {
+        "EVIDENCE_CAPTURE_POLICY_V1_SHA256SUMS",
+        "policies/missing_service_social_network/evidence-capture-v1.yaml",
+        "schemas/evidence-capture-policy-v1.schema.json",
+        "tools/freeze_missing_service_evidence_policy.py",
+    }
+)
 EXPECTED_MANIFEST_PATHS = (
     GENERATOR_RELATIVE_PATH,
     POLICY_RELATIVE_PATH,
@@ -39,8 +50,8 @@ EXPECTED_HOOK_ORDER = (
     "VALIDATE_SERVICE_RESTORATION_BODY_V1",
     "VALIDATE_SENSITIVE_CAPTURE_V1",
 )
-EXPECTED_ROLE_SECTION_SHA256 = "e70e40d770b9c1aa6a8f207ba36b6e94f9e5d6e3a8daa9b71f37b872ea153370"
-EXPECTED_HOOK_SECTION_SHA256 = "9ea177d3235971bf3bfb895abf2cbe86bcb5b2785acd34091a4cbcb80755a72d"
+EXPECTED_ROLE_SECTION_SHA256 = "42bb026b40beff10fc0e63836f67a10549d92ba2e6f48ee3127a1bbd9ef20d60"
+EXPECTED_HOOK_SECTION_SHA256 = "f15497e201db7245eed67d748598658793fe410c4ac28ccaa01ad9b8768bc1bc"
 EXPECTED_MATRIX_SECTION_SHA256 = "1bb914a14a3d6fd2b63aa54d4ee429e368b23737d03caf7533920b0e3bacf014"
 EXPECTED_STATE_SECTION_SHA256 = "c5d01548d46d416167a3adaff5cdd19a5e33e325464fd3597bf61d934b8e7487"
 EXPECTED_SENSITIVE_SECTION_SHA256 = "0a909390e35eb5b2daefe6379f23b7a9e10874c0167266112d8f82cbd8198feb"
@@ -282,6 +293,8 @@ class AuthenticatedPolicy:
                     "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
                     "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
                     "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
+                    "VALIDATE_WORKLOAD_CARDINALITY_V1",
+                    "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
                     "VALIDATE_JOURNAL_HASH_CHAIN_V1",
                     "VALIDATE_KUBERNETES_REQUEST_V1",
                     "VALIDATE_KUBERNETES_RESPONSE_V1",
@@ -367,10 +380,16 @@ def load_policy_bundle(
     hook_contracts_override: Any | None = None,
     applicability_override: Any | None = None,
 ) -> AuthenticatedPolicy:
-    """Authenticate exact v1 bytes and expose an immutable closed runtime view."""
+    """Authenticate exact v1.1 bytes and expose an immutable closed runtime view."""
 
     if any(value is not None for value in (parsed_policy_override, hook_contracts_override, applicability_override)):
         _reject("POLICY_PARSED_CONTENT_MISMATCH")
+    supplied_paths = {str(policy_path), str(schema_path), str(manifest_path)}
+    if expected_manifest_sha256 == HISTORICAL_V1_MANIFEST_SHA256 or any(
+        any(path.endswith(relative) for relative in HISTORICAL_V1_RELATIVE_PATHS)
+        for path in supplied_paths
+    ):
+        _reject("POLICY_SUPERSEDED")
     if expected_manifest_sha256 != POLICY_MANIFEST_SHA256:
         _reject("POLICY_MANIFEST_HASH_MISMATCH")
     try:
@@ -379,6 +398,8 @@ def load_policy_bundle(
         manifest_bytes = Path(manifest_path).read_bytes()
     except (OSError, TypeError):
         _reject("POLICY_BINDING_MISSING")
+    if _sha256(manifest_bytes) == HISTORICAL_V1_MANIFEST_SHA256:
+        _reject("POLICY_SUPERSEDED")
     if _sha256(manifest_bytes) != expected_manifest_sha256:
         _reject("POLICY_MANIFEST_HASH_MISMATCH")
     rows = _parse_manifest(manifest_bytes)
@@ -396,6 +417,12 @@ def load_policy_bundle(
     except Exception:
         _reject("POLICY_PARSED_CONTENT_MISMATCH")
     if not isinstance(policy, dict) or not isinstance(schema, dict):
+        _reject("POLICY_PARSED_CONTENT_MISMATCH")
+    if (
+        policy.get("policy_id") != POLICY_ID
+        or policy.get("semantic_version") != POLICY_SEMANTIC_VERSION
+        or policy.get("status") != "FROZEN_BEFORE_MUTANT_EXECUTION"
+    ):
         _reject("POLICY_PARSED_CONTENT_MISMATCH")
     full = policy.get("full_admissibility_validation")
     if not isinstance(full, dict):

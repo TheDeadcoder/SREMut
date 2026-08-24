@@ -26,9 +26,9 @@ from sremut.resolved_context import (
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
-POLICY_PATH = REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.yaml"
-SCHEMA_PATH = REPOSITORY / "schemas/evidence-capture-policy-v1.schema.json"
-MANIFEST_PATH = REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_SHA256SUMS"
+POLICY_PATH = REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.1.yaml"
+SCHEMA_PATH = REPOSITORY / "schemas/evidence-capture-policy-v1.1.schema.json"
+MANIFEST_PATH = REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_1_SHA256SUMS"
 RUN_ID = "sremut-ms-m01-r01-a01-abcdef123456"
 ATTEMPT_ID = "a01"
 CREATED_UTC = "2026-08-20T10:00:00.123456789Z"
@@ -448,6 +448,8 @@ class ConnectedHookTests(ResolvedContextCase):
             "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
             "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
             "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
+            "VALIDATE_WORKLOAD_CARDINALITY_V1",
+            "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
             "VALIDATE_JOURNAL_HASH_CHAIN_V1",
             "VALIDATE_KUBERNETES_REQUEST_V1",
             "VALIDATE_KUBERNETES_RESPONSE_V1",
@@ -457,8 +459,6 @@ class ConnectedHookTests(ResolvedContextCase):
         self.assertEqual(
             tuple(hook for hook in EXPECTED_HOOK_ORDER if hook not in CONNECTED_HOOKS),
             (
-                "VALIDATE_WORKLOAD_CARDINALITY_V1",
-                "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
                 "VALIDATE_ADJUDICATION_RAW_BACKING_V1",
                 "VALIDATE_SERVICE_RESTORATION_BODY_V1",
             ),
@@ -630,7 +630,7 @@ class ConnectedHookTests(ResolvedContextCase):
 
     def test_frozen_nested_descriptor_matches_exact_parsed_candidate(self):
         _seal, anchor, refs = self.seal(
-            evidence_kind="workload", payload=b"valid workload bytes"
+            evidence_kind="input", payload=b'{"ok":true}'
         )
         context = self.resolve(anchor)
         candidate = parse_canonical_json(
@@ -638,9 +638,9 @@ class ConnectedHookTests(ResolvedContextCase):
         )
         context.validate_hook("VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1", candidate)
 
-    def test_connected_failure_after_missing_hook_is_not_hidden(self):
+    def test_connected_sensitive_failure_is_not_hidden(self):
         _seal, anchor, refs = self.seal(
-            evidence_kind="workload", payload=b"\xff", bypass=True
+            evidence_kind="input_raw", payload=b"\xff", bypass=True
         )
         context = self.resolve(anchor)
         candidate = parse_canonical_json(
@@ -656,8 +656,6 @@ class ConnectedHookTests(ResolvedContextCase):
                 "VALIDATE_CANONICAL_NO_FLOATS_V1",
                 "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
                 "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
-                "VALIDATE_WORKLOAD_CARDINALITY_V1",
-                "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
                 "VALIDATE_SENSITIVE_CAPTURE_V1",
             ),
         )

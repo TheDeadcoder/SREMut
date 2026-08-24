@@ -38,9 +38,9 @@ REPOSITORY = Path(__file__).resolve().parents[1]
 
 def load_policy():
     return load_policy_bundle(
-        REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.yaml",
-        REPOSITORY / "schemas/evidence-capture-policy-v1.schema.json",
-        REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_SHA256SUMS",
+        REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.1.yaml",
+        REPOSITORY / "schemas/evidence-capture-policy-v1.1.schema.json",
+        REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_1_SHA256SUMS",
         expected_manifest_sha256=POLICY_MANIFEST_SHA256,
     )
 

@@ -49,9 +49,9 @@ from sremut.sensitive import (
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
-POLICY_PATH = REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.yaml"
-SCHEMA_PATH = REPOSITORY / "schemas/evidence-capture-policy-v1.schema.json"
-MANIFEST_PATH = REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_SHA256SUMS"
+POLICY_PATH = REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.1.yaml"
+SCHEMA_PATH = REPOSITORY / "schemas/evidence-capture-policy-v1.1.schema.json"
+MANIFEST_PATH = REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_1_SHA256SUMS"
 RUN_ID = "sremut-ms-m01-r01-a01-abcdef123456"
 ATTEMPT_ID = "a01"
 CREATED_UTC = "2026-08-20T10:00:00.123456789Z"
@@ -165,6 +165,19 @@ class PolicyAuthenticationTests(TemporaryRootCase):
         self.assertEqual(tuple(h.hook_id for h in self.policy.hooks), EXPECTED_HOOK_ORDER)
         self.assertEqual(len(self.policy.applicability), 19)
         self.assertEqual(self.policy.dispatcher_id, "SREMUT_FULL_ADMISSIBILITY_DISPATCHER_V1")
+
+    def test_historical_v1_bundle_is_rejected_for_current_capture(self):
+        historical = (
+            REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.yaml",
+            REPOSITORY / "schemas/evidence-capture-policy-v1.schema.json",
+            REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_SHA256SUMS",
+        )
+        self.assert_code(
+            "POLICY_SUPERSEDED",
+            load_policy_bundle,
+            *historical,
+            expected_manifest_sha256="7b99a435afbd5b8d692fa6654997a06baabd51209176b13103ecb68be21eee3d",
+        )
 
     def test_modified_policy_byte_rejected(self):
         paths = self.copy_bundle()
@@ -300,8 +313,8 @@ class PolicyAuthenticationTests(TemporaryRootCase):
         paths[1].write_bytes(paths[1].read_bytes() + b" ")
         rows = MANIFEST_PATH.read_text(encoding="ascii").splitlines()
         replacements = {
-            "policies/missing_service_social_network/evidence-capture-v1.yaml": sha256_hex(paths[0].read_bytes()),
-            "schemas/evidence-capture-policy-v1.schema.json": sha256_hex(paths[1].read_bytes()),
+            "policies/missing_service_social_network/evidence-capture-v1.1.yaml": sha256_hex(paths[0].read_bytes()),
+            "schemas/evidence-capture-policy-v1.1.schema.json": sha256_hex(paths[1].read_bytes()),
         }
         manifest = "".join(
             f"{replacements.get(path, digest)}  {path}\n"

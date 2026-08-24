@@ -38,6 +38,8 @@ CONNECTED_HOOKS = frozenset(
         "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
         "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
         "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
+        "VALIDATE_WORKLOAD_CARDINALITY_V1",
+        "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
         "VALIDATE_JOURNAL_HASH_CHAIN_V1",
         "VALIDATE_KUBERNETES_REQUEST_V1",
         "VALIDATE_KUBERNETES_RESPONSE_V1",
@@ -191,6 +193,8 @@ class ResolvedEvidenceContext:
             "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1": self._validate_references,
             "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1": self._validate_descriptor,
             "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1": self._validate_attempt,
+            "VALIDATE_WORKLOAD_CARDINALITY_V1": self._validate_workload_cardinality,
+            "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1": self._validate_workload_window,
             "VALIDATE_JOURNAL_HASH_CHAIN_V1": self._validate_journal,
             "VALIDATE_KUBERNETES_REQUEST_V1": self._validate_kubernetes_request,
             "VALIDATE_KUBERNETES_RESPONSE_V1": self._validate_kubernetes_response,
@@ -373,6 +377,28 @@ class ResolvedEvidenceContext:
         manifest_digest = dict(self.manifest_rows).get("journal/attempt.jsonl")
         if manifest_digest != sha256_hex(self.journal_bytes):
             _reject("JOURNAL_CHAIN_INVALID")
+
+    def _validate_workload_cardinality(self, candidate: Mapping[str, Any]) -> None:
+        from sremut.workload_evidence import (
+            WorkloadEvidenceError,
+            validate_resolved_workload_cardinality,
+        )
+
+        try:
+            validate_resolved_workload_cardinality(self, candidate)
+        except WorkloadEvidenceError as error:
+            _reject(error.code)
+
+    def _validate_workload_window(self, candidate: Mapping[str, Any]) -> None:
+        from sremut.workload_evidence import (
+            WorkloadEvidenceError,
+            validate_resolved_workload_window,
+        )
+
+        try:
+            validate_resolved_workload_window(self, candidate)
+        except WorkloadEvidenceError as error:
+            _reject(error.code)
 
     def _validate_kubernetes_request(self, candidate: Mapping[str, Any]) -> None:
         from sremut.kubernetes_readonly import (
@@ -566,13 +592,33 @@ def _evaluation_context(policy: AuthenticatedPolicy, state: JournalState) -> Map
         "adjudication_predicate_raw_role_context_deadline_matrix"
     ]
     row = matrix.get(state.evaluation)
-    if not isinstance(row, Mapping) or state.state not in row["allowed_states"]:
+    authorization_state = "CREATED"
+    observed_evaluation: str | None = None
+    for record in state.records:
+        transition = record.get("transition")
+        if not isinstance(transition, str):
+            continue
+        if transition.startswith("EVALUATION_AUTHORIZED:"):
+            observed_evaluation = transition.split(":", 1)[1]
+            if observed_evaluation == state.evaluation:
+                break
+        elif "->" in transition and not transition.startswith("OPERATION_AUTHORIZED:"):
+            source, target = transition.split("->", 1)
+            if source != authorization_state:
+                _reject("JOURNAL_CONTEXT_MISMATCH")
+            authorization_state = target
+    if (
+        not isinstance(row, Mapping)
+        or observed_evaluation != state.evaluation
+        or authorization_state not in row["allowed_states"]
+    ):
         _reject("JOURNAL_CONTEXT_MISMATCH")
     return _freeze(
         {
             "predicate_id": state.evaluation,
             "phase": row["phase"],
             "deadline_identity": row["deadline_identity"],
+            "authorization_state": authorization_state,
         }
     )
 

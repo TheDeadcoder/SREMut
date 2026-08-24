@@ -47,6 +47,10 @@ EXPECTED_TAGS = MappingProxyType(
             "40e50e4f6fcaff150a84137ed099a220441e4258",
             "c2f500c9ec6ed46b4f62d989c6c7d2b6743d9471",
         ),
+        "sremut-missing-service-evidence-policy-v1.1": (
+            "8e44e66c4424f0c5d06fb7484b960e1041466d9f",
+            "560e8e81aed626f06e5b08786be51138daaf99dd",
+        ),
     }
 )
 EXPECTED_SUBMODULES = MappingProxyType(

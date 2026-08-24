@@ -38,9 +38,9 @@ ATTEMPT_ID = "a01"
 
 def load_policy():
     return load_policy_bundle(
-        REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.yaml",
-        REPOSITORY / "schemas/evidence-capture-policy-v1.schema.json",
-        REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_SHA256SUMS",
+        REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.1.yaml",
+        REPOSITORY / "schemas/evidence-capture-policy-v1.1.schema.json",
+        REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_1_SHA256SUMS",
         expected_manifest_sha256=POLICY_MANIFEST_SHA256,
     )
 
@@ -1350,38 +1350,24 @@ class ResolvedHookIntegrationTests(KubernetesReadOnlyCase):
         )
         validate_prepublication_capture(self.policy, capture)
 
-    def test_exact_eight_connected_four_unavailable_and_full_false(self):
-        self.assertEqual(
-            CONNECTED_HOOKS,
-            frozenset({
-                "VALIDATE_CANONICAL_NO_FLOATS_V1",
-                "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
-                "VALIDATE_DESCRIPTOR_CONTENT_IDENTITY_V1",
-                "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1",
-                "VALIDATE_JOURNAL_HASH_CHAIN_V1",
-                "VALIDATE_KUBERNETES_REQUEST_V1",
-                "VALIDATE_KUBERNETES_RESPONSE_V1",
-                "VALIDATE_SENSITIVE_CAPTURE_V1",
-            }),
-        )
-        self.assertEqual(
-            tuple(hook for hook in EXPECTED_HOOK_ORDER if hook not in CONNECTED_HOOKS),
-            (
-                "VALIDATE_WORKLOAD_CARDINALITY_V1",
-                "VALIDATE_WORKLOAD_WINDOW_CONSISTENCY_V1",
-                "VALIDATE_ADJUDICATION_RAW_BACKING_V1",
-                "VALIDATE_SERVICE_RESTORATION_BODY_V1",
-            ),
-        )
+    def test_kubernetes_hooks_remain_connected_in_frozen_positions(self):
+        request_hook = "VALIDATE_KUBERNETES_REQUEST_V1"
+        response_hook = "VALIDATE_KUBERNETES_RESPONSE_V1"
+        self.assertIn(request_hook, CONNECTED_HOOKS)
+        self.assertIn(response_hook, CONNECTED_HOOKS)
+        self.assertEqual(EXPECTED_HOOK_ORDER.index(request_hook), 8)
+        self.assertEqual(EXPECTED_HOOK_ORDER.index(response_hook), 9)
+        self.assertEqual(EXPECTED_HOOK_ORDER.count(request_hook), 1)
+        self.assertEqual(EXPECTED_HOOK_ORDER.count(response_hook), 1)
         context, request, response = self._context()
         request_result = self.policy.full_admissibility(request, context)
         response_result = self.policy.full_admissibility(response, context)
         self.assertFalse(request_result.valid)
         self.assertFalse(response_result.valid)
-        self.assertIn("VALIDATE_KUBERNETES_REQUEST_V1", [row.hook_id for row in request_result.hook_outcomes])
-        self.assertIn("VALIDATE_KUBERNETES_RESPONSE_V1", [row.hook_id for row in response_result.hook_outcomes])
-        self.assertEqual(next(row.outcome for row in request_result.hook_outcomes if row.hook_id == "VALIDATE_KUBERNETES_REQUEST_V1"), "PASS")
-        self.assertEqual(next(row.outcome for row in response_result.hook_outcomes if row.hook_id == "VALIDATE_KUBERNETES_RESPONSE_V1"), "PASS")
+        request_rows = [row for row in request_result.hook_outcomes if row.hook_id == request_hook]
+        response_rows = [row for row in response_result.hook_outcomes if row.hook_id == response_hook]
+        self.assertEqual([(row.hook_id, row.outcome) for row in request_rows], [(request_hook, "PASS")])
+        self.assertEqual([(row.hook_id, row.outcome) for row in response_rows], [(response_hook, "PASS")])
 
     def test_wrong_request_reference_fails_through_public_dispatcher(self):
         context, _request, response = self._context(wrong_request_reference=True)
