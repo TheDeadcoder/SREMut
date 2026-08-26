@@ -1,0 +1,90 @@
+{
+  "dump_post_recovery": {
+    "captured_utc": "2026-08-26T14:58:12.799693+00:00",
+    "files": {
+      "deployments": {
+        "bytes": 149031,
+        "exit_status": 0,
+        "sha256": "49d4f68924ef682b768bb55de3cec035d325e0d7e6209fa4f7fddea61e89328c",
+        "stderr": ""
+      },
+      "endpointslices": {
+        "bytes": 58558,
+        "exit_status": 0,
+        "sha256": "a3fab53e29123c39ff1c136d4ac9648f34a3d033142754e391201836e8129b38",
+        "stderr": ""
+      },
+      "pods": {
+        "bytes": 286984,
+        "exit_status": 0,
+        "sha256": "eec4536bde857fe3a2d851a82d7912f71a6cc4ee9add34f19b28dc5dfdf2e167",
+        "stderr": ""
+      },
+      "services": {
+        "bytes": 44304,
+        "exit_status": 0,
+        "sha256": "34172900f3463d06b8b85254a7958c72928ae34abd9a25c9a304dac87861d07c",
+        "stderr": ""
+      },
+      "user-service": {
+        "bytes": 2051,
+        "exit_status": 0,
+        "sha256": "04a096089cb8e41ac9edc63618c7b669e1e0ae6819717fcf281bce08a2dfb343",
+        "stderr": ""
+      }
+    },
+    "label": "post-recovery"
+  },
+  "dump_pre_recovery": {
+    "captured_utc": "2026-08-26T14:57:25.144037+00:00",
+    "files": {
+      "deployments": {
+        "bytes": 149031,
+        "exit_status": 0,
+        "sha256": "4b1d8799b6b928e4d7a4cb3364f75f2a8256c2bb26cd6eee52a860000c3a1aff",
+        "stderr": ""
+      },
+      "endpointslices": {
+        "bytes": 56337,
+        "exit_status": 0,
+        "sha256": "e576676ac4491f5f81ccdbdc574a6ec2f38d8d233ae20bb5af322b5c005331e7",
+        "stderr": ""
+      },
+      "pods": {
+        "bytes": 286985,
+        "exit_status": 0,
+        "sha256": "98c7896723abeede5d91cafce8bc30d958d40e9bf917687cc3484753e8ea6775",
+        "stderr": ""
+      },
+      "services": {
+        "bytes": 41884,
+        "exit_status": 0,
+        "sha256": "7cc4c732a1d9ceec30346e22fac5e8cd2d22e7266865d6112c5f503351cb0aa9",
+        "stderr": ""
+      },
+      "user-service": {
+        "bytes": 0,
+        "exit_status": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": ""
+      }
+    },
+    "label": "pre-recovery"
+  },
+  "fault_injected_after": false,
+  "fault_injected_before": false,
+  "finished_at": "2026-08-26T14:58:13.422178+00:00",
+  "namespace": "social-network",
+  "problem_id": "missing_service_social_network",
+  "protocol": "sremut-g04-positive-control-v1",
+  "recover_finished_utc": "2026-08-26T14:58:12.798435+00:00",
+  "recover_raised": null,
+  "recover_seconds": 46.971,
+  "recover_started_utc": "2026-08-26T14:57:25.827870+00:00",
+  "recover_stderr": "",
+  "recover_stdout": "== Fault Recovery ==\nRecreated service user-service to recover from the fault: service/user-service created\n\n[14:58:01] Waiting for namespace 'social-network' to be stable... kubectl.py:281\n[14:58:12] All pods in namespace 'social-network' are stable.     kubectl.py:291\nService: user-service | Namespace: social-network\n\n",
+  "schema_version": 1,
+  "script_sha256": "2e4a3d414fd103dbf45189ed42213427b370ec752660563c8a2d88ee935686b7",
+  "started_at": "2026-08-26T14:57:25.032132+00:00",
+  "status": "RECOVER_RETURNED"
+}

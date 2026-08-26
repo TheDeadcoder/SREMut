@@ -1,6 +1,6 @@
-# SREMut
-
-SREMut mutation-tests verifiers for AI-generated SRE mitigations.
+![SREMut-logo](https://ik.imagekit.io/sakib61/SREMut/SREMut.png)
+</br>
+**SREMut mutation-tests verifiers for AI-generated SRE mitigations.**
 
 The first study targets `missing_service_social_network` in SREGym. It
 tests whether a terminal pod/deployment health oracle accepts recoveries
