@@ -1,0 +1,233 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "73bc69ae70dbc822d11101d3f953064c8617577053331246ccec22cd8134ebc7",
+                    "cni.projectcalico.org/podIP": "10.244.195.229/32",
+                    "cni.projectcalico.org/podIPs": "10.244.195.229/32"
+                },
+                "creationTimestamp": "2026-08-26T11:02:51Z",
+                "finalizers": [
+                    "batch.kubernetes.io/job-tracking"
+                ],
+                "generateName": "wrk2-job-",
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "f6798aa6-937c-49b3-b300-8b3ee53bf84c",
+                    "batch.kubernetes.io/job-name": "wrk2-job",
+                    "controller-uid": "f6798aa6-937c-49b3-b300-8b3ee53bf84c",
+                    "job": "workload",
+                    "job-name": "wrk2-job"
+                },
+                "name": "wrk2-job-sxx2h",
+                "namespace": "social-network",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "wrk2-job",
+                        "uid": "f6798aa6-937c-49b3-b300-8b3ee53bf84c"
+                    }
+                ],
+                "resourceVersion": "1987585",
+                "uid": "849593a9-c0bd-412f-a4dc-319354d4caa8"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "args": [
+                            "/bin/bash",
+                            "/scripts/wrk2-workload.sh"
+                        ],
+                        "image": "deathstarbench/wrk2-client:latest",
+                        "imagePullPolicy": "Always",
+                        "name": "wrk2",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/scripts/mixed-workload.lua",
+                                "name": "wrk2-scripts",
+                                "subPath": "mixed-workload.lua"
+                            },
+                            {
+                                "mountPath": "/scripts/wrk2-workload.sh",
+                                "name": "wrk2-scripts",
+                                "subPath": "wrk2-workload.sh"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-2sh5x",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker3",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Never",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "wrk2-payload-script"
+                        },
+                        "name": "wrk2-scripts"
+                    },
+                    {
+                        "name": "kube-api-access-2sh5x",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-26T11:02:53Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-26T11:02:51Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-26T11:02:53Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-26T11:02:53Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-26T11:02:51Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://9ee12df041980c101ef57992ee5518f90c46fcc4add914f9b66e1fe9216bdbd1",
+                        "image": "docker.io/deathstarbench/wrk2-client:latest",
+                        "imageID": "docker.io/deathstarbench/wrk2-client@sha256:05b0dff60baa11a1775d827b710cb9d4ee8c083b1e99d2e049eccca68e20a7cd",
+                        "lastState": {},
+                        "name": "wrk2",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-26T11:02:53Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/scripts/mixed-workload.lua",
+                                "name": "wrk2-scripts"
+                            },
+                            {
+                                "mountPath": "/scripts/wrk2-workload.sh",
+                                "name": "wrk2-scripts"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-2sh5x",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.4",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.4"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.195.229",
+                "podIPs": [
+                    {
+                        "ip": "10.244.195.229"
+                    }
+                ],
+                "qosClass": "BestEffort",
+                "startTime": "2026-08-26T11:02:51Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
