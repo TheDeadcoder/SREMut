@@ -1,0 +1,4481 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "a42fad79e8dd0c57b7556d75fae1a85296db1b492fa1924a1fc07a90ad723cda",
+                    "cni.projectcalico.org/podIP": "10.244.110.166/32",
+                    "cni.projectcalico.org/podIPs": "10.244.110.166/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:56Z",
+                "generateName": "consul-5c767d7459-",
+                "labels": {
+                    "io.kompose.service": "consul",
+                    "pod-template-hash": "5c767d7459"
+                },
+                "name": "consul-5c767d7459-rc9c6",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "consul-5c767d7459",
+                        "uid": "1985cfc9-4d5a-4e8d-8129-279bf399ef24"
+                    }
+                ],
+                "resourceVersion": "2205764",
+                "uid": "87f7d1b6-c9d7-401a-9117-3615ece13697"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "hashicorp/consul:1.22.3",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "consul",
+                        "ports": [
+                            {
+                                "containerPort": 8300,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 8400,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 8500,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 53,
+                                "protocol": "UDP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-49xvr",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-49xvr",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:56Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://8265e57315b4a9b1d6be0b22c0f0b255797af475f338c12577afe337b61a8b65",
+                        "image": "docker.io/hashicorp/consul:1.22.3",
+                        "imageID": "docker.io/hashicorp/consul@sha256:43b5ffb7756ac1cacc775aa6fc6f79f5c635072cd854eab7dc2cc624f5d66025",
+                        "lastState": {},
+                        "name": "consul",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:01Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-49xvr",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.3",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.3"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.110.166",
+                "podIPs": [
+                    {
+                        "ip": "10.244.110.166"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "992688bd446887c71f618792e4d67ee50236cd321718b04ae50617d2641a8349",
+                    "cni.projectcalico.org/podIP": "10.244.110.167/32",
+                    "cni.projectcalico.org/podIPs": "10.244.110.167/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:56Z",
+                "generateName": "frontend-7964d4d6b9-",
+                "labels": {
+                    "io.kompose.service": "frontend",
+                    "pod-template-hash": "7964d4d6b9"
+                },
+                "name": "frontend-7964d4d6b9-bpqpl",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "frontend-7964d4d6b9",
+                        "uid": "67b719e2-1bf2-4643-bf73-8780584bff93"
+                    }
+                ],
+                "resourceVersion": "2205832",
+                "uid": "ce6aea61-96b1-4636-b269-3e84e82ca94e"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "frontend"
+                        ],
+                        "env": [
+                            {
+                                "name": "JAEGER_SAMPLE_RATIO",
+                                "value": "1"
+                            }
+                        ],
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-frontend",
+                        "ports": [
+                            {
+                                "containerPort": 5000,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-bswqc",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-bswqc",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:03Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:03Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:03Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://4d15238af70a92bc6e21dcdb1114e16869c2f91a091f5de06e330d28a9190779",
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imageID": "ghcr.io/sregym/hotel-reservation@sha256:7918331dfec6fa3d71d0af5d92ff3696f85a6f620d876c7bf78b85d852d7c299",
+                        "lastState": {},
+                        "name": "hotel-reserv-frontend",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:03Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-bswqc",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.3",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.3"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.110.167",
+                "podIPs": [
+                    {
+                        "ip": "10.244.110.167"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "1810d4a43a46d72904b93e7a2c2982114627defdfe733c1560d1972cc2004457",
+                    "cni.projectcalico.org/podIP": "10.244.110.171/32",
+                    "cni.projectcalico.org/podIPs": "10.244.110.171/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "geo-76d84bd7c6-",
+                "labels": {
+                    "io.kompose.service": "geo",
+                    "pod-template-hash": "76d84bd7c6"
+                },
+                "name": "geo-76d84bd7c6-h75rq",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "geo-76d84bd7c6",
+                        "uid": "ff221f7e-0049-468c-a2ff-9adf30d06dd0"
+                    }
+                ],
+                "resourceVersion": "2205881",
+                "uid": "766b758c-6c51-452c-bdab-637df20042b5"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "geo"
+                        ],
+                        "env": [
+                            {
+                                "name": "JAEGER_SAMPLE_RATIO",
+                                "value": "1"
+                            }
+                        ],
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-geo",
+                        "ports": [
+                            {
+                                "containerPort": 8083,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-gjjr8",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-gjjr8",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:04Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:04Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:04Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://ac51be7a6048a48e86ed73fc9170d56611d0d2d2f6ac0bd3da36d345e3eeab9e",
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imageID": "ghcr.io/sregym/hotel-reservation@sha256:7918331dfec6fa3d71d0af5d92ff3696f85a6f620d876c7bf78b85d852d7c299",
+                        "lastState": {},
+                        "name": "hotel-reserv-geo",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:03Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-gjjr8",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.3",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.3"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.110.171",
+                "podIPs": [
+                    {
+                        "ip": "10.244.110.171"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "30120fa0bb43b526caf489131e5517411cada6ad4ec10c82eb9b577af2d290c2",
+                    "cni.projectcalico.org/podIP": "10.244.110.160/32",
+                    "cni.projectcalico.org/podIPs": "10.244.110.160/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "jaeger-67445b6dd6-",
+                "labels": {
+                    "io.kompose.service": "jaeger",
+                    "pod-template-hash": "67445b6dd6"
+                },
+                "name": "jaeger-67445b6dd6-rh4dx",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "jaeger-67445b6dd6",
+                        "uid": "fab3ddd0-c0f9-4ae8-a4c9-0949bda2170d"
+                    }
+                ],
+                "resourceVersion": "2205826",
+                "uid": "3874b696-ab2d-4e69-b55c-a9810355dca3"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "jaegertracing/all-in-one:1.57",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-jaeger",
+                        "ports": [
+                            {
+                                "containerPort": 14269,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 5778,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 14268,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 14267,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 16686,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 5775,
+                                "protocol": "UDP"
+                            },
+                            {
+                                "containerPort": 6831,
+                                "protocol": "UDP"
+                            },
+                            {
+                                "containerPort": 6832,
+                                "protocol": "UDP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-9gxkk",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-9gxkk",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:03Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:03Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:03Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://af9507778725d961f708dad4f51f88fffa594963c0d1c32751b4a3f214d95dc3",
+                        "image": "docker.io/jaegertracing/all-in-one:1.57",
+                        "imageID": "docker.io/jaegertracing/all-in-one@sha256:8f165334f418ca53691ce358c19b4244226ed35c5d18408c5acf305af2065fb9",
+                        "lastState": {},
+                        "name": "hotel-reserv-jaeger",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:02Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-9gxkk",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.3",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.3"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.110.160",
+                "podIPs": [
+                    {
+                        "ip": "10.244.110.160"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "851997f92dc32a579d6a7bbf5176c683cf3aa9a6eb446875ad7584e387f3ca23",
+                    "cni.projectcalico.org/podIP": "10.244.195.224/32",
+                    "cni.projectcalico.org/podIPs": "10.244.195.224/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "memcached-profile-679775b4d4-",
+                "labels": {
+                    "io.kompose.service": "memcached-profile",
+                    "pod-template-hash": "679775b4d4"
+                },
+                "name": "memcached-profile-679775b4d4-4n5v5",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "memcached-profile-679775b4d4",
+                        "uid": "1f1de90d-f227-46c1-911d-7980c834685f"
+                    }
+                ],
+                "resourceVersion": "2205778",
+                "uid": "a148a73d-e4e2-4c58-9416-636d390c0258"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "MEMCACHED_CACHE_SIZE",
+                                "value": "128"
+                            },
+                            {
+                                "name": "MEMCACHED_THREADS",
+                                "value": "2"
+                            }
+                        ],
+                        "image": "memcached",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-profile-mmc",
+                        "ports": [
+                            {
+                                "containerPort": 11211,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-5sb2g",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker3",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-5sb2g",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://0968ce59c87d601936987ec3906acffc57174c61ea10f3d7f5d97c75ca718976",
+                        "image": "docker.io/library/memcached:latest",
+                        "imageID": "docker.io/library/memcached@sha256:75c93cc91e76853da7c029e74d6e8dbd44774dd3713c93be8cd1971ad26120a4",
+                        "lastState": {},
+                        "name": "hotel-reserv-profile-mmc",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:01Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-5sb2g",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.4",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.4"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.195.224",
+                "podIPs": [
+                    {
+                        "ip": "10.244.195.224"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "1f738c0945801d88476480d72a8a866aeb867064021f31e2fabc7ac7bf2d49e8",
+                    "cni.projectcalico.org/podIP": "10.244.162.153/32",
+                    "cni.projectcalico.org/podIPs": "10.244.162.153/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "memcached-rate-5b59cb5d9d-",
+                "labels": {
+                    "io.kompose.service": "memcached-rate",
+                    "pod-template-hash": "5b59cb5d9d"
+                },
+                "name": "memcached-rate-5b59cb5d9d-94j4b",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "memcached-rate-5b59cb5d9d",
+                        "uid": "32e69cc8-c294-4a3e-9fca-70b2c411176f"
+                    }
+                ],
+                "resourceVersion": "2205788",
+                "uid": "731db07a-0a66-43c0-a6b8-622a43bc1cf3"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "MEMCACHED_CACHE_SIZE",
+                                "value": "128"
+                            },
+                            {
+                                "name": "MEMCACHED_THREADS",
+                                "value": "2"
+                            }
+                        ],
+                        "image": "memcached",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-rate-mmc",
+                        "ports": [
+                            {
+                                "containerPort": 11211,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-pt5p7",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-pt5p7",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://44b65406ad500d1b8d244f65f0c4f003d7f9802bf0f95b232a7305605562c5a3",
+                        "image": "docker.io/library/memcached:latest",
+                        "imageID": "docker.io/library/memcached@sha256:75c93cc91e76853da7c029e74d6e8dbd44774dd3713c93be8cd1971ad26120a4",
+                        "lastState": {},
+                        "name": "hotel-reserv-rate-mmc",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:01Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-pt5p7",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.2",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.2"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.162.153",
+                "podIPs": [
+                    {
+                        "ip": "10.244.162.153"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "913bc7e4e9a8007cb6e8b203242f8b2aaed16f50ee0886c501be3a8a862a9c4f",
+                    "cni.projectcalico.org/podIP": "10.244.110.174/32",
+                    "cni.projectcalico.org/podIPs": "10.244.110.174/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "memcached-reserve-6c889f84d4-",
+                "labels": {
+                    "io.kompose.service": "memcached-reserve",
+                    "pod-template-hash": "6c889f84d4"
+                },
+                "name": "memcached-reserve-6c889f84d4-tx8gh",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "memcached-reserve-6c889f84d4",
+                        "uid": "973d1448-26fa-499e-bc90-3cff05c76a47"
+                    }
+                ],
+                "resourceVersion": "2205984",
+                "uid": "9ea5a56d-dfa7-41f1-9804-d4c8a522101f"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "MEMCACHED_CACHE_SIZE",
+                                "value": "128"
+                            },
+                            {
+                                "name": "MEMCACHED_THREADS",
+                                "value": "2"
+                            }
+                        ],
+                        "image": "memcached",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-reservation-mmc",
+                        "ports": [
+                            {
+                                "containerPort": 11211,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-bq29s",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-bq29s",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://54a4314711fbafa1b443277cf67d51ef51e5a1347f1e998f96644e7fe7d0cd84",
+                        "image": "docker.io/library/memcached:latest",
+                        "imageID": "docker.io/library/memcached@sha256:75c93cc91e76853da7c029e74d6e8dbd44774dd3713c93be8cd1971ad26120a4",
+                        "lastState": {},
+                        "name": "hotel-reserv-reservation-mmc",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:05Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-bq29s",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.3",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.3"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.110.174",
+                "podIPs": [
+                    {
+                        "ip": "10.244.110.174"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "6a064f674de343ec02409a597006f8ebb6f37eca29dffebb7c5889034bcc7811",
+                    "cni.projectcalico.org/podIP": "10.244.110.163/32",
+                    "cni.projectcalico.org/podIPs": "10.244.110.163/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "mongodb-geo-5ff578bcb8-",
+                "labels": {
+                    "io.kompose.service": "mongodb-geo",
+                    "pod-template-hash": "5ff578bcb8"
+                },
+                "name": "mongodb-geo-5ff578bcb8-r5pqh",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "mongodb-geo-5ff578bcb8",
+                        "uid": "11961b92-afff-4a91-921b-0a0fd73e4174"
+                    }
+                ],
+                "resourceVersion": "2205940",
+                "uid": "3bb9180c-16ed-4b3a-b901-4ffdd6eca2f3"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "args": [
+                            "--auth"
+                        ],
+                        "image": "mongo:4.4.6",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-geo-mongo",
+                        "ports": [
+                            {
+                                "containerPort": 27017,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "geo"
+                            },
+                            {
+                                "mountPath": "/docker-entrypoint-initdb.d",
+                                "name": "init-script"
+                            },
+                            {
+                                "mountPath": "/scripts",
+                                "name": "failure-script"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-p2t6v",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "geo",
+                        "persistentVolumeClaim": {
+                            "claimName": "geo-pvc"
+                        }
+                    },
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "mongo-geo-script"
+                        },
+                        "name": "init-script"
+                    },
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "failure-admin-geo"
+                        },
+                        "name": "failure-script"
+                    },
+                    {
+                        "name": "kube-api-access-p2t6v",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://ac388e740bbf34e118eb669f9066be00b7f815db025752e43d94b8b6f7ea66e4",
+                        "image": "docker.io/library/mongo:4.4.6",
+                        "imageID": "docker.io/library/mongo@sha256:6efa052039903e731e4a5550c68a13c4869ddc93742c716332883fd9c77eb79b",
+                        "lastState": {},
+                        "name": "hotel-reserv-geo-mongo",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:05Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "geo"
+                            },
+                            {
+                                "mountPath": "/docker-entrypoint-initdb.d",
+                                "name": "init-script"
+                            },
+                            {
+                                "mountPath": "/scripts",
+                                "name": "failure-script"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-p2t6v",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.3",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.3"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.110.163",
+                "podIPs": [
+                    {
+                        "ip": "10.244.110.163"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "e0e21529ff5fc6baacd317d2057830e6b3baba4341a4b846d52c182655e57a7b",
+                    "cni.projectcalico.org/podIP": "10.244.110.168/32",
+                    "cni.projectcalico.org/podIPs": "10.244.110.168/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "mongodb-profile-758cb77f9f-",
+                "labels": {
+                    "io.kompose.service": "mongodb-profile",
+                    "pod-template-hash": "758cb77f9f"
+                },
+                "name": "mongodb-profile-758cb77f9f-clrln",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "mongodb-profile-758cb77f9f",
+                        "uid": "98e5bed1-66c6-42ad-bffe-be1e66e55091"
+                    }
+                ],
+                "resourceVersion": "2206023",
+                "uid": "c036e3f3-6853-496a-8c17-0be0bc0a5921"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "mongo:4.4.6",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-profile-mongo",
+                        "ports": [
+                            {
+                                "containerPort": 27017,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "profile"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-56dmg",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "hostname": "profile-db",
+                "nodeName": "kind-worker2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "profile",
+                        "persistentVolumeClaim": {
+                            "claimName": "profile-pvc"
+                        }
+                    },
+                    {
+                        "name": "kube-api-access-56dmg",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:07Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:07Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:07Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://5e3874d2c1d5220d34a428a4fb1af1bc469ce8ae4342299f709c25021117c29d",
+                        "image": "docker.io/library/mongo:4.4.6",
+                        "imageID": "docker.io/library/mongo@sha256:6efa052039903e731e4a5550c68a13c4869ddc93742c716332883fd9c77eb79b",
+                        "lastState": {},
+                        "name": "hotel-reserv-profile-mongo",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:06Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "profile"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-56dmg",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.3",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.3"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.110.168",
+                "podIPs": [
+                    {
+                        "ip": "10.244.110.168"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "9c6b116bb331b5731adb61878ec77aba557f9c5f8fb23160d6fd41603b692751",
+                    "cni.projectcalico.org/podIP": "10.244.195.229/32",
+                    "cni.projectcalico.org/podIPs": "10.244.195.229/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "mongodb-rate-56cc8659c9-",
+                "labels": {
+                    "io.kompose.service": "mongodb-rate",
+                    "pod-template-hash": "56cc8659c9"
+                },
+                "name": "mongodb-rate-56cc8659c9-6bp24",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "mongodb-rate-56cc8659c9",
+                        "uid": "3b9988d0-cb43-4c82-acb8-6168a0cee6e0"
+                    }
+                ],
+                "resourceVersion": "2205799",
+                "uid": "24303419-a73b-4340-bdd7-6aa6b9349c9a"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "args": [
+                            "--auth"
+                        ],
+                        "image": "mongo:4.4.6",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-rate-mongo",
+                        "ports": [
+                            {
+                                "containerPort": 27017,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "rate"
+                            },
+                            {
+                                "mountPath": "/docker-entrypoint-initdb.d",
+                                "name": "init-script"
+                            },
+                            {
+                                "mountPath": "/scripts",
+                                "name": "failure-script"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-7lxlf",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker3",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "rate",
+                        "persistentVolumeClaim": {
+                            "claimName": "rate-pvc"
+                        }
+                    },
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "mongo-rate-script"
+                        },
+                        "name": "init-script"
+                    },
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "failure-admin-rate"
+                        },
+                        "name": "failure-script"
+                    },
+                    {
+                        "name": "kube-api-access-7lxlf",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://284e5ade8d3f1701f2dccbfc25f9931b9d89eded43feecb792c6eabf9c365151",
+                        "image": "docker.io/library/mongo:4.4.6",
+                        "imageID": "docker.io/library/mongo@sha256:6efa052039903e731e4a5550c68a13c4869ddc93742c716332883fd9c77eb79b",
+                        "lastState": {},
+                        "name": "hotel-reserv-rate-mongo",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:02Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "rate"
+                            },
+                            {
+                                "mountPath": "/docker-entrypoint-initdb.d",
+                                "name": "init-script"
+                            },
+                            {
+                                "mountPath": "/scripts",
+                                "name": "failure-script"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-7lxlf",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.4",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.4"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.195.229",
+                "podIPs": [
+                    {
+                        "ip": "10.244.195.229"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "7764b70d5d00b4df25aae7e2547a7f84fbd7a94340d49afdc9bab9cb58a87604",
+                    "cni.projectcalico.org/podIP": "10.244.162.131/32",
+                    "cni.projectcalico.org/podIPs": "10.244.162.131/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "mongodb-recommendation-55699465f7-",
+                "labels": {
+                    "io.kompose.service": "mongodb-recommendation",
+                    "pod-template-hash": "55699465f7"
+                },
+                "name": "mongodb-recommendation-55699465f7-qmjds",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "mongodb-recommendation-55699465f7",
+                        "uid": "051b2e38-5d05-40c0-879b-affba8c6c70f"
+                    }
+                ],
+                "resourceVersion": "2205819",
+                "uid": "3d8a4fef-0fc9-413c-98e6-24a87809c121"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "mongo:4.4.6",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-recommendation-mongo",
+                        "ports": [
+                            {
+                                "containerPort": 27017,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "recommendation"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-4xcfr",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "hostname": "recommendation-db",
+                "nodeName": "kind-worker",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "recommendation",
+                        "persistentVolumeClaim": {
+                            "claimName": "recommendation-pvc"
+                        }
+                    },
+                    {
+                        "name": "kube-api-access-4xcfr",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:02Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:57Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://9b2eaf4ddc609bb6d1b1737e19225e7bfc54e6bda98d1bfbecec4dc40c5af0a0",
+                        "image": "docker.io/library/mongo:4.4.6",
+                        "imageID": "docker.io/library/mongo@sha256:6efa052039903e731e4a5550c68a13c4869ddc93742c716332883fd9c77eb79b",
+                        "lastState": {},
+                        "name": "hotel-reserv-recommendation-mongo",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:02Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "recommendation"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-4xcfr",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.2",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.2"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.162.131",
+                "podIPs": [
+                    {
+                        "ip": "10.244.162.131"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:57Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "8a360e3320c67c8b0c1bc9be2e7653fdb0d0ee69db37873b827f0c0d58f6de5b",
+                    "cni.projectcalico.org/podIP": "10.244.195.230/32",
+                    "cni.projectcalico.org/podIPs": "10.244.195.230/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "mongodb-reservation-5994859869-",
+                "labels": {
+                    "io.kompose.service": "mongodb-reservation",
+                    "pod-template-hash": "5994859869"
+                },
+                "name": "mongodb-reservation-5994859869-tnmkt",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "mongodb-reservation-5994859869",
+                        "uid": "24c383fb-3fdc-41aa-a43f-5f85dfd891ee"
+                    }
+                ],
+                "resourceVersion": "2206007",
+                "uid": "39143083-a4ae-456a-98fb-4afe14cb07a1"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "mongo:4.4.6",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-reservation-mongo",
+                        "ports": [
+                            {
+                                "containerPort": 27017,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "reservation"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-vcfrd",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "hostname": "reservation-db",
+                "nodeName": "kind-worker3",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "reservation",
+                        "persistentVolumeClaim": {
+                            "claimName": "reservation-pvc"
+                        }
+                    },
+                    {
+                        "name": "kube-api-access-vcfrd",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://9964539f1b3207090c7585f7769db035c14c1e0455dbce2a9ce99a54faab57b8",
+                        "image": "docker.io/library/mongo:4.4.6",
+                        "imageID": "docker.io/library/mongo@sha256:6efa052039903e731e4a5550c68a13c4869ddc93742c716332883fd9c77eb79b",
+                        "lastState": {},
+                        "name": "hotel-reserv-reservation-mongo",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:05Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "reservation"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-vcfrd",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.4",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.4"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.195.230",
+                "podIPs": [
+                    {
+                        "ip": "10.244.195.230"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:58Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "174f874f1a832b60ad44bb313623f93662c432625daebe2304be5672ef576f3e",
+                    "cni.projectcalico.org/podIP": "10.244.195.193/32",
+                    "cni.projectcalico.org/podIPs": "10.244.195.193/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:57Z",
+                "generateName": "mongodb-user-969c6c449-",
+                "labels": {
+                    "io.kompose.service": "mongodb-user",
+                    "pod-template-hash": "969c6c449"
+                },
+                "name": "mongodb-user-969c6c449-nf6cp",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "mongodb-user-969c6c449",
+                        "uid": "ce3d4fdf-98c8-4e9b-b766-ea43731c0939"
+                    }
+                ],
+                "resourceVersion": "2205901",
+                "uid": "9e408e99-2baa-427a-9179-002f734a1969"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "image": "mongo:4.4.6",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-user-mongo",
+                        "ports": [
+                            {
+                                "containerPort": 27017,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "user"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-trvs6",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "hostname": "user-db",
+                "nodeName": "kind-worker3",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "user",
+                        "persistentVolumeClaim": {
+                            "claimName": "user-pvc"
+                        }
+                    },
+                    {
+                        "name": "kube-api-access-trvs6",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:04Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:04Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:04Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://2507ab9cd91dfaa07bacc664c109e0712a280c8b2c0487c4f4674cb506f61684",
+                        "image": "docker.io/library/mongo:4.4.6",
+                        "imageID": "docker.io/library/mongo@sha256:6efa052039903e731e4a5550c68a13c4869ddc93742c716332883fd9c77eb79b",
+                        "lastState": {},
+                        "name": "hotel-reserv-user-mongo",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:03Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/data/db",
+                                "name": "user"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-trvs6",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.4",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.4"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.195.193",
+                "podIPs": [
+                    {
+                        "ip": "10.244.195.193"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:58Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "9548ac7634043a0543cc9ae93155975464a38306fe5215cb470b9e1d3e13e79e",
+                    "cni.projectcalico.org/podIP": "10.244.162.157/32",
+                    "cni.projectcalico.org/podIPs": "10.244.162.157/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:58Z",
+                "generateName": "profile-8567779fbb-",
+                "labels": {
+                    "io.kompose.service": "profile",
+                    "pod-template-hash": "8567779fbb"
+                },
+                "name": "profile-8567779fbb-7tn8l",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "profile-8567779fbb",
+                        "uid": "861c7b68-3a32-4b54-86b6-2d7762aebadf"
+                    }
+                ],
+                "resourceVersion": "2205970",
+                "uid": "52be00af-0152-4c72-b1b4-47d3671df224"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "profile"
+                        ],
+                        "env": [
+                            {
+                                "name": "JAEGER_SAMPLE_RATIO",
+                                "value": "1"
+                            }
+                        ],
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-profile",
+                        "ports": [
+                            {
+                                "containerPort": 8081,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-gt77j",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-gt77j",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://820895e24468f73960b98436303bee811eb778eb8d5ee79e22e02fd30f456e23",
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imageID": "ghcr.io/sregym/hotel-reservation@sha256:7918331dfec6fa3d71d0af5d92ff3696f85a6f620d876c7bf78b85d852d7c299",
+                        "lastState": {},
+                        "name": "hotel-reserv-profile",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:05Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-gt77j",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.2",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.2"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.162.157",
+                "podIPs": [
+                    {
+                        "ip": "10.244.162.157"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:58Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "4e5aa359652bb7088cc870a2eef0ee92e282a00dfdb90816dbe09088db75e4fc",
+                    "cni.projectcalico.org/podIP": "10.244.195.215/32",
+                    "cni.projectcalico.org/podIPs": "10.244.195.215/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:58Z",
+                "generateName": "rate-b7766559f-",
+                "labels": {
+                    "io.kompose.service": "rate",
+                    "pod-template-hash": "b7766559f"
+                },
+                "name": "rate-b7766559f-kk5fn",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "rate-b7766559f",
+                        "uid": "24b7e65a-7d31-4ceb-9607-801a788fadbd"
+                    }
+                ],
+                "resourceVersion": "2206002",
+                "uid": "e830ee52-3eb0-497e-b1d4-b74db326a6bb"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "rate"
+                        ],
+                        "env": [
+                            {
+                                "name": "JAEGER_SAMPLE_RATIO",
+                                "value": "1"
+                            },
+                            {
+                                "name": "RATE_BACKEND_QPS_LIMIT",
+                                "value": "500"
+                            },
+                            {
+                                "name": "RATE_QUEUE_CAPACITY",
+                                "value": "256"
+                            }
+                        ],
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-rate",
+                        "ports": [
+                            {
+                                "containerPort": 8084,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 9091,
+                                "name": "metrics",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-bgj9v",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker3",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-bgj9v",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:59Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://3b80eb9cd6ffed2bf30e671f23398ed3c8b29e37ef87dcce5d565a63e1322e02",
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imageID": "ghcr.io/sregym/hotel-reservation@sha256:7918331dfec6fa3d71d0af5d92ff3696f85a6f620d876c7bf78b85d852d7c299",
+                        "lastState": {},
+                        "name": "hotel-reserv-rate",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:06Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-bgj9v",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.4",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.4"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.195.215",
+                "podIPs": [
+                    {
+                        "ip": "10.244.195.215"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:59Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "8fd902543f3318ca50cc1a6f4aa3a87e9a6a533fe65d5b5b5d3c622a73e748a5",
+                    "cni.projectcalico.org/podIP": "10.244.162.148/32",
+                    "cni.projectcalico.org/podIPs": "10.244.162.148/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:58Z",
+                "generateName": "recommendation-7fb8c6f7d6-",
+                "labels": {
+                    "io.kompose.service": "recommendation",
+                    "pod-template-hash": "7fb8c6f7d6"
+                },
+                "name": "recommendation-7fb8c6f7d6-4hhzb",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "recommendation-7fb8c6f7d6",
+                        "uid": "08e772e6-5ed8-4bcd-964c-c88cdefaae77"
+                    }
+                ],
+                "resourceVersion": "2205960",
+                "uid": "124d8d92-11b1-4c4a-b2d5-1d06333476f6"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "recommendation"
+                        ],
+                        "env": [
+                            {
+                                "name": "JAEGER_SAMPLE_RATIO",
+                                "value": "1"
+                            }
+                        ],
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-recommendation",
+                        "ports": [
+                            {
+                                "containerPort": 8085,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-hz97x",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-hz97x",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:05Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://84c98ff45fd61ff1d718ab85e02ab5f02b6b8a3a8b538092d9d03391af1d334c",
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imageID": "ghcr.io/sregym/hotel-reservation@sha256:7918331dfec6fa3d71d0af5d92ff3696f85a6f620d876c7bf78b85d852d7c299",
+                        "lastState": {},
+                        "name": "hotel-reserv-recommendation",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:05Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-hz97x",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.2",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.2"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.162.148",
+                "podIPs": [
+                    {
+                        "ip": "10.244.162.148"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:58Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "2d2cfac11ed54860ead2118c5176096522dc1293e67a6dfa94e7ee0e7274a8e4",
+                    "cni.projectcalico.org/podIP": "10.244.110.173/32",
+                    "cni.projectcalico.org/podIPs": "10.244.110.173/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:58Z",
+                "generateName": "reservation-65665bb56c-",
+                "labels": {
+                    "io.kompose.service": "reservation",
+                    "pod-template-hash": "65665bb56c"
+                },
+                "name": "reservation-65665bb56c-fcs95",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "reservation-65665bb56c",
+                        "uid": "31e76a60-6283-4bde-bc37-53307dbfdaf5"
+                    }
+                ],
+                "resourceVersion": "2205993",
+                "uid": "54f2e44e-a68e-4d99-8f2f-329761ac4d1d"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "reservation"
+                        ],
+                        "env": [
+                            {
+                                "name": "JAEGER_SAMPLE_RATIO",
+                                "value": "1"
+                            }
+                        ],
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-reservation",
+                        "ports": [
+                            {
+                                "containerPort": 8087,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-fk9kj",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker2",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-fk9kj",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:59Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:58Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://f521b9d5bf0b6c751aad85e8b05f4620295c3995cfe4807a1b6159be096cb6f4",
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imageID": "ghcr.io/sregym/hotel-reservation@sha256:7918331dfec6fa3d71d0af5d92ff3696f85a6f620d876c7bf78b85d852d7c299",
+                        "lastState": {},
+                        "name": "hotel-reserv-reservation",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:05Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-fk9kj",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.3",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.3"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.110.173",
+                "podIPs": [
+                    {
+                        "ip": "10.244.110.173"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:59Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "9fd896c818e63d0c6c2fd8903858ffa0e065e43d1601c197229a3a9d77d8682c",
+                    "cni.projectcalico.org/podIP": "10.244.195.195/32",
+                    "cni.projectcalico.org/podIPs": "10.244.195.195/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:59Z",
+                "generateName": "search-68c8d8959b-",
+                "labels": {
+                    "io.kompose.service": "search",
+                    "pod-template-hash": "68c8d8959b"
+                },
+                "name": "search-68c8d8959b-m77d4",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "search-68c8d8959b",
+                        "uid": "37508df8-5b65-4952-90da-6deb91505fb6"
+                    }
+                ],
+                "resourceVersion": "2206033",
+                "uid": "f1ac8132-fda3-4ae8-8cc4-f490124c61e9"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "search"
+                        ],
+                        "env": [
+                            {
+                                "name": "JAEGER_SAMPLE_RATIO",
+                                "value": "1"
+                            },
+                            {
+                                "name": "RATE_RPC_TIMEOUT_MS",
+                                "value": "1000"
+                            },
+                            {
+                                "name": "RATE_RPC_MAX_ATTEMPTS",
+                                "value": "2"
+                            },
+                            {
+                                "name": "RATE_RPC_INITIAL_BACKOFF_MS",
+                                "value": "100"
+                            },
+                            {
+                                "name": "RATE_RPC_BACKOFF_MULTIPLIER",
+                                "value": "2.0"
+                            },
+                            {
+                                "name": "RATE_RPC_JITTER",
+                                "value": "0.2"
+                            }
+                        ],
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-search",
+                        "ports": [
+                            {
+                                "containerPort": 8082,
+                                "protocol": "TCP"
+                            },
+                            {
+                                "containerPort": 9092,
+                                "name": "metrics",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-q2l2h",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker3",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-q2l2h",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:07Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:59Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:07Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:07Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:59Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://61d07c7768ae899f7e6f39af14414b0f1d842494e8720748ea2bdebab2629e08",
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imageID": "ghcr.io/sregym/hotel-reservation@sha256:7918331dfec6fa3d71d0af5d92ff3696f85a6f620d876c7bf78b85d852d7c299",
+                        "lastState": {},
+                        "name": "hotel-reserv-search",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:06Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-q2l2h",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.4",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.4"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.195.195",
+                "podIPs": [
+                    {
+                        "ip": "10.244.195.195"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:59Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "f5bea584ec29f3a694c9f5c0ea2d7d3dd89d601fbb6d3d6a523d72ec1d96927a",
+                    "cni.projectcalico.org/podIP": "10.244.162.146/32",
+                    "cni.projectcalico.org/podIPs": "10.244.162.146/32",
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "sidecar.istio.io/statsInclusionPrefixes": "cluster.outbound,cluster_manager,listener_manager,http_mixer_filter,tcp_mixer_filter,server,cluster.xds-grp,listener,connection_manager",
+                    "sidecar.istio.io/statsInclusionRegexps": "http.*"
+                },
+                "creationTimestamp": "2026-08-27T10:06:59Z",
+                "generateName": "user-74758c4d69-",
+                "labels": {
+                    "io.kompose.service": "user",
+                    "pod-template-hash": "74758c4d69"
+                },
+                "name": "user-74758c4d69-l945r",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "user-74758c4d69",
+                        "uid": "be731b64-2878-4707-9586-1fbefb446e6f"
+                    }
+                ],
+                "resourceVersion": "2206012",
+                "uid": "8d94ae0d-c098-4495-b28f-5793a8ae3b57"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "command": [
+                            "user"
+                        ],
+                        "env": [
+                            {
+                                "name": "JAEGER_SAMPLE_RATIO",
+                                "value": "1"
+                            }
+                        ],
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "hotel-reserv-user",
+                        "ports": [
+                            {
+                                "containerPort": 8086,
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "resources": {
+                            "limits": {
+                                "cpu": "1"
+                            },
+                            "requests": {
+                                "cpu": "100m"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-b4rlw",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "kube-api-access-b4rlw",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:59Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:06Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:06:59Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://d74a304368b191f45f2ccd616100a6a21f0a1959330daca49c650522b53eef76",
+                        "image": "ghcr.io/sregym/hotel-reservation:latest",
+                        "imageID": "ghcr.io/sregym/hotel-reservation@sha256:7918331dfec6fa3d71d0af5d92ff3696f85a6f620d876c7bf78b85d852d7c299",
+                        "lastState": {},
+                        "name": "hotel-reserv-user",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:06Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-b4rlw",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.2",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.2"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.162.146",
+                "podIPs": [
+                    {
+                        "ip": "10.244.162.146"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-08-27T10:06:59Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "cni.projectcalico.org/containerID": "7e3b286b95091321df80022d660e8c3214eb0302dbcfad468d3c2e3c9770ad12",
+                    "cni.projectcalico.org/podIP": "10.244.195.194/32",
+                    "cni.projectcalico.org/podIPs": "10.244.195.194/32"
+                },
+                "creationTimestamp": "2026-08-27T10:07:18Z",
+                "finalizers": [
+                    "batch.kubernetes.io/job-tracking"
+                ],
+                "generateName": "wrk2-job-",
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "b1b2f6af-16fe-4065-91dd-aad47988611d",
+                    "batch.kubernetes.io/job-name": "wrk2-job",
+                    "controller-uid": "b1b2f6af-16fe-4065-91dd-aad47988611d",
+                    "job": "workload",
+                    "job-name": "wrk2-job"
+                },
+                "name": "wrk2-job-7glbq",
+                "namespace": "hotel-reservation",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "wrk2-job",
+                        "uid": "b1b2f6af-16fe-4065-91dd-aad47988611d"
+                    }
+                ],
+                "resourceVersion": "2206076",
+                "uid": "dca02078-5efb-4131-8e60-687f08ec4553"
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "args": [
+                            "/bin/bash",
+                            "/scripts/wrk2-workload.sh"
+                        ],
+                        "image": "deathstarbench/wrk2-client:latest",
+                        "imagePullPolicy": "Always",
+                        "name": "wrk2",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/scripts/mixed-workload_type_1.lua",
+                                "name": "wrk2-scripts",
+                                "subPath": "mixed-workload_type_1.lua"
+                            },
+                            {
+                                "mountPath": "/scripts/wrk2-workload.sh",
+                                "name": "wrk2-scripts",
+                                "subPath": "wrk2-workload.sh"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-8n7r6",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "kind-worker3",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Never",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "wrk2-payload-script"
+                        },
+                        "name": "wrk2-scripts"
+                    },
+                    {
+                        "name": "kube-api-access-8n7r6",
+                        "projected": {
+                            "defaultMode": 420,
+                            "sources": [
+                                {
+                                    "serviceAccountToken": {
+                                        "expirationSeconds": 3607,
+                                        "path": "token"
+                                    }
+                                },
+                                {
+                                    "configMap": {
+                                        "items": [
+                                            {
+                                                "key": "ca.crt",
+                                                "path": "ca.crt"
+                                            }
+                                        ],
+                                        "name": "kube-root-ca.crt"
+                                    }
+                                },
+                                {
+                                    "downwardAPI": {
+                                        "items": [
+                                            {
+                                                "fieldRef": {
+                                                    "apiVersion": "v1",
+                                                    "fieldPath": "metadata.namespace"
+                                                },
+                                                "path": "namespace"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:20Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:18Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:20Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:20Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-08-27T10:07:18Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://ad6d198735609ddfa6adf88244a874f10c14b19bbca23182c6c63c309d89561a",
+                        "image": "docker.io/deathstarbench/wrk2-client:latest",
+                        "imageID": "docker.io/deathstarbench/wrk2-client@sha256:05b0dff60baa11a1775d827b710cb9d4ee8c083b1e99d2e049eccca68e20a7cd",
+                        "lastState": {},
+                        "name": "wrk2",
+                        "ready": true,
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-08-27T10:07:20Z"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/scripts/mixed-workload_type_1.lua",
+                                "name": "wrk2-scripts"
+                            },
+                            {
+                                "mountPath": "/scripts/wrk2-workload.sh",
+                                "name": "wrk2-scripts"
+                            },
+                            {
+                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                "name": "kube-api-access-8n7r6",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "172.18.0.4",
+                "hostIPs": [
+                    {
+                        "ip": "172.18.0.4"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.195.194",
+                "podIPs": [
+                    {
+                        "ip": "10.244.195.194"
+                    }
+                ],
+                "qosClass": "BestEffort",
+                "startTime": "2026-08-27T10:07:18Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

@@ -266,9 +266,15 @@ def main() -> int:
 
     try:
         # 1. sampler ---------------------------------------------------------
-        say("STEP 1: starting state sampler")
+        # FIX 1 (W4): resolve the namespace BEFORE starting the sampler and pass it
+        # explicitly. w3-hotel-01 sampled social-network while running against
+        # hotel-reservation because sample_state.sh hardcoded the namespace.
+        from sregym.conductor.problems.registry import ProblemRegistry
+        sampler_ns = ProblemRegistry().get_problem_instance(problem_id).namespace
+        R["sampler_namespace"] = sampler_ns
+        say(f"STEP 1: starting state sampler on namespace '{sampler_ns}'")
         sampler = subprocess.Popen(
-            [str(EXPERIMENTS / "sample_state.sh"), str(out / "samples.jsonl")],
+            [str(EXPERIMENTS / "sample_state.sh"), str(out / "samples.jsonl"), sampler_ns],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             start_new_session=True)
         R["sampler_pid"] = sampler.pid

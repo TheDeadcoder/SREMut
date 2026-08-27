@@ -1,0 +1,1012 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"consul\"},\"name\":\"consul\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"8300\",\"port\":8300,\"targetPort\":8300},{\"name\":\"8400\",\"port\":8400,\"targetPort\":8400},{\"name\":\"8500\",\"port\":8500,\"targetPort\":8500},{\"name\":\"8600\",\"port\":8600,\"protocol\":\"UDP\",\"targetPort\":53}],\"selector\":{\"io.kompose.service\":\"consul\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "consul"
+                },
+                "name": "consul",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202410",
+                "uid": "1c441754-673e-418d-947c-b792730ac803"
+            },
+            "spec": {
+                "clusterIP": "10.96.45.186",
+                "clusterIPs": [
+                    "10.96.45.186"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8300",
+                        "port": 8300,
+                        "protocol": "TCP",
+                        "targetPort": 8300
+                    },
+                    {
+                        "name": "8400",
+                        "port": 8400,
+                        "protocol": "TCP",
+                        "targetPort": 8400
+                    },
+                    {
+                        "name": "8500",
+                        "port": 8500,
+                        "protocol": "TCP",
+                        "targetPort": 8500
+                    },
+                    {
+                        "name": "8600",
+                        "port": 8600,
+                        "protocol": "UDP",
+                        "targetPort": 53
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "consul"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"frontend\"},\"name\":\"frontend\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"5000\",\"port\":5000,\"targetPort\":5000}],\"selector\":{\"io.kompose.service\":\"frontend\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "frontend"
+                },
+                "name": "frontend",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202428",
+                "uid": "6a6c094a-8d1b-4b65-b079-4da2aaade13d"
+            },
+            "spec": {
+                "clusterIP": "10.96.28.48",
+                "clusterIPs": [
+                    "10.96.28.48"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "5000",
+                        "port": 5000,
+                        "protocol": "TCP",
+                        "targetPort": 5000
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "frontend"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"geo\"},\"name\":\"geo\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"8083\",\"port\":8083,\"targetPort\":8083}],\"selector\":{\"io.kompose.service\":\"geo\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "geo"
+                },
+                "name": "geo",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202453",
+                "uid": "a149e821-8b94-4d40-84b3-5d9af0c955bb"
+            },
+            "spec": {
+                "clusterIP": "10.96.191.169",
+                "clusterIPs": [
+                    "10.96.191.169"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8083",
+                        "port": 8083,
+                        "protocol": "TCP",
+                        "targetPort": 8083
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "geo"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-08-27T09:55:41Z",
+                "labels": {
+                    "app": "jaeger"
+                },
+                "name": "jaeger",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2203225",
+                "uid": "21e20c27-9167-4cb4-9a7f-cb0738fc20ad"
+            },
+            "spec": {
+                "externalName": "otel-collector.observe.svc.cluster.local",
+                "selector": {
+                    "app": "jaeger"
+                },
+                "sessionAffinity": "None",
+                "type": "ExternalName"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-08-27T09:55:41Z",
+                "labels": {
+                    "app": "jaeger-agent"
+                },
+                "name": "jaeger-agent",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2203226",
+                "uid": "792d6ff6-bdd5-4057-b091-f282ed8653db"
+            },
+            "spec": {
+                "externalName": "otel-collector.observe.svc.cluster.local",
+                "selector": {
+                    "app": "jaeger-agent"
+                },
+                "sessionAffinity": "None",
+                "type": "ExternalName"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-08-27T09:55:41Z",
+                "labels": {
+                    "app": "jaeger-collector"
+                },
+                "name": "jaeger-collector",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2203227",
+                "uid": "c8ee0b43-cc54-4925-8815-02862b6ccb40"
+            },
+            "spec": {
+                "externalName": "otel-collector.observe.svc.cluster.local",
+                "selector": {
+                    "app": "jaeger-collector"
+                },
+                "sessionAffinity": "None",
+                "type": "ExternalName"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"io.kompose.service\":\"jaeger\"},\"name\":\"jaeger-out\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"port\":16686,\"targetPort\":16686}],\"selector\":{\"io.kompose.service\":\"jaeger\"},\"type\":\"NodePort\"}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "jaeger"
+                },
+                "name": "jaeger-out",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202490",
+                "uid": "a386b27c-a396-41fe-b6e7-37ed0c09a467"
+            },
+            "spec": {
+                "clusterIP": "10.96.192.189",
+                "clusterIPs": [
+                    "10.96.192.189"
+                ],
+                "externalTrafficPolicy": "Cluster",
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "nodePort": 31383,
+                        "port": 16686,
+                        "protocol": "TCP",
+                        "targetPort": 16686
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "jaeger"
+                },
+                "sessionAffinity": "None",
+                "type": "NodePort"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-08-27T09:55:42Z",
+                "labels": {
+                    "app": "jaeger-query"
+                },
+                "name": "jaeger-query",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2203230",
+                "uid": "3f036d11-6b51-488a-a4ff-01b69c38aea5"
+            },
+            "spec": {
+                "externalName": "otel-collector.observe.svc.cluster.local",
+                "selector": {
+                    "app": "jaeger-query"
+                },
+                "sessionAffinity": "None",
+                "type": "ExternalName"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"memcached-profile\"},\"name\":\"memcached-profile\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"memcached-profile\",\"port\":11211,\"targetPort\":11211}],\"selector\":{\"io.kompose.service\":\"memcached-profile\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "memcached-profile"
+                },
+                "name": "memcached-profile",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202510",
+                "uid": "06bbb6fd-0fb6-49f8-878f-a81953c89ca4"
+            },
+            "spec": {
+                "clusterIP": "10.96.195.75",
+                "clusterIPs": [
+                    "10.96.195.75"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "memcached-profile",
+                        "port": 11211,
+                        "protocol": "TCP",
+                        "targetPort": 11211
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "memcached-profile"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"memcached-rate\"},\"name\":\"memcached-rate\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"memcached-rate\",\"port\":11211,\"targetPort\":11211}],\"selector\":{\"io.kompose.service\":\"memcached-rate\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "memcached-rate"
+                },
+                "name": "memcached-rate",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202551",
+                "uid": "1e87e3b0-405e-4443-b757-fe3a452c35b2"
+            },
+            "spec": {
+                "clusterIP": "10.96.142.162",
+                "clusterIPs": [
+                    "10.96.142.162"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "memcached-rate",
+                        "port": 11211,
+                        "protocol": "TCP",
+                        "targetPort": 11211
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "memcached-rate"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"memcached-reserve\"},\"name\":\"memcached-reserve\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"memcached-reserve\",\"port\":11211,\"targetPort\":11211}],\"selector\":{\"io.kompose.service\":\"memcached-reserve\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:22Z",
+                "labels": {
+                    "io.kompose.service": "memcached-reserve"
+                },
+                "name": "memcached-reserve",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202621",
+                "uid": "94306466-2076-4b18-9847-49b54c8da8e2"
+            },
+            "spec": {
+                "clusterIP": "10.96.230.114",
+                "clusterIPs": [
+                    "10.96.230.114"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "memcached-reserve",
+                        "port": 11211,
+                        "protocol": "TCP",
+                        "targetPort": 11211
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "memcached-reserve"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"mongodb-geo\"},\"name\":\"mongodb-geo\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"mongodb-geo\",\"port\":27017,\"targetPort\":27017}],\"selector\":{\"io.kompose.service\":\"mongodb-geo\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "mongodb-geo"
+                },
+                "name": "mongodb-geo",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202465",
+                "uid": "a8f507d7-411a-4ce0-b10d-d20ecf29ffd6"
+            },
+            "spec": {
+                "clusterIP": "10.96.179.194",
+                "clusterIPs": [
+                    "10.96.179.194"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "mongodb-geo",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "mongodb-geo"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"mongodb-profile\"},\"name\":\"mongodb-profile\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"mongodb-profile\",\"port\":27017,\"targetPort\":27017}],\"selector\":{\"io.kompose.service\":\"mongodb-profile\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "mongodb-profile"
+                },
+                "name": "mongodb-profile",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202527",
+                "uid": "eee36854-2d5d-4aa8-9db8-1286bb1dcc3c"
+            },
+            "spec": {
+                "clusterIP": "10.96.232.243",
+                "clusterIPs": [
+                    "10.96.232.243"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "mongodb-profile",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "mongodb-profile"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":\"2026-08-27T09:55:22Z\",\"labels\":{\"io.kompose.service\":\"mongodb-rate\"},\"name\":\"mongodb-rate\",\"namespace\":\"hotel-reservation\",\"resourceVersion\":\"2202566\",\"uid\":\"b7852fc4-a23a-4491-9fa3-d42498472143\"},\"spec\":{\"clusterIP\":\"10.96.91.146\",\"clusterIPs\":[\"10.96.91.146\"],\"internalTrafficPolicy\":\"Cluster\",\"ipFamilies\":[\"IPv4\"],\"ipFamilyPolicy\":\"SingleStack\",\"ports\":[{\"name\":\"mongodb-rate\",\"port\":27017,\"protocol\":\"TCP\",\"targetPort\":27017}],\"selector\":{\"io.kompose.service\":\"mongodb-rate\"},\"sessionAffinity\":\"None\",\"type\":\"ClusterIP\"},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T10:06:56Z",
+                "labels": {
+                    "io.kompose.service": "mongodb-rate"
+                },
+                "name": "mongodb-rate",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2205400",
+                "uid": "963a7349-1799-49ff-ad13-0d025e77aab8"
+            },
+            "spec": {
+                "clusterIP": "10.96.91.146",
+                "clusterIPs": [
+                    "10.96.91.146"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "mongodb-rate",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "mongodb-rate"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"mongodb-recommendation\"},\"name\":\"mongodb-recommendation\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"mongodb-recommendation\",\"port\":27017,\"targetPort\":27017}],\"selector\":{\"io.kompose.service\":\"mongodb-recommendation\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:22Z",
+                "labels": {
+                    "io.kompose.service": "mongodb-recommendation"
+                },
+                "name": "mongodb-recommendation",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202589",
+                "uid": "a0915632-b2be-4e02-a874-6aca70211567"
+            },
+            "spec": {
+                "clusterIP": "10.96.132.24",
+                "clusterIPs": [
+                    "10.96.132.24"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "mongodb-recommendation",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "mongodb-recommendation"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"mongodb-reservation\"},\"name\":\"mongodb-reservation\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"mongodb-reservation\",\"port\":27017,\"targetPort\":27017}],\"selector\":{\"io.kompose.service\":\"mongodb-reservation\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:22Z",
+                "labels": {
+                    "io.kompose.service": "mongodb-reservation"
+                },
+                "name": "mongodb-reservation",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202637",
+                "uid": "38a2f8c4-0070-4343-b2c5-3f0d105e4e55"
+            },
+            "spec": {
+                "clusterIP": "10.96.19.51",
+                "clusterIPs": [
+                    "10.96.19.51"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "mongodb-reservation",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "mongodb-reservation"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"mongodb-user\"},\"name\":\"mongodb-user\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"mongodb-user\",\"port\":27017,\"targetPort\":27017}],\"selector\":{\"io.kompose.service\":\"mongodb-user\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:22Z",
+                "labels": {
+                    "io.kompose.service": "mongodb-user"
+                },
+                "name": "mongodb-user",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202681",
+                "uid": "b302ca46-a493-4b6c-896e-d4cd8f943795"
+            },
+            "spec": {
+                "clusterIP": "10.96.231.199",
+                "clusterIPs": [
+                    "10.96.231.199"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "mongodb-user",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "mongodb-user"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"profile\"},\"name\":\"profile\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"8081\",\"port\":8081,\"targetPort\":8081}],\"selector\":{\"io.kompose.service\":\"profile\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:21Z",
+                "labels": {
+                    "io.kompose.service": "profile"
+                },
+                "name": "profile",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202540",
+                "uid": "b145a2c7-4d78-495c-8b4c-641a0692b143"
+            },
+            "spec": {
+                "clusterIP": "10.96.218.214",
+                "clusterIPs": [
+                    "10.96.218.214"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8081",
+                        "port": 8081,
+                        "protocol": "TCP",
+                        "targetPort": 8081
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "profile"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"rate\"},\"name\":\"rate\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"8084\",\"port\":8084,\"targetPort\":8084},{\"name\":\"metrics\",\"port\":9091,\"targetPort\":9091}],\"selector\":{\"io.kompose.service\":\"rate\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:22Z",
+                "labels": {
+                    "io.kompose.service": "rate"
+                },
+                "name": "rate",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202578",
+                "uid": "3150d033-550e-4fc6-8959-81dd6a8922f2"
+            },
+            "spec": {
+                "clusterIP": "10.96.55.231",
+                "clusterIPs": [
+                    "10.96.55.231"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8084",
+                        "port": 8084,
+                        "protocol": "TCP",
+                        "targetPort": 8084
+                    },
+                    {
+                        "name": "metrics",
+                        "port": 9091,
+                        "protocol": "TCP",
+                        "targetPort": 9091
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "rate"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"recommendation\"},\"name\":\"recommendation\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"8085\",\"port\":8085,\"targetPort\":8085}],\"selector\":{\"io.kompose.service\":\"recommendation\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:22Z",
+                "labels": {
+                    "io.kompose.service": "recommendation"
+                },
+                "name": "recommendation",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202605",
+                "uid": "92043324-8bf8-4a87-bfa6-5435528b61ea"
+            },
+            "spec": {
+                "clusterIP": "10.96.78.133",
+                "clusterIPs": [
+                    "10.96.78.133"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8085",
+                        "port": 8085,
+                        "protocol": "TCP",
+                        "targetPort": 8085
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "recommendation"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"reservation\"},\"name\":\"reservation\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"8087\",\"port\":8087,\"targetPort\":8087}],\"selector\":{\"io.kompose.service\":\"reservation\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:22Z",
+                "labels": {
+                    "io.kompose.service": "reservation"
+                },
+                "name": "reservation",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202662",
+                "uid": "7dc36f89-5d80-47c3-becc-d0b45dbbd212"
+            },
+            "spec": {
+                "clusterIP": "10.96.209.154",
+                "clusterIPs": [
+                    "10.96.209.154"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8087",
+                        "port": 8087,
+                        "protocol": "TCP",
+                        "targetPort": 8087
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "reservation"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"search\"},\"name\":\"search\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"8082\",\"port\":8082,\"targetPort\":8082},{\"name\":\"metrics\",\"port\":9092,\"targetPort\":9092}],\"selector\":{\"io.kompose.service\":\"search\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:22Z",
+                "labels": {
+                    "io.kompose.service": "search"
+                },
+                "name": "search",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202672",
+                "uid": "49d3556d-766c-4bb1-a32e-259798e03d7a"
+            },
+            "spec": {
+                "clusterIP": "10.96.169.173",
+                "clusterIPs": [
+                    "10.96.169.173"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8082",
+                        "port": 8082,
+                        "protocol": "TCP",
+                        "targetPort": 8082
+                    },
+                    {
+                        "name": "metrics",
+                        "port": 9092,
+                        "protocol": "TCP",
+                        "targetPort": 9092
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "search"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kompose.cmd": "kompose convert",
+                    "kompose.version": "1.22.0 (955b78124)",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"kompose.cmd\":\"kompose convert\",\"kompose.version\":\"1.22.0 (955b78124)\"},\"creationTimestamp\":null,\"labels\":{\"io.kompose.service\":\"user\"},\"name\":\"user\",\"namespace\":\"hotel-reservation\"},\"spec\":{\"ports\":[{\"name\":\"8086\",\"port\":8086,\"targetPort\":8086}],\"selector\":{\"io.kompose.service\":\"user\"}},\"status\":{\"loadBalancer\":{}}}\n"
+                },
+                "creationTimestamp": "2026-08-27T09:55:23Z",
+                "labels": {
+                    "io.kompose.service": "user"
+                },
+                "name": "user",
+                "namespace": "hotel-reservation",
+                "resourceVersion": "2202712",
+                "uid": "22d2f5a3-3268-4b37-83cb-f4ce02b81700"
+            },
+            "spec": {
+                "clusterIP": "10.96.86.185",
+                "clusterIPs": [
+                    "10.96.86.185"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8086",
+                        "port": 8086,
+                        "protocol": "TCP",
+                        "targetPort": 8086
+                    }
+                ],
+                "selector": {
+                    "io.kompose.service": "user"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

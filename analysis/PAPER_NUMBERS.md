@@ -673,6 +673,144 @@ all Running**. All 4 kind nodes Ready.
 deletion; they are inert with no controller running and no CRs present. Not deleted, since
 CRD removal was not requested and is more invasive than namespace deletion.
 
+### W4 — clean hotel-reservation three-state run (supersedes W3)
+
+Protocol: `SREMut/experiments/PROTOCOL_W4.md` incl. **amendment R3-A**. Record:
+`SREMut/experiments/w4-hotel-01/three-state.json`, status `COMPLETE`.
+
+**Instrument fixes applied first** (neither touches the measurement path):
+FIX 1 — `sample_state.sh` now takes `OUTPUT_JSONL [NAMESPACE]`, default `social-network`
+so all prior invocations are unchanged; the driver resolves the namespace from the
+registry and passes it. FIX 2 — driver launched under `setsid` (PPID=1, own session) and
+supervised by short log reads, never a blocking wait; W3 died because a supervising
+command hit a 10-minute tool timeout.
+
+**Registered deviation (unchanged from W3): SINGLE INSTRUMENT.** In-process oracle only,
+inside `conductor.py:269-271`. The SREMut worker pins
+`EXPECTED_NAMESPACE = "social-network"` (`original_oracle_worker.py:23`, enforced `:135`),
+a frozen artifact, not relaxed. **One independent measurement, not two — weaker than any
+G1 run.**
+
+#### Verdicts (raw dicts, UTC)
+
+| State | verdict | started | finished |
+|---|---|---|---|
+| HEALTHY | `{"success": true}` | 2026-08-27T10:00:55.179875+00:00 | 10:00:55.428630+00:00 |
+| **FAULTED** | **`{"success": true}`** | **2026-08-27T10:02:44.834097+00:00** | **10:03:10.422913+00:00** |
+| RESTORED | `{"success": true}` | 2026-08-27T10:12:47.498426+00:00 | 10:12:47.830108+00:00 |
+
+#### Workload
+
+| State | Rounds | Requests | Non-2xx | Rate |
+|---|---:|---:|---:|---:|
+| HEALTHY | 10 | 29,565 | **0** | **0.0000 %** |
+| **FAULTED** | 10 | 29,555 | 17,657 | **59.7429 %** |
+| RESTORED | 10 | 29,605 | **0** | **0.0000 %** |
+
+R2 satisfied in all three states (>= 10 rounds, same run).
+
+#### R1 and timings
+
+`inject_fault()` returned 10:01:44.833684+00:00; oracle started 10:02:44.834079+00:00 —
+**interval 60.000395 s**. Faulted oracle call took **25.589 s**. Deploy 42.412 s, injection
+48.653 s, recovery 33.110 s, total 1073.843 s.
+
+#### Cluster state at the faulted oracle instant (sampler, now on the right namespace)
+
+368 samples, `sampler_namespace: "hotel-reservation"`. Faulted steady window
+10:01:12.963Z -> 10:06:57.799Z: **127 samples, ZERO with any pod not `Running`**.
+`service_count == 22` in all 127 (healthy is 23) — one Service missing, the fault applied.
+Pod count 20-21 throughout.
+
+**Note on two sampler fields.** `user_service_present` and
+`user_service_endpointslice_count` are named for the social-network target and are
+**meaningless for hotel-reservation**, whose deleted Service is `mongodb-rate`. The valid
+signal here is the `service_count` delta 23 -> 22. (This corrects W3, where
+"`user-service` NotFound" was reported as evidence the fault had been applied; that
+Service never existed in hotel-reservation and the check proved nothing.)
+
+#### R3-A classification: **CASE (d)**
+
+Verdict TRUE with every pod `Running` -> case (d), as in G1. Cases (a), (b) and (c) are
+excluded by evidence, not by assumption.
+
+Case (c) — a persistent pod failure making the oracle detect the fault *incidentally* —
+was the live possibility, because `rate/server.go:267` calls `log.Panic()` on a Mongo
+error. **It did not occur.** The rate pod trajectory across the whole run:
+
+| pod | phase | window |
+|---|---|---|
+| `rate-b7766559f-pkmf2` | Running | 09:55:26.566Z -> 10:01:00.198Z |
+| `rate-b7766559f-pkmf2` | **Failed** | 10:01:03.783Z only (1 sample) |
+| `rate-b7766559f-ckqls` | Pending | 10:01:00.198Z -> 10:01:03.783Z |
+| **`rate-b7766559f-ckqls`** | **Running** | **10:01:07.175Z -> 10:06:57.799Z** |
+
+The only `Failed` rate pod is the **old** pod terminating under the injector's
+`kubectl delete pods --all` churn, present for a single sample and gone by 10:01:07 — 97
+seconds before the oracle started. Its replacement was `Running` continuously across the
+entire oracle window. So `log.Panic()` did not produce a persistent crash, and the oracle
+had no incidental pod-health signal to detect the fault by.
+
+#### H4 result
+
+**H4 is supported, on a complete three-state record.** The same stock `MitigationOracle`
+returned `{"success": true}` on a second application, a different deleted Service
+(`mongodb-rate`, not `user-service`), while **59.74 %** of user requests failed with
+HTTP 500 and every pod was healthy. The blindness is a property of the oracle, not of the
+social-network application.
+
+### The 60 % explained from source
+
+Deleted Service: **`mongodb-rate`** — `registry.py:177`,
+`MissingService(app_name="hotel_reservation", faulty_service="mongodb-rate")`.
+
+Request mix, `SREGym-applications/hotelReservation/wrk2/scripts/hotel-reservation/mixed-workload_type_1.lua:114-117`:
+
+| Endpoint | Ratio | Backend Mongo | Reaches `mongodb-rate`? |
+|---|---:|---|---|
+| search | **0.600** | via rate service -> `RateMongoAddress` | **YES** |
+| recommend | 0.390 | `RecommendMongoAddress` | no |
+| user | 0.005 | `UserMongoAddress` | no |
+| reserve | 0.005 | `ReserveMongoAddress` | no |
+
+Chain, unconditional at every hop: `/hotels` -> `frontend.searchHandler`
+(`services/frontend/server.go:71,155`) -> `search.Nearby` -> **`getRates`**
+(`services/search/server.go:246`, no branch guards it) -> rate service ->
+`"RateMongoAddress": "mongodb-rate:27017"` (`config.json:11`). On failure search returns
+`codes.Unavailable "search dependency unavailable"` (`search/server.go:251-254`) and the
+frontend converts it to **HTTP 500** (`frontend/server.go:196`) — fails closed, no partial
+success. Each other service has its own database; the `HRate` in the recommendation
+service is a `bson:"rate"` field of its own collection, not the rate service.
+
+**Consistency:**
+
+| | Predicted | Observed |
+|---|---:|---:|
+| W4 (10 rounds, 29,555 req) | 60.0000 % | **59.7429 %** (z = **-0.90**) |
+| W3 (6 rounds, 17,700 req) | 60.0000 % | 60.0282 % |
+
+Two independent runs bracket 60 %. Same structure as social-network, where
+`compose_post_ratio = 0.10` predicted 10.0000 % and 9.8639 % was observed. **Nothing
+unexplained.**
+
+Two mechanisms worth recording. The rate service sits behind `memcached-rate` and takes
+the Mongo path only on a cache miss — but the injector's `kubectl delete pods --all`
+restarts memcached, so the cache is cold and every search takes it. And that path ends in
+`log.Panic()` (`rate/server.go:267`), which *could* have crashed the rate pod
+persistently; the W4 sampler shows it did not.
+
+### W4 teardown
+
+`hotel-reservation` deleted. Remaining namespaces: `default`, `kube-node-lease`,
+`kube-public`, `kube-system`, `local-path-storage`, `observe`, `openebs`,
+`social-network`, `sregym`. `social-network` restored: `user-service` present
+(10.96.114.38, 9090/TCP), **30 services, 1 EndpointSlice, 27/27 deployments, 28 pods all
+Running**. All 4 kind nodes Ready. No sampler or driver processes remain.
+
+**Residue: 23 Chaos Mesh CRDs.** Cluster-scoped, so they survived the `chaos-mesh`
+namespace deletion in W3. Inert — no controller running, no CRs present. Not deleted;
+CRD removal was not requested and is more invasive than namespace deletion.
+
 ---
 
 ## 9. KNOWN GAPS
@@ -732,7 +870,14 @@ non-repair. Only `missing_service_social_network` has been tested end-to-end.
 Spot-checked against `missing_service`, `target_port` and `sidecar_port_conflict`; not
 exhaustively verified for all 118.
 
-**8. H4 (second application) is now partially tested — see W3.** `w3-hotel-01` obtained
+**8. H4 (second application) is now TESTED — see W4, which supersedes W3.**
+`w4-hotel-01` is a complete three-state run with both instrument defects fixed:
+`{"success": true}` in all three states, 59.7429 % faulted workload failure, R1 60.0004 s,
+127 consecutive samples with zero not-`Running` pods, R3-A case (d). It remains
+**single-instrument** (one measurement, not two) and **n=1** for this application. The
+superseded W3 note follows:
+
+**8b. (superseded) H4 was partially tested in W3.** `w3-hotel-01` obtained
 a single-instrument faulted verdict of `{"success": true}` on
 `missing_service_hotel_reservation` with a 60.03 % functional failure rate, supporting
 H4-lite. It is weaker than a G1 run: one instrument, 6 workload rounds instead of 10, no

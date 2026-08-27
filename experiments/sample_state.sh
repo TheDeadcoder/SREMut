@@ -10,7 +10,9 @@
 # Uses the PINNED kubectl from the frozen execution profile
 # (profiles/missing_service_social_network/pilot-v1.yaml), NOT the host default.
 #
-# Usage: sample_state.sh OUTPUT_JSONL
+# Usage: sample_state.sh OUTPUT_JSONL [NAMESPACE]
+#        NAMESPACE defaults to social-network, so every pre-W4 invocation
+#        (sample_state.sh OUT) behaves exactly as before.
 #
 # Emitted fields per line:
 #   ts_utc                            ISO 8601, millisecond precision
@@ -35,12 +37,16 @@ CONTEXT="kind-kind"
 NAMESPACE="social-network"
 INTERVAL=2
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 OUTPUT_JSONL" >&2
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+  echo "Usage: $0 OUTPUT_JSONL [NAMESPACE]" >&2
   exit 2
 fi
 
 OUT="$1"
+# FIX 1 (W4): namespace is now an optional argument. Default preserves the
+# pre-W4 behaviour exactly. w3-hotel-01 sampled the wrong namespace because
+# this was hardcoded.
+NAMESPACE="${2:-$NAMESPACE}"
 mkdir -p "$(dirname "$OUT")"
 
 if [ ! -x "$KUBECTL" ]; then
