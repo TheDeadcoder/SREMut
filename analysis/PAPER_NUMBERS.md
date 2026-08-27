@@ -313,28 +313,26 @@ example file).
 | UNCERTAIN (all oracle types) | 32 |
 | Injectors that restart pods or wait for stability | 16 |
 | Oracles whose surface is pods+deployments only | 34 |
-| **THE HEADLINE: both of the above** | **8** |
 
-### The 8-problem headline table
+### THE headline (corrected)
 
-Injector restarts pods or waits for stability AND oracle surface is pods+deployments
-only — the structure confirmed end-to-end in `g1-run-0{1,2,3}`.
+**6 BLIND of 118 = 5.1 %** (6/99 = 6.1 % on the conservative denominator). **3 of the 6
+are the `missing_service` family**, the one confirmed end-to-end. The other 3
+(`pvc_claim_mismatch`, `assign_to_non_existent_node`, `workload_imbalance`) are
+structural predictions, not results.
 
-| problem_id | oracle |
-|---|---|
-| `missing_service_astronomy_shop` | `MitigationOracle` |
-| `missing_service_hotel_reservation` | `MitigationOracle` |
-| `missing_service_social_network` | `MitigationOracle` |
-| `pod_cidr_exhaustion_hotel_reservation` | `MitigationOracle` |
-| `sidecar_port_conflict_astronomy_shop` | `MitigationOracle` |
-| `sidecar_port_conflict_hotel_reservation` | `MitigationOracle` |
-| `sidecar_port_conflict_social_network` | `MitigationOracle` |
-| `taint_no_toleration_social_network` | `MitigationOracle` |
+Bare-generic pool as an interval: **4 BLIND / 15 ADEQUATE / 8 UNCERTAIN**, so the honest
+range is **6-14 blind problem_ids** (6 if every UNCERTAIN resolves ADEQUATE, 14 if every
+one resolves BLIND).
 
-= 8/118 = 6.8 %; against the 99 denominator, 8.1 %.
-
-Three (`missing_service_*`) are confirmed; the other five are **predictions the census
-makes, not results** — not executed.
+**CORRECTION (recorded).** An earlier draft reported "8 problem_ids share the structure
+confirmed end-to-end". That was wrong. Sharing the *injector* half is not sufficient; the
+confirmed structure needs **both** the injector restoring the observed surface **and** the
+perturbed kind being invisible to the oracle. Only the 3 `missing_service_*` satisfy both.
+The 8-row table is retained in `CENSUS.md` as **"structural shape only — NOT a blindness
+count"**, with per-row verdicts: **3 BLIND, 5 ADEQUATE**. The 5 ADEQUATE ones perturb
+Deployment / container_cmd_env / Node, all observable through a deployments+pods surface;
+they were re-verified row by row and no classification in `coverage.csv` was changed.
 
 ### The 6 BLIND problem_ids
 
@@ -343,17 +341,14 @@ makes, not results** — not executed.
 | `missing_service_social_network` | `MitigationOracle` | a Service read, an EndpointSlice/Endpoints read, DNS of the Service FQDN, or any request routed through it |
 | `missing_service_hotel_reservation` | `MitigationOracle` | same |
 | `missing_service_astronomy_shop` | `MitigationOracle` | same |
-| `pvc_claim_mismatch` | `MitigationOracle` | a PersistentVolumeClaim read (bind status / claimRef), or a persistence check |
-| `assign_to_non_existent_node` | `AssignNonExistentNodeMitigationOracle` | Deployment `nodeSelector`/`nodeName`, or Node existence; it reads only pods (`:16`) and a name-prefix existence test (`:20`) |
-| `workload_imbalance` | `ImbalanceMitigationOracle` | the mutated container command/env; it reads only pod CPU via `kubectl top` (`:25`), a derived metric |
+| `pvc_claim_mismatch` | `MitigationOracle` | a PersistentVolumeClaim read (bind status / claimRef) |
+| `assign_to_non_existent_node` | `AssignNonExistentNodeMitigationOracle` | Deployment `nodeSelector`/`nodeName`, or Node existence |
+| `workload_imbalance` | `ImbalanceMitigationOracle` | the mutated container command/env, not derived pod CPU |
 
 ### The 32 UNCERTAIN
 
-Reason: the perturbed resource kind is not determinable from the problem class — the
-injection is delegated to Khaos, `inject_tt.py`, or a kernel/hardware injector whose
-concrete mutation was not traced to file:line at the uniform depth applied to all 118.
-These are **UNCERTAIN, not PENDING**: attempted at the same depth as every other row
-and unresolved.
+Perturbed kind not determinable from the problem class — injection delegated to Khaos,
+`inject_tt.py`, or a kernel/hardware injector. **UNCERTAIN, not PENDING.**
 
 ### Two call-graph method corrections
 
@@ -467,6 +462,90 @@ run. The "you waited for it to settle" objection to G1 and G3 is removed.
 Total verdicts now: **13 of 13** measurements `true` on faulted or unrepaired states
 across G1 (9), G3 (1), W1 (2 faulted) plus g02-run-01 (1).
 
+### Item A (W1) — TTM anchor, restated
+
+`execution_start_time` is reset at **`conductor.py:458`**, immediately after
+`_advance_to_next_stage(0)` performs the injection, comment `# Reset: measure agent time
+only`. TTM (`:273`) and TTL (`:254`) therefore measure the **agent episode**, not
+time-since-injection-start.
+
+TTM/TTL **do reach the results CSV** as bare columns via the `else` branch at
+`main.py:460-461`. They are **never consumed**: `visualizer/` reads only
+`Mitigation.success` and `Diagnosis.success`; there is no ranking, sorting, aggregation or
+comparison on TTM anywhere in the repository.
+
+### Part A (W2) — what the SREGym paper claims
+
+Source: arXiv 2605.07161, "SREGym: A Live Benchmark for AI SRE Agents with High-Fidelity
+Failure Scenarios" (Clark, Su, Pial, Tian, Gniedziejko, Jacobsen, Chen, Xu).
+
+| Claim | Verbatim | Our measurement |
+|---|---|---|
+| §2.5 Mitigation Oracle | "The mitigation oracle is problem-specific to accurately reflect whether the target failure is truly mitigated." "The oracle checks whether the target fault is resolved and whether the target system has recovered to a healthy state." "**The mitigation oracle uses both client-side observability such as user request success rate and system-side observability of application processes, Kubernetes cluster, etc.**" | For `missing_service_social_network` the attached oracle uses **only** system-side signals. Client-side observability is verified absent (`http` 0, `workload` 0, `wrk` 0). Measured user request success rate ~90 % while the oracle reported success, 13/13. |
+| §2.5 Diagnosis Oracle | validated at **Cohen's κ = 0.90** vs human experts (κ = 0.94 inter-LLM), Table 2 | No comparable validation is reported for mitigation oracles. |
+| §3.1 | "Mitigation success rate measures whether the agent successfully mitigates failures (verified by the mitigation oracle)." Table 3: 78.5 % / 65.5 % / 57.3 % | Problem subset over which these were computed is **not stated** in the paper. |
+| §2 design principle | "**Simulating faults, not symptoms.** We reject a common practice of existing benchmarks that use chaos engineering tools to create failure symptoms, which can only be mitigated by stopping the tools. Instead, we focus on simulating fine-grained faults." | **Different threat.** Concerns agents gaming the *injector*. Our finding is not that — our agent did nothing at all. **No tension claimed.** |
+
+**The one contradiction, conservatively scoped:** the §2.5 description of client-side
+observability does not hold for the **27 problem_ids on the bare generic
+`MitigationOracle`**, one of which we measured end-to-end. It does hold for much of the
+family (18/60 oracle classes reach TCP/HTTP, 3 consume workload).
+
+**NOT VERIFIED:** no paragraph headed "Protection against reward hacking" was located.
+Six fetch attempts; an enumeration of all bolded lead-ins in §2 and Appendix B found none
+containing that phrase, and retrieval of the one paragraph reported to contain it was
+inconsistent between fetches. **Not quoted here. Verify against the PDF before citing.**
+Reference [76] resolved (single fetch, moderate confidence) to Wang, Mang, Cheung, Sen &
+Song, 2026, "How We Broke Top AI Agent Benchmarks: And What Comes Next", RDI Berkeley Blog.
+
+### Part D / D1 (W2 H3) — noise enabled
+
+Protocol: `SREMut/experiments/PROTOCOL_W2.md`. Runs:
+`SREMut/experiments/w2-noise-0{1,2}/three-state.json`.
+
+**What `enable_noise=True` does** (`sregym/generators/noise/manager.py`): Chaos Mesh
+experiments, auto-installed via helm if absent (`manager.py:249-263`). Catalog of **four**
+(`catalog.py:14`), all `mode: one` (single random pod in the target namespace):
+`pod-kill` and `pod-failure` (PodChaos), `network-delay` and `network-loss`
+(NetworkChaos). **2 per cycle** (`manager.py:28`), each living **120 s**
+(`manager.py:29`), **300 s cooldown** between cycles (`manager.py:30`), 5 s poll loop.
+
+**Critical design finding: the conductor stops noise before EVERY evaluation.**
+`conductor.py:476-483`, comment "Stop noise before evaluation to ensure clean
+environment"; `NoiseManager.stop()` (`manager.py:84-95`) also **removes all active chaos
+experiments** and force-strips finalizers. So in the production path, noise is not active
+at the graded instant, by design.
+
+| Run | HEALTHY | FAULTED | RESTORED | faulted workload | inj->oracle | R3 |
+|---|---|---|---|---:|---:|---|
+| `w2-noise-01` | `{"success": true}` | **`{"success": true}`** | `{"success": true}` | 10.3223 % (1057/10240) | 65.931 s | RESEARCH VERDICT |
+| `w2-noise-02` | `{"success": true}` | **`{"success": true}`** | `{"success": true}` | 9.8340 % (1007/10240) | 65.712 s | RESEARCH VERDICT |
+
+Both worker verdicts `RETURNED_TRUE`; all `raw_result_sha256` match the G1 value
+`c955e57777ec0d73…`. At each faulted oracle instant: Service absent, 0 EndpointSlices, 29
+services, 28 pods, **0 not Running**. Chaos Mesh confirmed installed and experiments
+applied (`network-delay`, `network-loss` in both runs; `pod-kill` was not selected by
+`random.sample` in either).
+
+**H3 is not supported.** The verdict was `true` with noise active during the run. This is
+the stronger outcome, and it is largely explained by design: the conductor quiesces noise
+before grading.
+
+### Part D / D2 (W2 H4) — second application: ABANDONED
+
+Run: `SREMut/experiments/w2-hotel-01/three-state.json`, status
+`STOPPED_AT_HEALTHY_GATE`.
+
+`missing_service_hotel_reservation` deployed successfully (109.482 s) and was healthy:
+10 rounds, **0/29447 non-2xx**, in-process oracle `{"success": true}`. The healthy gate
+tripped because the **SREMut worker** exited 65 with `ORIGINAL_ORACLE_INPUT_INVALID`: it
+pins `EXPECTED_NAMESPACE = "social-network"` (`original_oracle_worker.py:23`, enforced at
+`:135`) and the hotel-reservation namespace differs.
+
+**This is a scope boundary of our instrument, not a property of the application.** The
+pinned namespace is fixed by the frozen evidence policy and was not relaxed. Per protocol
+the item was abandoned and not debugged. **H4 remains untested.**
+
 ---
 
 ## 9. KNOWN GAPS
@@ -488,14 +567,26 @@ numbers used a different, correct script and are unaffected.
 be traced to file:line at the uniform depth applied. Not PENDING; attempted and
 unresolved.
 
-**3. Noise disabled and Loki disabled in every run.** All runs used
-`ConductorConfig(deploy_loki=False, enable_noise=False)`, matching the three frozen
-healthy baselines. **Direction of bias:** disabling noise makes the cluster *quieter*
-and a `true` verdict *more* likely, so it works in favour of the primary claim rather
-than against it. This is a real limitation and should be stated in the paper: the
-result has not been shown to hold with SREGym's noise manager active. Loki is deployed
-outside the application namespace and is not read by the oracle, so its absence cannot
-affect the verdict.
+**3. Noise: now partially addressed, and the caveat is weaker than first stated.**
+G1, G3 and W1 ran with `enable_noise=False`. W2's two runs ran with noise genuinely
+active (Chaos Mesh installed, experiments applied) and returned `true` in both. Moreover
+the conductor **stops noise before every evaluation by design** (`conductor.py:476-483`;
+`NoiseManager.stop()` removes all active experiments, `manager.py:84-95`), so the graded
+instant is quiescent whether or not noise is enabled. The original caveat — that
+disabling noise biases toward the claim — is therefore **substantially weakened**, though
+not eliminated: `pod-kill` was never selected by `random.sample` in either W2 run, so the
+most disruptive catalog entry remains untested at the graded instant. Loki is deployed
+outside the app namespace and unread by the oracle.
+
+**3b. Two W2 fidelity gaps, disclosed.** (i) The first noise run was **inert**:
+`three_state_run.py` never calls `start_problem()`, so `nm.start()` at `conductor.py:451`
+never fired and `enable_noise=True` had no effect. Detected before reporting, the run was
+preserved as `w2-noise-00-INERT-noise-never-started`, the driver was patched to replicate
+`conductor.py:442-451`, and both reported runs use the patched driver. (ii) The driver
+stops noise before each evaluation (`conductor.py:476-483`) but does **not** replicate the
+conductor's restart afterwards (`conductor.py:508-514`), so noise was active only between
+deploy and the healthy evaluation, not during the faulted window. Both runs are reported
+with this limitation stated.
 
 **4. n = 3** for the full three-state repetition (G1), plus 1 production-path run (G3),
 2 zero-delay runs (W1) and 1 pilot (g02-run-01). The three-state *pattern* is
@@ -514,5 +605,11 @@ non-repair. Only `missing_service_social_network` has been tested end-to-end.
 Spot-checked against `missing_service`, `target_port` and `sidecar_port_conflict`; not
 exhaustively verified for all 118.
 
-**8. The paper's own evaluated subset is unknown**, so the census denominator cannot be
+**8. H4 (second application) is untested.** The SREMut worker pins
+`EXPECTED_NAMESPACE = "social-network"`, so `missing_service_hotel_reservation` could not
+be measured with both instruments. The app itself deployed healthy (0/29447 non-2xx) and
+the in-process oracle returned `true`; only the worker leg is missing. Generality across
+applications therefore rests on the census's structural argument, not on measurement.
+
+**9. The paper's own evaluated subset is unknown**, so the census denominator cannot be
 aligned with the paper's 90. Both 118 and 99 are given.

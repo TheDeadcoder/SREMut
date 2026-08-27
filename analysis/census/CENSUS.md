@@ -92,30 +92,65 @@ known-answer case in the census caught this; the corrected rule reproduces it.
 
 ## Headline counts
 
-### THE headline: injector restores the surface the oracle measures
+### THE headline: oracles blind to their own fault
 
-**8 of 118 problem_ids** pair an injector that restarts pods or waits for
-stability with an oracle whose entire observation surface is pods and deployments.
-This is the exact structure confirmed end-to-end in `experiments/g1-run-0{1,2,3}`,
-where the stock oracle returned `{"success": true}` in 9 of 9 measurements on a system
-failing ~10 % of its functional workload.
+**6 of 118 problem_ids (5.1 %) are BLIND** — the attached oracle observes neither the
+perturbed resource kind nor any functional signal the fault would break. Against the
+conservative 99-id denominator, 6/99 = 6.1 %.
 
-| problem_id | oracle | restarts pods | waits stability | perturbed kinds |
-|---|---|---|---|---|
-| `missing_service_astronomy_shop` | `MitigationOracle` | True | True | Pod;Service |
-| `missing_service_hotel_reservation` | `MitigationOracle` | True | True | Pod;Service |
-| `missing_service_social_network` | `MitigationOracle` | True | True | Pod;Service |
-| `pod_cidr_exhaustion_hotel_reservation` | `MitigationOracle` | True | True | Deployment;Pod;container_cmd_env |
-| `sidecar_port_conflict_astronomy_shop` | `MitigationOracle` | False | True | Deployment;container_cmd_env |
-| `sidecar_port_conflict_hotel_reservation` | `MitigationOracle` | False | True | Deployment;container_cmd_env |
-| `sidecar_port_conflict_social_network` | `MitigationOracle` | False | True | Deployment;container_cmd_env |
-| `taint_no_toleration_social_network` | `MitigationOracle` | False | True | Deployment;Pod;Node |
+**3 of those 6 are the `missing_service` family**, and that family is the one confirmed
+end-to-end: in `experiments/g1-run-0{1,2,3}`, `g3-run-01` and `w1-delay0-0{1,2}` the stock
+oracle returned `{"success": true}` on an unrepaired system across 13 of 13 measurements,
+while the functional workload failed ~10 % of requests.
 
-All eight are on the bare generic `MitigationOracle`. Three of them
-(`missing_service_*`) are the confirmed case; the other five share the structure and
-are **predictions the census makes, not results** — they have not been executed.
+The other 3 BLIND ids (`pvc_claim_mismatch`, `assign_to_non_existent_node`,
+`workload_imbalance`) are **structural predictions, not results** — none has been executed.
 
-As a fraction: 8/118 = 6.8 %; against the conservative 99-id denominator, 8/99 = 8.1 %.
+### The bare-generic pool, stated as an interval
+
+Of the 27 problem_ids on the bare generic `MitigationOracle`:
+
+| Verdict | Count |
+|---|---:|
+| BLIND | **4** |
+| ADEQUATE | **15** |
+| UNCERTAIN | **8** |
+
+Because the 8 UNCERTAIN rows could not be resolved from source, the honest statement is a
+range: **between 6 and 14 problem_ids are blind to their own fault** — 6 if every
+UNCERTAIN row turns out ADEQUATE, 14 if every one turns out BLIND. The point estimate on
+resolved rows alone is 6.
+
+### Structural shape only — NOT a blindness count
+
+**CORRECTION (recorded).** An earlier draft of this section presented the 8 rows below as
+"8 problem_ids sharing the structure confirmed end-to-end". That was wrong and is
+corrected here. Sharing the *injector* half of the structure is not sufficient for
+blindness. The confirmed structure requires **both** conditions:
+
+1. the injector restores the surface the oracle measures (restarts pods / waits for
+   stability), **and**
+2. the perturbed resource kind is invisible to that oracle.
+
+Only the three `missing_service_*` ids satisfy both. The other five perturb Deployment,
+container command/env, or Node — kinds a deployments-and-pods oracle **can** observe — and
+are correctly classified ADEQUATE. The table is retained because condition (1) is a real
+and reusable structural signal, but it is **not** a blindness count.
+
+| problem_id | verdict | perturbed kinds | restarts pods | waits stability | why this verdict |
+|---|---|---|---|---|---|
+| `pod_cidr_exhaustion_hotel_reservation` | **ADEQUATE** | Deployment;Pod;container_cmd_env | True | True | the perturbed kind (Deployment;Pod;container_cmd_env) IS observable through the Deployment/Pod surface |
+| `sidecar_port_conflict_astronomy_shop` | **ADEQUATE** | Deployment;container_cmd_env | False | True | the perturbed kind (Deployment;container_cmd_env) IS observable through the Deployment/Pod surface |
+| `sidecar_port_conflict_hotel_reservation` | **ADEQUATE** | Deployment;container_cmd_env | False | True | the perturbed kind (Deployment;container_cmd_env) IS observable through the Deployment/Pod surface |
+| `sidecar_port_conflict_social_network` | **ADEQUATE** | Deployment;container_cmd_env | False | True | the perturbed kind (Deployment;container_cmd_env) IS observable through the Deployment/Pod surface |
+| `taint_no_toleration_social_network` | **ADEQUATE** | Deployment;Pod;Node | False | True | the perturbed kind (Deployment;Pod;Node) IS observable through the Deployment/Pod surface |
+| `missing_service_astronomy_shop` | **BLIND** | Pod;Service | True | True | Service deletion is invisible to a deployments+pods oracle |
+| `missing_service_hotel_reservation` | **BLIND** | Pod;Service | True | True | Service deletion is invisible to a deployments+pods oracle |
+| `missing_service_social_network` | **BLIND** | Pod;Service | True | True | Service deletion is invisible to a deployments+pods oracle |
+
+**3 of 8 BLIND, 5 of 8 ADEQUATE.** All eight are on the bare generic `MitigationOracle`.
+No underlying classification in `coverage.csv` was changed by this correction; it was
+re-verified row by row and found correct. This is a framing fix only.
 
 ### Other headline counts
 

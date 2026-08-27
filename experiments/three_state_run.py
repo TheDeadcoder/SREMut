@@ -145,6 +145,19 @@ def dump_state(out_dir: Path, label: str) -> dict:
 
 
 # --------------------------------------------------------------------- oracles
+def stop_noise_like_conductor(R, phase):
+    """Replicates conductor.py:476-483: the conductor stops noise before EVERY
+    evaluation, and NoiseManager.stop() (manager.py:84-95) also removes all active
+    chaos experiments. Without this the run would not be faithful."""
+    try:
+        from sregym.generators.noise.manager import get_noise_manager
+        get_noise_manager().stop()
+        R.setdefault("noise_stopped_before", []).append({"phase": phase, "utc": utc_now()})
+        say(f"  noise manager STOPPED before {phase} evaluation [conductor.py:476-483]")
+    except Exception as e:
+        say(f"  noise stop failed: {e}")
+
+
 def evaluate_in_process(problem, phase: str) -> dict:
     say(f"  {phase} in-process evaluate() starting")
     started = utc_now(); t0 = time.monotonic()
@@ -211,17 +224,23 @@ def run_worker(out: Path, phase: str, baseline: dict) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-id", required=True)
+    ap.add_argument("--noise", action="store_true",
+                    help="ConductorConfig(enable_noise=True) — PROTOCOL_W2 H3")
+    ap.add_argument("--problem-id", default=PROBLEM_ID,
+                    help="registry problem_id (PROTOCOL_W2 H4 uses missing_service_hotel_reservation)")
     ap.add_argument("--null-agent-delay", type=int, default=NULL_AGENT_EPISODE_SECONDS,
                     help="seconds between inject_fault() returning and the treatment "
                          "oracle (PROTOCOL_G1 R1 default 60; PROTOCOL_W1 uses 0)")
     args = ap.parse_args()
     delay = args.null_agent_delay
+    noise = args.noise
+    problem_id = args.problem_id
     out = EXPERIMENTS / args.run_id
     out.mkdir(parents=True, exist_ok=True)
 
     R = {"schema_version": 1, "protocol": "sremut-g1-three-state-v1",
          "protocol_doc": "SREMut/experiments/PROTOCOL_G1.md",
-         "run_id": args.run_id, "problem_id": PROBLEM_ID,
+         "run_id": args.run_id, "problem_id": problem_id, "enable_noise": None,
          "driver": "candidate-ii-minimal-driver",
          "agent_action_between_injection_and_evaluation": "NONE",
          "null_agent_episode_seconds": None,  # set below from --null-agent-delay
@@ -229,6 +248,7 @@ def main() -> int:
          "driver_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
          "started_at": utc_now(), "status": "RUNNING"}
     R["null_agent_episode_seconds"] = delay
+    R["enable_noise"] = noise
     R["protocol_doc"] = ("SREMut/experiments/PROTOCOL_G1.md" if delay == NULL_AGENT_EPISODE_SECONDS
                          else "SREMut/experiments/PROTOCOL_W1.md (H2 submission-latency)")
     overall = time.monotonic()
@@ -247,14 +267,27 @@ def main() -> int:
 
         # 2. deploy ----------------------------------------------------------
         say("STEP 2: Conductor / fix_kubernetes / undeploy_app / deploy_app  [MUTATING]")
-        conductor = Conductor(config=ConductorConfig(deploy_loki=False, enable_noise=False))
-        conductor.problem_id = PROBLEM_ID
+        conductor = Conductor(config=ConductorConfig(deploy_loki=False, enable_noise=noise))
+        conductor.problem_id = problem_id
         conductor.problem = conductor.problems.get_problem_instance(conductor.problem_id)
         conductor.app = conductor.problem.app
         problem = conductor.problem
+        global NAMESPACE
+        NAMESPACE = problem.namespace
+        R["namespace"] = NAMESPACE
         R["mitigation_oracle_class"] = type(problem.mitigation_oracle).__name__
         t0 = time.monotonic(); R["deploy_started_utc"] = utc_now()
         conductor.fix_kubernetes(); conductor.undeploy_app(); conductor.deploy_app()
+        if noise:
+            # Replicates conductor.py:442-451, which three_state_run.py otherwise skips
+            # because it does not call start_problem().
+            from sregym.generators.noise.manager import get_noise_manager
+            nm = get_noise_manager()
+            nm.set_problem_context({"namespace": conductor.problem.app.namespace,
+                                    "app_name": conductor.problem.app.name})
+            nm.start()
+            R["noise_started_utc"] = utc_now()
+            say("  noise manager STARTED [replicates conductor.py:442-451]")
         R["deploy_finished_utc"] = utc_now()
         R["deployment_seconds"] = round(time.monotonic() - t0, 3)
         say(f"  deploy complete in {R['deployment_seconds']}s")
@@ -284,6 +317,7 @@ def main() -> int:
 
         # 6. HEALTHY oracles -------------------------------------------------
         say("STEP 6: HEALTHY oracles")
+        if noise: stop_noise_like_conductor(R, "HEALTHY")
         R["healthy_in_process"] = evaluate_in_process(problem, "HEALTHY")
         R["healthy_worker"] = run_worker(out, "HEALTHY", baseline)
 
@@ -323,6 +357,7 @@ def main() -> int:
 
         # 11. FAULTED oracles ------------------------------------------------
         say("STEP 11: FAULTED oracles")
+        if noise: stop_noise_like_conductor(R, "FAULTED")
         R["faulted_in_process"] = evaluate_in_process(problem, "FAULTED")
         R["faulted_worker"] = run_worker(out, "FAULTED", baseline)
 
@@ -352,6 +387,7 @@ def main() -> int:
 
         # 16. RESTORED oracles -----------------------------------------------
         say("STEP 16: RESTORED oracles")
+        if noise: stop_noise_like_conductor(R, "RESTORED")
         R["restored_in_process"] = evaluate_in_process(problem, "RESTORED")
         R["restored_worker"] = run_worker(out, "RESTORED", baseline)
 

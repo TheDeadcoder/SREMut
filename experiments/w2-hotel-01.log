@@ -1,0 +1,120 @@
+[2026-08-27T04:27:04.719695+00:00] STEP 1: starting state sampler
+[2026-08-27T04:27:04.720694+00:00]   sampler PID 2595669
+[2026-08-27T04:27:07.720946+00:00] STEP 2: Conductor / fix_kubernetes / undeploy_app / deploy_app  [MUTATING]
+2026-08-27 04:27:07,844 - all.sregym.conductor - INFO - Fixing Kubernetes... to normal state.
+2026-08-27 04:27:07,845 - all.sregym.conductor - INFO - [FIX] Imbalance leftover if any
+2026-08-27 04:27:07,959 - all.sregym.conductor - INFO - [FIX] KubeletCrash leftover if any
+2026-08-27 04:27:08,669 - all.sregym.conductor - INFO - [FIX] KubeletEvictionThresholdMisconfig leftover if any
+2026-08-27 04:27:10,058 - all.sregym.conductor - INFO - [FIX] Calico IPPool/strictAffinity leftover if any
+2026-08-27 04:27:10,575 - all.sregym.conductor - INFO - [FIX] Calico route-reflector label drift leftovers if any
+2026-08-27 04:27:10,812 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get bgppeer cluster-peer-policy -o json
+  stderr: Error from server (NotFound): bgppeers.crd.projectcalico.org "cluster-peer-policy" not found
+2026-08-27 04:27:11,003 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get bgpconfiguration default -o json
+  stderr: Error from server (NotFound): bgpconfigurations.crd.projectcalico.org "default" not found
+2026-08-27 04:27:11,102 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get namespace platform-checks -o json
+  stderr: Error from server (NotFound): namespaces "platform-checks" not found
+2026-08-27 04:27:11,190 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl -n khaos get configmap network-case-state -o json
+  stderr: Error from server (NotFound): namespaces "khaos" not found
+2026-08-27 04:27:11,191 - all.sregym.conductor - INFO - [FIX] Stale CoreDNS NXDOMAIN templates if any
+2026-08-27 04:27:11,292 - all.sregym.conductor - INFO - [FIX] Leftover dm-flakey infrastructure if any
+2026-08-27 04:27:11,715 - all.sregym.conductor - INFO - [FIX] NightlyRebalanceOOM kube-system actor leftover if any
+2026-08-27 04:27:11,803 - all.sregym.conductor - INFO - [FIX] Clock drift leftover if any
+2026-08-27 04:27:11,889 - all.sregym.conductor - INFO - Fix Kubernetes completed.
+2026-08-27 04:27:11,903 - all.infra.kubectl - WARNING - Namespace 'hotel-reservation' not found.
+Starting kubelet in kind-worker...
+Kubelet started in kind-worker
+Starting kubelet in kind-worker2...
+Kubelet started in kind-worker2
+Starting kubelet in kind-worker3...
+Kubelet started in kind-worker3
+Waiting for worker nodes {'kind-worker', 'kind-worker2', 'kind-worker3'} to become Ready...
+All worker nodes are Ready.
+Recovering disk pressure in kind-worker...
+Waiting for node kind-worker to become Ready...
+Node kind-worker is Ready.
+Recovering disk pressure in kind-worker2...
+Waiting for node kind-worker2 to become Ready...
+Node kind-worker2 is Ready.
+Recovering disk pressure in kind-worker3...
+Waiting for node kind-worker3 to become Ready...
+Node kind-worker3 is Ready.
+No NXDOMAIN templates found in CoreDNS config; nothing to do
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-control-plane (may not exist): No running Khaos pod found on node kind-control-plane
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker (may not exist): No running Khaos pod found on node kind-worker
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker2 (may not exist): No running Khaos pod found on node kind-worker2
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker3 (may not exist): No running Khaos pod found on node kind-worker3
+No leftover node-probe pods found; nothing to do
+[04:27:11] Waiting for namespace deletion...                      kubectl.py:239
+           Namespace 'hotel-reservation' has been deleted.        kubectl.py:247
+[04:27:17] No jobs found with label 'job=workload' in namespace   kubectl.py:322
+           'hotel-reservation'.                                                 
+2026-08-27 04:27:17,019 - all.infra.cluster_state - INFO - Baseline state loaded from /home/sakibbuet2k19/cache_dir/cluster_baseline_state.json
+2026-08-27 04:27:17,019 - all.sregym.conductor - INFO - [DEPLOY] Loaded persisted cluster baseline state
+2026-08-27 04:27:17,019 - all.sregym.conductor - INFO - [DEPLOY] Setting up metrics-server…
+[04:27:18] Waiting for all pods in namespace 'kube-system' to be  kubectl.py:194
+           ready...                                                             
+[04:27:20] All pods in namespace 'kube-system' are ready.         kubectl.py:223
+2026-08-27 04:27:20,841 - all.sregym.conductor - INFO - [DEPLOY] Setting up OpenEBS…
+[04:27:22] Waiting for all pods in namespace 'openebs' to be      kubectl.py:194
+           ready...                                                             
+[04:27:23] All pods in namespace 'openebs' are ready.             kubectl.py:223
+2026-08-27 04:27:23,017 - all.sregym.conductor - INFO - [DEPLOY] Ensuring OpenEBS LocalPV-Device StorageClass…
+2026-08-27 04:27:23,101 - all.sregym.conductor - INFO - [DEPLOY] StorageClass/openebs-device already exists; leaving it unchanged
+2026-08-27 04:27:23,101 - all.sregym.conductor - INFO - [DEPLOY] Deploying Prometheus…
+2026-08-27 04:27:23,191 - all.infra.prometheus - WARNING - Prometheus is already running. Skipping redeployment.
+2026-08-27 04:27:23,191 - all.sregym.conductor - INFO - [DEPLOY] Deploying Jaeger…
+2026-08-27 04:27:23,717 - all.sregym.jaeger - INFO - Jaeger deployed successfully.
+2026-08-27 04:27:23,717 - all.sregym.conductor - INFO - [DEPLOY] Deploying OTel Collector…
+2026-08-27 04:27:24,913 - all.sregym.otel_collector - INFO - OTel Collector deployed successfully.
+2026-08-27 04:27:24,913 - all.sregym.conductor - INFO - [DEPLOY] Skipping Loki deployment (external harness mode)
+2026-08-27 04:27:24,913 - all.sregym.conductor - INFO - [DEPLOY] Deploying MCP server…
+2026-08-27 04:27:25,153 - all.sregym.mcp_server - INFO - MCP server RBAC resources ensured.
+2026-08-27 04:27:25,240 - all.sregym.mcp_server - INFO - MCP server already running, skipping redeploy.
+2026-08-27 04:27:25,246 - all.sregym.mcp_server - INFO - Port-forward is absent or stale, restarting.
+2026-08-27 04:27:28,248 - all.sregym.mcp_server - INFO - Port forwarding established at 9954. MCP_SERVER_PORT set.
+2026-08-27 04:27:28,248 - all.sregym.conductor - INFO - [ENV] Set up necessary components: metrics-server, Khaos, OpenEBS, Prometheus, Jaeger, Loki
+2026-08-27 04:27:28,248 - all.sregym.conductor - INFO - [DEPLOY] Deploying and starting workload
+2026-08-27 04:27:28,248 - all.application - INFO - Deploying Kubernetes configurations in namespace: hotel-reservation
+2026-08-27 04:27:28,338 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get namespace hotel-reservation
+  stderr: Error from server (NotFound): namespaces "hotel-reservation" not found
+2026-08-27 04:27:28,338 - all.application - INFO - Namespace hotel-reservation not found. Creating namespace.
+2026-08-27 04:27:28,428 - all.application - INFO - Namespace hotel-reservation created successfully: namespace/hotel-reservation created
+
+2026-08-27 04:27:28,445 - all.infra.kubectl - INFO - ConfigMap 'mongo-rate-script' created in namespace 'hotel-reservation'
+2026-08-27 04:27:28,459 - all.infra.kubectl - INFO - ConfigMap 'mongo-geo-script' created in namespace 'hotel-reservation'
+2026-08-27 04:27:31,239 - all.infra.kubectl - INFO - ConfigMap 'failure-admin-rate' created in namespace 'hotel-reservation'
+2026-08-27 04:27:31,273 - all.infra.kubectl - INFO - ConfigMap 'failure-admin-geo' created in namespace 'hotel-reservation'
+[04:27:31] Waiting for all pods in namespace 'hotel-reservation'  kubectl.py:194
+           to be ready...                                                       
+[04:28:56] All pods in namespace 'hotel-reservation' are ready.   kubectl.py:223
+2026-08-27 04:28:56,187 - all.sregym.conductor - INFO - [ENV] Deploy application: Hotel Reservation
+2026-08-27 04:28:56,631 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger' in namespace 'hotel-reservation' -> otel-collector.observe.svc.cluster.local
+2026-08-27 04:28:56,804 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-agent' in namespace 'hotel-reservation' -> otel-collector.observe.svc.cluster.local
+2026-08-27 04:28:56,976 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-collector' in namespace 'hotel-reservation' -> otel-collector.observe.svc.cluster.local
+2026-08-27 04:28:57,149 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-query' in namespace 'hotel-reservation' -> otel-collector.observe.svc.cluster.local
+2026-08-27 04:28:57,257 - all.infra.workload - INFO - Start Workload with Wrk2
+2026-08-27 04:28:57,259 - all.infra.workload - INFO - Checking for existing ConfigMap 'wrk2-payload-script'...
+2026-08-27 04:28:57,275 - all.infra.workload - INFO - Creating ConfigMap 'wrk2-payload-script'...
+2026-08-27 04:28:57,287 - all.infra.workload - INFO - ConfigMap 'wrk2-payload-script' created successfully.
+2026-08-27 04:28:57,325 - all.infra.workload - INFO - Job created: wrk2-job
+2026-08-27 04:28:57,326 - all.sregym.conductor - INFO - [ENV] Start workload
+[2026-08-27T04:28:57.326766+00:00]   deploy complete in 109.482s
+[2026-08-27T04:28:57.326892+00:00] STEP 3: wait_for_ready(max_wait=600)
+[04:28:57] Waiting for all pods in namespace 'hotel-reservation'  kubectl.py:194
+           to be ready...                                                       
+[04:29:01] All pods in namespace 'hotel-reservation' are ready.   kubectl.py:223
+[2026-08-27T04:29:01.969107+00:00]   stable in 4.642s
+[2026-08-27T04:29:01.969343+00:00] STEP 4: healthy workload window  [R2]
+[2026-08-27T04:29:01.969538+00:00]   waiting for >= 10 complete wrk2 rounds (HEALTHY) since deploy
+[2026-08-27T04:34:14.110315+00:00]   HEALTHY: 10 rounds, 0/29447 non-2xx = 0.0000%  (312.1s)
+[2026-08-27T04:34:14.110609+00:00] STEP 5: capture_baseline()   [conductor.py:227]
+[2026-08-27T04:34:14.329206+00:00]   captured 19 deployments
+[2026-08-27T04:34:14.329256+00:00] STEP 6: HEALTHY oracles
+[2026-08-27T04:34:14.329286+00:00]   HEALTHY in-process evaluate() starting
+== Mitigation Evaluation ==
+[2026-08-27T04:34:14.916332+00:00]   HEALTHY in-process raw verdict = {"success": true} (0.587s)
+[2026-08-27T04:34:14.917279+00:00]   HEALTHY SREMut worker starting
+[2026-08-27T04:34:15.250358+00:00]   HEALTHY worker exit=65 outcome=NO_RESULT_FILE returned_boolean=None (0.333s)
+[2026-08-27T04:34:15.250627+00:00] !!! HEALTHY GATE FAILED: {'in_process_true': True, 'worker_true': False, 'zero_non2xx': True, 'healthy_non2xx': 0, 'passed': False}. NOT INJECTING. STOP.
+[2026-08-27T04:34:15.250948+00:00] STEP 18: stopping sampler
+[2026-08-27T04:34:17.253281+00:00] three-state.json -> /home/sakibbuet2k19/sremut/SREMut/experiments/w2-hotel-01/three-state.json  status=STOPPED_AT_HEALTHY_GATE

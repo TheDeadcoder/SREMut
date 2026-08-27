@@ -1,0 +1,196 @@
+[2026-08-27T04:07:04.382093+00:00] STEP 1: starting state sampler
+[2026-08-27T04:07:04.383061+00:00]   sampler PID 2389657
+[2026-08-27T04:07:07.383315+00:00] STEP 2: Conductor / fix_kubernetes / undeploy_app / deploy_app  [MUTATING]
+2026-08-27 04:07:07,508 - all.sregym.conductor - INFO - Fixing Kubernetes... to normal state.
+2026-08-27 04:07:07,508 - all.sregym.conductor - INFO - [FIX] Imbalance leftover if any
+2026-08-27 04:07:07,614 - all.sregym.conductor - INFO - [FIX] KubeletCrash leftover if any
+2026-08-27 04:07:08,219 - all.sregym.conductor - INFO - [FIX] KubeletEvictionThresholdMisconfig leftover if any
+2026-08-27 04:07:09,523 - all.sregym.conductor - INFO - [FIX] Calico IPPool/strictAffinity leftover if any
+2026-08-27 04:07:09,931 - all.sregym.conductor - INFO - [FIX] Calico route-reflector label drift leftovers if any
+2026-08-27 04:07:10,141 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get bgppeer cluster-peer-policy -o json
+  stderr: Error from server (NotFound): bgppeers.crd.projectcalico.org "cluster-peer-policy" not found
+2026-08-27 04:07:10,350 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get bgpconfiguration default -o json
+  stderr: Error from server (NotFound): bgpconfigurations.crd.projectcalico.org "default" not found
+2026-08-27 04:07:10,436 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get namespace platform-checks -o json
+  stderr: Error from server (NotFound): namespaces "platform-checks" not found
+2026-08-27 04:07:10,530 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl -n khaos get configmap network-case-state -o json
+  stderr: Error from server (NotFound): namespaces "khaos" not found
+2026-08-27 04:07:10,530 - all.sregym.conductor - INFO - [FIX] Stale CoreDNS NXDOMAIN templates if any
+2026-08-27 04:07:10,633 - all.sregym.conductor - INFO - [FIX] Leftover dm-flakey infrastructure if any
+2026-08-27 04:07:11,004 - all.sregym.conductor - INFO - [FIX] NightlyRebalanceOOM kube-system actor leftover if any
+2026-08-27 04:07:11,088 - all.sregym.conductor - INFO - [FIX] Clock drift leftover if any
+2026-08-27 04:07:11,184 - all.sregym.conductor - INFO - Fix Kubernetes completed.
+2026-08-27 04:07:11,184 - all.infra.helm - INFO - Helm Uninstall: social-network in namespace social-network
+2026-08-27 04:07:11,275 - all.infra.helm - WARNING - Release social-network does not exist. Skipping uninstall.
+Starting kubelet in kind-worker...
+Kubelet started in kind-worker
+Starting kubelet in kind-worker2...
+Kubelet started in kind-worker2
+Starting kubelet in kind-worker3...
+Kubelet started in kind-worker3
+Waiting for worker nodes {'kind-worker2', 'kind-worker', 'kind-worker3'} to become Ready...
+All worker nodes are Ready.
+Recovering disk pressure in kind-worker...
+Waiting for node kind-worker to become Ready...
+Node kind-worker is Ready.
+Recovering disk pressure in kind-worker2...
+Waiting for node kind-worker2 to become Ready...
+Node kind-worker2 is Ready.
+Recovering disk pressure in kind-worker3...
+Waiting for node kind-worker3 to become Ready...
+Node kind-worker3 is Ready.
+No NXDOMAIN templates found in CoreDNS config; nothing to do
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-control-plane (may not exist): No running Khaos pod found on node kind-control-plane
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker (may not exist): No running Khaos pod found on node kind-worker
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker2 (may not exist): No running Khaos pod found on node kind-worker2
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker3 (may not exist): No running Khaos pod found on node kind-worker3
+No leftover node-probe pods found; nothing to do
+[04:07:11] No jobs found with label 'job=workload' in namespace   kubectl.py:322
+           'social-network'.                                                    
+2026-08-27 04:07:11,317 - all.infra.kubectl - WARNING - Namespace 'social-network' not found.
+2026-08-27 04:07:11,317 - all.infra.cluster_state - INFO - Baseline state loaded from /home/sakibbuet2k19/cache_dir/cluster_baseline_state.json
+2026-08-27 04:07:11,318 - all.sregym.conductor - INFO - [DEPLOY] Loaded persisted cluster baseline state
+2026-08-27 04:07:11,318 - all.sregym.conductor - INFO - [DEPLOY] Setting up metrics-server…
+[04:07:12] Waiting for all pods in namespace 'kube-system' to be  kubectl.py:194
+           ready...                                                             
+[04:07:14] All pods in namespace 'kube-system' are ready.         kubectl.py:223
+2026-08-27 04:07:14,609 - all.sregym.conductor - INFO - [DEPLOY] Setting up OpenEBS…
+[04:07:17] Waiting for all pods in namespace 'openebs' to be      kubectl.py:194
+           ready...                                                             
+           All pods in namespace 'openebs' are ready.             kubectl.py:223
+2026-08-27 04:07:17,490 - all.sregym.conductor - INFO - [DEPLOY] Ensuring OpenEBS LocalPV-Device StorageClass…
+2026-08-27 04:07:17,582 - all.sregym.conductor - INFO - [DEPLOY] StorageClass/openebs-device already exists; leaving it unchanged
+2026-08-27 04:07:17,582 - all.sregym.conductor - INFO - [DEPLOY] Deploying Prometheus…
+2026-08-27 04:07:17,683 - all.infra.prometheus - WARNING - Prometheus is already running. Skipping redeployment.
+2026-08-27 04:07:17,683 - all.sregym.conductor - INFO - [DEPLOY] Deploying Jaeger…
+2026-08-27 04:07:18,321 - all.sregym.jaeger - INFO - Jaeger deployed successfully.
+2026-08-27 04:07:18,321 - all.sregym.conductor - INFO - [DEPLOY] Deploying OTel Collector…
+2026-08-27 04:07:19,219 - all.sregym.otel_collector - INFO - OTel Collector deployed successfully.
+2026-08-27 04:07:19,220 - all.sregym.conductor - INFO - [DEPLOY] Skipping Loki deployment (external harness mode)
+2026-08-27 04:07:19,220 - all.sregym.conductor - INFO - [DEPLOY] Deploying MCP server…
+2026-08-27 04:07:19,486 - all.sregym.mcp_server - INFO - MCP server RBAC resources ensured.
+2026-08-27 04:07:19,568 - all.sregym.mcp_server - INFO - MCP server already running, skipping redeploy.
+2026-08-27 04:07:19,575 - all.sregym.mcp_server - INFO - Port-forward is absent or stale, restarting.
+2026-08-27 04:07:22,576 - all.sregym.mcp_server - INFO - Port forwarding established at 9954. MCP_SERVER_PORT set.
+2026-08-27 04:07:22,576 - all.sregym.conductor - INFO - [ENV] Set up necessary components: metrics-server, Khaos, OpenEBS, Prometheus, Jaeger, Loki
+2026-08-27 04:07:22,576 - all.sregym.conductor - INFO - [DEPLOY] Deploying and starting workload
+2026-08-27 04:07:22,661 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get namespace social-network
+  stderr: Error from server (NotFound): namespaces "social-network" not found
+2026-08-27 04:07:22,662 - all.application - INFO - Namespace social-network not found. Creating namespace.
+2026-08-27 04:07:22,742 - all.application - INFO - Namespace social-network created successfully: namespace/social-network created
+
+2026-08-27 04:07:22,827 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get secret mongodb-tls -n social-network
+  stderr: Error from server (NotFound): secrets "mongodb-tls" not found
+2026-08-27 04:07:22,911 - all.sregym.social_network - DEBUG - TLS secret created: secret/mongodb-tls created
+2026-08-27 04:07:22,940 - all.infra.helm - INFO - Helm Install: social-network in namespace social-network
+2026-08-27 04:08:13,054 - all.infra.helm - DEBUG - NAME: social-network
+LAST DEPLOYED: Thu Aug 27 04:08:11 2026
+NAMESPACE: social-network
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+[04:08:13] Waiting for all pods in namespace 'social-network' to  kubectl.py:194
+           be ready...                                                          
+[04:08:35] All pods in namespace 'social-network' are ready.      kubectl.py:223
+2026-08-27 04:08:35,489 - all.sregym.conductor - INFO - [ENV] Deploy application: Social Network
+2026-08-27 04:08:35,845 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger' in namespace 'social-network' -> otel-collector.observe.svc.cluster.local
+2026-08-27 04:08:36,001 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-agent' in namespace 'social-network' -> otel-collector.observe.svc.cluster.local
+2026-08-27 04:08:36,166 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-collector' in namespace 'social-network' -> otel-collector.observe.svc.cluster.local
+2026-08-27 04:08:36,330 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-query' in namespace 'social-network' -> otel-collector.observe.svc.cluster.local
+2026-08-27 04:08:36,433 - all.infra.workload - INFO - Start Workload with Wrk2
+2026-08-27 04:08:36,433 - all.infra.workload - INFO - Checking for existing ConfigMap 'wrk2-payload-script'...
+2026-08-27 04:08:36,446 - all.infra.workload - INFO - Creating ConfigMap 'wrk2-payload-script'...
+2026-08-27 04:08:36,454 - all.infra.workload - INFO - ConfigMap 'wrk2-payload-script' created successfully.
+2026-08-27 04:08:36,478 - all.infra.workload - INFO - Job created: wrk2-job
+2026-08-27 04:08:36,479 - all.sregym.conductor - INFO - [ENV] Start workload
+2026-08-27 04:08:36,485 - sregym.generators.noise.manager - INFO - Noise target namespace: social-network
+2026-08-27 04:08:36,580 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get ns chaos-mesh
+  stderr: Error from server (NotFound): namespaces "chaos-mesh" not found
+2026-08-27 04:08:36,580 - sregym.generators.noise.manager - INFO - Chaos Mesh not found. Installing...
+2026-08-27 04:09:41,125 - sregym.generators.noise.manager - INFO - Chaos Mesh installed successfully.
+2026-08-27 04:09:41,126 - sregym.generators.noise.manager - INFO - Noise injection started.
+[2026-08-27T04:09:41.126723+00:00]   noise manager STARTED [replicates conductor.py:442-451]
+[2026-08-27T04:09:41.126795+00:00]   deploy complete in 153.618s
+[2026-08-27T04:09:41.126844+00:00] STEP 3: wait_for_ready(max_wait=600)
+[04:09:41] Waiting for all pods in namespace 'social-network' to  kubectl.py:194
+           be ready...                                                          
+           All pods in namespace 'social-network' are ready.      kubectl.py:223
+[2026-08-27T04:09:41.327248+00:00]   stable in 0.2s
+[2026-08-27T04:09:41.327321+00:00] STEP 4: healthy workload window  [R2]
+[2026-08-27T04:09:41.327347+00:00]   waiting for >= 10 complete wrk2 rounds (HEALTHY) since deploy
+2026-08-27 04:09:41,497 - sregym.generators.noise.manager - INFO - Applied noise experiment noise-network-delay-1787803781-124: networkchaos.chaos-mesh.org/noise-network-delay-1787803781-124 created
+
+2026-08-27 04:09:41,821 - sregym.generators.noise.manager - INFO - Applied noise experiment noise-network-loss-1787803781-649: networkchaos.chaos-mesh.org/noise-network-loss-1787803781-649 created
+
+[2026-08-27T04:10:33.545676+00:00]   HEALTHY: 10 rounds, 0/6780 non-2xx = 0.0000%  (52.2s)
+[2026-08-27T04:10:33.545976+00:00] STEP 5: capture_baseline()   [conductor.py:227]
+[2026-08-27T04:10:33.738350+00:00]   captured 27 deployments
+[2026-08-27T04:10:33.738412+00:00] STEP 6: HEALTHY oracles
+2026-08-27 04:10:37,788 - sregym.generators.noise.manager - WARNING - Finalizer stuck on noise-network-delay-1787803781-124; stripping to force removal
+2026-08-27 04:10:38,217 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl patch NetworkChaos noise-network-delay-1787803781-124 -n chaos-mesh --type=merge -p '{"metadata":{"finalizers":[]}}'
+  stderr: Error from server (NotFound): networkchaos.chaos-mesh.org "noise-network-delay-1787803781-124" not found
+2026-08-27 04:10:38,218 - sregym.generators.noise.manager - INFO - Cleaned up noise experiment noise-network-delay-1787803781-124
+2026-08-27 04:10:38,640 - sregym.generators.noise.manager - WARNING - Finalizer stuck on noise-network-loss-1787803781-649; stripping to force removal
+2026-08-27 04:10:38,847 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl patch NetworkChaos noise-network-loss-1787803781-649 -n chaos-mesh --type=merge -p '{"metadata":{"finalizers":[]}}'
+  stderr: Error from server (NotFound): networkchaos.chaos-mesh.org "noise-network-loss-1787803781-649" not found
+2026-08-27 04:10:38,848 - sregym.generators.noise.manager - INFO - Cleaned up noise experiment noise-network-loss-1787803781-649
+2026-08-27 04:10:49,607 - sregym.generators.noise.manager - INFO - Stripped finalizers from chaos-mesh CRs; CRDs left in place for next run.
+2026-08-27 04:10:49,607 - sregym.generators.noise.manager - INFO - Noise injection stopped.
+[2026-08-27T04:10:49.608769+00:00]   noise manager STOPPED before HEALTHY evaluation [conductor.py:476-483]
+[2026-08-27T04:10:49.608871+00:00]   HEALTHY in-process evaluate() starting
+== Mitigation Evaluation ==
+[2026-08-27T04:10:50.269280+00:00]   HEALTHY in-process raw verdict = {"success": true} (0.66s)
+[2026-08-27T04:10:50.270251+00:00]   HEALTHY SREMut worker starting
+[2026-08-27T04:11:06.376190+00:00]   HEALTHY worker exit=0 outcome=RETURNED_TRUE returned_boolean=True (16.106s)
+[2026-08-27T04:11:06.376345+00:00]   GATE PASSED (both oracles True, zero non-2xx). Proceeding.
+[2026-08-27T04:11:07.740150+00:00]   dumped healthy -> /home/sakibbuet2k19/sremut/SREMut/experiments/w2-noise-01/healthy
+[2026-08-27T04:11:07.740320+00:00] STEP 9: inject_fault()   [conductor.py:229]  [MUTATING]
+== Fault Injection ==
+Deleted service user-service to enforce the fault: service "user-service" deleted from social-network namespace
+
+[04:11:48] Waiting for namespace 'social-network' to be stable... kubectl.py:281
+           All pods in namespace 'social-network' are stable.     kubectl.py:291
+Service: user-service | Namespace: social-network
+
+[2026-08-27T04:11:54.185539+00:00]   injection complete in 46.445s
+[2026-08-27T04:11:54.185633+00:00] STEP 10: null-agent episode — sleeping 60s  [R1]
+[2026-08-27T04:12:54.185899+00:00] STEP 11: FAULTED oracles
+2026-08-27 04:13:00,116 - sregym.generators.noise.manager - INFO - Stripped finalizers from chaos-mesh CRs; CRDs left in place for next run.
+2026-08-27 04:13:00,116 - sregym.generators.noise.manager - INFO - Noise injection stopped.
+[2026-08-27T04:13:00.116442+00:00]   noise manager STOPPED before FAULTED evaluation [conductor.py:476-483]
+[2026-08-27T04:13:00.116517+00:00]   FAULTED in-process evaluate() starting
+== Mitigation Evaluation ==
+[2026-08-27T04:13:00.478930+00:00]   FAULTED in-process raw verdict = {"success": true} (0.362s)
+[2026-08-27T04:13:00.479590+00:00]   FAULTED SREMut worker starting
+[2026-08-27T04:13:08.527853+00:00]   FAULTED worker exit=0 outcome=RETURNED_TRUE returned_boolean=True (8.048s)
+[2026-08-27T04:13:08.527937+00:00] STEP 12: faulted workload window  [R2]
+[2026-08-27T04:13:08.527976+00:00]   waiting for >= 10 complete wrk2 rounds (FAULTED) after 2026-08-27T04:11:54.185500Z
+[2026-08-27T04:13:49.660627+00:00]   FAULTED: 10 rounds, 1057/10240 non-2xx = 10.3223%  (41.1s)
+[2026-08-27T04:13:51.027926+00:00]   dumped faulted -> /home/sakibbuet2k19/sremut/SREMut/experiments/w2-noise-01/faulted
+[2026-08-27T04:13:51.028029+00:00] STEP 14: recover_fault()   [missing_service.py:52]  [MUTATING]
+2026-08-27 04:13:51,270 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl delete service user-service -n social-network
+  stderr: Error from server (NotFound): services "user-service" not found
+== Fault Recovery ==
+Recreated service user-service to recover from the fault: service/user-service created
+
+[04:14:27] Waiting for namespace 'social-network' to be stable... kubectl.py:281
+[04:14:28] All pods in namespace 'social-network' are stable.     kubectl.py:291
+Service: user-service | Namespace: social-network
+
+[2026-08-27T04:14:28.031562+00:00]   recovery complete in 37.003s
+[2026-08-27T04:14:28.031654+00:00] STEP 15: restored workload window  [R2]
+[2026-08-27T04:14:28.031683+00:00]   waiting for >= 10 complete wrk2 rounds (RESTORED) after 2026-08-27T04:14:28.031494Z
+[2026-08-27T04:16:10.339994+00:00]   RESTORED: 10 rounds, 0/10240 non-2xx = 0.0000%  (102.3s)
+[2026-08-27T04:16:10.340094+00:00] STEP 16: RESTORED oracles
+2026-08-27 04:16:16,170 - sregym.generators.noise.manager - INFO - Stripped finalizers from chaos-mesh CRs; CRDs left in place for next run.
+2026-08-27 04:16:16,170 - sregym.generators.noise.manager - INFO - Noise injection stopped.
+[2026-08-27T04:16:16.170603+00:00]   noise manager STOPPED before RESTORED evaluation [conductor.py:476-483]
+[2026-08-27T04:16:16.170683+00:00]   RESTORED in-process evaluate() starting
+== Mitigation Evaluation ==
+[2026-08-27T04:16:16.511658+00:00]   RESTORED in-process raw verdict = {"success": true} (0.341s)
+[2026-08-27T04:16:16.512289+00:00]   RESTORED SREMut worker starting
+[2026-08-27T04:16:24.479581+00:00]   RESTORED worker exit=0 outcome=RETURNED_TRUE returned_boolean=True (7.967s)
+[2026-08-27T04:16:25.090474+00:00]   dumped restored -> /home/sakibbuet2k19/sremut/SREMut/experiments/w2-noise-01/restored
+[2026-08-27T04:16:25.090553+00:00] STEP 18: stopping sampler
+[2026-08-27T04:16:27.092284+00:00] three-state.json -> /home/sakibbuet2k19/sremut/SREMut/experiments/w2-noise-01/three-state.json  status=COMPLETE
