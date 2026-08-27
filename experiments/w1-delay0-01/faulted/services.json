@@ -1,0 +1,1234 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "compose-post-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085450",
+                "uid": "f78b9925-37f8-40cc-8821-8e345cde224f"
+            },
+            "spec": {
+                "clusterIP": "10.96.123.189",
+                "clusterIPs": [
+                    "10.96.123.189"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "compose-post-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "home-timeline-redis",
+                "namespace": "social-network",
+                "resourceVersion": "2085427",
+                "uid": "0c6c3187-f6b4-45d8-8cb1-ed9a32a26d86"
+            },
+            "spec": {
+                "clusterIP": "10.96.14.237",
+                "clusterIPs": [
+                    "10.96.14.237"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "6379",
+                        "port": 6379,
+                        "protocol": "TCP",
+                        "targetPort": 6379
+                    }
+                ],
+                "selector": {
+                    "service": "home-timeline-redis"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "home-timeline-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085424",
+                "uid": "03d1274b-b622-4397-8087-43f93d4bf1f5"
+            },
+            "spec": {
+                "clusterIP": "10.96.237.23",
+                "clusterIPs": [
+                    "10.96.237.23"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "home-timeline-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-08-26T21:53:32Z",
+                "labels": {
+                    "app": "jaeger"
+                },
+                "name": "jaeger",
+                "namespace": "social-network",
+                "resourceVersion": "2086206",
+                "uid": "71f266be-c589-4ca7-a477-9e81ab13ee1b"
+            },
+            "spec": {
+                "externalName": "otel-collector.observe.svc.cluster.local",
+                "selector": {
+                    "app": "jaeger"
+                },
+                "sessionAffinity": "None",
+                "type": "ExternalName"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-08-26T21:53:32Z",
+                "labels": {
+                    "app": "jaeger-agent"
+                },
+                "name": "jaeger-agent",
+                "namespace": "social-network",
+                "resourceVersion": "2086207",
+                "uid": "3d076b5e-7117-458a-9761-43c8d5bb59b2"
+            },
+            "spec": {
+                "externalName": "otel-collector.observe.svc.cluster.local",
+                "selector": {
+                    "app": "jaeger-agent"
+                },
+                "sessionAffinity": "None",
+                "type": "ExternalName"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-08-26T21:53:33Z",
+                "labels": {
+                    "app": "jaeger-collector"
+                },
+                "name": "jaeger-collector",
+                "namespace": "social-network",
+                "resourceVersion": "2086208",
+                "uid": "cac3266b-9138-42d4-86cc-098416ed1330"
+            },
+            "spec": {
+                "externalName": "otel-collector.observe.svc.cluster.local",
+                "selector": {
+                    "app": "jaeger-collector"
+                },
+                "sessionAffinity": "None",
+                "type": "ExternalName"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-08-26T21:53:33Z",
+                "labels": {
+                    "app": "jaeger-query"
+                },
+                "name": "jaeger-query",
+                "namespace": "social-network",
+                "resourceVersion": "2086210",
+                "uid": "20f19980-5313-433e-95af-891eb157a0ae"
+            },
+            "spec": {
+                "externalName": "otel-collector.observe.svc.cluster.local",
+                "selector": {
+                    "app": "jaeger-query"
+                },
+                "sessionAffinity": "None",
+                "type": "ExternalName"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "media-frontend",
+                "namespace": "social-network",
+                "resourceVersion": "2085446",
+                "uid": "3e5676cb-05b4-406b-8de0-286f6205027a"
+            },
+            "spec": {
+                "clusterIP": "10.96.135.5",
+                "clusterIPs": [
+                    "10.96.135.5"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8081",
+                        "port": 8081,
+                        "protocol": "TCP",
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "service": "media-frontend"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "media-memcached",
+                "namespace": "social-network",
+                "resourceVersion": "2085438",
+                "uid": "96787424-96ad-468e-8154-b8d783ed9967"
+            },
+            "spec": {
+                "clusterIP": "10.96.3.88",
+                "clusterIPs": [
+                    "10.96.3.88"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "11211",
+                        "port": 11211,
+                        "protocol": "TCP",
+                        "targetPort": 11211
+                    }
+                ],
+                "selector": {
+                    "service": "media-memcached"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "media-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2085454",
+                "uid": "3fb59491-ae92-46c5-836a-cdba4feccfd5"
+            },
+            "spec": {
+                "clusterIP": "10.96.179.25",
+                "clusterIPs": [
+                    "10.96.179.25"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "27017",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "service": "media-mongodb"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "media-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085479",
+                "uid": "5d854700-fee0-458c-9226-385405b4af6c"
+            },
+            "spec": {
+                "clusterIP": "10.96.201.174",
+                "clusterIPs": [
+                    "10.96.201.174"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "media-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "nginx-thrift",
+                "namespace": "social-network",
+                "resourceVersion": "2085434",
+                "uid": "04b9f61a-00c0-43a4-8fc2-3201b95a8ddf"
+            },
+            "spec": {
+                "clusterIP": "10.96.79.71",
+                "clusterIPs": [
+                    "10.96.79.71"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "8080",
+                        "port": 8080,
+                        "protocol": "TCP",
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "service": "nginx-thrift"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "post-storage-memcached",
+                "namespace": "social-network",
+                "resourceVersion": "2085432",
+                "uid": "e24c0238-37c5-49d1-b6ca-3f638c15f9de"
+            },
+            "spec": {
+                "clusterIP": "10.96.242.38",
+                "clusterIPs": [
+                    "10.96.242.38"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "11211",
+                        "port": 11211,
+                        "protocol": "TCP",
+                        "targetPort": 11211
+                    }
+                ],
+                "selector": {
+                    "service": "post-storage-memcached"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "post-storage-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2085475",
+                "uid": "a7bcd03c-b003-4b45-a93c-e4f0c77ffd3d"
+            },
+            "spec": {
+                "clusterIP": "10.96.57.33",
+                "clusterIPs": [
+                    "10.96.57.33"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "27017",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "service": "post-storage-mongodb"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "post-storage-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085445",
+                "uid": "9c4ba237-94fa-4b3e-9f93-b426e21de112"
+            },
+            "spec": {
+                "clusterIP": "10.96.232.115",
+                "clusterIPs": [
+                    "10.96.232.115"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "post-storage-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "social-graph-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2085464",
+                "uid": "7ae74bc3-503a-400c-aee1-0b9a61665c84"
+            },
+            "spec": {
+                "clusterIP": "10.96.151.95",
+                "clusterIPs": [
+                    "10.96.151.95"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "27017",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "service": "social-graph-mongodb"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "social-graph-redis",
+                "namespace": "social-network",
+                "resourceVersion": "2085458",
+                "uid": "45922a86-0f5b-4b53-a209-738b34ffb6be"
+            },
+            "spec": {
+                "clusterIP": "10.96.188.169",
+                "clusterIPs": [
+                    "10.96.188.169"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "6379",
+                        "port": 6379,
+                        "protocol": "TCP",
+                        "targetPort": 6379
+                    }
+                ],
+                "selector": {
+                    "service": "social-graph-redis"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "social-graph-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085414",
+                "uid": "1a81f968-3a24-4c2b-88ac-78b8eb79b0bc"
+            },
+            "spec": {
+                "clusterIP": "10.96.91.59",
+                "clusterIPs": [
+                    "10.96.91.59"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "social-graph-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "text-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085515",
+                "uid": "5e05fcfa-10e0-45cd-b6ed-5aaa9fdd6a1d"
+            },
+            "spec": {
+                "clusterIP": "10.96.189.78",
+                "clusterIPs": [
+                    "10.96.189.78"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "text-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "unique-id-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085505",
+                "uid": "d7f1db58-a2a6-474b-b437-de18a99aab75"
+            },
+            "spec": {
+                "clusterIP": "10.96.104.170",
+                "clusterIPs": [
+                    "10.96.104.170"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "unique-id-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "url-shorten-memcached",
+                "namespace": "social-network",
+                "resourceVersion": "2085468",
+                "uid": "7a65e3aa-7eac-4ca3-ac19-51ee90eac053"
+            },
+            "spec": {
+                "clusterIP": "10.96.77.237",
+                "clusterIPs": [
+                    "10.96.77.237"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "11211",
+                        "port": 11211,
+                        "protocol": "TCP",
+                        "targetPort": 11211
+                    }
+                ],
+                "selector": {
+                    "service": "url-shorten-memcached"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "url-shorten-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2085499",
+                "uid": "8bade345-0b4e-481a-9423-1b2757f7c58b"
+            },
+            "spec": {
+                "clusterIP": "10.96.168.52",
+                "clusterIPs": [
+                    "10.96.168.52"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "27017",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "service": "url-shorten-mongodb"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "url-shorten-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085492",
+                "uid": "03a7d566-9aff-4eb2-b0e1-61bf276fca25"
+            },
+            "spec": {
+                "clusterIP": "10.96.200.3",
+                "clusterIPs": [
+                    "10.96.200.3"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "url-shorten-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-memcached",
+                "namespace": "social-network",
+                "resourceVersion": "2085470",
+                "uid": "c918b5b6-2d2f-421b-9111-343629134a62"
+            },
+            "spec": {
+                "clusterIP": "10.96.30.71",
+                "clusterIPs": [
+                    "10.96.30.71"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "11211",
+                        "port": 11211,
+                        "protocol": "TCP",
+                        "targetPort": 11211
+                    }
+                ],
+                "selector": {
+                    "service": "user-memcached"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-mention-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085497",
+                "uid": "e3511779-bdc4-4974-b3d7-8c99b9175e6d"
+            },
+            "spec": {
+                "clusterIP": "10.96.166.116",
+                "clusterIPs": [
+                    "10.96.166.116"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "user-mention-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2085511",
+                "uid": "a18b483a-aa2f-40b7-b09e-eb7541d6df7c"
+            },
+            "spec": {
+                "clusterIP": "10.96.72.128",
+                "clusterIPs": [
+                    "10.96.72.128"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "27017",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "service": "user-mongodb"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-timeline-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2085509",
+                "uid": "be0148ca-8fd1-4814-bdc0-61ece0d93e22"
+            },
+            "spec": {
+                "clusterIP": "10.96.101.187",
+                "clusterIPs": [
+                    "10.96.101.187"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "27017",
+                        "port": 27017,
+                        "protocol": "TCP",
+                        "targetPort": 27017
+                    }
+                ],
+                "selector": {
+                    "service": "user-timeline-mongodb"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-timeline-redis",
+                "namespace": "social-network",
+                "resourceVersion": "2085482",
+                "uid": "cdd4689c-90bb-4002-bf9f-0adaf4b3c080"
+            },
+            "spec": {
+                "clusterIP": "10.96.184.160",
+                "clusterIPs": [
+                    "10.96.184.160"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "6379",
+                        "port": 6379,
+                        "protocol": "TCP",
+                        "targetPort": 6379
+                    }
+                ],
+                "selector": {
+                    "service": "user-timeline-redis"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T21:53:09Z",
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-timeline-service",
+                "namespace": "social-network",
+                "resourceVersion": "2085412",
+                "uid": "d7077bb0-19fb-42a2-87af-cf69a5c32b61"
+            },
+            "spec": {
+                "clusterIP": "10.96.96.157",
+                "clusterIPs": [
+                    "10.96.96.157"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "9090",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": 9090
+                    }
+                ],
+                "selector": {
+                    "service": "user-timeline-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

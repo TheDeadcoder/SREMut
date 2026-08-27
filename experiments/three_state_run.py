@@ -211,7 +211,11 @@ def run_worker(out: Path, phase: str, baseline: dict) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-id", required=True)
+    ap.add_argument("--null-agent-delay", type=int, default=NULL_AGENT_EPISODE_SECONDS,
+                    help="seconds between inject_fault() returning and the treatment "
+                         "oracle (PROTOCOL_G1 R1 default 60; PROTOCOL_W1 uses 0)")
     args = ap.parse_args()
+    delay = args.null_agent_delay
     out = EXPERIMENTS / args.run_id
     out.mkdir(parents=True, exist_ok=True)
 
@@ -220,10 +224,13 @@ def main() -> int:
          "run_id": args.run_id, "problem_id": PROBLEM_ID,
          "driver": "candidate-ii-minimal-driver",
          "agent_action_between_injection_and_evaluation": "NONE",
-         "null_agent_episode_seconds": NULL_AGENT_EPISODE_SECONDS,
+         "null_agent_episode_seconds": None,  # set below from --null-agent-delay
          "min_rounds_per_state": MIN_ROUNDS_PER_STATE,
          "driver_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
          "started_at": utc_now(), "status": "RUNNING"}
+    R["null_agent_episode_seconds"] = delay
+    R["protocol_doc"] = ("SREMut/experiments/PROTOCOL_G1.md" if delay == NULL_AGENT_EPISODE_SECONDS
+                         else "SREMut/experiments/PROTOCOL_W1.md (H2 submission-latency)")
     overall = time.monotonic()
     sampler = None
 
@@ -307,9 +314,11 @@ def main() -> int:
         say(f"  injection complete in {R['injection_seconds']}s")
 
         # 10. R1 null-agent episode ------------------------------------------
-        say(f"STEP 10: null-agent episode — sleeping {NULL_AGENT_EPISODE_SECONDS}s  [R1]")
+        say(f"STEP 10: null-agent episode — sleeping {delay}s"
+            + ("  [R1]" if delay == NULL_AGENT_EPISODE_SECONDS else "  [PROTOCOL_W1 H2: zero/short delay]"))
         R["null_agent_sleep_started_utc"] = utc_now()
-        time.sleep(NULL_AGENT_EPISODE_SECONDS)
+        if delay > 0:
+            time.sleep(delay)
         R["null_agent_sleep_finished_utc"] = utc_now()
 
         # 11. FAULTED oracles ------------------------------------------------

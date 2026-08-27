@@ -1,0 +1,3346 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "compose-post-service"
+                },
+                "name": "compose-post-service",
+                "namespace": "social-network",
+                "resourceVersion": "2090943",
+                "uid": "a96ff9d3-ffaf-4fe0-9d80-d0c188f5ea25"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "compose-post-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "compose-post-service",
+                            "service": "compose-post-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "ComposePostService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "compose-post-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "compose-post-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "compose-post-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "compose-post-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "compose-post-service"
+                                },
+                                "name": "compose-post-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:12Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:07Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "ReplicaSet \"compose-post-service-64f6c9b656\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "home-timeline-redis"
+                },
+                "name": "home-timeline-redis",
+                "namespace": "social-network",
+                "resourceVersion": "2091050",
+                "uid": "9f00eb12-420c-4db8-a58c-f3435394f917"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "home-timeline-redis"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "home-timeline-redis",
+                            "service": "home-timeline-redis"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "/social-network-microservices/config/redis.conf"
+                                ],
+                                "image": "docker.io/library/redis:6.2.4",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "home-timeline-redis",
+                                "ports": [
+                                    {
+                                        "containerPort": 6379,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/redis.conf",
+                                        "name": "home-timeline-redis-config",
+                                        "subPath": "redis.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "home-timeline-redis",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "home-timeline-redis"
+                                },
+                                "name": "home-timeline-redis-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:14Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:07Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "ReplicaSet \"home-timeline-redis-ff9499c5c\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "home-timeline-service"
+                },
+                "name": "home-timeline-service",
+                "namespace": "social-network",
+                "resourceVersion": "2090851",
+                "uid": "9cb3acff-4f39-44a2-ae45-09f3442e924e"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "home-timeline-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "home-timeline-service",
+                            "service": "home-timeline-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "HomeTimelineService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "home-timeline-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "home-timeline-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "home-timeline-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "home-timeline-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "home-timeline-service"
+                                },
+                                "name": "home-timeline-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:11Z",
+                        "lastUpdateTime": "2026-08-26T22:03:11Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:11Z",
+                        "message": "ReplicaSet \"home-timeline-service-7d787c8dfd\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "jaeger"
+                },
+                "name": "jaeger",
+                "namespace": "social-network",
+                "resourceVersion": "2090972",
+                "uid": "16e6bba7-57b2-4d54-b3fd-2d5a3c63e337"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "jaeger"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "jaeger",
+                            "service": "jaeger"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "env": [
+                                    {
+                                        "name": "COLLECTOR_ZIPKIN_HTTP_PORT",
+                                        "value": "9411"
+                                    }
+                                ],
+                                "image": "docker.io/jaegertracing/all-in-one:1.57",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "jaeger",
+                                "ports": [
+                                    {
+                                        "containerPort": 5775,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 6831,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 6832,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 5778,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 16686,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 14268,
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 9411,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "jaeger-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "jaeger-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "jaeger",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "jaeger"
+                                },
+                                "name": "jaeger-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:13Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "ReplicaSet \"jaeger-7d8548779\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "media-frontend"
+                },
+                "name": "media-frontend",
+                "namespace": "social-network",
+                "resourceVersion": "2091130",
+                "uid": "3d008d53-81fe-425a-b929-901c2cc22b49"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "media-frontend"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "media-frontend",
+                            "service": "media-frontend"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "env": [
+                                    {
+                                        "name": "fqdn_suffix",
+                                        "value": ".social-network.svc.cluster.local"
+                                    }
+                                ],
+                                "image": "docker.io/yg397/media-frontend:xenial",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "media-frontend",
+                                "ports": [
+                                    {
+                                        "containerPort": 8081,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/usr/local/openresty/nginx/conf/nginx.conf",
+                                        "name": "media-frontend-config",
+                                        "subPath": "nginx.conf"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "media-frontend-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "media-frontend-config",
+                                        "subPath": "service-config.json"
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/openresty/nginx/lua-scripts",
+                                        "name": "lua-scripts"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "media-frontend",
+                        "initContainers": [
+                            {
+                                "args": [
+                                    "-c",
+                                    "git clone https://github.com/delimitrou/DeathStarBench.git /DeathStarBench \u0026\u0026 cp -r /DeathStarBench/socialNetwork/media-frontend/lua-scripts/* /lua-scripts/"
+                                ],
+                                "command": [
+                                    "/bin/sh"
+                                ],
+                                "image": "docker.io/alpine/git:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "alpine-container",
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/lua-scripts",
+                                        "name": "lua-scripts"
+                                    }
+                                ]
+                            }
+                        ],
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "media-frontend"
+                                },
+                                "name": "media-frontend-config"
+                            },
+                            {
+                                "emptyDir": {},
+                                "name": "lua-scripts"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:26Z",
+                        "lastUpdateTime": "2026-08-26T22:03:26Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:26Z",
+                        "message": "ReplicaSet \"media-frontend-6b45cb8c4c\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "media-memcached"
+                },
+                "name": "media-memcached",
+                "namespace": "social-network",
+                "resourceVersion": "2091084",
+                "uid": "bad37d40-909a-4773-8b8d-79f35c197cae"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "media-memcached"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "media-memcached",
+                            "service": "media-memcached"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "docker.io/library/memcached:1.6.7",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "media-memcached",
+                                "ports": [
+                                    {
+                                        "containerPort": 11211,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "media-memcached-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "media-memcached-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "media-memcached",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "media-memcached"
+                                },
+                                "name": "media-memcached-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:15Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:10Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "ReplicaSet \"media-memcached-54b5cffb48\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "media-mongodb"
+                },
+                "name": "media-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2090963",
+                "uid": "1a77f4a3-4004-43e0-ba01-926994582939"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "media-mongodb"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "media-mongodb",
+                            "service": "media-mongodb"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config",
+                                    "/social-network-microservices/config/mongod.conf"
+                                ],
+                                "image": "docker.io/library/mongo:4.4.6",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "media-mongodb",
+                                "ports": [
+                                    {
+                                        "containerPort": 27017,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/mongod.conf",
+                                        "name": "media-mongodb-config",
+                                        "subPath": "mongod.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "media-mongodb",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "media-mongodb"
+                                },
+                                "name": "media-mongodb-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:12Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:07Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "ReplicaSet \"media-mongodb-6d47ccb779\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "media-service"
+                },
+                "name": "media-service",
+                "namespace": "social-network",
+                "resourceVersion": "2091040",
+                "uid": "09dc85c9-f055-411a-b9bc-dd8cb635afc0"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "media-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "media-service",
+                            "service": "media-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "MediaService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "media-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "media-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "media-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "media-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "media-service"
+                                },
+                                "name": "media-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:14Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:07Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "ReplicaSet \"media-service-5f6b5dbff8\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "nginx-thrift"
+                },
+                "name": "nginx-thrift",
+                "namespace": "social-network",
+                "resourceVersion": "2091143",
+                "uid": "3e15dd04-1d8c-436e-bd70-dd8e7895bda6"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "nginx-thrift"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "nginx-thrift",
+                            "service": "nginx-thrift"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "env": [
+                                    {
+                                        "name": "fqdn_suffix",
+                                        "value": ".social-network.svc.cluster.local"
+                                    }
+                                ],
+                                "image": "docker.io/yg397/openresty-thrift:xenial",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "nginx-thrift",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/usr/local/openresty/nginx/jaeger-config.json",
+                                        "name": "nginx-thrift-config",
+                                        "subPath": "jaeger-config.json"
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/openresty/nginx/conf/nginx.conf",
+                                        "name": "nginx-thrift-config",
+                                        "subPath": "nginx.conf"
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/openresty/nginx/lua-scripts",
+                                        "name": "lua-scripts"
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/openresty/lualib/thrift",
+                                        "name": "lua-thrift"
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/openresty/nginx/pages",
+                                        "name": "pages"
+                                    },
+                                    {
+                                        "mountPath": "/gen-lua",
+                                        "name": "gen-lua"
+                                    },
+                                    {
+                                        "mountPath": "/keys",
+                                        "name": "keys"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "nginx-thrift",
+                        "initContainers": [
+                            {
+                                "args": [
+                                    "-c",
+                                    "git clone https://github.com/delimitrou/DeathStarBench.git /DeathStarBench \u0026\u0026 cp -r /DeathStarBench/socialNetwork/gen-lua/* /gen-lua/ \u0026\u0026 cp -r /DeathStarBench/socialNetwork/docker/openresty-thrift/lua-thrift/* /lua-thrift/ \u0026\u0026 cp -r /DeathStarBench/socialNetwork/nginx-web-server/lua-scripts/* /lua-scripts/ \u0026\u0026 cp -r /DeathStarBench/socialNetwork/nginx-web-server/pages/* /pages/ \u0026\u0026 cp /DeathStarBench/socialNetwork/keys/* /keys/"
+                                ],
+                                "command": [
+                                    "/bin/sh"
+                                ],
+                                "image": "docker.io/alpine/git:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "alpine-container",
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/lua-scripts",
+                                        "name": "lua-scripts"
+                                    },
+                                    {
+                                        "mountPath": "/lua-thrift",
+                                        "name": "lua-thrift"
+                                    },
+                                    {
+                                        "mountPath": "/pages",
+                                        "name": "pages"
+                                    },
+                                    {
+                                        "mountPath": "/gen-lua",
+                                        "name": "gen-lua"
+                                    },
+                                    {
+                                        "mountPath": "/keys",
+                                        "name": "keys"
+                                    }
+                                ]
+                            }
+                        ],
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "nginx-thrift"
+                                },
+                                "name": "nginx-thrift-config"
+                            },
+                            {
+                                "emptyDir": {},
+                                "name": "lua-scripts"
+                            },
+                            {
+                                "emptyDir": {},
+                                "name": "pages"
+                            },
+                            {
+                                "emptyDir": {},
+                                "name": "gen-lua"
+                            },
+                            {
+                                "emptyDir": {},
+                                "name": "lua-thrift"
+                            },
+                            {
+                                "emptyDir": {},
+                                "name": "keys"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:27Z",
+                        "lastUpdateTime": "2026-08-26T22:03:27Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:27Z",
+                        "message": "ReplicaSet \"nginx-thrift-5cdf67899b\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "post-storage-memcached"
+                },
+                "name": "post-storage-memcached",
+                "namespace": "social-network",
+                "resourceVersion": "2091101",
+                "uid": "d1f943fd-e838-4744-bea2-3512b04344f8"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "post-storage-memcached"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "post-storage-memcached",
+                            "service": "post-storage-memcached"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "docker.io/library/memcached:1.6.7",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "post-storage-memcached",
+                                "ports": [
+                                    {
+                                        "containerPort": 11211,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "post-storage-memcached-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "post-storage-memcached-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "post-storage-memcached",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "post-storage-memcached"
+                                },
+                                "name": "post-storage-memcached-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:16Z",
+                        "lastUpdateTime": "2026-08-26T22:03:16Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:10Z",
+                        "lastUpdateTime": "2026-08-26T22:03:16Z",
+                        "message": "ReplicaSet \"post-storage-memcached-5b544b79d8\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "post-storage-mongodb"
+                },
+                "name": "post-storage-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2091090",
+                "uid": "954cb784-1ca1-459f-b178-d5d150a2692e"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "post-storage-mongodb"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "post-storage-mongodb",
+                            "service": "post-storage-mongodb"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config",
+                                    "/social-network-microservices/config/mongod.conf"
+                                ],
+                                "image": "docker.io/library/mongo:4.4.6",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "post-storage-mongodb",
+                                "ports": [
+                                    {
+                                        "containerPort": 27017,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/mongod.conf",
+                                        "name": "post-storage-mongodb-config",
+                                        "subPath": "mongod.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "post-storage-mongodb",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "post-storage-mongodb"
+                                },
+                                "name": "post-storage-mongodb-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:15Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:09Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "ReplicaSet \"post-storage-mongodb-846dcb76b7\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "post-storage-service"
+                },
+                "name": "post-storage-service",
+                "namespace": "social-network",
+                "resourceVersion": "2090982",
+                "uid": "1f36dd98-facc-4784-be3e-8fee36c3a8d3"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "post-storage-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "post-storage-service",
+                            "service": "post-storage-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "PostStorageService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "post-storage-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "post-storage-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "post-storage-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "post-storage-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "post-storage-service"
+                                },
+                                "name": "post-storage-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:13Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:09Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "ReplicaSet \"post-storage-service-9bd8bd979\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "social-graph-mongodb"
+                },
+                "name": "social-graph-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2090977",
+                "uid": "709075e0-8518-4b64-af78-ac80a4f39857"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "social-graph-mongodb"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "social-graph-mongodb",
+                            "service": "social-graph-mongodb"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config",
+                                    "/social-network-microservices/config/mongod.conf"
+                                ],
+                                "image": "docker.io/library/mongo:4.4.6",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "social-graph-mongodb",
+                                "ports": [
+                                    {
+                                        "containerPort": 27017,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/mongod.conf",
+                                        "name": "social-graph-mongodb-config",
+                                        "subPath": "mongod.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "social-graph-mongodb",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "social-graph-mongodb"
+                                },
+                                "name": "social-graph-mongodb-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:13Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "ReplicaSet \"social-graph-mongodb-69ddddf895\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "social-graph-redis"
+                },
+                "name": "social-graph-redis",
+                "namespace": "social-network",
+                "resourceVersion": "2090886",
+                "uid": "8cc6c096-4d3e-4f2e-aa59-9ee83c56f6ae"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "social-graph-redis"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "social-graph-redis",
+                            "service": "social-graph-redis"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "/social-network-microservices/config/redis.conf"
+                                ],
+                                "image": "docker.io/library/redis:6.2.4",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "social-graph-redis",
+                                "ports": [
+                                    {
+                                        "containerPort": 6379,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/redis.conf",
+                                        "name": "social-graph-redis-config",
+                                        "subPath": "redis.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "social-graph-redis",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "social-graph-redis"
+                                },
+                                "name": "social-graph-redis-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:11Z",
+                        "lastUpdateTime": "2026-08-26T22:03:11Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:11Z",
+                        "message": "ReplicaSet \"social-graph-redis-f9759b67d\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "social-graph-service"
+                },
+                "name": "social-graph-service",
+                "namespace": "social-network",
+                "resourceVersion": "2090996",
+                "uid": "ce5a8aaf-5741-4ec5-a5a2-0ba63bbb6e07"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "social-graph-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "social-graph-service",
+                            "service": "social-graph-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "SocialGraphService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "social-graph-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "social-graph-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "social-graph-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "social-graph-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "social-graph-service"
+                                },
+                                "name": "social-graph-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:13Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "ReplicaSet \"social-graph-service-fcfb99f8f\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "text-service"
+                },
+                "name": "text-service",
+                "namespace": "social-network",
+                "resourceVersion": "2090969",
+                "uid": "b69048b6-b0c1-4224-bfd2-86590ece64b0"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "text-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "text-service",
+                            "service": "text-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "TextService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "text-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "text-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "text-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "text-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "text-service"
+                                },
+                                "name": "text-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:12Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "ReplicaSet \"text-service-585f7cbc5f\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "unique-id-service"
+                },
+                "name": "unique-id-service",
+                "namespace": "social-network",
+                "resourceVersion": "2090971",
+                "uid": "740ec0c6-dcdc-48c7-90ef-8821fd566993"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "unique-id-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "unique-id-service",
+                            "service": "unique-id-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "UniqueIdService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "unique-id-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "unique-id-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "unique-id-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "unique-id-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "unique-id-service"
+                                },
+                                "name": "unique-id-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:12Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "ReplicaSet \"unique-id-service-655cc57f6d\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "url-shorten-memcached"
+                },
+                "name": "url-shorten-memcached",
+                "namespace": "social-network",
+                "resourceVersion": "2091079",
+                "uid": "a4a7c232-feb8-4c78-b286-404f0fb36945"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "url-shorten-memcached"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "url-shorten-memcached",
+                            "service": "url-shorten-memcached"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "docker.io/library/memcached:1.6.7",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "url-shorten-memcached",
+                                "ports": [
+                                    {
+                                        "containerPort": 11211,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "url-shorten-memcached-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "url-shorten-memcached-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "url-shorten-memcached",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "url-shorten-memcached"
+                                },
+                                "name": "url-shorten-memcached-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:15Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:10Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "ReplicaSet \"url-shorten-memcached-999559bdb\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "url-shorten-mongodb"
+                },
+                "name": "url-shorten-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2091032",
+                "uid": "5cd05c3d-4be1-4141-9d08-873bdae4a1b2"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "url-shorten-mongodb"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "url-shorten-mongodb",
+                            "service": "url-shorten-mongodb"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config",
+                                    "/social-network-microservices/config/mongod.conf"
+                                ],
+                                "image": "docker.io/library/mongo:4.4.6",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "url-shorten-mongodb",
+                                "ports": [
+                                    {
+                                        "containerPort": 27017,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/mongod.conf",
+                                        "name": "url-shorten-mongodb-config",
+                                        "subPath": "mongod.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "url-shorten-mongodb",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "url-shorten-mongodb"
+                                },
+                                "name": "url-shorten-mongodb-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:14Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:09Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "ReplicaSet \"url-shorten-mongodb-6b486f55b8\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "url-shorten-service"
+                },
+                "name": "url-shorten-service",
+                "namespace": "social-network",
+                "resourceVersion": "2091065",
+                "uid": "843a7a72-d734-4915-aa28-e581995b891a"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "url-shorten-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "url-shorten-service",
+                            "service": "url-shorten-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "UrlShortenService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "url-shorten-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "url-shorten-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "url-shorten-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "url-shorten-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "url-shorten-service"
+                                },
+                                "name": "url-shorten-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:15Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:09Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "ReplicaSet \"url-shorten-service-7b4f9d6cfb\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "user-memcached"
+                },
+                "name": "user-memcached",
+                "namespace": "social-network",
+                "resourceVersion": "2090988",
+                "uid": "92506125-fa50-4795-9ca4-2ab7d15cc2be"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "user-memcached"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "user-memcached",
+                            "service": "user-memcached"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "docker.io/library/memcached:1.6.7",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "user-memcached",
+                                "ports": [
+                                    {
+                                        "containerPort": 11211,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "user-memcached-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "user-memcached-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "user-memcached",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "user-memcached"
+                                },
+                                "name": "user-memcached-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:13Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:09Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "ReplicaSet \"user-memcached-554fcf9578\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "user-mention-service"
+                },
+                "name": "user-mention-service",
+                "namespace": "social-network",
+                "resourceVersion": "2091068",
+                "uid": "97d3f794-8183-4dd5-8a18-67da8b4497b1"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "user-mention-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "user-mention-service",
+                            "service": "user-mention-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "UserMentionService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "user-mention-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "user-mention-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "user-mention-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "user-mention-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "user-mention-service"
+                                },
+                                "name": "user-mention-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:15Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:10Z",
+                        "lastUpdateTime": "2026-08-26T22:03:15Z",
+                        "message": "ReplicaSet \"user-mention-service-69f4955bbc\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "user-mongodb"
+                },
+                "name": "user-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2091048",
+                "uid": "abdb15d7-8485-4d6a-8e75-4129f439caa0"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "user-mongodb"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "user-mongodb",
+                            "service": "user-mongodb"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config",
+                                    "/social-network-microservices/config/mongod.conf"
+                                ],
+                                "image": "docker.io/library/mongo:4.4.6",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "user-mongodb",
+                                "ports": [
+                                    {
+                                        "containerPort": 27017,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/mongod.conf",
+                                        "name": "user-mongodb-config",
+                                        "subPath": "mongod.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "user-mongodb",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "user-mongodb"
+                                },
+                                "name": "user-mongodb-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:14Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:09Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "ReplicaSet \"user-mongodb-75847cfbb\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "user-service"
+                },
+                "name": "user-service",
+                "namespace": "social-network",
+                "resourceVersion": "2091003",
+                "uid": "c28b4dec-1ccc-4729-8481-adebf19df5d0"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "user-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "user-service",
+                            "service": "user-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "UserService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "user-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "user-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "user-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "user-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "user-service"
+                                },
+                                "name": "user-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:13Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:08Z",
+                        "lastUpdateTime": "2026-08-26T22:03:13Z",
+                        "message": "ReplicaSet \"user-service-6d5985bd55\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "user-timeline-mongodb"
+                },
+                "name": "user-timeline-mongodb",
+                "namespace": "social-network",
+                "resourceVersion": "2091056",
+                "uid": "ec6fb4d0-e9be-40d3-bb7d-9c19c28cf3e5"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "user-timeline-mongodb"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "user-timeline-mongodb",
+                            "service": "user-timeline-mongodb"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config",
+                                    "/social-network-microservices/config/mongod.conf"
+                                ],
+                                "image": "docker.io/library/mongo:4.4.6",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "user-timeline-mongodb",
+                                "ports": [
+                                    {
+                                        "containerPort": 27017,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/mongod.conf",
+                                        "name": "user-timeline-mongodb-config",
+                                        "subPath": "mongod.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "user-timeline-mongodb",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "user-timeline-mongodb"
+                                },
+                                "name": "user-timeline-mongodb-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:14Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:09Z",
+                        "lastUpdateTime": "2026-08-26T22:03:14Z",
+                        "message": "ReplicaSet \"user-timeline-mongodb-658f54fd68\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "user-timeline-redis"
+                },
+                "name": "user-timeline-redis",
+                "namespace": "social-network",
+                "resourceVersion": "2091096",
+                "uid": "0978f3bf-be2e-4616-a0ab-aa4ba43a0126"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "user-timeline-redis"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "user-timeline-redis",
+                            "service": "user-timeline-redis"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "/social-network-microservices/config/redis.conf"
+                                ],
+                                "image": "docker.io/library/redis:6.2.4",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "user-timeline-redis",
+                                "ports": [
+                                    {
+                                        "containerPort": 6379,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/redis.conf",
+                                        "name": "user-timeline-redis-config",
+                                        "subPath": "redis.conf"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "user-timeline-redis",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "user-timeline-redis"
+                                },
+                                "name": "user-timeline-redis-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:16Z",
+                        "lastUpdateTime": "2026-08-26T22:03:16Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:10Z",
+                        "lastUpdateTime": "2026-08-26T22:03:16Z",
+                        "message": "ReplicaSet \"user-timeline-redis-cbd5f6645\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-26T22:03:07Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "service": "user-timeline-service"
+                },
+                "name": "user-timeline-service",
+                "namespace": "social-network",
+                "resourceVersion": "2090929",
+                "uid": "acc2d46b-9455-47c5-83c2-701c846624d5"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "service": "user-timeline-service"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "user-timeline-service",
+                            "service": "user-timeline-service"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "command": [
+                                    "UserTimelineService"
+                                ],
+                                "image": "docker.io/deathstarbench/social-network-microservices:latest",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "user-timeline-service",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/social-network-microservices/config/jaeger-config.yml",
+                                        "name": "user-timeline-service-config",
+                                        "subPath": "jaeger-config.yml"
+                                    },
+                                    {
+                                        "mountPath": "/social-network-microservices/config/service-config.json",
+                                        "name": "user-timeline-service-config",
+                                        "subPath": "service-config.json"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "hostname": "user-timeline-service",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "user-timeline-service"
+                                },
+                                "name": "user-timeline-service-config"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:12Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-26T22:03:07Z",
+                        "lastUpdateTime": "2026-08-26T22:03:12Z",
+                        "message": "ReplicaSet \"user-timeline-service-6c79dd65d6\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
