@@ -224,6 +224,10 @@ def run_worker(out: Path, phase: str, baseline: dict) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-id", required=True)
+    ap.add_argument("--single-instrument", action="store_true",
+                    help="in-process oracle only; skip the SREMut worker (PROTOCOL_W3 — "
+                         "the worker pins EXPECTED_NAMESPACE=social-network at "
+                         "original_oracle_worker.py:23 and that pin is frozen)")
     ap.add_argument("--noise", action="store_true",
                     help="ConductorConfig(enable_noise=True) — PROTOCOL_W2 H3")
     ap.add_argument("--problem-id", default=PROBLEM_ID,
@@ -234,6 +238,7 @@ def main() -> int:
     args = ap.parse_args()
     delay = args.null_agent_delay
     noise = args.noise
+    single = args.single_instrument
     problem_id = args.problem_id
     out = EXPERIMENTS / args.run_id
     out.mkdir(parents=True, exist_ok=True)
@@ -249,6 +254,11 @@ def main() -> int:
          "started_at": utc_now(), "status": "RUNNING"}
     R["null_agent_episode_seconds"] = delay
     R["enable_noise"] = noise
+    R["single_instrument"] = single
+    if single:
+        R["registered_deviation"] = ("PROTOCOL_W3: in-process oracle only; SREMut worker "
+                                     "skipped because original_oracle_worker.py:23 pins "
+                                     "EXPECTED_NAMESPACE='social-network' (frozen)")
     R["protocol_doc"] = ("SREMut/experiments/PROTOCOL_G1.md" if delay == NULL_AGENT_EPISODE_SECONDS
                          else "SREMut/experiments/PROTOCOL_W1.md (H2 submission-latency)")
     overall = time.monotonic()
@@ -319,11 +329,13 @@ def main() -> int:
         say("STEP 6: HEALTHY oracles")
         if noise: stop_noise_like_conductor(R, "HEALTHY")
         R["healthy_in_process"] = evaluate_in_process(problem, "HEALTHY")
-        R["healthy_worker"] = run_worker(out, "HEALTHY", baseline)
+        R["healthy_worker"] = ({"outcome": "SKIPPED_SINGLE_INSTRUMENT", "returned_boolean": None,
+                                   "raw_result_sha256": None, "exit_code": None, "elapsed_seconds": None}
+                                  if single else run_worker(out, "HEALTHY", baseline))
 
         # 7. GATE ------------------------------------------------------------
         ip_ok = R["healthy_in_process"]["raw_verdict"].get("success") is True
-        wk_ok = R["healthy_worker"]["returned_boolean"] is True
+        wk_ok = True if single else (R["healthy_worker"]["returned_boolean"] is True)
         wl_ok = R["workload_healthy"]["total_non2xx"] == 0
         R["healthy_gate"] = {"in_process_true": ip_ok, "worker_true": wk_ok,
                              "zero_non2xx": wl_ok,
@@ -359,7 +371,9 @@ def main() -> int:
         say("STEP 11: FAULTED oracles")
         if noise: stop_noise_like_conductor(R, "FAULTED")
         R["faulted_in_process"] = evaluate_in_process(problem, "FAULTED")
-        R["faulted_worker"] = run_worker(out, "FAULTED", baseline)
+        R["faulted_worker"] = ({"outcome": "SKIPPED_SINGLE_INSTRUMENT", "returned_boolean": None,
+                                   "raw_result_sha256": None, "exit_code": None, "elapsed_seconds": None}
+                                  if single else run_worker(out, "FAULTED", baseline))
 
         # 12. faulted workload window  [R2] ----------------------------------
         say("STEP 12: faulted workload window  [R2]")
@@ -389,7 +403,9 @@ def main() -> int:
         say("STEP 16: RESTORED oracles")
         if noise: stop_noise_like_conductor(R, "RESTORED")
         R["restored_in_process"] = evaluate_in_process(problem, "RESTORED")
-        R["restored_worker"] = run_worker(out, "RESTORED", baseline)
+        R["restored_worker"] = ({"outcome": "SKIPPED_SINGLE_INSTRUMENT", "returned_boolean": None,
+                                   "raw_result_sha256": None, "exit_code": None, "elapsed_seconds": None}
+                                  if single else run_worker(out, "RESTORED", baseline))
 
         # 17. restored dump --------------------------------------------------
         R["dump_restored"] = dump_state(out / "restored", "restored")

@@ -546,6 +546,133 @@ pins `EXPECTED_NAMESPACE = "social-network"` (`original_oracle_worker.py:23`, en
 pinned namespace is fixed by the frozen evidence policy and was not relaxed. Per protocol
 the item was abandoned and not debugged. **H4 remains untested.**
 
+### Item A (W3) — Appendix B reward hacking, Appendix H limitations
+
+Source: arXiv 2605.07161. Retrieved via ar5iv/arXiv HTML; **both renderings truncate the
+appendices**, so parts below are marked NOT RETRIEVED rather than paraphrased.
+
+**A1 — the paragraph exists.** Confirmed across two independent renderings, Appendix B
+carries the bolded lead-in and opening sentence:
+
+> "**Protection against reward hacking.** AI agents can exploit benchmark infrastructure
+> to inflate scores without solving the underlying tasks"
+
+**The threat described is agents tampering with the harness** — specifically "an agent
+that discovers and disables the fault-injection services rather than reasoning about
+actual faults". The paragraph then begins a comparison, "Neither AIOpsLab [14] nor
+ITBench [41] protects a…", and is **truncated at that point in every rendering obtained**.
+
+- **SREGym's concrete claimed protection: NOT RETRIEVED.** The paragraph cuts off before
+  it is stated. Do not cite a protection mechanism from this analysis.
+- **Citation numbering is ambiguous between renderings.** The citing sentence carries
+  **[74]** in the ar5iv rendering; an earlier arXiv-HTML fetch attributed the
+  reward-hacking material to **[76]**. Reference [76]/[74] resolves to Wang, Mang,
+  Cheung, Sen & Song, 2026, "How We Broke Top AI Agent Benchmarks: And What Comes Next",
+  RDI Berkeley Blog. **Verify the number against the PDF before citing.**
+
+**The threat is not ours, and this must be stated plainly in the write-up.** SREGym's
+reward-hacking concern is an agent *acting on* the benchmark infrastructure. Our finding
+involves an agent that acted on nothing at all: a null submission, an untouched broken
+system, and an oracle that accepted it. These are different failure modes and the paper
+should not be represented as claiming protection against ours.
+
+**No null-agent baseline is reported.** Across every section retrieved, no null, empty,
+or do-nothing agent control appears. Given that [74]/[76] is the Berkeley RDI null-agent
+work — whose method is precisely to run a do-nothing agent against a benchmark — the
+paper cites that work while, on the retrieved text, not reporting the control it
+describes. **Stated as an observation about retrieved text only**, since the appendices
+are truncated and a control could appear in the unretrieved portion.
+
+**A2 — Appendix H: NOT RETRIEVED.** No rendering obtained included Appendix H
+"Limitations". Whether it acknowledges any mitigation-oracle limitation is **unknown from
+this analysis**. This is a gap to close from the PDF before the write-up asserts anything
+about what the paper does or does not concede.
+
+**A3 — Table 4 bucket mapping: NOT ESTABLISHABLE from source.** The repo's only origin
+taxonomy is the `Origin` column of `Problem List.md`, whose values are **`New` (95)** and
+**`AIOpsLab` (21)** across 116 rows. The paper's Table 4 uses **Ported (34) / Similar (43)
+/ New (13)** across 90. Different taxonomies, different totals, and no join key. Per the
+method rule, **no mapping is attempted and no distribution of the 27 bare-generic
+problem_ids across Table 4 buckets is reported.**
+
+**A4 — Figure 3's `K8sNetworkPortMisconfig`: NOT DETERMINABLE from source.**
+`grep -rni 'networkportmisconfig'` over the entire repository returns **no match**. The
+name does not appear in `registry.py`, any problem module, or any documentation file. The
+repo has several port-related problems, and **they do not share an oracle**, so the answer
+genuinely depends on which one Figure 3 refers to:
+
+| candidate problem_id | oracle kind | attachment |
+|---|---|---|
+| `service_port_conflict_{social_network,hotel_reservation,astronomy_shop}` | **BARE_GENERIC** | `problems/service_port_conflict.py:51` |
+| `sidecar_port_conflict_{social_network,hotel_reservation,astronomy_shop}` | **BARE_GENERIC** | `problems/sidecar_port_conflict.py:40` |
+| `incorrect_port_assignment` | DEDICATED | `problems/incorrect_port_assignment.py:51` |
+| `unschedulable_incorrect_port_assignment` | COMPOUND | `problems/incorrect_port_assignment.py:58` |
+| `ephemeral_port_range_hotel_reservation` | DEDICATED (`WorkloadOracle`) | `problems/ephemeral_port_range_hotel_reservation.py:37` |
+
+Because the candidates split across bare-generic and dedicated oracles, **guessing the
+mapping would materially change the claim**. Not asserted.
+
+### Item B (W3) — H4-lite, second application: PARTIAL, primary result obtained
+
+Protocol: `SREMut/experiments/PROTOCOL_W3.md`. Record:
+`SREMut/experiments/w3-hotel-01/w3-result.json`.
+
+**Registered deviation: SINGLE INSTRUMENT.** The in-process oracle only, inside
+`conductor.py:269-271`'s try/except. The SREMut worker was skipped because it pins
+`EXPECTED_NAMESPACE = "social-network"` (`original_oracle_worker.py:23`, enforced `:135`),
+a frozen artifact that was not relaxed. **This run therefore carries one independent
+measurement, not two, and is weaker evidence than any G1 run.**
+
+| State | in-process verdict | workload |
+|---|---|---|
+| HEALTHY | `{"success": true}` | 10 rounds, **0 / 29,602 non-2xx = 0.0000 %** |
+| **FAULTED** | **`{"success": true}`** | 6 rounds, **10,625 / 17,700 = 60.0282 %** |
+| RESTORED | not reached | not reached |
+
+Deploy 85.299 s; injection 40.19 s; R1 interval **60.0006 s**; faulted oracle call
+**40.863 s** (versus ~0.5 s on social-network — `_wait_for_rollouts` polled longer).
+
+Live cluster check at ~05:23Z confirmed the faulted state persisted:
+`Service/user-service` **NotFound**, 22 services, **0** EndpointSlices for user-service.
+
+**H4-lite is supported.** The same stock oracle returned `{"success": true}` on a second
+application whose functional workload was failing **60 %** of requests — six times the
+social-network rate, because hotel-reservation's request mix depends far more heavily on
+`user-service`. The blindness travels with the oracle, not with the application.
+
+**Three limitations of this run, all disclosed:**
+
+1. **The run was killed mid-flight.** The supervising shell command hit a 10-minute tool
+   timeout during STEP 12 and terminated the driver. **Operator/instrument failure, not
+   system behaviour.** The faulted verdict had already completed; `three-state.json` was
+   never written; the RESTORED state was never measured.
+2. **Faulted workload is 6 rounds, not the >= 10 that R2 requires**, and was captured
+   post-hoc from the live job rather than by the driver. Reported as an R2 shortfall.
+3. **Cluster state at the oracle instant: NOT MEASURED.** `sample_state.sh` hardcodes
+   `NAMESPACE="social-network"` (`sample_state.sh:35`); the `--problem-id` patch set the
+   driver's Python global but not the separate bash sampler. `w3-hotel-01/samples.jsonl`
+   therefore describes **social-network** (healthy, unrelated) and **must not be read as
+   evidence about this run**. No clean-observation check at the verdict instant was
+   possible. R3 is not applicable regardless, since it governs FALSE verdicts and this
+   verdict is TRUE.
+
+### Item C (W3) — final teardown
+
+`hotel-reservation` and `chaos-mesh` namespaces deleted. Deleting `hotel-reservation`
+removed the injected fault along with the application, so no separate `recover_fault()`
+was performed on it.
+
+Remaining namespaces: `default`, `kube-node-lease`, `kube-public`, `kube-system`,
+`local-path-storage`, `observe`, `openebs`, `social-network`, `sregym`.
+
+`social-network` confirmed restored: `user-service` present (ClusterIP 10.96.114.38,
+9090/TCP), **30 services**, **1 EndpointSlice**, **27/27 deployments ready**, **28 pods
+all Running**. All 4 kind nodes Ready.
+
+**Residue:** 23 Chaos Mesh CRDs remain. They are cluster-scoped and survive namespace
+deletion; they are inert with no controller running and no CRs present. Not deleted, since
+CRD removal was not requested and is more invasive than namespace deletion.
+
 ---
 
 ## 9. KNOWN GAPS
@@ -605,7 +732,12 @@ non-repair. Only `missing_service_social_network` has been tested end-to-end.
 Spot-checked against `missing_service`, `target_port` and `sidecar_port_conflict`; not
 exhaustively verified for all 118.
 
-**8. H4 (second application) is untested.** The SREMut worker pins
+**8. H4 (second application) is now partially tested — see W3.** `w3-hotel-01` obtained
+a single-instrument faulted verdict of `{"success": true}` on
+`missing_service_hotel_reservation` with a 60.03 % functional failure rate, supporting
+H4-lite. It is weaker than a G1 run: one instrument, 6 workload rounds instead of 10, no
+RESTORED state, and no cluster-state measurement at the verdict instant (the sampler
+watched the wrong namespace). The original constraint still stands: the SREMut worker pins
 `EXPECTED_NAMESPACE = "social-network"`, so `missing_service_hotel_reservation` could not
 be measured with both instruments. The app itself deployed healthy (0/29447 non-2xx) and
 the in-process oracle returned `true`; only the worker leg is missing. Generality across

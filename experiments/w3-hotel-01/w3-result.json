@@ -1,0 +1,62 @@
+{
+  "cluster_state_at_oracle_instant": "NOT MEASURED",
+  "cluster_state_gap_reason": "sample_state.sh hardcodes NAMESPACE=\"social-network\" (sample_state.sh:34). The driver's --problem-id patch set the Python NAMESPACE global but not the separate bash sampler, so w3-hotel-01/samples.jsonl describes the social-network namespace (healthy, unrelated) rather than hotel-reservation. Those 207 samples must NOT be read as evidence about this run.",
+  "deployment_seconds": 85.299,
+  "enable_noise": false,
+  "faulted": {
+    "in_process_elapsed_seconds": 40.863,
+    "in_process_finished_utc": "2026-08-27T05:21:36.838983+00:00",
+    "in_process_raw_verdict": {
+      "success": true
+    },
+    "in_process_started_utc": "2026-08-27T05:20:55.975887+00:00",
+    "live_cluster_check": {
+      "pods": "19 Running, 1 Error",
+      "services": 22,
+      "user_service": "NotFound",
+      "user_service_endpointslices": 0
+    },
+    "live_cluster_check_utc": "~2026-08-27T05:23Z",
+    "worker": "SKIPPED_SINGLE_INSTRUMENT",
+    "workload_captured_post_hoc": {
+      "non2xx_rate": 0.6002824858757062,
+      "note": "captured live from job/wrk2-job after the driver died; fewer than the 10 rounds R2 requires",
+      "rounds": 6,
+      "total_non2xx": 10625,
+      "total_requests": 17700,
+      "window": [
+        "2026-08-27T05:20:21.704356657Z",
+        "2026-08-27T05:22:56.907212995Z"
+      ]
+    }
+  },
+  "healthy": {
+    "elapsed_seconds": 0.29,
+    "gate_passed": true,
+    "in_process_raw_verdict": {
+      "success": true
+    },
+    "workload": {
+      "non2xx_rate": 0.0,
+      "rounds": 10,
+      "total_non2xx": 0,
+      "total_requests": 29602
+    }
+  },
+  "injection_finished_utc": "2026-08-27T05:19:55.975314+00:00",
+  "injection_seconds": 40.19,
+  "namespace": "hotel-reservation",
+  "null_agent_episode_seconds": 60,
+  "problem_id": "missing_service_hotel_reservation",
+  "protocol": "sremut-w3-h4lite-v1",
+  "protocol_doc": "SREMut/experiments/PROTOCOL_W3.md",
+  "r1_interval_seconds": 60.0006,
+  "r3_classification": "Not applicable \u2014 R3 governs FALSE verdicts; this verdict is TRUE. A clean-observation check at the oracle instant could not be performed because of the sampler namespace gap.",
+  "registered_deviation": "PROTOCOL_W3: in-process oracle only; SREMut worker skipped because original_oracle_worker.py:23 pins EXPECTED_NAMESPACE='social-network' (frozen artifact, not relaxed)",
+  "restored_state": "NOT MEASURED \u2014 the run was killed before recovery; the namespace was then deleted in Item C.",
+  "run_id": "w3-hotel-01",
+  "schema_version": 1,
+  "single_instrument": true,
+  "status": "PARTIAL_DRIVER_KILLED_DURING_FAULTED_WORKLOAD_WINDOW",
+  "why_partial": "The polling shell command that supervised the run hit a 10-minute tool timeout and the driver process was terminated during STEP 12 (faulted workload window). This is an instrument/operator failure, not a system behaviour. The primary measurement (the faulted in-process verdict) had already completed and is recorded below. three-state.json was never written."
+}
