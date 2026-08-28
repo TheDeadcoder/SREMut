@@ -36,6 +36,25 @@ reinterpret historical evidence and does not claim to have existed before any
 historical run.  The prospective mutant matrix is 0/9 at freeze time, so no
 attempt has been executed under v1.1 whose meaning could change.
 
+WHAT THIS GENERATOR VALIDATES, AND WHAT IT DOES NOT
+---------------------------------------------------
+`validate_v1_2_evaluation_context_delta` is the reference implementation of the
+v1.2 DELTA only: per-predicate authorization derivation, state-at-marker
+validation, candidate-specific context selection, workload-window phase/ordinal
+binding, and multi-adjudication envelope closure.
+
+It is not a full-admissibility dispatcher.  It does not execute the twelve
+authenticated hook implementations, so it does not check payload-byte integrity,
+descriptor-content identity, authoritative journal bytes, external seals, or
+adjudication Boolean recomputation.  Those remain governed by the authenticated
+v1.1 base reference.  **A delta PASS is not full admissibility and is not
+evidence that a production runner is ready**; a separate twelve-hook runtime
+conformance gate is required before any prospective attempt.
+
+The delta fixture is a schema-valid TERMINAL RESOLVED CONTEXT captured under
+CAPTURE_TIME_FULL_ADMISSIBILITY with `offline_seal: null`.  It is not a sealed
+attempt, and no external seal is synthesized for delta testing.
+
 WHAT v1.2 DOES NOT TOUCH
 ------------------------
 predicate identities, phases, deadlines and allowed states; workload window
@@ -96,7 +115,7 @@ BASE_POLICY_ID = "sremut/missing-service-social-network/evidence-capture-v1.1"
 
 POLICY_ID = "sremut/missing-service-social-network/evidence-capture-v1.2"
 SEMANTIC_VERSION = "1.2"
-FROZEN_AT = "2026-08-28T17:44:05.118293+00:00"
+FROZEN_AT = "2026-08-28T20:57:48.889042+00:00"
 TAG_NAME = "sremut-missing-service-evidence-policy-v1.2"
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
@@ -131,6 +150,7 @@ POLICY_ALLOWED_PREFIXES = (
     "full_admissibility_validation.workload_window_context_selection",
     "full_admissibility_validation.attempt_envelope_adjudication_closure",
     "full_admissibility_validation.failure_codes",
+    "full_admissibility_validation.runner_conformance_requirement",
     "workload_stream_identity_protocol.evidence_policy_id",
 )
 
@@ -348,7 +368,7 @@ def assert_allowed_diff(left: Any, right: Any, prefixes: tuple[str, ...], label:
 
 
 class DispatchError(RuntimeError):
-    """One closed v1.2 full-admissibility validation failure."""
+    """One closed v1.2 evaluation-context delta failure."""
 
 
 def dispatch_reject(policy: dict[str, Any], code: str) -> Any:
@@ -358,11 +378,24 @@ def dispatch_reject(policy: dict[str, Any], code: str) -> Any:
 
 
 # ---------------------------------------------------------------------------
-# v1.2 reference implementation
+# v1.2 evaluation-context DELTA reference implementation
 #
-# This is the corrected semantics the policy describes.  `v1_2_full_admissibility`
-# is the single dispatch entry point; the reference tests drive it, never the
-# helpers below in isolation.
+# SCOPE, stated plainly.  What follows is the reference implementation of the
+# five things v1.2 changes relative to the authenticated v1.1 base:
+#
+#   * per-predicate authorization derivation from exact journal records;
+#   * state-at-marker validation;
+#   * candidate-specific evaluation-context selection;
+#   * workload-window phase/ordinal binding;
+#   * multi-adjudication envelope closure.
+#
+# It is NOT a full-admissibility dispatcher.  It does not execute the twelve
+# authenticated hook implementations, and therefore does NOT check payload-byte
+# integrity, descriptor-content identity, authoritative journal bytes, external
+# seal presence, or adjudication Boolean recomputation.  Every one of those
+# remains governed by the inherited v1.1 base reference and must be executed by
+# the production runner.  A delta PASS is not full admissibility and is not
+# evidence of runner readiness.
 # ---------------------------------------------------------------------------
 
 
@@ -613,20 +646,27 @@ def validate_envelope(
         dispatch_reject(policy, "ADJUDICATION_CLOSURE_INCOMPLETE")
 
 
-def v1_2_full_admissibility(
+def validate_v1_2_evaluation_context_delta(
     policy: dict[str, Any],
     schema: dict[str, Any],
     resolved: dict[str, Any],
     candidate: dict[str, Any],
 ) -> dict[str, Any]:
-    """The single v1.2 dispatch path.
+    """Validate ONLY the v1.2 evaluation-context delta.
 
-    1. schema-validate candidate and resolved context;
-    2. reconstruct the canonical journal and hash chain;
-    3. derive every evaluation context from exact journal records;
-    4. select hooks from the authenticated v1.2 policy;
-    5. run candidate-specific workload and adjudication validation;
-    6. run complete envelope closure validation.
+    Performed here:
+      1. schema-validate the candidate and the resolved context;
+      2. reconstruct the canonical journal chain far enough to place markers;
+      3. derive every evaluation context from exact journal records;
+      4. select the candidate's own context by its own predicate;
+      5. validate workload-window phase/ordinal binding;
+      6. validate multi-adjudication envelope closure.
+
+    Deliberately NOT performed here, and inherited unchanged from the v1.1 base
+    reference: payload-byte integrity, descriptor-content identity, authoritative
+    journal-byte authentication, external-seal verification, and adjudication
+    Boolean recomputation.  The returned document is a delta result, not a
+    FULL_ADMISSIBILITY_VALIDATION_RESULT_V1.
     """
     validator = Draft202012Validator(schema)
     if not validator.is_valid(resolved):
@@ -646,6 +686,9 @@ def v1_2_full_admissibility(
     if supplied != derived["evaluation_authorization_contexts"]:
         # A caller-supplied context never overrides journal reconstruction.
         dispatch_reject(policy, "JOURNAL_CONTEXT_MISMATCH")
+    # The hook plan is read from the authenticated policy so the delta can refuse
+    # a candidate the adjudication hook does not even apply to.  Listing a hook
+    # id is NOT executing that hook: none of the twelve implementations runs here.
     plan = [
         hook["hook_id"]
         for hook in policy["full_admissibility_validation"]["hook_contracts"]
@@ -660,11 +703,23 @@ def v1_2_full_admissibility(
         validate_envelope(policy, derived, resolved, candidate)
     else:
         dispatch_reject(policy, "HOOK_CONTEXT_MISSING")
-    return {"valid": True, "hooks": tuple(plan), "derived": derived}
+    return {
+        "document_type": "V1_2_EVALUATION_CONTEXT_DELTA_RESULT",
+        "delta_scope_only": True,
+        "full_admissibility_established": False,
+        "hooks_executed": (),
+        "hook_plan_read_from_policy": tuple(plan),
+        "evaluation_authorization_contexts": derived["evaluation_authorization_contexts"],
+    }
 
 
 # ---------------------------------------------------------------------------
-# schema-valid sealed-attempt fixture
+# schema-valid TERMINAL-CONTEXT fixture
+#
+# This fixture is a schema-valid terminal resolved context for exercising the
+# v1.2 delta.  It carries `offline_seal: null`, so it is NOT a sealed attempt and
+# NOT offline-admissible; it is captured under CAPTURE_TIME_FULL_ADMISSIBILITY.
+# No external seal is synthesized for delta testing.
 # ---------------------------------------------------------------------------
 
 FIXTURE_RUN_ID = "sremut-ms-m01-r01-a01-0123456789ab"
@@ -771,8 +826,13 @@ def _payload_paths(payload: bytes) -> dict[str, Any]:
     }
 
 
-def build_sealed_attempt(policy: dict[str, Any], schema: dict[str, Any]) -> dict[str, Any]:
-    """One complete, schema-valid, FINALIZED sealed attempt.
+def build_terminal_context_fixture(
+    policy: dict[str, Any], schema: dict[str, Any]
+) -> dict[str, Any]:
+    """One complete, schema-valid, FINALIZED terminal resolved context.
+
+    Not a sealed attempt: `offline_seal` is null and no external seal is
+    synthesized, so this fixture establishes nothing about offline admissibility.
 
     Raw adjudication backing is the two payload-backed workload roles.  A
     Kubernetes projection chain would add fixture surface without exercising any
@@ -1113,8 +1173,10 @@ def _build_resolved_context(
         "journal_publication_records": publications,
         "attempt_journal_records": deepcopy(records),
         "exact_authoritative_journal_bytes_hex": journal_bytes.hex(),
-        "validation_mode": "OFFLINE_SEALED_REVALIDATION",
-        "trusted_capture_source_bytes_hex": {},
+        "validation_mode": "CAPTURE_TIME_FULL_ADMISSIBILITY",
+        "trusted_capture_source_bytes_hex": {
+            evidence_id: payload.hex() for evidence_id, payload in payloads.items()
+        },
         "offline_seal": None,
         "current_verified_attempt_state": {
             "state": derived["terminal_state"],
@@ -1274,6 +1336,25 @@ def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
         "omitted_or_extra_raw_reference": "ADJUDICATION_CLOSURE_INCOMPLETE",
         "fail_closed": True,
     }
+    full["runner_conformance_requirement"] = [
+        "Validation semantics unchanged by v1.2 remain governed by the authenticated "
+        "v1.1 base reference implementation and its stable failure-code semantics.",
+        "v1.2 adds only the per-predicate evaluation-context delta defined by "
+        "tools/freeze_missing_service_evidence_policy_v1_2.py: per-predicate "
+        "authorization derivation, state-at-marker validation, candidate-specific "
+        "context selection, workload-window phase and ordinal binding, and "
+        "multi-adjudication envelope closure.",
+        "The production runner MUST execute all twelve authenticated hook "
+        "implementations, including payload-byte integrity, descriptor-content "
+        "identity, authoritative journal-byte authentication, external-seal "
+        "verification and adjudication recomputation.",
+        "Passing the v1.2 delta tests alone does NOT establish full admissibility "
+        "and does NOT establish production-runner readiness; a separate twelve-hook "
+        "runtime conformance gate is required before any prospective attempt.",
+        "Runner validation MUST remain byte-for-byte behaviorally equivalent to the "
+        "authenticated reference implementations and MUST NOT import mutable "
+        "external policy logic.",
+    ]
     codes = list(full["failure_codes"])
     for code in NEW_FAILURE_CODES:
         if code not in codes:
@@ -1301,8 +1382,16 @@ def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
             "adjudication_vocabularies",
             "kubernetes_evidence_surface",
             "service_restoration_projection",
-            "workload_stream_identity_protocol",
         ],
+        "workload_stream_identity_protocol_precise_status": {
+            "hash_algorithm_unchanged": True,
+            "material_field_structure_unchanged": True,
+            "changed_field": "evidence_policy_id",
+            "evidence_policy_id_before": BASE_POLICY_ID,
+            "evidence_policy_id_after": POLICY_ID,
+            "note": "Only the version binding changed; every other material field "
+                    "and the SHA-256 algorithm are byte-identical to v1.1.",
+        },
         "all_unlisted_policy_and_schema_values_must_equal_v1_1": True,
     }
     return policy
@@ -1408,7 +1497,13 @@ def build_schema(v11: Any, v1: Any, policy: dict[str, Any], base_schema: dict[st
 
 
 # ---------------------------------------------------------------------------
-# reference tests -- every positive drives v1_2_full_admissibility
+# v1.2 DELTA tests -- every positive drives validate_v1_2_evaluation_context_delta.
+#
+# These cover ONLY the v1.2 delta: schema validity, journal marker derivation,
+# state-at-marker, candidate-specific selection, window binding, closure
+# completeness, and stream-version substitution.  Payload integrity, descriptor
+# integrity, external seal and adjudication recomputation are NOT delta cases;
+# they belong to the later 12-hook runtime conformance gate.
 # ---------------------------------------------------------------------------
 
 
@@ -1426,13 +1521,13 @@ def _mutate(bundle: dict[str, Any], **changes: Any) -> tuple[dict[str, Any], dic
     return deepcopy(bundle["resolved"]), deepcopy(bundle["envelope"])
 
 
-def run_reference_tests(policy: dict[str, Any], schema: dict[str, Any]) -> tuple[int, int]:
-    bundle = build_sealed_attempt(policy, schema)
+def run_delta_tests(policy: dict[str, Any], schema: dict[str, Any]) -> tuple[int, int]:
+    bundle = build_terminal_context_fixture(policy, schema)
     resolved = bundle["resolved"]
     envelope = bundle["envelope"]
     matrix = predicate_matrix(policy)
     validator = Draft202012Validator(schema)
-    dispatch = lambda ctx, cand: v1_2_full_admissibility(policy, schema, ctx, cand)
+    dispatch = lambda ctx, cand: validate_v1_2_evaluation_context_delta(policy, schema, ctx, cand)
 
     positive = 0
     negative = 0
@@ -1449,39 +1544,48 @@ def run_reference_tests(policy: dict[str, Any], schema: dict[str, Any]) -> tuple
     derived = reconstruct_journal(policy, bundle["records"])
     contexts = derived["evaluation_authorization_contexts"]
     if derived["terminal_state"] != "FINALIZED" or set(contexts) != set(PREDICATES):
-        raise FreezeError("REFERENCE_JOURNAL_INVALID")
+        raise FreezeError("DELTA_FIXTURE_JOURNAL_INVALID")
     for predicate in PREDICATES:
         if contexts[predicate]["authorization_state"] not in matrix[predicate]["allowed_states"]:
-            raise FreezeError("REFERENCE_JOURNAL_INVALID")
+            raise FreezeError("DELTA_FIXTURE_JOURNAL_INVALID")
     if len({c["authorization_state"] for c in contexts.values()}) != 3:
-        raise FreezeError("REFERENCE_JOURNAL_INVALID")
+        raise FreezeError("DELTA_FIXTURE_JOURNAL_INVALID")
     positive += 1
 
-    # P3 - all three adjudications pass the integrated dispatcher.
+    # P3 - all three adjudications pass the v1.2 delta validator.
     for predicate in PREDICATES:
         candidate = bundle["descriptors"][
             bundle["per_predicate"][predicate]["adjudication"]["evidence_id"]
         ]
-        if not dispatch(resolved, candidate)["valid"]:
-            raise FreezeError("REFERENCE_ADJUDICATION_INVALID")
+        result = dispatch(resolved, candidate)
+        if (
+            result["document_type"] != "V1_2_EVALUATION_CONTEXT_DELTA_RESULT"
+            or result["full_admissibility_established"] is not False
+            or result["hooks_executed"] != ()
+        ):
+            raise FreezeError("DELTA_ADJUDICATION_INVALID")
     positive += 1
 
-    # P4 - all three workload windows pass through the dispatcher's own path.
+    # P4 - all three workload windows pass the delta's own window binding.
     for predicate in PREDICATES:
         validate_workload_window(
             policy, derived, predicate, bundle["per_predicate"][predicate]["window"]
         )
     positive += 1
 
-    # P5 - the complete FINALIZED envelope passes closure through the dispatcher.
-    if not dispatch(resolved, envelope)["valid"]:
-        raise FreezeError("REFERENCE_ENVELOPE_INVALID")
+    # P5 - the FINALIZED envelope passes delta closure (closure only, not admissibility).
+    result = dispatch(resolved, envelope)
+    if (
+        result["document_type"] != "V1_2_EVALUATION_CONTEXT_DELTA_RESULT"
+        or result["full_admissibility_established"] is not False
+    ):
+        raise FreezeError("DELTA_ENVELOPE_INVALID")
     positive += 1
 
     # P6 - the fixture and derivation are deterministic.
-    again = build_sealed_attempt(policy, schema)
+    again = build_terminal_context_fixture(policy, schema)
     if canonical_json_bytes(again["resolved"]) != canonical_json_bytes(resolved):
-        raise FreezeError("REFERENCE_DERIVATION_NOT_DETERMINISTIC")
+        raise FreezeError("DELTA_DERIVATION_NOT_DETERMINISTIC")
     positive += 1
 
     # ---- negatives ---------------------------------------------------------
@@ -1677,7 +1781,7 @@ def run_reference_tests(policy: dict[str, Any], schema: dict[str, Any]) -> tuple
     negative += 1
 
     if positive != 6 or negative != 17:
-        raise FreezeError(f"REFERENCE_TEST_COUNT_INVALID:{positive}:{negative}")
+        raise FreezeError(f"DELTA_TEST_COUNT_INVALID:{positive}:{negative}")
     return positive, negative
 
 
@@ -1732,7 +1836,7 @@ def expected_artifacts() -> tuple[dict[str, Any], dict[str, Any], dict[Path, byt
     v11, v1, _v1_policy, base_policy, base_schema = reconstruct_v1_1()
     policy = build_policy(base_policy)
     schema = build_schema(v11, v1, policy, base_schema)
-    counts = run_reference_tests(policy, schema)
+    counts = run_delta_tests(policy, schema)
     policy_bytes = render_policy(policy)
     schema_bytes = render_schema(schema)
     return policy, schema, {
@@ -1773,8 +1877,8 @@ def generate() -> None:
     _policy, _schema, artifacts, counts = expected_artifacts()
     for path in (POLICY, SCHEMA, MANIFEST):
         atomic_write(path, artifacts[path])
-    print(f"V1_2_REFERENCE_POSITIVE={counts[0]}/6")
-    print(f"V1_2_REFERENCE_NEGATIVE={counts[1]}/17")
+    print(f"V1_2_DELTA_POSITIVE={counts[0]}/6")
+    print(f"V1_2_DELTA_NEGATIVE={counts[1]}/17")
 
 
 def check() -> None:
@@ -1793,8 +1897,8 @@ def check() -> None:
         SCHEMA_REL: sha256_path(SCHEMA),
     }:
         raise FreezeError("V1_2_MANIFEST_MISMATCH")
-    print(f"V1_2_REFERENCE_POSITIVE={counts[0]}/6")
-    print(f"V1_2_REFERENCE_NEGATIVE={counts[1]}/17")
+    print(f"V1_2_DELTA_POSITIVE={counts[0]}/6")
+    print(f"V1_2_DELTA_NEGATIVE={counts[1]}/17")
     print("V1_2_CHECK=PASS")
 
 

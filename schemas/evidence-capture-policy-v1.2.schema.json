@@ -4017,7 +4017,7 @@
           "type": "object"
         },
         "frozen_at": {
-          "const": "2026-08-28T17:44:05.118293+00:00",
+          "const": "2026-08-28T20:57:48.889042+00:00",
           "type": "string"
         },
         "full_admissibility_validation": {
@@ -9599,8 +9599,32 @@
               "type": "string"
             },
             "runner_conformance_requirement": {
-              "const": "Future runner validation MUST be byte-for-byte behaviorally equivalent to this generator reference implementation and its stable failure-code semantics and MUST NOT import mutable external policy logic",
-              "type": "string"
+              "items": false,
+              "maxItems": 5,
+              "minItems": 5,
+              "prefixItems": [
+                {
+                  "const": "Validation semantics unchanged by v1.2 remain governed by the authenticated v1.1 base reference implementation and its stable failure-code semantics.",
+                  "type": "string"
+                },
+                {
+                  "const": "v1.2 adds only the per-predicate evaluation-context delta defined by tools/freeze_missing_service_evidence_policy_v1_2.py: per-predicate authorization derivation, state-at-marker validation, candidate-specific context selection, workload-window phase and ordinal binding, and multi-adjudication envelope closure.",
+                  "type": "string"
+                },
+                {
+                  "const": "The production runner MUST execute all twelve authenticated hook implementations, including payload-byte integrity, descriptor-content identity, authoritative journal-byte authentication, external-seal verification and adjudication recomputation.",
+                  "type": "string"
+                },
+                {
+                  "const": "Passing the v1.2 delta tests alone does NOT establish full admissibility and does NOT establish production-runner readiness; a separate twelve-hook runtime conformance gate is required before any prospective attempt.",
+                  "type": "string"
+                },
+                {
+                  "const": "Runner validation MUST remain byte-for-byte behaviorally equivalent to the authenticated reference implementations and MUST NOT import mutable external policy logic.",
+                  "type": "string"
+                }
+              ],
+              "type": "array"
             },
             "schema_version": {
               "const": 1,
@@ -22333,8 +22357,8 @@
             },
             "allowlisted_policy_prefixes": {
               "items": false,
-              "maxItems": 23,
-              "minItems": 23,
+              "maxItems": 24,
+              "minItems": 24,
               "prefixItems": [
                 {
                   "const": "document_type",
@@ -22425,6 +22449,10 @@
                   "type": "string"
                 },
                 {
+                  "const": "full_admissibility_validation.runner_conformance_requirement",
+                  "type": "string"
+                },
+                {
                   "const": "workload_stream_identity_protocol.evidence_policy_id",
                   "type": "string"
                 }
@@ -22473,8 +22501,8 @@
             },
             "observed_policy_leaf_paths_before_report": {
               "items": false,
-              "maxItems": 47,
-              "minItems": 47,
+              "maxItems": 48,
+              "minItems": 48,
               "prefixItems": [
                 {
                   "const": "authenticated_policy_input.expected_entry_paths[0]",
@@ -22597,6 +22625,10 @@
                   "type": "string"
                 },
                 {
+                  "const": "full_admissibility_validation.runner_conformance_requirement",
+                  "type": "string"
+                },
+                {
                   "const": "full_admissibility_validation.workload_window_context_selection",
                   "type": "string"
                 },
@@ -22673,8 +22705,8 @@
             },
             "unchanged_frozen_semantics": {
               "items": false,
-              "maxItems": 8,
-              "minItems": 8,
+              "maxItems": 7,
+              "minItems": 7,
               "prefixItems": [
                 {
                   "const": "adjudication_predicate_raw_role_context_deadline_matrix",
@@ -22703,13 +22735,47 @@
                 {
                   "const": "service_restoration_projection",
                   "type": "string"
-                },
-                {
-                  "const": "workload_stream_identity_protocol",
-                  "type": "string"
                 }
               ],
               "type": "array"
+            },
+            "workload_stream_identity_protocol_precise_status": {
+              "additionalProperties": false,
+              "properties": {
+                "changed_field": {
+                  "const": "evidence_policy_id",
+                  "type": "string"
+                },
+                "evidence_policy_id_after": {
+                  "const": "sremut/missing-service-social-network/evidence-capture-v1.2",
+                  "type": "string"
+                },
+                "evidence_policy_id_before": {
+                  "const": "sremut/missing-service-social-network/evidence-capture-v1.1",
+                  "type": "string"
+                },
+                "hash_algorithm_unchanged": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "material_field_structure_unchanged": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "note": {
+                  "const": "Only the version binding changed; every other material field and the SHA-256 algorithm are byte-identical to v1.1.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "hash_algorithm_unchanged",
+                "material_field_structure_unchanged",
+                "changed_field",
+                "evidence_policy_id_before",
+                "evidence_policy_id_after",
+                "note"
+              ],
+              "type": "object"
             }
           },
           "required": [
@@ -22719,6 +22785,7 @@
             "allowlisted_schema_prefixes",
             "observed_policy_leaf_paths_before_report",
             "unchanged_frozen_semantics",
+            "workload_stream_identity_protocol_precise_status",
             "all_unlisted_policy_and_schema_values_must_equal_v1_1"
           ],
           "type": "object"

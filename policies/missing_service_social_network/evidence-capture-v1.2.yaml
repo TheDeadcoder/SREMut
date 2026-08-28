@@ -2,7 +2,7 @@ document_type: EVIDENCE_POLICY_DOCUMENT_V1_2
 schema_version: 1
 policy_id: sremut/missing-service-social-network/evidence-capture-v1.2
 status: FROZEN_BEFORE_PROSPECTIVE_MUTANT_EXECUTION
-frozen_at: '2026-08-28T17:44:05.118293+00:00'
+frozen_at: '2026-08-28T20:57:48.889042+00:00'
 future_annotated_tag: sremut-missing-service-evidence-policy-v1.2
 bindings:
   contract:
@@ -3611,9 +3611,19 @@ full_admissibility_validation:
     metadata.namespace, exact labels, and Pod spec, preserving execution-profile spec_hash semantics
   deterministic_challenge_name_derivation: sremut-challenge- plus first16 lowercase SHA-256 hex of canonical
     compact sorted JSON containing exact run_id, mutant_id, repetition, attempt_id, and frozen_spec_sha256
-  runner_conformance_requirement: Future runner validation MUST be byte-for-byte behaviorally equivalent
-    to this generator reference implementation and its stable failure-code semantics and MUST NOT import
-    mutable external policy logic
+  runner_conformance_requirement:
+  - Validation semantics unchanged by v1.2 remain governed by the authenticated v1.1 base reference implementation
+    and its stable failure-code semantics.
+  - 'v1.2 adds only the per-predicate evaluation-context delta defined by tools/freeze_missing_service_evidence_policy_v1_2.py:
+    per-predicate authorization derivation, state-at-marker validation, candidate-specific context selection,
+    workload-window phase and ordinal binding, and multi-adjudication envelope closure.'
+  - The production runner MUST execute all twelve authenticated hook implementations, including payload-byte
+    integrity, descriptor-content identity, authoritative journal-byte authentication, external-seal verification
+    and adjudication recomputation.
+  - Passing the v1.2 delta tests alone does NOT establish full admissibility and does NOT establish production-runner
+    readiness; a separate twelve-hook runtime conformance gate is required before any prospective attempt.
+  - Runner validation MUST remain byte-for-byte behaviorally equivalent to the authenticated reference
+    implementations and MUST NOT import mutable external policy logic.
   authenticated_policy_required_before_hook_selection: true
   validation_modes:
   - CAPTURE_TIME_FULL_ADMISSIBILITY
@@ -3953,6 +3963,7 @@ semantic_diff_report:
   - full_admissibility_validation.workload_window_context_selection
   - full_admissibility_validation.attempt_envelope_adjudication_closure
   - full_admissibility_validation.failure_codes
+  - full_admissibility_validation.runner_conformance_requirement
   - workload_stream_identity_protocol.evidence_policy_id
   allowlisted_schema_prefixes:
   - $id
@@ -3993,6 +4004,7 @@ semantic_diff_report:
   - full_admissibility_validation.failure_codes[96]
   - full_admissibility_validation.failure_codes[97]
   - full_admissibility_validation.resolved_context_document
+  - full_admissibility_validation.runner_conformance_requirement
   - full_admissibility_validation.workload_window_context_selection
   - future_annotated_tag
   - policy_id
@@ -4018,5 +4030,12 @@ semantic_diff_report:
   - adjudication_vocabularies
   - kubernetes_evidence_surface
   - service_restoration_projection
-  - workload_stream_identity_protocol
+  workload_stream_identity_protocol_precise_status:
+    hash_algorithm_unchanged: true
+    material_field_structure_unchanged: true
+    changed_field: evidence_policy_id
+    evidence_policy_id_before: sremut/missing-service-social-network/evidence-capture-v1.1
+    evidence_policy_id_after: sremut/missing-service-social-network/evidence-capture-v1.2
+    note: Only the version binding changed; every other material field and the SHA-256 algorithm are byte-identical
+      to v1.1.
   all_unlisted_policy_and_schema_values_must_equal_v1_1: true
