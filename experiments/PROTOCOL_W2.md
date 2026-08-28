@@ -50,6 +50,20 @@ from agents (`conductor.py:64-67`).
 
 - Verdict still `true` on the unrepaired system with noise active -> the primary finding
   survives the benchmark's own realism feature, which is a **stronger** result.
+
+> *Editorial note added 2026-08-28. The historical decision text above is retained
+> unchanged and no protocol decision, threshold or recorded run behaviour is altered.*
+> "Stronger result" was the **historical interpretation** written into this protocol; it
+> is not a confirmatory conclusion. **H3 is exploratory.** The two runs **test one
+> specific noise-related alternative explanation** — that the verdict is an artifact of an
+> artificially quiescent cluster — and a null result weakens that one alternative rather
+> than closing the space of alternatives. Critically, **noise was stopped before
+> evaluation and was therefore not active during the faulted window**: the conductor
+> quiesces noise before every evaluation by design (`conductor.py:476-483`), and the
+> driver did not replicate the conductor's restart afterwards. **The result therefore does
+> not establish robustness to concurrent noise at the graded instant**, which was never
+> measured. `pod-kill` was also never selected by `random.sample` in either run.
+
 - Verdict `false` because a noise-killed pod was not `Running` at evaluation -> that is a
   **finding about noise**, recorded under R3 as a `harness_timing_failure` for H1
   purposes. Per PROTOCOL_W1's registered clarification, such a run is reported in full and
@@ -66,6 +80,14 @@ from agents (`conductor.py:64-67`).
 
 Either outcome reportable. If the hotel-reservation app fails to deploy or trips the
 healthy gate, the item is **abandoned and reported** — the deployment is not debugged.
+
+> *Editorial note added 2026-08-28, no protocol decision changed.* The blockquote above is
+> the **hypothesis under test**, stated conditionally — it is not a finding, and "the
+> blindness is a property of the oracle" is not asserted here. H4 was never corroborated
+> as specified in advance, and D2 (`w2-hotel-01`) was in fact abandoned at the healthy
+> gate and produced no faulted reading. The later single hotel-reservation run
+> (`w4-hotel-01`) records that the same false-acceptance behavior was observed on that
+> second application; it does not establish cross-application generality.
 
 ## Method
 

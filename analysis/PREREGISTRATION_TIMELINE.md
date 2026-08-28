@@ -303,12 +303,25 @@ not-`Running` pods.)
 Case (d) is the branch that requires no special handling and is identical to how the G1
 runs were treated. The discriminating branches (a), (b) and (c) never applied.
 
-This matters because R3-A is the one rule in the project **registered after its
-measurement already existed on disk** — disclosed in its own text at
-`experiments/PROTOCOL_W4.md`, written 2026-08-27T10:11:11.748Z when the faulted verdict
-had been on disk since 10:03:10.423Z but had not been read. Since the amendment resolved
-to the branch that changes nothing, that weaker guarantee has no consequence for any
-reported result. The disclosure stands; the exposure is nil.
+This matters because R3-A is the one rule in the project **written after its measurement
+already existed on disk** — disclosed in its own text at `experiments/PROTOCOL_W4.md`,
+written 2026-08-27T10:11:11.748Z when the faulted verdict had been on disk since
+10:03:10.423Z.
+
+**The protocol self-reports that the verdict's value had not been read** at that point,
+and describes the method used to establish the file's existence without printing its
+contents. **That self-report is not independently corroborated.** Nothing outside the
+protocol's own text establishes what was or was not observed before the amendment was
+written, and absence of observation is not the kind of thing this record can prove.
+
+What can be stated from the record: the amendment resolved to **case (d)**, so it **did
+not change the recorded classification** of `w4-hotel-01` — that run is treated exactly as
+the G1 runs were, and branches (a), (b) and (c) were never applied.
+
+**That observed no-op does not remove the procedural exposure.** Writing a classification
+rule after the measurement it governs already exists is a procedural weakness regardless
+of which branch the rule later selects: the branch taken is an outcome, not a safeguard.
+The exposure is disclosed and bounded in effect, not eliminated.
 
 ### R2 — at least 10 workload rounds per state — NOT outcome-bearing.
 

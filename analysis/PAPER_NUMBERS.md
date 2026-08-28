@@ -724,8 +724,8 @@ Protocol: `SREMut/experiments/PROTOCOL_W3.md`. Record:
 **Registered deviation: SINGLE INSTRUMENT.** The in-process oracle only, inside
 `conductor.py:269-271`'s try/except. The SREMut worker was skipped because it pins
 `EXPECTED_NAMESPACE = "social-network"` (`original_oracle_worker.py:23`, enforced `:135`),
-a frozen artifact that was not relaxed. **This run therefore carries one independent
-measurement, not two, and is weaker evidence than any G1 run.**
+a frozen artifact that was not relaxed. **This run therefore carries one recorded verdict
+reading, not two, and is weaker evidence than any G1 run.**
 
 | State | in-process verdict | workload |
 |---|---|---|
@@ -739,10 +739,19 @@ Deploy 85.299 s; injection 40.19 s; R1 interval **60.0006 s**; faulted oracle ca
 Live cluster check at ~05:23Z confirmed the faulted state persisted:
 `Service/user-service` **NotFound**, 22 services, **0** EndpointSlices for user-service.
 
-**H4-lite is supported.** The same stock oracle returned `{"success": true}` on a second
-application whose functional workload was failing **60 %** of requests — six times the
-social-network rate, because hotel-reservation's request mix depends far more heavily on
-`user-service`. The blindness travels with the oracle, not with the application.
+**What was observed, recorded descriptively.** In `w3-hotel-01` the same stock oracle
+returned `{"success": true}` on a second application while the functional workload was
+failing **60 %** of requests — six times the social-network rate, because
+hotel-reservation's request mix depends far more heavily on the deleted Service's path.
+
+**This run is not used as support for H4 or for cross-application generality.** It is
+**incomplete** (killed mid-flight, RESTORED never measured, `three-state.json` never
+written), it is **below R2** (6 faulted workload rounds against the 10 required, captured
+post hoc), its **sampler observed the wrong namespace** (`sample_state.sh` hardcoded
+`social-network`, so its `samples.jsonl` describes an unrelated namespace), and it is
+**superseded** by `w4-hotel-01`, which repeated the measurement with both instrument
+defects fixed. It is retained as a historical record, not as evidence for a generality
+claim. The three limitations are itemised below.
 
 **Three limitations of this run, all disclosed:**
 
@@ -792,8 +801,8 @@ command hit a 10-minute tool timeout.
 **Registered deviation (unchanged from W3): SINGLE INSTRUMENT.** In-process oracle only,
 inside `conductor.py:269-271`. The SREMut worker pins
 `EXPECTED_NAMESPACE = "social-network"` (`original_oracle_worker.py:23`, enforced `:135`),
-a frozen artifact, not relaxed. **One independent measurement, not two — weaker than any
-G1 run.**
+a frozen artifact, not relaxed. **One provenance-category reading, not two — weaker than
+any G1 run.**
 
 #### Verdicts (raw dicts, UTC)
 
@@ -857,11 +866,21 @@ had no incidental pod-health signal to detect the fault by.
 
 #### H4 result
 
-**H4 is supported, on a complete three-state record.** The same stock `MitigationOracle`
-returned `{"success": true}` on a second application, a different deleted Service
-(`mongodb-rate`, not `user-service`), while **59.74 %** of user requests failed with
-HTTP 500 and every pod was healthy. The blindness is a property of the oracle, not of the
-social-network application.
+**The complete W4 historical observation matched the source-derived prediction on one
+second application.** The same stock `MitigationOracle` returned `{"success": true}` on a
+second application, a different deleted Service (`mongodb-rate`, not `user-service`),
+while **59.74 %** of user requests failed with HTTP 500 and every pod was healthy. The
+predicted 60.0000 % and the observed 59.7429 % agree.
+
+**The same false-acceptance behavior was observed on this second application.** That is
+the whole of what the run establishes.
+
+**This is suggestive exploratory evidence, not confirmation that blindness generally
+travels with the oracle.** H4 was not corroborated as specified in advance
+(`PROTOCOL_W4.md` is a historical documented protocol), and one run on one second
+application is a single additional data point. A mechanism shared across the
+`missing_service_*` family remains the plausible reading of the source, but it is not
+established by this measurement.
 
 ### The 60 % explained from source
 
@@ -987,8 +1006,10 @@ with this limitation stated.
 2 zero-delay runs (W1) and 1 pilot (g02-run-01). The three-state *pattern* is
 established; no rate claim is made.
 
-**5. Two problems, one fault type, one cluster.** *(Superseded: this gap previously read
-"One problem, one fault, one cluster." W4 retired the single-application form.)*
+**5. Two problems, one fault type, one cluster.** *(Amended: this gap previously read
+"One problem, one fault, one cluster." W4 expanded the measured scope from one application
+to two; it did not establish cross-application generality, so the gap is narrowed rather
+than retired.)*
 Everything measured end-to-end concerns the `missing_service` fault type under MS-M01
 (no-op after Service deletion) on a single 4-node kind cluster — but now across **two
 applications**: `missing_service_social_network` (9 included historical runs) and
@@ -1012,18 +1033,20 @@ resource kind attributed from prose rather than code. The BLIND headline is ther
 Spot-checked against `missing_service`, `target_port` and `sidecar_port_conflict`; not
 exhaustively verified for all 123.
 
-**8. H4 (second application) is now TESTED — see W4, which supersedes W3.**
+**8. H4 (second application) was MEASURED once — see W4, which supersedes W3.**
 `w4-hotel-01` is a complete three-state run with both instrument defects fixed:
 `{"success": true}` in all three states, 59.7429 % faulted workload failure, R1 60.0004 s,
 127 consecutive samples with zero not-`Running` pods, R3-A case (d). It remains
-**single-instrument** (one measurement, not two) and **n=1** for this application. The
-superseded W3 note follows:
+**single-category** (one recorded verdict reading, not two) and **n=1** for this
+application, and it is exploratory rather than confirmatory evidence. The superseded W3
+note follows:
 
-**8b. (superseded) H4 was partially tested in W3.** `w3-hotel-01` obtained
-a single-instrument faulted verdict of `{"success": true}` on
-`missing_service_hotel_reservation` with a 60.03 % functional failure rate, supporting
-H4-lite. It is weaker than a G1 run: one instrument, 6 workload rounds instead of 10, no
-RESTORED state, and no cluster-state measurement at the verdict instant (the sampler
+**8b. (superseded) H4 was partially measured in W3.** `w3-hotel-01` obtained
+a single-category faulted verdict of `{"success": true}` on
+`missing_service_hotel_reservation` with a 60.03 % functional failure rate. That run is
+**not used as support for H4-lite**: it is incomplete, below R2, and its sampler observed
+the wrong namespace. It is weaker than a G1 run: one provenance category, 6 workload
+rounds instead of 10, no RESTORED state, and no cluster-state measurement at the verdict instant (the sampler
 watched the wrong namespace). The original constraint still stands: the SREMut worker pins
 `EXPECTED_NAMESPACE = "social-network"`, so `missing_service_hotel_reservation` could not
 be measured with both instruments. The app itself deployed healthy (0/29447 non-2xx) and

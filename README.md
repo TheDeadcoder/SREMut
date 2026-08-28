@@ -271,7 +271,7 @@ what each file says, not what git attests — see above.
 | H2, H3, H4 | their runs | Each states in advance that either outcome is reportable |
 | R3-A | see below | Scope of the `harness_timing_failure` classification |
 
-R3-A is the one rule whose *own text* discloses that it was written after its measurement existed. It was written at 2026-08-27T10:11:11.748Z, after the W4 faulted verdict was on disk at 10:03:10.423Z but before its value was read; `PROTOCOL_W4.md` records both timestamps and the method used to establish existence without observing the value. Its discriminator is defined entirely on the sampler timeline, which is independent of the verdict. It resolved to case (d), and cases (a)-(c) govern `false` verdicts, so no discriminating branch was ever applied.
+R3-A is the one rule whose *own text* discloses that it was written after its measurement existed. It was written at 2026-08-27T10:11:11.748Z, after the W4 faulted verdict was on disk at 10:03:10.423Z but — **according to the protocol's self-report** — before its value was read; `PROTOCOL_W4.md` records both timestamps and the method it says was used to establish existence without observing the value. **That self-report is not independently corroborated**, and lack of observation is not externally proven. Its discriminator is defined on the sampler timeline, which is separate from the verdict. It resolved to case (d), and cases (a)-(c) govern `false` verdicts, so no discriminating branch was ever applied — which bounds the effect but **does not remove the procedural exposure** of writing a classification rule after its measurement existed.
 
 For the other five protocols the gap is different in kind: their text claims prior specification and nothing in their content admits otherwise, but the commit that introduced each one postdates its runs, so git corroborates neither claim. The distinction matters for how the claim is worded, not for any result — see the paragraph above.
 
@@ -303,7 +303,7 @@ For hotel-reservation the workload rate is also the primary evidence that the in
 
 `rate/server.go:267` calls `log.Panic()` on a Mongo error, and the injector's pod restart empties `memcached-rate`, so every search takes the Mongo path. A persistently crashed rate pod would let the oracle detect the fault incidentally through pod health rather than by observing Services, which would weaken the claim.
 
-Amendment R3-A defined, before the verdict was read, what would distinguish that case from transient churn. The W4 sampler weakens it. The only `Failed` rate pod was the old pod terminating under the injector's own `delete pods --all`, present for a single sample at 10:01:03.783Z and gone by 10:01:07. Its replacement was `Running` at every two-second sample spanning the oracle window, which began 97 seconds later; 127 consecutive samples across the faulted window show zero pods outside `Running`. Unsampled transients between samples cannot be excluded.
+Amendment R3-A defined — **according to the protocol's self-report**, before the verdict was read — what would distinguish that case from transient churn. The W4 sampler weakens it. The only `Failed` rate pod was the old pod terminating under the injector's own `delete pods --all`, present for a single sample at 10:01:03.783Z and gone by 10:01:07. Its replacement was `Running` at every two-second sample spanning the oracle window, which began 97 seconds later; 127 consecutive samples across the faulted window show zero pods outside `Running`. Unsampled transients between samples cannot be excluded.
 
 ---
 
@@ -361,7 +361,7 @@ The input is canonical JSON with `kubernetes_context`, `namespace`, `captured_re
 Stated plainly. Each limits what the numbers above support.
 
 1. **Two applications measured, not the whole family.** `missing_service_social_network` was read in both the `in_process` and `worker` provenance categories across n=3 three-state repetitions plus four other run families. `missing_service_hotel_reservation` was read in the `in_process` category only, n=1. `missing_service_astronomy_shop` is untested. The other six BLIND classifications are structural predictions with no measurement behind them.
-2. **The hotel-reservation runs are single-instrument.** The SREMut worker pins `EXPECTED_NAMESPACE = "social-network"`, a frozen artifact that was not relaxed. Those runs carry one independent measurement, not two, and are weaker than any social-network run.
+2. **The hotel-reservation runs are single-category.** The SREMut worker pins `EXPECTED_NAMESPACE = "social-network"`, a frozen artifact that was not relaxed. Those runs carry one provenance-category reading, not two, and are weaker than any social-network run.
 3. **32 of 123 census rows are UNCERTAIN.** The perturbed resource kind could not be traced to file:line at the first-pass depth, mostly where injection is delegated to Khaos, `inject_tt.py`, or a kernel injector. Separately, the 123 rows were not verified to one uniform depth: 28 received deeper injector-and-oracle verification, 95 did not.
 4. **ADEQUATE is structural, not behavioural.** It means the oracle reads the perturbed kind or a functional signal. It does not mean the oracle has been shown to reject a non-repair.
 5. **The proposed fix is unexecuted.** See the note under Proposed fix.

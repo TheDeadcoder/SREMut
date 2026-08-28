@@ -633,15 +633,19 @@ Exit codes (`original_oracle_worker.py:294-311`): 0 success, 64 wrong argv count
 CAVEAT (from G0.1 §F): invoking the worker directly bypasses the adapter, so there is
 no git tag/submodule provenance verification (`original_oracle_adapter.py:220-275`),
 no evidence-policy candidates, no journal entry, and no timeout enforcement. Adequate
-as a second independent measurement; NOT a substitute for a full adapter run.
+as a second provenance-category reading; NOT a substitute for a full adapter run.
 
 ### Step 10 — READ-ONLY — T+ evidence batch (~2 s)
 
 Repeat E1-E6 into `"$EV/t-plus/"`. Expected: byte-identical broken-state findings to
 Step 7. Capture wall-clock UTC.
 
-Together, Steps 7 and 10 establish that Service/EndpointSlice absence held across the
-entire oracle observation window.
+Together, Steps 7 and 10 **bracket** the oracle observation window: they establish
+Service/EndpointSlice absence at the T- anchor immediately before the oracle and at the
+T+ anchor immediately after it. Within that bracket, the 2 s sampler (E0) observed the
+same absence **at each of its samples**. Unsampled transients between samples cannot be
+excluded, so this is bracketing plus discrete sampling — not a demonstration of
+continuous absence across the window.
 
 ### Step 11 — OPTIONAL, CLUSTER-MUTATING — challenge pod for E8/E9 (~30 s)
 

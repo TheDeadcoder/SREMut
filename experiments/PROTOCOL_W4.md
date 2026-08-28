@@ -38,7 +38,7 @@ namespace with `ORIGINAL_ORACLE_INPUT_INVALID` / exit 65). That constant is fixe
 frozen evidence-capture policy v1.1 and the execution profile; the hard rules forbid
 editing frozen artifacts, so it is **not relaxed**.
 
-Consequence, stated in advance: this run carries **one** independent measurement of the
+Consequence, stated in advance: this run carries **one** recorded verdict reading of the
 verdict, not two. It is **weaker evidence than any G1 run** and does not inherit G1's
 cross-instrument agreement.
 
@@ -69,6 +69,17 @@ oracle rather than the application. A faulted verdict of `false` would bound the
 social-network and is equally reportable. A gate trip or failure is abandoned and reported,
 not debugged.
 
+> *Editorial note added 2026-08-28. The either-outcome rule above is preserved exactly as
+> written and no protocol decision is changed.* The clause "supports H4-lite and shows the
+> blindness travels with the oracle rather than the application" was the **historical
+> interpretation rule** this run was to be read under. It is **not a confirmatory
+> inference** and must not be reported as one. `PROTOCOL_W4.md` is a historical documented
+> protocol: its ordering relative to the run is not independently corroborated, so H4-lite
+> was never corroborated as specified in advance. Separately, and independently of the
+> timing question, **one run on one second application can motivate the proposed
+> cross-application mechanism but cannot establish it.** What the run records is that the
+> same false-acceptance behavior was observed on this second application.
+
 ---
 
 # AMENDMENT R3-A — scope of the harness_timing_failure classification
@@ -89,6 +100,14 @@ At 2026-08-27T10:11:11.748Z, when this amendment was written:
   value was not printed, not displayed, and did not enter the analysis context.
 - `w4-hotel-01/three-state.json` did **not** yet exist; the driver was still running
   (RESTORED state pending).
+
+> *Editorial note added 2026-08-28, no protocol decision changed.* Everything in the list
+> above is this protocol's **self-report**. "Its value had NOT been read" is **not
+> independently corroborated** — nothing outside this text establishes what was or was not
+> observed before the amendment was written, and absence of observation is not externally
+> proven here. The amendment resolved to case (d), so it did not change the recorded
+> classification of `w4-hotel-01`; that bounds the effect but **does not remove the
+> procedural exposure** of writing a classification rule after its measurement existed.
 
 This amendment was therefore written **after the measurement existed but before it was
 observed**. That is a weaker guarantee than R1/R2/R3, whose own text says they were

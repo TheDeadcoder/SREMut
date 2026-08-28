@@ -16,6 +16,13 @@ and H3 (`PROTOCOL_W2.md`).
 Both outcomes reportable. A `false` verdict would show the result is application-specific
 and would bound the claim accordingly.
 
+> *Editorial note added 2026-08-28, no protocol decision changed.* The blockquote above is
+> the **hypothesis under test**, stated conditionally — it is not a finding, and "the
+> blindness is a property of the oracle" is not asserted here. H4-lite was never
+> corroborated as specified in advance, and **`w3-hotel-01` is not used as support for it
+> or for cross-application generality**: the run is incomplete, below R2 on workload
+> rounds, sampled the wrong namespace, and is superseded by `w4-hotel-01`.
+
 ## REGISTERED DEVIATION — single instrument
 
 PROTOCOL_G1 requires **both** instruments (the in-process oracle and the SREMut worker)
@@ -30,8 +37,8 @@ directly in `w2-hotel-01`, which tripped the two-instrument gate for exactly thi
 while the application itself was healthy (10 rounds, 0/29447 non-2xx, in-process oracle
 `{"success": true}`).
 
-Consequence for the result, stated in advance: this run carries **one** independent
-measurement of the verdict, not two. It is therefore **weaker evidence than any G1 run**
+Consequence for the result, stated in advance: this run carries **one** recorded verdict
+reading, not two. It is therefore **weaker evidence than any G1 run**
 and must be reported as such. It does not inherit G1's cross-instrument agreement.
 
 The instrument used is the conductor's own call path: `mitigation_oracle.evaluate()`
