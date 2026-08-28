@@ -300,55 +300,77 @@ example file).
 
 ### Headline counts
 
-| Quantity | Count |
-|---|---:|
-| Oracle classes with `evaluate()` | 60 |
-| problem_ids | 118 |
-| ... bare generic `MitigationOracle` | 27 |
-| ... ... of those BLIND | 4 |
-| ... ... of those ADEQUATE | 15 |
-| ... ... of those UNCERTAIN | 8 |
-| ADEQUATE (all oracle types) | 80 |
-| **BLIND (all oracle types)** | **6** |
-| UNCERTAIN (all oracle types) | 32 |
-| Injectors that restart pods or wait for stability | 16 |
-| Oracles whose surface is pods+deployments only | 34 |
+Source of record: `analysis/census/ledger.json`, emitted by
+`analysis/census/generate_census.py`. Set-equality against the runtime registry is
+enforced by `SREMut/tests/test_census_completeness.py` (6 tests, verified non-vacuous).
 
-### THE headline (corrected)
+| Quantity | OLD (published) | **NEW** |
+|---|---:|---:|
+| **Denominator (registry problem_ids)** | 118 | **123** |
+| Conservative secondary denominator | 99 | **104** |
+| Oracle classes with `evaluate()` | 60 | 60 |
+| ADEQUATE | 80 | **85** |
+| **BLIND** | 6 | **6** |
+| UNCERTAIN | 32 | 32 |
+| oracle_kind DEDICATED | 82 | **83** |
+| oracle_kind BARE_GENERIC | 27 | **31** |
+| oracle_kind MITIGATIONORACLE_SUBCLASS | 6 | 6 |
+| oracle_kind COMPOUND | 3 | 3 |
+| bare-generic BLIND | 4 | 4 |
+| bare-generic ADEQUATE | 15 | **19** |
+| bare-generic UNCERTAIN | 8 | 8 |
+| injectors restart pods / wait | 16 | 16 |
+| oracles pods+deployments only | 34 | **38** |
+| structural-shape rows | 8 | 8 |
+| BLIND % of denominator | 5.0847 % | **4.878 %** |
+| structural-shape % of denominator | 6.7797 % | **6.5041 %** |
+| `registry.txt` entries absent from registry | 9 | **4** |
 
-**6 BLIND of 118 = 5.1 %** (6/99 = 6.1 % on the conservative denominator). **3 of the 6
-are the `missing_service` family**, the one confirmed end-to-end. The other 3
-(`pvc_claim_mismatch`, `assign_to_non_existent_node`, `workload_imbalance`) are
-structural predictions, not results.
+**The BLIND set is unchanged** — all six are the same problem_ids. All five newly added
+rows classified ADEQUATE, so the count of blind problems did not move; the denominator
+did, which lowers the percentage.
 
-Bare-generic pool as an interval: **4 BLIND / 15 ADEQUATE / 8 UNCERTAIN**, so the honest
-range is **6-14 blind problem_ids** (6 if every UNCERTAIN resolves ADEQUATE, 14 if every
-one resolves BLIND).
+Bare-generic honest range, unchanged at **6-14** (6 if every UNCERTAIN resolves ADEQUATE,
+14 if every one resolves BLIND).
 
-**CORRECTION (recorded).** An earlier draft reported "8 problem_ids share the structure
-confirmed end-to-end". That was wrong. Sharing the *injector* half is not sufficient; the
-confirmed structure needs **both** the injector restoring the observed surface **and** the
-perturbed kind being invisible to the oracle. Only the 3 `missing_service_*` satisfy both.
-The 8-row table is retained in `CENSUS.md` as **"structural shape only — NOT a blindness
-count"**, with per-row verdicts: **3 BLIND, 5 ADEQUATE**. The 5 ADEQUATE ones perturb
-Deployment / container_cmd_env / Node, all observable through a deployments+pods surface;
-they were re-verified row by row and no classification in `coverage.csv` was changed.
+### Denominator correction and its cause
 
-### The 6 BLIND problem_ids
+The prior denominator of 118 was wrong. The census parsed registry keys with
+`r'"([a-z0-9_]+)":'`, whose character class excludes `-`; the five hyphenated IDs at
+`registry.py:136-139,164` never matched. All five are ordinary literal dict keys — AST
+confirms one dict literal, 123 keys, no programmatic addition, no duplicates. Full
+analysis in `analysis/census/METHOD_AUDIT.md`.
 
-| problem_id | oracle | what it would need to observe |
-|---|---|---|
-| `missing_service_social_network` | `MitigationOracle` | a Service read, an EndpointSlice/Endpoints read, DNS of the Service FQDN, or any request routed through it |
-| `missing_service_hotel_reservation` | `MitigationOracle` | same |
-| `missing_service_astronomy_shop` | `MitigationOracle` | same |
-| `pvc_claim_mismatch` | `MitigationOracle` | a PersistentVolumeClaim read (bind status / claimRef) |
-| `assign_to_non_existent_node` | `AssignNonExistentNodeMitigationOracle` | Deployment `nodeSelector`/`nodeName`, or Node existence |
-| `workload_imbalance` | `ImbalanceMitigationOracle` | the mutated container command/env, not derived pod CPU |
+**A second, distinct error: a confabulation.** The prior CENSUS.md asserted that
+`k8s_target_port-misconfig` was *"not even a valid registry key form"*. That is false — a
+Python dict key may contain a hyphen, and the ID is a literal key at `registry.py:164`.
+Having observed a discrepancy caused by its own parser, the analysis invented a property
+of SREGym to explain it and published that invention as an observation. The parser defect
+caused an undercount; the confabulation manufactured a false finding about the artefact
+under study.
 
-### The 32 UNCERTAIN
+### The five newly classified problem_ids
 
-Perturbed kind not determinable from the problem class — injection delegated to Khaos,
-`inject_tt.py`, or a kernel/hardware injector. **UNCERTAIN, not PENDING.**
+| problem_id | oracle (file:line) | injector | verdict |
+|---|---|---|---|
+| `k8s_target_port-misconfig` | `TargetPortMisconfigMitigationOracle` (`target_port.py:30`) | `inject_misconfig_k8s` patches Service `spec.ports[].targetPort` 9090->9999 (`inject_virtual.py:38-48`) | **ADEQUATE** — reads the exact mutated field (`target_port_mitigation.py:17-19`) |
+| `revoke_auth_mongodb-1` | `MitigationOracle` (`revoke_auth.py:37`) | revokes the MongoDB admin role in-container, deletes the dependent pod (`inject_app.py:31-57`) | **ADEQUATE (incidental)** |
+| `revoke_auth_mongodb-2` | `MitigationOracle` (`revoke_auth.py:37`) | same, `mongodb-rate` | **ADEQUATE (incidental)** |
+| `storage_user_unregistered-1` | `MitigationOracle` (`storage_user_unregistered.py:37`) | drops the MongoDB admin user, deletes the dependent pod (`inject_app.py:85-105`) | **ADEQUATE (incidental)** |
+| `storage_user_unregistered-2` | `MitigationOracle` (`storage_user_unregistered.py:37`) | same, `mongodb-rate` | **ADEQUATE (incidental)** |
+
+"Incidental" is load-bearing: the oracle never observes the perturbed thing (in-container
+database state). It detects these faults only because the dependent service calls
+`initializeDatabase`, which dials as `admin:admin` and `log.Panic()`s on failure
+(`cmd/rate/db.go:38-41`, `cmd/geo/db.go:28-30`, called from `main.go` before serving), so
+the pod CrashLoopBackOffs persistently and the pod sweep at `mitigation.py:96,102-104`
+catches it. Had the services degraded per-request instead of crashing, these four would be
+BLIND.
+
+**Note on `k8s_target_port-misconfig` and MS-M03.** SREMut's frozen mutant registry
+defines MS-M03 as a targetPort misconfiguration. The shipped SREGym problem for that fault
+is verified by a dedicated oracle that reads the mutated field, and is **ADEQUATE**. This
+was classified on source evidence before the MS-M03 relationship was considered.
 
 ### Two call-graph method corrections
 

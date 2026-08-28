@@ -10,47 +10,62 @@ Companion files: `oracle-surfaces.csv` (Phase 1), `problem-oracle.csv` (Phase 2)
 
 ## Denominator
 
-**This census uses 118.** That is the number of unique `problem_id` keys in
-`PROBLEM_REGISTRY` (`sregym/conductor/problems/registry.py:124-356`) — the set that
-`get_problem_instance()` (`registry.py:361-369`) can actually instantiate at this
-commit.
+**This census uses 123.** That is the number of unique `problem_id` keys in
+`PROBLEM_REGISTRY` (`registry.py:124-356`), obtained from the **runtime registry**
+(`ProblemRegistry().PROBLEM_REGISTRY`), not from a pattern match over source.
 
-The SREGym paper (May 2026) reports **90** problems, and `README.md:22` at this commit
-repeats that figure. The pinned commit is from **August 2026** and registers 118.
-Registry growth between publication and this commit is the plain explanation, and the
-census treats it as such. It is not presented as a defect.
+> **CORRECTION — the denominator was previously wrong (118).** The prior census parsed
+> registry keys with `r'"([a-z0-9_]+)":'`, a character class that excludes `-`. The five
+> hyphenated IDs — `k8s_target_port-misconfig`, `revoke_auth_mongodb-1`,
+> `revoke_auth_mongodb-2`, `storage_user_unregistered-1`, `storage_user_unregistered-2`
+> (`registry.py:136-139,164`) — never matched and were silently dropped. All five are
+> ordinary literal dict keys; nothing is added programmatically. AST and runtime both
+> return 123, and `generate_census.py` now fails loudly if the census and the registry
+> are not set-equal (`tests/test_census_completeness.py`).
 
-**Secondary, conservative denominator: 99.** That is the intersection of
-`PROBLEM_REGISTRY` (118) with the documented table in `Problem List.md` (116 data
-rows). Headline figures are stated against both so a reader can take the stricter one.
-
-> Footnote — registry/docs drift. The three in-repo lists disagree with each other:
-> `PROBLEM_REGISTRY` has 118 ids, `Problem List.md` has 116 rows, and their overlap is
-> 99. Seventeen ids appear only in the documentation table (e.g. `dram_module_failure`,
-> `nic_packet_corruption`, `k8s_target_port-misconfig` — the last not even a valid
-> registry key form), and nineteen appear only in the registry (e.g.
-> `expired_tls_hotel_reservation`, `file_descriptor_exhaustion`). Ordinary drift in a
-> fast-moving benchmark; recorded once here and not revisited.
+**Secondary, conservative denominator: 104** — the intersection of the registry (123)
+with `Problem List.md` (116 data rows). The previously published value, 99, was computed
+against the under-parsed 118 and is superseded.
 
 ### Which subset were the paper's mitigation rates computed over?
 
-**Not determinable from the repository.** No task list, config, or evaluation script
-at this commit identifies the evaluated subset. Three candidate lists exist and none is
-labelled as the paper's:
+**The evaluated set is selected by `tasklist.yml`.** `get_problem_ids()` reads
+`sregym/conductor/tasklist.yml` and returns `list(tasklist["all"]["problems"])`
+(`registry.py:388-390`); only when that file is absent does it fall back to the whole
+registry (`registry.py:384-386`). **That file is absent from the repository at this
+commit** — only `tasklist.yml.example` (87 keys) ships. The selector for the paper's
+evaluated subset is therefore a file that was not published, and **the full registry is
+the only reproducible denominator.**
 
-- `tests/e2e-testing-scripts/registry.txt` — 91 entries, consumed by
-  `tests/e2e-testing-scripts/evaluation.py:163` and `automating_tests.py:163`. Closest
-  in size to 90, but 9 of its entries are absent from `PROBLEM_REGISTRY` (including
-  `k8s_target_port-misconfig`, `revoke_auth_mongodb-1`, `storage_user_unregistered-2`),
-  so it is a stale or independent test list, not an evaluable set.
-- `docs/SREGym-Lite.md` — a curated 21-problem starter set (`SREGym-Lite.md:3`).
-- `sregym/conductor/tasklist.yml.example` — 87 problem keys, and it is an *example*
-  file; the effective `tasklist.yml` does not exist at this commit, so the conductor
-  defaults to `["diagnosis", "mitigation"]` (`conductor.py:132-137`).
+Two other lists exist and neither is the evaluated set:
+`tests/e2e-testing-scripts/registry.txt` (91 entries, consumed by `evaluation.py:163`
+and `automating_tests.py:163`) and `docs/SREGym-Lite.md` (a curated 21-problem starter
+set, `SREGym-Lite.md:3`).
 
-Stated and set aside.
+> **Footnote — registry/docs drift.** `PROBLEM_REGISTRY` has 123 IDs, `Problem List.md`
+> has 116 rows, and their overlap is 104: 12 IDs appear only in the documentation table
+> and 19 only in the registry. Of `registry.txt`'s 91 entries, **4** are genuinely absent
+> from the registry (`astronomy_shop_recommendation_service_cache_failure`,
+> `kafka_queue_problems_hotel_reservation`, `read_error`,
+> `social_net_hotel_res_astro_shop_concurrent_failures`). Ordinary drift; recorded once.
 
----
+> **CORRECTION — a fabricated claim, distinct from the parser defect.** The prior
+> version of this footnote stated that `k8s_target_port-misconfig` appears only in the
+> documentation and was *"not even a valid registry key form"*. **That claim is false.**
+> A Python dict key may contain a hyphen; `k8s_target_port-misconfig` is a literal key at
+> `registry.py:164` and is present in the runtime registry. The prior version also
+> asserted that `k8s_target_port-misconfig`, `revoke_auth_mongodb-1` and
+> `storage_user_unregistered-2` were in `registry.txt` but absent from
+> `PROBLEM_REGISTRY`; all three are present.
+>
+> These are **two separate errors**. The first was a parser defect: an over-narrow
+> character class silently dropped five rows. The second was a **confabulation**: having
+> observed a discrepancy produced by its own parser, the analysis invented a property of
+> SREGym — an invalid key form — to explain it, and published that invention as an
+> observation about someone else's code. The parser defect caused an undercount; the
+> confabulation manufactured a false finding about the artefact under study, which is the
+> more serious of the two. The discrepancy was never investigated by checking the
+> registry directly, which would have taken one command.
 
 ## Method
 
@@ -94,9 +109,9 @@ known-answer case in the census caught this; the corrected rule reproduces it.
 
 ### THE headline: oracles blind to their own fault
 
-**6 of 118 problem_ids (5.1 %) are BLIND** — the attached oracle observes neither the
+**6 of 123 problem_ids (4.878 %) are BLIND** — the attached oracle observes neither the
 perturbed resource kind nor any functional signal the fault would break. Against the
-conservative 99-id denominator, 6/99 = 6.1 %.
+conservative 104-id denominator, 6/104 = 5.8 %.
 
 **3 of those 6 are the `missing_service` family**, and that family is the one confirmed
 end-to-end: in `experiments/g1-run-0{1,2,3}`, `g3-run-01` and `w1-delay0-0{1,2}` the stock
@@ -108,12 +123,12 @@ The other 3 BLIND ids (`pvc_claim_mismatch`, `assign_to_non_existent_node`,
 
 ### The bare-generic pool, stated as an interval
 
-Of the 27 problem_ids on the bare generic `MitigationOracle`:
+Of the 31 problem_ids on the bare generic `MitigationOracle`:
 
 | Verdict | Count |
 |---|---:|
 | BLIND | **4** |
-| ADEQUATE | **15** |
+| ADEQUATE | **19** |
 | UNCERTAIN | **8** |
 
 Because the 8 UNCERTAIN rows could not be resolved from source, the honest statement is a
@@ -154,18 +169,21 @@ re-verified row by row and found correct. This is a framing fix only.
 
 ### Other headline counts
 
+Generated from `ledger.json` by `generate_census.py`; do not edit by hand.
+
 | Quantity | Count |
 |---|---:|
-| problem_ids (denominator) | 118 |
-| attaching the bare generic `MitigationOracle` | 27 |
+| problem_ids (denominator) | **123** |
+| attaching the bare generic `MitigationOracle` | 31 |
 | ... of those, BLIND | 4 |
-| ... of those, ADEQUATE | 15 |
+| ... of those, ADEQUATE | 19 |
 | ... of those, UNCERTAIN | 8 |
-| BLIND across **all** oracle types | 6 |
-| ADEQUATE across all oracle types | 80 |
+| BLIND across **all** oracle types | **6** (4.878 %) |
+| ADEQUATE across all oracle types | 85 |
 | UNCERTAIN across all oracle types | 32 |
 | injectors that restart pods or wait for stability | 16 |
-| oracles whose surface is pods+deployments only | 34 |
+| oracles whose surface is pods+deployments only | 38 |
+| structural-shape rows | 8 (6.5041 %) |
 
 ### BLIND by oracle kind
 

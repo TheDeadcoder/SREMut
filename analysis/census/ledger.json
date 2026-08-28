@@ -1,0 +1,105 @@
+{
+  "bare": {
+    "ADEQUATE": 19,
+    "BLIND": 4,
+    "UNCERTAIN": 8,
+    "total": 31
+  },
+  "blind_by_oracle_kind": {
+    "BARE_GENERIC": 4,
+    "DEDICATED": 2
+  },
+  "blind_by_resource": {
+    "Deployment": 1,
+    "Node": 1,
+    "PVC/PV": 1,
+    "Pod": 3,
+    "Service": 3,
+    "container_cmd_env": 1
+  },
+  "blind_ids": [
+    "assign_to_non_existent_node",
+    "missing_service_astronomy_shop",
+    "missing_service_hotel_reservation",
+    "missing_service_social_network",
+    "pvc_claim_mismatch",
+    "workload_imbalance"
+  ],
+  "n": 123,
+  "oracle_kind": {
+    "BARE_GENERIC": 31,
+    "COMPOUND": 3,
+    "DEDICATED": 83,
+    "MITIGATIONORACLE_SUBCLASS": 6
+  },
+  "pct": {
+    "blind_of_n": 4.878,
+    "shape_of_n": 6.5041
+  },
+  "pods_and_deployments_only": 38,
+  "registry_count": 123,
+  "restarts_or_waits": 16,
+  "structural_shape": [
+    {
+      "perturbed_kinds": "Deployment;Pod;container_cmd_env",
+      "problem_id": "pod_cidr_exhaustion_hotel_reservation",
+      "restarts_pods": "True",
+      "verdict": "ADEQUATE",
+      "waits_stability": "True"
+    },
+    {
+      "perturbed_kinds": "Deployment;container_cmd_env",
+      "problem_id": "sidecar_port_conflict_astronomy_shop",
+      "restarts_pods": "False",
+      "verdict": "ADEQUATE",
+      "waits_stability": "True"
+    },
+    {
+      "perturbed_kinds": "Deployment;container_cmd_env",
+      "problem_id": "sidecar_port_conflict_hotel_reservation",
+      "restarts_pods": "False",
+      "verdict": "ADEQUATE",
+      "waits_stability": "True"
+    },
+    {
+      "perturbed_kinds": "Deployment;container_cmd_env",
+      "problem_id": "sidecar_port_conflict_social_network",
+      "restarts_pods": "False",
+      "verdict": "ADEQUATE",
+      "waits_stability": "True"
+    },
+    {
+      "perturbed_kinds": "Deployment;Pod;Node",
+      "problem_id": "taint_no_toleration_social_network",
+      "restarts_pods": "False",
+      "verdict": "ADEQUATE",
+      "waits_stability": "True"
+    },
+    {
+      "perturbed_kinds": "Pod;Service",
+      "problem_id": "missing_service_astronomy_shop",
+      "restarts_pods": "True",
+      "verdict": "BLIND",
+      "waits_stability": "True"
+    },
+    {
+      "perturbed_kinds": "Pod;Service",
+      "problem_id": "missing_service_hotel_reservation",
+      "restarts_pods": "True",
+      "verdict": "BLIND",
+      "waits_stability": "True"
+    },
+    {
+      "perturbed_kinds": "Pod;Service",
+      "problem_id": "missing_service_social_network",
+      "restarts_pods": "True",
+      "verdict": "BLIND",
+      "waits_stability": "True"
+    }
+  ],
+  "verdict": {
+    "ADEQUATE": 85,
+    "BLIND": 6,
+    "UNCERTAIN": 32
+  }
+}
