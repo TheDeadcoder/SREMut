@@ -637,10 +637,18 @@ def _resolved_workload(context: Any, candidate: Mapping[str, Any]) -> dict[str, 
     window = subject.get("workload_window_adjudication_identity")
     if not isinstance(window, Mapping):
         _reject("WORKLOAD_WINDOW_MISMATCH")
-    expected = context.expected_evaluation_context
+    # The window is bound to the context of the adjudication predicate it belongs
+    # to, never to whichever marker happened to be last.
+    predicate = subject.get("predicate_oracle_or_classification_id")
+    contexts = getattr(context, "evaluation_authorization_contexts", None)
+    if not isinstance(contexts, Mapping):
+        _reject("JOURNAL_EVALUATION_MARKER_MISSING")
+    if not isinstance(predicate, str) or predicate not in contexts:
+        _reject("JOURNAL_EVALUATION_MARKER_MISSING")
+    expected = contexts[predicate]
     if not isinstance(expected, Mapping):
         _reject("JOURNAL_EVALUATION_MARKER_MISSING")
-    if subject.get("predicate_oracle_or_classification_id") != expected.get("predicate_id"):
+    if predicate != expected.get("predicate_id"):
         _reject("WORKLOAD_EVALUATION_CONTEXT_MISMATCH")
     if window.get("phase") != expected.get("phase") or WORKLOAD_WINDOWS.get(window.get("phase")) != window.get("ordinal"):
         _reject("WORKLOAD_EVALUATION_CONTEXT_MISMATCH")

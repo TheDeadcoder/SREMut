@@ -149,7 +149,7 @@ class ResolvedEvidenceContext:
     terminal_global_stop_bytes: bytes | None = field(repr=False)
     terminal_global_stop: Mapping[str, Any] | None = field(repr=False)
     expected_operation_context: Mapping[str, Any] | None = field(repr=False)
-    expected_evaluation_context: Mapping[str, Any] | None = field(repr=False)
+    evaluation_authorization_contexts: Mapping[str, Mapping[str, Any]] = field(repr=False)
     _authentication_marker: object = field(repr=False, compare=False)
     _policy: AuthenticatedPolicy = field(repr=False, compare=False)
 
@@ -367,7 +367,8 @@ class ResolvedEvidenceContext:
             rebuilt.state != self.journal_state.state
             or rebuilt.sequence_number != self.journal_state.sequence_number
             or rebuilt.terminal != self.journal_state.terminal
-            or rebuilt.evaluation != self.journal_state.evaluation
+            or _thaw(rebuilt.evaluation_authorization_contexts)
+            != _thaw(self.journal_state.evaluation_authorization_contexts)
             or _thaw(rebuilt.operation) != _thaw(self.journal_state.operation)
         ):
             _reject("JOURNAL_CHAIN_INVALID")
@@ -608,42 +609,57 @@ def _publication_for(
     _reject("PUBLICATION_RECORD_MISSING")
 
 
-def _evaluation_context(policy: AuthenticatedPolicy, state: JournalState) -> Mapping[str, Any] | None:
-    if state.evaluation is None:
-        return None
+def _evaluation_authorization_contexts(
+    policy: AuthenticatedPolicy, state: JournalState
+) -> Mapping[str, Mapping[str, Any]]:
+    """Reconstruct one authorization context per predicate from journal bytes.
+
+    v1.1 retained only the LAST marker, so a terminal attempt exposed a single
+    context and could not revalidate its own earlier adjudications.  v1.2 keeps
+    every predicate's own context, with `authorization_state` replayed to that
+    marker's own sequence -- never the terminal state.
+
+    The journal is the only authority.  This re-derives the mapping here and
+    requires it to equal what `JournalState` derived; a caller-supplied or
+    schema-carried mapping that differs is rejected.
+    """
     matrix = policy.policy["full_admissibility_validation"][
         "adjudication_predicate_raw_role_context_deadline_matrix"
     ]
-    row = matrix.get(state.evaluation)
+    derived: dict[str, Any] = {}
     authorization_state = "CREATED"
-    observed_evaluation: str | None = None
     for record in state.records:
         transition = record.get("transition")
         if not isinstance(transition, str):
             continue
         if transition.startswith("EVALUATION_AUTHORIZED:"):
-            observed_evaluation = transition.split(":", 1)[1]
-            if observed_evaluation == state.evaluation:
-                break
+            predicate = transition.split(":", 1)[1]
+            row = matrix.get(predicate)
+            if not isinstance(row, Mapping):
+                _reject("JOURNAL_CONTEXT_MISMATCH")
+            if predicate in derived:
+                _reject("JOURNAL_CONTEXT_MISMATCH")
+            if authorization_state not in row["allowed_states"]:
+                _reject("JOURNAL_CONTEXT_MISMATCH")
+            derived[predicate] = {
+                "predicate_id": predicate,
+                "phase": row["phase"],
+                "deadline_identity": row["deadline_identity"],
+                "authorization_state": authorization_state,
+                "marker_sequence_number": record.get("sequence_number"),
+            }
+        elif transition.startswith("STATE_VERIFIED:"):
+            proposed = transition.split(":", 1)[1]
+            if proposed != authorization_state:
+                _reject("JOURNAL_CONTEXT_MISMATCH")
         elif "->" in transition and not transition.startswith("OPERATION_AUTHORIZED:"):
             source, target = transition.split("->", 1)
             if source != authorization_state:
                 _reject("JOURNAL_CONTEXT_MISMATCH")
             authorization_state = target
-    if (
-        not isinstance(row, Mapping)
-        or observed_evaluation != state.evaluation
-        or authorization_state not in row["allowed_states"]
-    ):
+    if _thaw(state.evaluation_authorization_contexts) != derived:
         _reject("JOURNAL_CONTEXT_MISMATCH")
-    return _freeze(
-        {
-            "predicate_id": state.evaluation,
-            "phase": row["phase"],
-            "deadline_identity": row["deadline_identity"],
-            "authorization_state": authorization_state,
-        }
-    )
+    return _freeze(derived)
 
 
 def _reference_from_descriptor(
@@ -793,7 +809,7 @@ def resolve_evidence_context(
             journal_state.state,
             journal_state.sequence_number,
             journal_state.terminal,
-            journal_state.evaluation,
+            _freeze(_thaw(journal_state.evaluation_authorization_contexts)),
             _freeze(_thaw(journal_state.operation)) if journal_state.operation is not None else None,
         )
 
@@ -913,7 +929,9 @@ def resolve_evidence_context(
             "terminal_global_stop_bytes": None if stop_bytes is None else bytes(stop_bytes),
             "terminal_global_stop": stop,
             "expected_operation_context": frozen_state.operation,
-            "expected_evaluation_context": _evaluation_context(policy, frozen_state),
+            "evaluation_authorization_contexts": _evaluation_authorization_contexts(
+                policy, frozen_state
+            ),
             "_authentication_marker": _RESOLVER_TOKEN,
             "_policy": policy,
         }

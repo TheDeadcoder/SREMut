@@ -20,6 +20,7 @@ from sremut.service_restoration import (
     _validate_receipt,
     _validate_document,
     derive_service_restoration_body,
+    derive_service_restoration_body_preseal,
     validate_resolved_service_restoration,
 )
 
@@ -356,3 +357,187 @@ class ServiceRestorationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PreSealDerivationTests(unittest.TestCase):
+    """The pre-seal counterpart of `derive_service_restoration_body`.
+
+    The sealed derivation needs a `ResolvedEvidenceContext`, which cannot exist
+    until the terminal manifest is written -- but the live lifecycle needs the
+    restoration body BEFORE the Service is deleted.  These tests pin that the
+    pre-seal API takes its authority from bytes the store already retained, and
+    never from a caller-supplied Service mapping.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.policy = load_policy()
+
+    def setUp(self):
+        import tempfile
+
+        import tests.test_kubernetes_mutation as mutation_tests
+
+        from sremut.evidence import EvidenceStore
+        from sremut.kubernetes_readonly import KubernetesConsumer, ReadOnlyKubernetesClient
+
+        self.mutation_tests = mutation_tests
+        self.EvidenceStore = EvidenceStore
+        self.temporary = tempfile.TemporaryDirectory(prefix="sremut-preseal-test-")
+        self.root = Path(self.temporary.name) / "attempt"
+        self.root.mkdir(mode=0o700)
+        self.run_id = mutation_tests.RUN_ID
+        self.attempt_id = mutation_tests.ATTEMPT_ID
+        client = ReadOnlyKubernetesClient(
+            policy=self.policy,
+            transport=mutation_tests.FakeReadTransport(),
+            context="kind-kind",
+            namespace="social-network",
+            timeout_seconds=7,
+            run_id=self.run_id,
+            attempt_id=self.attempt_id,
+        )
+        capture = client.get_user_service(consumer=KubernetesConsumer.MUTATION_CONTROLLER)
+        common = {
+            "run_id": self.run_id,
+            "attempt_id": self.attempt_id,
+            "created_utc": mutation_tests.UTC,
+            "monotonic_ns": 1,
+            "boot_identity": mutation_tests.BOOT,
+        }
+        self.store = EvidenceStore(self.root, self.policy, self.run_id, self.attempt_id)
+        self.request = self.store.publish_descriptor(
+            capture.request_evidence.role,
+            capture.request_evidence.publication_metadata(**common),
+        )
+        request_bytes = self.store.resolve(self.request)[1]
+        metadata = dict(
+            capture.response_evidence.publication_metadata(
+                **{**common, "monotonic_ns": 2},
+                request_identity_reference=self.request,
+                request_identity_descriptor_bytes=request_bytes,
+            )
+        )
+        metadata.update(
+            {
+                "projection_class": SERVICE_RESTORATION_SOURCE,
+                "projection_schema_id": SERVICE_RESTORATION_SOURCE,
+                "capture_state": "HEALTHY_STATE_CAPTURED",
+            }
+        )
+        self.source = self.store.publish_payload(
+            capture.response_evidence.role,
+            capture.response_evidence.payload_bytes,
+            metadata,
+        )
+
+    def tearDown(self):
+        self.store.close()
+        self.temporary.cleanup()
+
+    def assert_code(self, code, *args):
+        with self.assertRaises(Exception) as caught:
+            derive_service_restoration_body_preseal(*args)
+        self.assertEqual(str(caught.exception), code)
+        return caught.exception
+
+    def test_derives_a_valid_body_from_retained_bytes(self):
+        body = derive_service_restoration_body_preseal(
+            self.store, self.source, self.request, CREATED
+        )
+        self.assertEqual(body["document_type"], SERVICE_RESTORATION_BODY)
+        self.assertEqual(body["projection_class"], SERVICE_RESTORATION_BODY)
+        self.assertEqual(body["canonical_json_identity"], body["normalized_body_sha256"])
+        self.assertEqual(
+            sorted(body["normalized_service_create_body"]),
+            ["apiVersion", "kind", "metadata", "spec"],
+        )
+        self.assertTrue(body["exact_stripped_field_token_paths"])
+
+    def test_matches_the_private_derivation_byte_for_byte(self):
+        from sremut.canonical_json import parse_canonical_json
+
+        payload = self.store.resolve(self.source)[2]
+        expected = _derive_document(
+            self.policy,
+            parse_canonical_json(payload),
+            self.request.as_dict(),
+            CREATED,
+            self.source.as_dict(),
+        )
+        actual = derive_service_restoration_body_preseal(
+            self.store, self.source, self.request, CREATED
+        )
+        from sremut.service_restoration import _thaw
+
+        self.assertEqual(
+            canonical_json_bytes(_thaw(actual)), canonical_json_bytes(_thaw(expected))
+        )
+
+    def test_caller_supplied_service_mapping_is_never_authority(self):
+        self.assert_code(
+            "RESTORATION_SOURCE_UNRESOLVED",
+            self.mutation_tests.service(), self.source, self.request, CREATED,
+        )
+        self.assert_code("RESTORATION_SOURCE_UNRESOLVED", None, self.source, self.request, CREATED)
+        self.assert_code("RESTORATION_SOURCE_UNRESOLVED", {}, self.source, self.request, CREATED)
+
+    def test_wrong_role_and_projection_class_reject(self):
+        self.assert_code(
+            "RESTORATION_SOURCE_CLASS_INVALID",
+            self.store, self.request, self.request, CREATED,
+        )
+        self.assert_code(
+            "RESTORATION_SOURCE_REFERENCE_MISSING",
+            self.store, self.source, self.source, CREATED,
+        )
+
+    def test_wrong_run_and_attempt_reject(self):
+        for run_id, attempt_id in (
+            ("sremut-ms-m01-r02-a01-abcdef123456", "a01"),
+            (self.run_id, "a02"),
+        ):
+            other = Path(self.temporary.name) / f"other-{run_id[-6:]}-{attempt_id}"
+            other.mkdir(mode=0o700)
+            with self.EvidenceStore(other, self.policy, run_id, attempt_id) as store:
+                self.assert_code(
+                    "RESTORATION_SOURCE_UNRESOLVED",
+                    store, self.source, self.request, CREATED,
+                )
+
+    def test_unresolved_reference_rejects(self):
+        missing = dict(self.source.as_dict())
+        missing["descriptor_relative_path"] = "descriptors/sha256/ff/" + "f" * 64 + ".json"
+        self.assert_code(
+            "RESTORATION_SOURCE_UNRESOLVED", self.store, missing, self.request, CREATED
+        )
+
+    def test_tampered_projection_hash_rejects(self):
+        forged = dict(self.source.as_dict())
+        forged["payload_sha256"] = "0" * 64
+        self.assert_code(
+            "RESTORATION_SOURCE_UNRESOLVED", self.store, forged, self.request, CREATED
+        )
+
+    def test_foreign_policy_rejects(self):
+        """A store bound to a different authenticated policy is not authority."""
+        from sremut.policy_runtime import (
+            POLICY_V1_2_MANIFEST_SHA256,
+            load_v1_2_policy_bundle,
+        )
+
+        other_policy = load_v1_2_policy_bundle(
+            ROOT / "policies/missing_service_social_network/evidence-capture-v1.2.yaml",
+            ROOT / "schemas/evidence-capture-policy-v1.2.schema.json",
+            ROOT / "EVIDENCE_CAPTURE_POLICY_V1_2_SHA256SUMS",
+            expected_manifest_sha256=POLICY_V1_2_MANIFEST_SHA256,
+        )
+        other_root = Path(self.temporary.name) / "foreign-policy"
+        other_root.mkdir(mode=0o700)
+        with self.EvidenceStore(
+            other_root, other_policy, self.run_id, self.attempt_id
+        ) as store:
+            self.assert_code(
+                "RESTORATION_SOURCE_UNRESOLVED",
+                store, self.source, self.request, CREATED,
+            )

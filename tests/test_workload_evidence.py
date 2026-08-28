@@ -508,10 +508,18 @@ class WorkloadResolvedHookTests(unittest.TestCase):
         self.assertEqual(result.failure_code, "WORKLOAD_PARSE_RECOMPUTATION_MISMATCH")
 
     def test_adjudication_predicate_is_bound_to_verified_evaluation_context(self):
+        """A predicate with no authorization marker in this journal has no context.
+
+        Under v1.1 a single last-marker context was compared against every
+        candidate, so this produced WORKLOAD_EVALUATION_CONTEXT_MISMATCH.  v1.2
+        selects the context by the candidate's own predicate, so a predicate that
+        was never authorized in this attempt is diagnosed precisely as a missing
+        context.  Both fail closed; the v1.2 code is the more exact one.
+        """
         context, candidate = self.build_context(predicate="REPLACEMENT_PERSISTENCE_EVALUATION")
         result = self.policy.full_admissibility(candidate, context)
         self.assertEqual(result.hook_id, "VALIDATE_WORKLOAD_CARDINALITY_V1")
-        self.assertEqual(result.failure_code, "WORKLOAD_EVALUATION_CONTEXT_MISMATCH")
+        self.assertEqual(result.failure_code, "JOURNAL_EVALUATION_MARKER_MISSING")
 
     def test_adjudication_raw_reference_set_covers_resolved_workload(self):
         context, candidate = self.build_context(omit_raw_reference=True)

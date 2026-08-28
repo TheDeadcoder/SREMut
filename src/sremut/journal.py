@@ -348,11 +348,21 @@ class SafeRoot:
 
 @dataclass(frozen=True, slots=True)
 class JournalState:
+    """Authority derived from exact journal bytes.
+
+    `evaluation_authorization_contexts` is ONE immutable mapping keyed by the
+    frozen predicate ids.  It replaces the former single `evaluation` value,
+    which retained only the LAST marker and therefore made a terminal attempt
+    unable to revalidate its own earlier adjudications.  No scalar last-marker
+    field is retained: every predicate keeps its own authorization state, taken
+    at that marker's own sequence rather than from the terminal state.
+    """
+
     records: tuple[Mapping[str, Any], ...]
     state: str
     sequence_number: int
     terminal: bool
-    evaluation: str | None
+    evaluation_authorization_contexts: Mapping[str, Mapping[str, Any]]
     operation: Mapping[str, Any] | None
 
 
@@ -389,7 +399,9 @@ class Journal:
         self._legal = frozenset(state_machine["legal_transitions"])
         self._terminal = frozenset(state_machine["terminal_states"])
         full = policy.policy["full_admissibility_validation"]
-        self._evaluations = frozenset(full["adjudication_predicate_raw_role_context_deadline_matrix"])
+        matrix = full["adjudication_predicate_raw_role_context_deadline_matrix"]
+        self._evaluations = frozenset(matrix)
+        self._evaluation_rows = matrix
 
     def close(self) -> None:
         if self._owns_fs:
@@ -431,9 +443,9 @@ class Journal:
         journal._legal = frozenset(state_machine["legal_transitions"])
         journal._terminal = frozenset(state_machine["terminal_states"])
         full = policy.policy["full_admissibility_validation"]
-        journal._evaluations = frozenset(
-            full["adjudication_predicate_raw_role_context_deadline_matrix"]
-        )
+        matrix = full["adjudication_predicate_raw_role_context_deadline_matrix"]
+        journal._evaluations = frozenset(matrix)
+        journal._evaluation_rows = matrix
         return journal.reconstruct_bytes(data)
 
     def reconstruct_bytes(self, data: bytes) -> JournalState:
@@ -446,7 +458,7 @@ class Journal:
         records: list[Mapping[str, Any]] = []
         previous = GENESIS_SHA256
         state = "CREATED"
-        evaluation: str | None = None
+        evaluations: dict[str, Mapping[str, Any]] = {}
         operation: Mapping[str, Any] | None = None
         terminal_seen = False
         for sequence, line in enumerate(data.splitlines(keepends=True)):
@@ -482,9 +494,25 @@ class Journal:
                     state = target
                 elif transition.startswith("EVALUATION_AUTHORIZED:"):
                     candidate = transition.split(":", 1)[1]
-                    if candidate not in self._evaluations:
+                    row = self._evaluation_rows.get(candidate)
+                    if row is None:
+                        # unknown predicate
                         _reject("JOURNAL_STATE_DERIVATION_FAILED")
-                    evaluation = candidate
+                    if candidate in evaluations:
+                        # a predicate may be authorized at most once
+                        _reject("JOURNAL_STATE_DERIVATION_FAILED")
+                    if state not in row["allowed_states"]:
+                        # the marker's own state must be one this predicate allows
+                        _reject("JOURNAL_STATE_DERIVATION_FAILED")
+                    evaluations[candidate] = MappingProxyType(
+                        {
+                            "predicate_id": candidate,
+                            "phase": row["phase"],
+                            "deadline_identity": row["deadline_identity"],
+                            "authorization_state": state,
+                            "marker_sequence_number": sequence,
+                        }
+                    )
                 elif transition.startswith("OPERATION_AUTHORIZED:"):
                     encoded = transition.split(":", 1)[1]
                     try:
@@ -500,7 +528,14 @@ class Journal:
             previous = current
             terminal_seen = state in self._terminal
             records.append(MappingProxyType(record))
-        return JournalState(tuple(records), state, len(records) - 1, terminal_seen, evaluation, MappingProxyType(operation) if operation is not None else None)
+        return JournalState(
+            tuple(records),
+            state,
+            len(records) - 1,
+            terminal_seen,
+            MappingProxyType(dict(evaluations)),
+            MappingProxyType(operation) if operation is not None else None,
+        )
 
     def _validate_record_shape(self, record: dict[str, Any]) -> None:
         common = {

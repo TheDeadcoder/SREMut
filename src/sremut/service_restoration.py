@@ -183,6 +183,74 @@ def _derive_document(
     }
 
 
+def derive_service_restoration_body_preseal(
+    store: Any,
+    source_service_reference: Any,
+    source_request_reference: Any,
+    capture_timestamp: str,
+) -> Mapping[str, Any]:
+    """Derive the restoration body BEFORE the attempt is sealed.
+
+    `derive_service_restoration_body` authenticates a SEALED attempt through a
+    `ResolvedEvidenceContext`, which cannot exist until the terminal manifest is
+    written.  The live MS-M01 lifecycle needs the body *before* the Service is
+    deleted, so this is the pre-seal counterpart: it takes an authenticated
+    pre-seal `EvidenceStore` and derives the body only from bytes that store has
+    already retained.
+
+    The caller supplies REFERENCES, never material.  A raw Service mapping is
+    not accepted and cannot be smuggled in: the projection payload is read back
+    from the store and byte-authenticated by `EvidenceStore.resolve`, which
+    re-checks descriptor identity, payload hash and size, and the run/attempt
+    binding.  Stripping, `service_create_body` schema validation, sensitive
+    screening and the canonical hash rules are the same `_derive_document` the
+    sealed path uses; that function stays private.
+    """
+    from sremut.evidence import EvidenceStore
+
+    if not isinstance(store, EvidenceStore):
+        _reject("RESTORATION_SOURCE_UNRESOLVED")
+    policy = store.policy
+    try:
+        source_resolved = store.resolve(source_service_reference)
+        request_resolved = store.resolve(source_request_reference)
+    except Exception:
+        _reject("RESTORATION_SOURCE_UNRESOLVED")
+    if source_resolved is None or request_resolved is None:
+        _reject("RESTORATION_SOURCE_UNRESOLVED")
+    source_ref, _source_descriptor, source_payload = source_resolved
+    request_ref, _request_descriptor, _request_payload = request_resolved
+    if (
+        source_ref.role != "kubernetes_object_projection"
+        or source_ref.projection_class != SERVICE_RESTORATION_SOURCE
+    ):
+        _reject("RESTORATION_SOURCE_CLASS_INVALID")
+    if request_ref.role != "kubernetes_request_identity":
+        _reject("RESTORATION_SOURCE_REFERENCE_MISSING")
+    if source_payload is None:
+        _reject("PAYLOAD_BYTES_MISSING")
+    # The run/attempt binding is already enforced inside `EvidenceStore.resolve`,
+    # which passes expected_run_id/expected_attempt_id to `validate_evidence_ref`
+    # and rejects a foreign reference with RUN_ATTEMPT_MISMATCH before returning.
+    if hashlib.sha256(source_payload).hexdigest() != source_ref.payload_sha256:
+        _reject("RESTORATION_BODY_HASH_MISMATCH")
+    try:
+        source = parse_canonical_json(source_payload)
+    except Exception:
+        _reject("RESTORATION_SOURCE_UNRESOLVED")
+    if not isinstance(source, dict):
+        _reject("RESTORATION_SOURCE_UNRESOLVED")
+    return _freeze(
+        _derive_document(
+            policy,
+            source,
+            request_ref.as_dict(),
+            capture_timestamp,
+            source_ref.as_dict(),
+        )
+    )
+
+
 def derive_service_restoration_body(
     context: Any,
     source_service_reference: Any,

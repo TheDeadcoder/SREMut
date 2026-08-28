@@ -378,9 +378,36 @@ class EvidenceStore:
         _descriptor, descriptor_bytes, reference = self._descriptor(role, metadata, payload)
         with self.fs.lock():
             self._ensure_unsealed()
-            self.fs.write_atomic(reference.payload_relative_path or "", payload)
+            self._write_content_addressed_object(
+                reference.payload_relative_path or "", payload
+            )
             self.fs.write_atomic(reference.descriptor_relative_path, descriptor_bytes)
         return reference
+
+    def _write_content_addressed_object(self, relative: str, payload: bytes) -> None:
+        """Write, or reuse, one SHA-256-addressed payload object.
+
+        Payload objects are content addressed, so two evidence documents that
+        capture byte-identical material legitimately share one object -- two
+        successful challenge runs both produce empty stderr, and the frozen
+        MS-M01 lifecycle mandates two challenge windows.  Refusing the second
+        write made that attempt impossible.
+
+        Reuse is deliberately narrow.  It applies only to the content-addressed
+        payload path, only inside the caller's already-held root lock, and only
+        after re-reading the stored bytes and finding them byte-identical.  An
+        existing object whose bytes differ is an integrity failure, never a
+        silent overwrite and never a silent reuse.  Descriptors keep their
+        ordinary write-once behaviour: each metadata-specific descriptor is
+        still published normally, and a duplicate descriptor still rejects.
+        """
+        if not _safe_relative(relative, "objects/sha256/"):
+            _reject("EVIDENCE_REFERENCE_INVALID")
+        if not self.fs.exists(relative):
+            self.fs.write_atomic(relative, payload)
+            return
+        if self.fs.read_bytes(relative) != payload:
+            _reject("PAYLOAD_HASH_MISMATCH")
 
     def publish_descriptor(self, role: str, metadata: Mapping[str, Any]) -> EvidenceRef:
         self._ensure_unsealed()

@@ -886,6 +886,110 @@ class JournalTests(TemporaryRootCase):
             self.assertEqual(self.journal_path().read_bytes(), before)
 
 
+class ContentAddressedObjectReuseTests(TemporaryRootCase):
+    """Payload objects are content addressed, so identical bytes share one object.
+
+    The frozen MS-M01 lifecycle mandates two challenge windows, and two
+    successful challenge runs both produce empty stderr.  Refusing the second
+    write made a complete attempt impossible; silently overwriting or reusing a
+    DIFFERENT object would be an integrity hole.  Both directions are pinned.
+    """
+
+    def invocation(self, store, monotonic):
+        return store.publish_descriptor(
+            "challenge_invocation",
+            common_metadata(
+                monotonic_ns=monotonic,
+                template_id="CHALLENGE_TCP_V1",
+                parameters={
+                    "host": "user-service.social-network.svc.cluster.local",
+                    "port": 9090,
+                },
+                pod_name="sremut-challenge-fixed",
+                pod_uid="11111111-1111-4111-8111-111111111111",
+            ),
+        )
+
+    def stderr(self, store, invocation, monotonic, payload=b""):
+        return store.publish_payload(
+            "challenge_stderr",
+            payload,
+            common_metadata(
+                monotonic_ns=monotonic,
+                channel="STDERR",
+                invocation_reference=invocation.as_dict(),
+            ),
+        )
+
+    def test_two_empty_challenge_stderr_payloads_share_one_object(self):
+        with EvidenceStore(self.root, self.policy, RUN_ID, ATTEMPT_ID) as store:
+            first = self.stderr(store, self.invocation(store, 1), 2)
+            second = self.stderr(store, self.invocation(store, 3), 4)
+        self.assertEqual(first.payload_relative_path, second.payload_relative_path)
+        self.assertEqual(first.payload_sha256, second.payload_sha256)
+        self.assertNotEqual(first.descriptor_sha256, second.descriptor_sha256)
+        self.assertNotEqual(first.descriptor_relative_path, second.descriptor_relative_path)
+        self.assertNotEqual(first.evidence_id, second.evidence_id)
+
+    def test_both_descriptors_resolve_to_the_shared_object(self):
+        with EvidenceStore(self.root, self.policy, RUN_ID, ATTEMPT_ID) as store:
+            first = self.stderr(store, self.invocation(store, 1), 2)
+            second = self.stderr(store, self.invocation(store, 3), 4)
+            for reference in (first, second):
+                resolved = store.resolve(reference)
+                self.assertIsNotNone(resolved)
+                self.assertEqual(resolved[2], b"")
+
+    def test_identical_object_is_reused_not_rewritten(self):
+        with EvidenceStore(self.root, self.policy, RUN_ID, ATTEMPT_ID) as store:
+            first = self.publish_nonempty(store, 1)
+            relative = first.payload_relative_path
+            before = store.fs.read_bytes(relative)
+            second = self.publish_nonempty(store, 3)
+            self.assertEqual(second.payload_relative_path, relative)
+            self.assertEqual(store.fs.read_bytes(relative), before)
+
+    def publish_nonempty(self, store, monotonic):
+        return store.publish_payload(
+            "original_oracle_input",
+            b'{"ok":true}',
+            common_metadata(monotonic_ns=monotonic, invocation_ordinal=1),
+        )
+
+    def test_preexisting_object_with_different_bytes_rejects(self):
+        with EvidenceStore(self.root, self.policy, RUN_ID, ATTEMPT_ID) as store:
+            reference = self.publish_nonempty(store, 1)
+            relative = reference.payload_relative_path
+            self.assert_code(
+                "PAYLOAD_HASH_MISMATCH",
+                store._write_content_addressed_object,
+                relative,
+                b"tampered-bytes",
+            )
+            self.assertEqual(store.fs.read_bytes(relative), b'{"ok":true}')
+
+    def test_reuse_is_confined_to_content_addressed_object_paths(self):
+        with EvidenceStore(self.root, self.policy, RUN_ID, ATTEMPT_ID) as store:
+            for relative in (
+                "descriptors/sha256/aa/" + "a" * 64 + ".json",
+                "journal/attempt.jsonl",
+                "manifests/terminal.sha256",
+            ):
+                self.assert_code(
+                    "EVIDENCE_REFERENCE_INVALID",
+                    store._write_content_addressed_object,
+                    relative,
+                    b"x",
+                )
+
+    def test_duplicate_descriptor_publication_still_rejects(self):
+        with EvidenceStore(self.root, self.policy, RUN_ID, ATTEMPT_ID) as store:
+            self.invocation(store, 1)
+            self.assert_code(
+                "EVIDENCE_ALREADY_EXISTS", self.invocation, store, 1
+            )
+
+
 class EvidenceTests(TemporaryRootCase):
     def publish_input(self, store, payload=b'{"ok":true}'):
         return store.publish_payload(

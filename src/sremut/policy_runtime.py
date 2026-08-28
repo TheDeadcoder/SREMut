@@ -36,6 +36,30 @@ EXPECTED_MANIFEST_PATHS = (
     POLICY_RELATIVE_PATH,
     SCHEMA_RELATIVE_PATH,
 )
+
+# --- prospective v1.2 binding ------------------------------------------------
+# Pinned to the exact bytes committed for evidence-policy v1.2.  These are ADDED
+# beside the v1.1 pins, never in place of them: the historical v1 and v1.1
+# artifact bytes stay authoritative for everything already built against them,
+# and the v1.2 generator is pinned only by hash -- it is never imported as
+# mutable production policy logic.  The twelve-hook order and the frozen role,
+# hook, matrix, state and sensitive sections are byte-identical across v1.1 and
+# v1.2, so both bindings share exactly the same section pins below.
+POLICY_V1_2_MANIFEST_SHA256 = "c6e5228d0edb5d2f2bd8e95e62b7d72410e768b8a3dfa99c323971571b7b8e50"
+POLICY_V1_2_POLICY_SHA256 = "bdf30f2f0ad54ad63aa618315e51408323b4b5fa7b80bdf475b39068081c265e"
+POLICY_V1_2_SCHEMA_SHA256 = "b4155992d3d3317c2852593e4d9aad335d3158db37fa61ce5e0b92269ae0af26"
+POLICY_V1_2_GENERATOR_SHA256 = "80cfe996abf8375f4b04ef6a5f6db0beb5142a32e37f8d2e80aa75545b214878"
+POLICY_V1_2_RELATIVE_PATH = "policies/missing_service_social_network/evidence-capture-v1.2.yaml"
+SCHEMA_V1_2_RELATIVE_PATH = "schemas/evidence-capture-policy-v1.2.schema.json"
+GENERATOR_V1_2_RELATIVE_PATH = "tools/freeze_missing_service_evidence_policy_v1_2.py"
+POLICY_V1_2_ID = "sremut/missing-service-social-network/evidence-capture-v1.2"
+POLICY_V1_2_SEMANTIC_VERSION = "1.2"
+POLICY_V1_2_STATUS = "FROZEN_BEFORE_PROSPECTIVE_MUTANT_EXECUTION"
+EXPECTED_V1_2_MANIFEST_PATHS = (
+    GENERATOR_V1_2_RELATIVE_PATH,
+    POLICY_V1_2_RELATIVE_PATH,
+    SCHEMA_V1_2_RELATIVE_PATH,
+)
 EXPECTED_HOOK_ORDER = (
     "VALIDATE_CANONICAL_NO_FLOATS_V1",
     "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1",
@@ -89,7 +113,9 @@ def _safe_manifest_path(value: str) -> bool:
     return all(part not in ("", ".", "..") for part in parts)
 
 
-def _parse_manifest(data: bytes) -> Mapping[str, str]:
+def _parse_manifest(
+    data: bytes, expected_paths: tuple[str, ...] = EXPECTED_MANIFEST_PATHS
+) -> Mapping[str, str]:
     if not data or not data.endswith(b"\n"):
         _reject("POLICY_MANIFEST_INVALID")
     rows: list[tuple[str, str]] = []
@@ -106,7 +132,7 @@ def _parse_manifest(data: bytes) -> Mapping[str, str]:
         offset += len(line)
     if offset != len(data) or len(rows) != 3:
         _reject("POLICY_MANIFEST_INVALID")
-    if tuple(path for path, _digest in rows) != EXPECTED_MANIFEST_PATHS:
+    if tuple(path for path, _digest in rows) != expected_paths:
         _reject("POLICY_MANIFEST_INVALID")
     if len({path for path, _digest in rows}) != len(rows):
         _reject("POLICY_MANIFEST_INVALID")
@@ -352,7 +378,51 @@ class AuthenticatedPolicy:
 
 
 
-def load_policy_bundle(
+@dataclass(frozen=True, slots=True)
+class _VersionBinding:
+    """The version-specific half of one authenticated policy bundle."""
+
+    manifest_sha256: str
+    policy_relative_path: str
+    schema_relative_path: str
+    generator_relative_path: str
+    generator_sha256: str
+    policy_sha256: str
+    schema_sha256: str
+    policy_id: str
+    semantic_version: str
+    status: str
+
+
+_V1_1_BINDING = _VersionBinding(
+    manifest_sha256=POLICY_MANIFEST_SHA256,
+    policy_relative_path=POLICY_RELATIVE_PATH,
+    schema_relative_path=SCHEMA_RELATIVE_PATH,
+    generator_relative_path=GENERATOR_RELATIVE_PATH,
+    generator_sha256="b48ae7e6ec3775b6920d4148326cd1063255eaa7c3ed3925bb7067f5ae4bc04a",
+    policy_sha256="f2dfe841b7def08302c56ff51e6bfc166eaa46038429d8d2134ead00fff9c5db",
+    schema_sha256="0283d9fffcda72d7450c5237b72e7ea59ceb8bc0ecb464a1f9bf4640724c2689",
+    policy_id=POLICY_ID,
+    semantic_version=POLICY_SEMANTIC_VERSION,
+    status="FROZEN_BEFORE_MUTANT_EXECUTION",
+)
+
+_V1_2_BINDING = _VersionBinding(
+    manifest_sha256=POLICY_V1_2_MANIFEST_SHA256,
+    policy_relative_path=POLICY_V1_2_RELATIVE_PATH,
+    schema_relative_path=SCHEMA_V1_2_RELATIVE_PATH,
+    generator_relative_path=GENERATOR_V1_2_RELATIVE_PATH,
+    generator_sha256=POLICY_V1_2_GENERATOR_SHA256,
+    policy_sha256=POLICY_V1_2_POLICY_SHA256,
+    schema_sha256=POLICY_V1_2_SCHEMA_SHA256,
+    policy_id=POLICY_V1_2_ID,
+    semantic_version=POLICY_V1_2_SEMANTIC_VERSION,
+    status=POLICY_V1_2_STATUS,
+)
+
+
+def _load_bundle(
+    binding: _VersionBinding,
     policy_path: Path,
     schema_path: Path,
     manifest_path: Path,
@@ -362,7 +432,7 @@ def load_policy_bundle(
     hook_contracts_override: Any | None = None,
     applicability_override: Any | None = None,
 ) -> AuthenticatedPolicy:
-    """Authenticate exact v1.1 bytes and expose an immutable closed runtime view."""
+    """Authenticate one exact policy bundle against its pinned version binding."""
 
     if any(value is not None for value in (parsed_policy_override, hook_contracts_override, applicability_override)):
         _reject("POLICY_PARSED_CONTENT_MISMATCH")
@@ -372,7 +442,7 @@ def load_policy_bundle(
         for path in supplied_paths
     ):
         _reject("POLICY_SUPERSEDED")
-    if expected_manifest_sha256 != POLICY_MANIFEST_SHA256:
+    if expected_manifest_sha256 != binding.manifest_sha256:
         _reject("POLICY_MANIFEST_HASH_MISMATCH")
     try:
         policy_bytes = Path(policy_path).read_bytes()
@@ -384,11 +454,24 @@ def load_policy_bundle(
         _reject("POLICY_SUPERSEDED")
     if _sha256(manifest_bytes) != expected_manifest_sha256:
         _reject("POLICY_MANIFEST_HASH_MISMATCH")
-    rows = _parse_manifest(manifest_bytes)
-    if rows[POLICY_RELATIVE_PATH] != _sha256(policy_bytes):
+    rows = _parse_manifest(
+        manifest_bytes,
+        (
+            binding.generator_relative_path,
+            binding.policy_relative_path,
+            binding.schema_relative_path,
+        ),
+    )
+    if rows.get(binding.policy_relative_path) != _sha256(policy_bytes):
         _reject("POLICY_HASH_MISMATCH")
-    if rows[SCHEMA_RELATIVE_PATH] != _sha256(schema_bytes):
+    if rows.get(binding.schema_relative_path) != _sha256(schema_bytes):
         _reject("POLICY_SCHEMA_HASH_MISMATCH")
+    if (
+        _sha256(policy_bytes) != binding.policy_sha256
+        or _sha256(schema_bytes) != binding.schema_sha256
+        or rows.get(binding.generator_relative_path) != binding.generator_sha256
+    ):
+        _reject("POLICY_BINDING_MISSING")
     try:
         policy = yaml.safe_load(policy_bytes.decode("utf-8", errors="strict"))
         schema = json.loads(schema_bytes.decode("utf-8", errors="strict"))
@@ -401,9 +484,9 @@ def load_policy_bundle(
     if not isinstance(policy, dict) or not isinstance(schema, dict):
         _reject("POLICY_PARSED_CONTENT_MISMATCH")
     if (
-        policy.get("policy_id") != POLICY_ID
-        or policy.get("semantic_version") != POLICY_SEMANTIC_VERSION
-        or policy.get("status") != "FROZEN_BEFORE_MUTANT_EXECUTION"
+        policy.get("policy_id") != binding.policy_id
+        or policy.get("semantic_version") != binding.semantic_version
+        or policy.get("status") != binding.status
     ):
         _reject("POLICY_PARSED_CONTENT_MISMATCH")
     full = policy.get("full_admissibility_validation")
@@ -481,4 +564,58 @@ def load_policy_bundle(
         hooks=hooks,
         applicability=applicability,
         dispatcher_id=dispatcher_id,
+    )
+
+
+def load_policy_bundle(
+    policy_path: Path,
+    schema_path: Path,
+    manifest_path: Path,
+    *,
+    expected_manifest_sha256: str,
+    parsed_policy_override: Any | None = None,
+    hook_contracts_override: Any | None = None,
+    applicability_override: Any | None = None,
+) -> AuthenticatedPolicy:
+    """Authenticate exact v1.1 bytes and expose an immutable closed runtime view."""
+
+    return _load_bundle(
+        _V1_1_BINDING,
+        policy_path,
+        schema_path,
+        manifest_path,
+        expected_manifest_sha256=expected_manifest_sha256,
+        parsed_policy_override=parsed_policy_override,
+        hook_contracts_override=hook_contracts_override,
+        applicability_override=applicability_override,
+    )
+
+
+def load_v1_2_policy_bundle(
+    policy_path: Path,
+    schema_path: Path,
+    manifest_path: Path,
+    *,
+    expected_manifest_sha256: str,
+    parsed_policy_override: Any | None = None,
+    hook_contracts_override: Any | None = None,
+    applicability_override: Any | None = None,
+) -> AuthenticatedPolicy:
+    """Authenticate the exact committed v1.2 bytes.
+
+    Additive by construction: the v1.1 pins above are untouched, so everything
+    already bound to v1.1 keeps working unchanged while the prospective runtime
+    binds to v1.2.  The v1.2 generator is pinned only by its manifest hash and is
+    never imported as production policy logic.
+    """
+
+    return _load_bundle(
+        _V1_2_BINDING,
+        policy_path,
+        schema_path,
+        manifest_path,
+        expected_manifest_sha256=expected_manifest_sha256,
+        parsed_policy_override=parsed_policy_override,
+        hook_contracts_override=hook_contracts_override,
+        applicability_override=applicability_override,
     )

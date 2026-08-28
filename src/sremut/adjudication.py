@@ -43,6 +43,19 @@ def _evaluation_marker_sequence(context: Any, predicate: str) -> int:
     return matches[0]
 
 
+def _authorization_context(context: Any, predicate: Any) -> Mapping[str, Any]:
+    """Select the authorization context belonging to this candidate's predicate."""
+    contexts = getattr(context, "evaluation_authorization_contexts", None)
+    if not isinstance(contexts, Mapping):
+        _reject("JOURNAL_EVALUATION_MARKER_MISSING")
+    if not isinstance(predicate, str) or predicate not in contexts:
+        _reject("JOURNAL_EVALUATION_MARKER_MISSING")
+    row = contexts[predicate]
+    if not isinstance(row, Mapping):
+        _reject("JOURNAL_EVALUATION_MARKER_MISSING")
+    return row
+
+
 def _matrix_row(context: Any, predicate: Any) -> Mapping[str, Any]:
     matrix = context._policy.policy["full_admissibility_validation"][
         "adjudication_predicate_raw_role_context_deadline_matrix"
@@ -150,10 +163,11 @@ def validate_adjudication_descriptor(context: Any, candidate: Mapping[str, Any])
         _reject("EVIDENCE_REFERENCE_UNRESOLVED")
     if candidate.get("run_id") != context.run_id or candidate.get("attempt_id") != context.attempt_id:
         _reject("RUN_ATTEMPT_MISMATCH")
-    expected = context.expected_evaluation_context
-    if not isinstance(expected, Mapping):
-        _reject("JOURNAL_EVALUATION_MARKER_MISSING")
+    # The context is selected by the CANDIDATE's own predicate.  There is no
+    # fallback to a last marker: under v1.1 that fallback made every adjudication
+    # except the last one unverifiable in its own sealed attempt.
     predicate = candidate.get("predicate_oracle_or_classification_id")
+    expected = _authorization_context(context, predicate)
     matrix = _matrix_row(context, predicate)
     if predicate != expected.get("predicate_id") or matrix.get("phase") != expected.get("phase"):
         _reject("ADJUDICATION_EVALUATION_PHASE_MISMATCH")
@@ -189,12 +203,53 @@ def validate_adjudication_descriptor(context: Any, candidate: Mapping[str, Any])
         _reject("ADJUDICATION_RAW_ROLE_INVALID")
 
 
+def _closure_reject(context: Any) -> NoReturn:
+    """Fail a closure defect with a code the AUTHENTICATED policy actually defines.
+
+    v1.2 adds the precise `ADJUDICATION_CLOSURE_INCOMPLETE`; v1.1 does not define
+    it, so under a v1.1 binding the closure defect is reported with the code v1.1
+    does define.  A validator must never emit a code outside its own policy's
+    vocabulary.
+    """
+    try:
+        vocabulary = set(
+            context._policy.policy["full_admissibility_validation"]["failure_codes"]
+        )
+    except Exception:
+        vocabulary = set()
+    if "ADJUDICATION_CLOSURE_INCOMPLETE" in vocabulary:
+        _reject("ADJUDICATION_CLOSURE_INCOMPLETE")
+    _reject("ADJUDICATION_RAW_REFERENCE_REQUIRED")
+
+
+def _required_predicates(context: Any) -> set[str]:
+    """Which predicates this terminal outcome must carry exactly one adjudication for.
+
+    FINALIZED reached every phase, so all three frozen predicates are required.
+    ABORTED_SAFE and RESTORATION_BLOCKED stop early, so they require exactly the
+    predicates whose authorization markers the attempt actually reached -- no
+    evidence is demanded for a phase that was never legally entered, and none may
+    be smuggled in for one that was not.
+    """
+    contexts = getattr(context, "evaluation_authorization_contexts", None)
+    if not isinstance(contexts, Mapping):
+        _reject("JOURNAL_EVALUATION_MARKER_MISSING")
+    if context.terminal_outcome == "FINALIZED":
+        matrix = context._policy.policy["full_admissibility_validation"][
+            "adjudication_predicate_raw_role_context_deadline_matrix"
+        ]
+        return set(matrix)
+    return set(contexts)
+
+
 def validate_attempt_adjudication_closure(context: Any, candidate: Mapping[str, Any]) -> None:
     references = candidate.get("adjudication_references")
     raw_references = candidate.get("raw_evidence_references")
     if not isinstance(references, (list, tuple)) or not references or not isinstance(raw_references, (list, tuple)) or not raw_references:
         _reject("ADJUDICATION_RAW_REFERENCE_REQUIRED")
     adjudications = []
+    cited_ids: list[str] = []
+    predicates: list[str] = []
     for reference in references:
         try:
             row = context.resolve_reference(reference)
@@ -203,18 +258,34 @@ def validate_attempt_adjudication_closure(context: Any, candidate: Mapping[str, 
         if row.reference.role != "adjudication" or row.payload_bytes is not None:
             _reject("ADJUDICATION_RAW_ROLE_INVALID")
         adjudications.append(row)
+        cited_ids.append(row.reference.evidence_id)
+        # Every cited adjudication is revalidated, against its OWN predicate's
+        # authorization context.
         validate_adjudication_descriptor(context, _thaw(row.descriptor))
+        predicates.append(
+            row.descriptor.get("predicate_oracle_or_classification_id")
+        )
+    if len(set(cited_ids)) != len(cited_ids):
+        _closure_reject(context)
+    # A duplicate predicate is rejected even when the evidence ids differ: two
+    # distinct descriptors adjudicating the same predicate is not a closure.
+    if len(set(predicates)) != len(predicates):
+        _closure_reject(context)
+    if set(predicates) != _required_predicates(context):
+        _closure_reject(context)
     cited = {
         raw.get("evidence_id")
         for row in adjudications
         for raw in row.descriptor.get("raw_evidence_references", ())
         if isinstance(raw, Mapping)
     }
-    envelope = set()
+    envelope_ids: list[str] = []
     for reference in raw_references:
         row = _resolve_payload(context, reference)
-        envelope.add(row.reference.evidence_id)
-    if envelope != cited:
+        envelope_ids.append(row.reference.evidence_id)
+    if len(set(envelope_ids)) != len(envelope_ids):
+        _closure_reject(context)
+    if set(envelope_ids) != cited:
         _reject("ADJUDICATION_RAW_REFERENCE_REQUIRED")
     if candidate.get("terminal_outcome") != context.terminal_outcome:
         _reject("RUN_ATTEMPT_MISMATCH")
