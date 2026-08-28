@@ -1990,15 +1990,15 @@
               "minItems": 3,
               "prefixItems": [
                 {
-                  "const": "tools/freeze_missing_service_evidence_policy_v1_2.py",
-                  "type": "string"
-                },
-                {
                   "const": "policies/missing_service_social_network/evidence-capture-v1.2.yaml",
                   "type": "string"
                 },
                 {
                   "const": "schemas/evidence-capture-policy-v1.2.schema.json",
+                  "type": "string"
+                },
+                {
+                  "const": "EVIDENCE_CAPTURE_POLICY_V1_2_SHA256SUMS",
                   "type": "string"
                 }
               ],
@@ -22333,8 +22333,8 @@
             },
             "allowlisted_policy_prefixes": {
               "items": false,
-              "maxItems": 22,
-              "minItems": 22,
+              "maxItems": 23,
+              "minItems": 23,
               "prefixItems": [
                 {
                   "const": "document_type",
@@ -22423,14 +22423,18 @@
                 {
                   "const": "full_admissibility_validation.failure_codes",
                   "type": "string"
+                },
+                {
+                  "const": "workload_stream_identity_protocol.evidence_policy_id",
+                  "type": "string"
                 }
               ],
               "type": "array"
             },
             "allowlisted_schema_prefixes": {
               "items": false,
-              "maxItems": 6,
-              "minItems": 6,
+              "maxItems": 7,
+              "minItems": 7,
               "prefixItems": [
                 {
                   "const": "$id",
@@ -22442,6 +22446,10 @@
                 },
                 {
                   "const": "$defs.evidence_policy_document",
+                  "type": "string"
+                },
+                {
+                  "const": "$defs.resolved_evidence_context",
                   "type": "string"
                 },
                 {
@@ -22465,8 +22473,8 @@
             },
             "observed_policy_leaf_paths_before_report": {
               "items": false,
-              "maxItems": 45,
-              "minItems": 45,
+              "maxItems": 47,
+              "minItems": 47,
               "prefixItems": [
                 {
                   "const": "authenticated_policy_input.expected_entry_paths[0]",
@@ -22609,6 +22617,10 @@
                   "type": "string"
                 },
                 {
+                  "const": "status",
+                  "type": "string"
+                },
+                {
                   "const": "supersession.base_v1_1_historical_scope",
                   "type": "string"
                 },
@@ -22629,7 +22641,7 @@
                   "type": "string"
                 },
                 {
-                  "const": "supersession.mutant_results_produced_under_v1_1",
+                  "const": "supersession.prospective_matrix_results_produced_under_v1_1",
                   "type": "string"
                 },
                 {
@@ -22646,6 +22658,10 @@
                 },
                 {
                   "const": "supersession.supersedes",
+                  "type": "string"
+                },
+                {
+                  "const": "workload_stream_identity_protocol.evidence_policy_id",
                   "type": "string"
                 }
               ],
@@ -23912,7 +23928,7 @@
           "type": "object"
         },
         "status": {
-          "const": "FROZEN_BEFORE_MUTANT_EXECUTION",
+          "const": "FROZEN_BEFORE_PROSPECTIVE_MUTANT_EXECUTION",
           "type": "string"
         },
         "storage_model": {
@@ -24327,7 +24343,7 @@
               "const": false,
               "type": "boolean"
             },
-            "mutant_results_produced_under_v1_1": {
+            "prospective_matrix_results_produced_under_v1_1": {
               "const": false,
               "type": "boolean"
             },
@@ -24356,7 +24372,7 @@
             "claims_to_predate_historical_runs",
             "prospective_mutant_matrix_executed_at_freeze",
             "prospective_mutant_matrix_planned_at_freeze",
-            "mutant_results_produced_under_v1_1"
+            "prospective_matrix_results_produced_under_v1_1"
           ],
           "type": "object"
         },
@@ -25408,7 +25424,7 @@
               "type": "string"
             },
             "evidence_policy_id": {
-              "const": "sremut/missing-service-social-network/evidence-capture-v1.1",
+              "const": "sremut/missing-service-social-network/evidence-capture-v1.2",
               "type": "string"
             },
             "exactly_one_manager_instance_per_attempt": {
@@ -29742,8 +29758,122 @@
           "type": "object"
         },
         "document_type": {
-          "const": "RESOLVED_EVIDENCE_CONTEXT_V1",
+          "const": "RESOLVED_EVIDENCE_CONTEXT_V1_2",
           "type": "string"
+        },
+        "evaluation_authorization_contexts": {
+          "additionalProperties": false,
+          "maxProperties": 3,
+          "properties": {
+            "INITIAL_INVARIANT_EVALUATION": {
+              "additionalProperties": false,
+              "properties": {
+                "authorization_state": {
+                  "enum": [
+                    "ORIGINAL_ORACLE_EVALUATED",
+                    "CONTRACT_EVALUATED"
+                  ],
+                  "type": "string"
+                },
+                "deadline_identity": {
+                  "const": "INITIAL_FRESH_WORKLOAD_60S",
+                  "type": "string"
+                },
+                "marker_sequence_number": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "phase": {
+                  "const": "INITIAL_MUTANT_CHALLENGE",
+                  "type": "string"
+                },
+                "predicate_id": {
+                  "const": "INITIAL_INVARIANT_EVALUATION",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "predicate_id",
+                "phase",
+                "deadline_identity",
+                "authorization_state",
+                "marker_sequence_number"
+              ],
+              "type": "object"
+            },
+            "REPLACEMENT_PERSISTENCE_EVALUATION": {
+              "additionalProperties": false,
+              "properties": {
+                "authorization_state": {
+                  "enum": [
+                    "CONTRACT_EVALUATED"
+                  ],
+                  "type": "string"
+                },
+                "deadline_identity": {
+                  "const": "POST_REPLACEMENT_FRESH_WORKLOAD_60S",
+                  "type": "string"
+                },
+                "marker_sequence_number": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "phase": {
+                  "const": "POST_REPLACEMENT_PERSISTENCE",
+                  "type": "string"
+                },
+                "predicate_id": {
+                  "const": "REPLACEMENT_PERSISTENCE_EVALUATION",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "predicate_id",
+                "phase",
+                "deadline_identity",
+                "authorization_state",
+                "marker_sequence_number"
+              ],
+              "type": "object"
+            },
+            "RESTORATION_POSITIVE_CONTROL": {
+              "additionalProperties": false,
+              "properties": {
+                "authorization_state": {
+                  "enum": [
+                    "RESTORE_STARTED",
+                    "RESTORE_VERIFIED"
+                  ],
+                  "type": "string"
+                },
+                "deadline_identity": {
+                  "const": "RESTORATION_FRESH_WORKLOAD_60S",
+                  "type": "string"
+                },
+                "marker_sequence_number": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "phase": {
+                  "const": "RESTORATION_POSITIVE_CONTROL",
+                  "type": "string"
+                },
+                "predicate_id": {
+                  "const": "RESTORATION_POSITIVE_CONTROL",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "predicate_id",
+                "phase",
+                "deadline_identity",
+                "authorization_state",
+                "marker_sequence_number"
+              ],
+              "type": "object"
+            }
+          },
+          "type": "object"
         },
         "evidence_refs": {
           "additionalProperties": {
@@ -29789,48 +29919,6 @@
           },
           "type": "object",
           "x-bounded-dynamic-map": true
-        },
-        "expected_evaluation_context": {
-          "oneOf": [
-            {
-              "type": "null"
-            },
-            {
-              "additionalProperties": false,
-              "properties": {
-                "deadline_identity": {
-                  "enum": [
-                    "INITIAL_FRESH_WORKLOAD_60S",
-                    "POST_REPLACEMENT_FRESH_WORKLOAD_60S",
-                    "RESTORATION_FRESH_WORKLOAD_60S"
-                  ],
-                  "type": "string"
-                },
-                "phase": {
-                  "enum": [
-                    "INITIAL_MUTANT_CHALLENGE",
-                    "POST_REPLACEMENT_PERSISTENCE",
-                    "RESTORATION_POSITIVE_CONTROL"
-                  ],
-                  "type": "string"
-                },
-                "predicate_id": {
-                  "enum": [
-                    "INITIAL_INVARIANT_EVALUATION",
-                    "REPLACEMENT_PERSISTENCE_EVALUATION",
-                    "RESTORATION_POSITIVE_CONTROL"
-                  ],
-                  "type": "string"
-                }
-              },
-              "required": [
-                "predicate_id",
-                "phase",
-                "deadline_identity"
-              ],
-              "type": "object"
-            }
-          ]
         },
         "expected_operation_context": {
           "oneOf": [
@@ -30100,8 +30188,8 @@
         "current_verified_attempt_state",
         "frozen_contract_profile_identities",
         "expected_operation_context",
-        "expected_evaluation_context",
-        "challenge_identity"
+        "challenge_identity",
+        "evaluation_authorization_contexts"
       ],
       "type": "object"
     },

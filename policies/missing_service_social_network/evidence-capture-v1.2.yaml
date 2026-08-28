@@ -1,7 +1,7 @@
 document_type: EVIDENCE_POLICY_DOCUMENT_V1_2
 schema_version: 1
 policy_id: sremut/missing-service-social-network/evidence-capture-v1.2
-status: FROZEN_BEFORE_MUTANT_EXECUTION
+status: FROZEN_BEFORE_PROSPECTIVE_MUTANT_EXECUTION
 frozen_at: '2026-08-28T17:44:05.118293+00:00'
 future_annotated_tag: sremut-missing-service-evidence-policy-v1.2
 bindings:
@@ -3703,9 +3703,9 @@ authenticated_policy_input:
   - policies/missing_service_social_network/evidence-capture-v1.2.yaml
   - schemas/evidence-capture-policy-v1.2.schema.json
   required_exact_bytes:
-  - tools/freeze_missing_service_evidence_policy_v1_2.py
   - policies/missing_service_social_network/evidence-capture-v1.2.yaml
   - schemas/evidence-capture-policy-v1.2.schema.json
+  - EVIDENCE_CAPTURE_POLICY_V1_2_SHA256SUMS
   expected_manifest_sha256_source: frozen runner release or generator conformance oracle
   caller_policy_or_hook_override_forbidden: true
   authentication_algorithm:
@@ -3890,7 +3890,7 @@ supersession:
   claims_to_predate_historical_runs: false
   prospective_mutant_matrix_executed_at_freeze: 0
   prospective_mutant_matrix_planned_at_freeze: 9
-  mutant_results_produced_under_v1_1: false
+  prospective_matrix_results_produced_under_v1_1: false
 correction_reason:
 - SINGLE_RETAINED_EVALUATION_AUTHORIZATION_MARKER
 - TERMINAL_ATTEMPT_CANNOT_REVALIDATE_ALL_ADJUDICATIONS
@@ -3899,7 +3899,7 @@ workload_stream_identity_protocol:
   result_grammar: ^[0-9a-f]{64}$
   schema_version: 1
   execution_profile_tag_object: 7c6493eb7dce68370fd0d5be572edd968654a1d6
-  evidence_policy_id: sremut/missing-service-social-network/evidence-capture-v1.1
+  evidence_policy_id: sremut/missing-service-social-network/evidence-capture-v1.2
   source: StreamWorkloadManager.log_history
   manager_instance_ordinal: 1
   manager_instance_ordinal_type: EXACT_INTEGER_NOT_BOOLEAN
@@ -3953,10 +3953,12 @@ semantic_diff_report:
   - full_admissibility_validation.workload_window_context_selection
   - full_admissibility_validation.attempt_envelope_adjudication_closure
   - full_admissibility_validation.failure_codes
+  - workload_stream_identity_protocol.evidence_policy_id
   allowlisted_schema_prefixes:
   - $id
   - title
   - $defs.evidence_policy_document
+  - $defs.resolved_evidence_context
   - $defs.authenticated_policy_input
   - $defs.offline_seal_input
   - x-evidence-policy-semantic-version
@@ -3996,16 +3998,18 @@ semantic_diff_report:
   - policy_id
   - runner_release_binding.evidence_policy_annotated_tag
   - semantic_version
+  - status
   - supersession.base_v1_1_historical_scope
   - supersession.base_v1_historical_scope
   - supersession.claims_to_predate_historical_runs
   - supersession.historical_evidence_reinterpreted
   - supersession.mutant_results_produced_under_v1
-  - supersession.mutant_results_produced_under_v1_1
+  - supersession.prospective_matrix_results_produced_under_v1_1
   - supersession.prospective_mutant_matrix_executed_at_freeze
   - supersession.prospective_mutant_matrix_planned_at_freeze
   - supersession.scope
   - supersession.supersedes
+  - workload_stream_identity_protocol.evidence_policy_id
   unchanged_frozen_semantics:
   - adjudication_predicate_raw_role_context_deadline_matrix
   - workload_evidence_protocol.window_identity

@@ -131,6 +131,7 @@ POLICY_ALLOWED_PREFIXES = (
     "full_admissibility_validation.workload_window_context_selection",
     "full_admissibility_validation.attempt_envelope_adjudication_closure",
     "full_admissibility_validation.failure_codes",
+    "workload_stream_identity_protocol.evidence_policy_id",
 )
 
 #: Every schema path v1.2 is permitted to change relative to v1.1.
@@ -138,6 +139,7 @@ SCHEMA_ALLOWED_PREFIXES = (
     "$id",
     "title",
     "$defs.evidence_policy_document",
+    "$defs.resolved_evidence_context",
     "$defs.authenticated_policy_input",
     "$defs.offline_seal_input",
     "x-evidence-policy-semantic-version",
@@ -177,6 +179,26 @@ def sha256_bytes(data: bytes) -> str:
 
 def sha256_path(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
+
+
+def reject_floats(value: Any) -> None:
+    if isinstance(value, float):
+        raise FreezeError("FLOAT_FORBIDDEN")
+    if isinstance(value, dict):
+        if any(type(key) is not str for key in value):
+            raise FreezeError("NONSTRING_KEY")
+        for child in value.values():
+            reject_floats(child)
+    elif isinstance(value, list):
+        for child in value:
+            reject_floats(child)
+
+
+def canonical_json_bytes(value: Any) -> bytes:
+    reject_floats(value)
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
 
 
 def run_git(*arguments: str) -> bytes:
@@ -316,11 +338,31 @@ def assert_allowed_diff(left: Any, right: Any, prefixes: tuple[str, ...], label:
 
 
 # ---------------------------------------------------------------------------
+# v1.2 dispatch failure vocabulary
+#
+# Two distinct error classes.  `FreezeError` is a generator build-time fault.
+# `DispatchError` is a validation outcome, and every code it can carry must
+# already exist in the authenticated policy's failure vocabulary -- emitting a
+# code the policy does not define is itself a generator fault.
+# ---------------------------------------------------------------------------
+
+
+class DispatchError(RuntimeError):
+    """One closed v1.2 full-admissibility validation failure."""
+
+
+def dispatch_reject(policy: dict[str, Any], code: str) -> Any:
+    if code not in set(policy["full_admissibility_validation"]["failure_codes"]):
+        raise FreezeError(f"FAILURE_CODE_NOT_IN_POLICY:{code}")
+    raise DispatchError(code)
+
+
+# ---------------------------------------------------------------------------
 # v1.2 reference implementation
 #
-# These functions ARE the corrected semantics the policy describes.  The
-# reference tests below drive this dispatcher; nothing here is a toy checker
-# living beside an unexercised specification.
+# This is the corrected semantics the policy describes.  `v1_2_full_admissibility`
+# is the single dispatch entry point; the reference tests drive it, never the
+# helpers below in isolation.
 # ---------------------------------------------------------------------------
 
 
@@ -330,160 +372,798 @@ def predicate_matrix(policy: dict[str, Any]) -> dict[str, Any]:
     ]
 
 
-def derive_evaluation_authorizations(
-    policy: dict[str, Any], records: list[dict[str, Any]]
-) -> dict[str, dict[str, Any]]:
-    """Reconstruct one authorization context per predicate from journal bytes.
+def journal_record_sha256(record: dict[str, Any]) -> str:
+    material = {k: v for k, v in record.items() if k != "canonical_current_entry_sha256"}
+    return sha256_bytes(canonical_json_bytes(material))
 
-    The authorization state is the attempt state AT the marker's own sequence
-    number, replayed forward from CREATED; it is never the terminal state.  Each
-    predicate may be authorized exactly once.
+
+def reconstruct_journal(policy: dict[str, Any], records: list[dict[str, Any]]) -> dict[str, Any]:
+    """Canonical journal + hash chain + per-predicate authorization contexts.
+
+    The authorization state is the state AT each marker's own sequence, replayed
+    forward from CREATED.  It is never the terminal state.
     """
+    machine = policy["verified_attempt_state_machine"]
+    states = set(machine["states"])
+    legal = set(machine["legal_transitions"])
+    terminal_states = set(machine["terminal_states"])
     matrix = predicate_matrix(policy)
+
     contexts: dict[str, dict[str, Any]] = {}
+    publications: dict[str, dict[str, Any]] = {}
     state = "CREATED"
-    previous_sequence = -1
-    for record in records:
-        sequence = record.get("sequence_number")
-        if type(sequence) is not int or sequence != previous_sequence + 1:
-            raise FreezeError("JOURNAL_SEQUENCE_INVALID")
-        previous_sequence = sequence
+    previous = "0" * 64
+    terminal_seen = False
+    for index, record in enumerate(records):
+        if terminal_seen:
+            dispatch_reject(policy, "POST_TERMINAL_OPERATION")
+        if not isinstance(record, dict) or record.get("document_type") != "JOURNAL_RECORD_V1":
+            dispatch_reject(policy, "JOURNAL_CANONICALIZATION_INVALID")
+        if record.get("sequence_number") != index or record.get("previous_entry_sha256") != previous:
+            dispatch_reject(policy, "JOURNAL_CHAIN_INVALID")
+        current = journal_record_sha256(record)
+        if record.get("canonical_current_entry_sha256") != current:
+            dispatch_reject(policy, "JOURNAL_CHAIN_INVALID")
         transition = record.get("transition")
-        if not isinstance(transition, str):
-            raise FreezeError("JOURNAL_RECORD_INVALID")
-        if transition.startswith(MARKER_PREFIX):
-            predicate = transition[len(MARKER_PREFIX):]
+        if not isinstance(transition, str) or not transition:
+            dispatch_reject(policy, "JOURNAL_STATE_DERIVATION_FAILED")
+        if transition.startswith("STATE_VERIFIED:"):
+            proposed = transition.split(":", 1)[1]
+            if proposed not in states or proposed != state:
+                dispatch_reject(policy, "JOURNAL_STATE_DERIVATION_FAILED")
+        elif transition in legal:
+            source, target = transition.split("->", 1)
+            if source != state:
+                dispatch_reject(policy, "JOURNAL_STATE_DERIVATION_FAILED")
+            state = target
+        elif transition.startswith(MARKER_PREFIX):
+            predicate = transition.split(":", 1)[1]
             row = matrix.get(predicate)
             if not isinstance(row, dict):
-                raise FreezeError("EVALUATION_AUTHORIZATION_UNKNOWN_PREDICATE")
+                dispatch_reject(policy, "EVALUATION_AUTHORIZATION_UNKNOWN_PREDICATE")
             if predicate in contexts:
-                raise FreezeError("EVALUATION_AUTHORIZATION_DUPLICATE")
+                dispatch_reject(policy, "EVALUATION_AUTHORIZATION_DUPLICATE")
             if state not in row["allowed_states"]:
-                raise FreezeError("EVALUATION_AUTHORIZATION_STATE_INVALID")
+                dispatch_reject(policy, "EVALUATION_AUTHORIZATION_STATE_INVALID")
             contexts[predicate] = {
                 "predicate_id": predicate,
                 "phase": row["phase"],
                 "deadline_identity": row["deadline_identity"],
                 "authorization_state": state,
-                "marker_sequence_number": sequence,
+                "marker_sequence_number": index,
             }
         elif transition.startswith(OPERATION_PREFIX):
-            continue
-        elif "->" in transition:
-            source, target = transition.split("->", 1)
-            if source != state:
-                raise FreezeError("JOURNAL_CONTEXT_MISMATCH")
-            state = target
-    return contexts
+            pass
+        else:
+            dispatch_reject(policy, "JOURNAL_STATE_DERIVATION_FAILED")
+        for digest in record.get("referenced_descriptor_sha256", ()):
+            publications.setdefault(digest, {"sequence_number": index,
+                                             "journal_record_sha256": current})
+        previous = current
+        terminal_seen = state in terminal_states
+    return {
+        "evaluation_authorization_contexts": contexts,
+        "publication_by_descriptor_sha256": publications,
+        "terminal_state": state,
+        "terminal": terminal_seen,
+        "record_count": len(records),
+    }
 
 
 def select_evaluation_context(
-    contexts: dict[str, dict[str, Any]], predicate: Any
+    policy: dict[str, Any], contexts: dict[str, dict[str, Any]], predicate: Any
 ) -> dict[str, Any]:
     """Select the context belonging to the CANDIDATE's own predicate."""
-    if not isinstance(predicate, str) or predicate not in contexts:
-        raise FreezeError("EVALUATION_AUTHORIZATION_CONTEXT_MISSING")
+    if not isinstance(predicate, str):
+        dispatch_reject(policy, "EVALUATION_AUTHORIZATION_CONTEXT_MISSING")
+    if predicate not in predicate_matrix(policy):
+        dispatch_reject(policy, "EVALUATION_AUTHORIZATION_UNKNOWN_PREDICATE")
+    if predicate not in contexts:
+        dispatch_reject(policy, "EVALUATION_AUTHORIZATION_CONTEXT_MISSING")
     return contexts[predicate]
 
 
-def validate_adjudication_candidate(
-    policy: dict[str, Any],
-    contexts: dict[str, dict[str, Any]],
-    evidence: dict[str, dict[str, Any]],
-    candidate: dict[str, Any],
-    *,
-    caller_context: Any = None,
+def publication_of(policy: dict[str, Any], derived: dict[str, Any], reference: dict[str, Any]) -> int:
+    digest = reference.get("descriptor_sha256")
+    row = derived["publication_by_descriptor_sha256"].get(digest)
+    if row is None:
+        dispatch_reject(policy, "PUBLICATION_RECORD_MISSING")
+    return row["sequence_number"]
+
+
+def validate_workload_window(
+    policy: dict[str, Any], derived: dict[str, Any], predicate: str, window: Any
 ) -> None:
-    """Validate one adjudication descriptor under v1.2 candidate-specific lookup."""
-    if caller_context is not None:
-        # A caller-supplied "current"/"last" context is never authoritative.
-        raise FreezeError("CALLER_EVALUATION_CONTEXT_NOT_AUTHORITATIVE")
+    """Validate one workload window against ITS predicate's reconstructed context."""
+    context = select_evaluation_context(
+        policy, derived["evaluation_authorization_contexts"], predicate
+    )
+    if not isinstance(window, dict):
+        dispatch_reject(policy, "WORKLOAD_WINDOW_MISMATCH")
+    ordinals = policy["workload_evidence_protocol"]["window_identity"]["phase_ordinal_enum"]
+    if window.get("phase") != context["phase"]:
+        dispatch_reject(policy, "WORKLOAD_EVALUATION_CONTEXT_MISMATCH")
+    if window.get("ordinal") != ordinals.get(window.get("phase")):
+        dispatch_reject(policy, "WORKLOAD_WINDOW_MISMATCH")
+    if window.get("stream_identity") != stream_identity(window.get("run_id"), window.get("attempt_id")):
+        dispatch_reject(policy, "WORKLOAD_STREAM_IDENTITY_MISMATCH")
+
+
+def validate_adjudication(
+    policy: dict[str, Any], derived: dict[str, Any], resolved: dict[str, Any], candidate: dict[str, Any]
+) -> str:
+    """Validate one adjudication descriptor; returns its predicate id."""
     predicate = candidate.get("predicate_oracle_or_classification_id")
-    context = select_evaluation_context(contexts, predicate)
-    row = predicate_matrix(policy).get(predicate)
-    if not isinstance(row, dict):
-        raise FreezeError("EVALUATION_AUTHORIZATION_UNKNOWN_PREDICATE")
-    if candidate.get("phase") != row["phase"] or row["phase"] != context["phase"]:
-        raise FreezeError("ADJUDICATION_EVALUATION_PHASE_MISMATCH")
+    context = select_evaluation_context(
+        policy, derived["evaluation_authorization_contexts"], predicate
+    )
+    row = predicate_matrix(policy)[predicate]
+    window = candidate.get("workload_window_adjudication_identity")
+    # v1.2 takes the phase from the window identity, never from a top-level field.
+    validate_workload_window(policy, derived, predicate, window)
+    if window.get("phase") != row["phase"]:
+        dispatch_reject(policy, "ADJUDICATION_EVALUATION_PHASE_MISMATCH")
     if (
         candidate.get("applicable_deadline") != row["deadline_identity"]
         or row["deadline_identity"] != context["deadline_identity"]
     ):
-        raise FreezeError("ADJUDICATION_DEADLINE_MISMATCH")
+        dispatch_reject(policy, "ADJUDICATION_DEADLINE_MISMATCH")
     if candidate.get("result_type") != "BOOLEAN":
-        raise FreezeError("ADJUDICATION_RAW_ROLE_INVALID")
-    marker = context["marker_sequence_number"]
-    publication = candidate.get("publication_sequence_number")
+        dispatch_reject(policy, "ADJUDICATION_RAW_ROLE_INVALID")
+
     references = candidate.get("raw_evidence_references")
     hashes = candidate.get("raw_evidence_sha256_per_reference")
     if (
-        type(publication) is not int
-        or not isinstance(references, list)
+        not isinstance(references, list)
         or not references
         or not isinstance(hashes, list)
         or len(references) != len(hashes)
     ):
-        raise FreezeError("ADJUDICATION_RAW_REFERENCE_REQUIRED")
-    allowed_roles = set(row["allowed_raw_roles"])
+        dispatch_reject(policy, "ADJUDICATION_RAW_REFERENCE_REQUIRED")
+    marker = context["marker_sequence_number"]
+    own = publication_of(policy, derived, _self_reference(policy, resolved, candidate))
+    allowed = set(row["allowed_raw_roles"])
     seen: set[str] = set()
-    for index, evidence_id in enumerate(references):
-        row_evidence = evidence.get(evidence_id)
-        if row_evidence is None:
-            raise FreezeError("EVIDENCE_REFERENCE_UNRESOLVED")
-        if evidence_id in seen or row_evidence["role"] not in allowed_roles:
-            raise FreezeError("ADJUDICATION_RAW_ROLE_INVALID")
+    for index, reference in enumerate(references):
+        if not isinstance(reference, dict):
+            dispatch_reject(policy, "ADJUDICATION_RAW_REFERENCE_REQUIRED")
+        evidence_id = reference.get("evidence_id")
+        if evidence_id not in resolved["evidence_refs"]:
+            dispatch_reject(policy, "EVIDENCE_REFERENCE_UNRESOLVED")
+        if evidence_id in seen or reference.get("role") not in allowed:
+            dispatch_reject(policy, "ADJUDICATION_RAW_ROLE_INVALID")
         seen.add(evidence_id)
-        if hashes[index] != row_evidence["payload_sha256"]:
-            raise FreezeError("PAYLOAD_HASH_MISMATCH")
-        if not marker < row_evidence["publication_sequence_number"] < publication:
-            raise FreezeError("PUBLICATION_ORDER_INVALID")
-        if row_evidence.get("window_phase") not in (None, row["phase"]):
-            raise FreezeError("WORKLOAD_WINDOW_SUBSTITUTION")
+        if hashes[index] != reference.get("payload_sha256"):
+            dispatch_reject(policy, "PAYLOAD_HASH_MISMATCH")
+        published = publication_of(policy, derived, reference)
+        if not marker < published < own:
+            dispatch_reject(policy, "PUBLICATION_ORDER_INVALID")
+    return predicate
 
 
-def validate_workload_window_candidate(
-    policy: dict[str, Any],
-    contexts: dict[str, dict[str, Any]],
-    candidate: dict[str, Any],
+def _self_reference(
+    policy: dict[str, Any], resolved: dict[str, Any], candidate: dict[str, Any]
+) -> dict[str, Any]:
+    digest = sha256_bytes(canonical_json_bytes(candidate))
+    for reference in resolved["evidence_refs"].values():
+        if reference.get("descriptor_sha256") == digest:
+            return reference
+    dispatch_reject(policy, "EVIDENCE_REFERENCE_UNRESOLVED")
+
+
+def adjudication_descriptors(resolved: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    by_digest = {
+        reference["descriptor_sha256"]: evidence_id
+        for evidence_id, reference in resolved["evidence_refs"].items()
+    }
+    sealed: dict[str, dict[str, Any]] = {}
+    for descriptor in resolved["parsed_canonical_descriptors"].values():
+        if descriptor.get("role") != "adjudication":
+            continue
+        digest = sha256_bytes(canonical_json_bytes(descriptor))
+        if digest in by_digest:
+            sealed[by_digest[digest]] = descriptor
+    return sealed
+
+
+def required_predicates(policy: dict[str, Any], derived: dict[str, Any]) -> set[str]:
+    """Predicates whose phase was legally reached for this terminal outcome.
+
+    FINALIZED requires all three.  ABORTED_SAFE and RESTORATION_BLOCKED require
+    only the predicates whose authorization state the attempt actually reached,
+    so partial evidence stays admissible for outcomes that never reached a phase.
+    """
+    if derived["terminal_state"] == "FINALIZED":
+        return set(PREDICATES)
+    return set(derived["evaluation_authorization_contexts"])
+
+
+def validate_envelope(
+    policy: dict[str, Any], derived: dict[str, Any], resolved: dict[str, Any], candidate: dict[str, Any]
 ) -> None:
-    """Validate a workload window against ITS predicate's context."""
-    predicate = candidate.get("predicate_oracle_or_classification_id")
-    context = select_evaluation_context(contexts, predicate)
-    window = candidate.get("workload_window")
-    if not isinstance(window, dict):
-        raise FreezeError("WORKLOAD_WINDOW_INVALID")
-    if window.get("phase") != context["phase"]:
-        raise FreezeError("WORKLOAD_WINDOW_SUBSTITUTION")
-    ordinals = policy["workload_evidence_protocol"]["window_identity"]["phase_ordinal_enum"]
-    if window.get("ordinal") != ordinals[window["phase"]]:
-        raise FreezeError("WORKLOAD_WINDOW_SUBSTITUTION")
-
-
-def validate_attempt_envelope(
-    policy: dict[str, Any],
-    contexts: dict[str, dict[str, Any]],
-    evidence: dict[str, dict[str, Any]],
-    adjudications: dict[str, dict[str, Any]],
-    envelope: dict[str, Any],
-) -> None:
-    """Revalidate every cited adjudication and require exact raw closure."""
-    cited = envelope.get("adjudication_references")
-    raw_references = envelope.get("raw_evidence_references")
-    if not isinstance(cited, list) or not cited or not isinstance(raw_references, list):
-        raise FreezeError("ADJUDICATION_RAW_REFERENCE_REQUIRED")
-    if len(set(cited)) != len(cited):
-        raise FreezeError("ADJUDICATION_CLOSURE_INCOMPLETE")
+    """Revalidate every cited adjudication and require exact closure."""
+    cited = candidate.get("adjudication_references")
+    raw_references = candidate.get("raw_evidence_references")
+    if not isinstance(cited, list) or not isinstance(raw_references, list):
+        dispatch_reject(policy, "ADJUDICATION_RAW_REFERENCE_REQUIRED")
+    if candidate.get("terminal_outcome") != derived["terminal_state"]:
+        dispatch_reject(policy, "JOURNAL_CONTEXT_MISMATCH")
+    cited_ids = [reference.get("evidence_id") for reference in cited]
+    if len(set(cited_ids)) != len(cited_ids):
+        dispatch_reject(policy, "ADJUDICATION_CLOSURE_INCOMPLETE")
+    sealed = adjudication_descriptors(resolved)
+    if set(cited_ids) != set(sealed):
+        dispatch_reject(policy, "ADJUDICATION_CLOSURE_INCOMPLETE")
     closure: set[str] = set()
-    for identifier in cited:
-        candidate = adjudications.get(identifier)
-        if candidate is None:
-            raise FreezeError("EVIDENCE_REFERENCE_UNRESOLVED")
-        validate_adjudication_candidate(policy, contexts, evidence, candidate)
-        closure.update(candidate["raw_evidence_references"])
-    if len(set(raw_references)) != len(raw_references):
-        raise FreezeError("ADJUDICATION_CLOSURE_INCOMPLETE")
-    if set(raw_references) != closure:
-        raise FreezeError("ADJUDICATION_CLOSURE_INCOMPLETE")
+    predicates: list[str] = []
+    for evidence_id in cited_ids:
+        descriptor = sealed.get(evidence_id)
+        if descriptor is None:
+            dispatch_reject(policy, "EVIDENCE_REFERENCE_UNRESOLVED")
+        predicates.append(validate_adjudication(policy, derived, resolved, descriptor))
+        closure.update(
+            reference["evidence_id"] for reference in descriptor["raw_evidence_references"]
+        )
+    if len(set(predicates)) != len(predicates):
+        dispatch_reject(policy, "ADJUDICATION_CLOSURE_INCOMPLETE")
+    if set(predicates) != required_predicates(policy, derived):
+        dispatch_reject(policy, "ADJUDICATION_CLOSURE_INCOMPLETE")
+    raw_ids = [reference.get("evidence_id") for reference in raw_references]
+    if len(set(raw_ids)) != len(raw_ids) or set(raw_ids) != closure:
+        dispatch_reject(policy, "ADJUDICATION_CLOSURE_INCOMPLETE")
+
+
+def v1_2_full_admissibility(
+    policy: dict[str, Any],
+    schema: dict[str, Any],
+    resolved: dict[str, Any],
+    candidate: dict[str, Any],
+) -> dict[str, Any]:
+    """The single v1.2 dispatch path.
+
+    1. schema-validate candidate and resolved context;
+    2. reconstruct the canonical journal and hash chain;
+    3. derive every evaluation context from exact journal records;
+    4. select hooks from the authenticated v1.2 policy;
+    5. run candidate-specific workload and adjudication validation;
+    6. run complete envelope closure validation.
+    """
+    validator = Draft202012Validator(schema)
+    if not validator.is_valid(resolved):
+        dispatch_reject(policy, "RESOLVED_CONTEXT_INVALID")
+    if not validator.is_valid(candidate):
+        dispatch_reject(policy, "STRUCTURAL_SCHEMA_INVALID")
+    if (
+        resolved.get("run_id") != candidate.get("run_id")
+        or resolved.get("attempt_id") != candidate.get("attempt_id")
+    ):
+        dispatch_reject(policy, "JOURNAL_CONTEXT_MISMATCH")
+    if "expected_evaluation_context" in resolved:
+        # No scalar last-marker representation may remain.
+        dispatch_reject(policy, "RESOLVED_CONTEXT_INVALID")
+    derived = reconstruct_journal(policy, list(resolved["attempt_journal_records"]))
+    supplied = resolved.get("evaluation_authorization_contexts")
+    if supplied != derived["evaluation_authorization_contexts"]:
+        # A caller-supplied context never overrides journal reconstruction.
+        dispatch_reject(policy, "JOURNAL_CONTEXT_MISMATCH")
+    plan = [
+        hook["hook_id"]
+        for hook in policy["full_admissibility_validation"]["hook_contracts"]
+        if candidate.get("document_type") in hook["applicable_document_kinds"]
+        and (candidate.get("role") or "NONE") in hook["applicable_roles"]
+    ]
+    if "VALIDATE_ADJUDICATION_RAW_BACKING_V1" not in plan:
+        dispatch_reject(policy, "HOOK_CONTEXT_MISSING")
+    if candidate.get("role") == "adjudication":
+        validate_adjudication(policy, derived, resolved, candidate)
+    elif candidate.get("document_type") == "ATTEMPT_VALIDATION_ENVELOPE_V1":
+        validate_envelope(policy, derived, resolved, candidate)
+    else:
+        dispatch_reject(policy, "HOOK_CONTEXT_MISSING")
+    return {"valid": True, "hooks": tuple(plan), "derived": derived}
+
+
+# ---------------------------------------------------------------------------
+# schema-valid sealed-attempt fixture
+# ---------------------------------------------------------------------------
+
+FIXTURE_RUN_ID = "sremut-ms-m01-r01-a01-0123456789ab"
+FIXTURE_ATTEMPT_ID = "a01"
+FIXTURE_BOOT = "123e4567-e89b-12d3-a456-426614174000"
+FIXTURE_UTC = "2026-08-20T10:00:00.123456789Z"
+EXECUTION_PROFILE_TAG_OBJECT = "7c6493eb7dce68370fd0d5be572edd968654a1d6"
+FROZEN_CONTRACT_PROFILE_IDENTITIES = {
+    "contract_sha256": "bda78e1b07b5eb0628954bcafd8fae3fc1bb2f3b22770046584bd873b72a2488",
+    "execution_profile_sha256": "79cb2d45298e6221d78fcc3aea82df52c71f60f0ab4ba872e1f0579a908703c7",
+    "contract_tag_object": "378e9e9180438910611e7642402220e76bb302ca",
+    "execution_profile_tag_object": EXECUTION_PROFILE_TAG_OBJECT,
+}
+STREAM_SOURCE = "StreamWorkloadManager.log_history"
+
+
+def stream_identity(run_id: Any, attempt_id: Any) -> str:
+    """v1.2 stream identity: v1.1 material and algorithm, v1.2 policy binding."""
+    material = {
+        "schema_version": 1,
+        "execution_profile_tag_object": EXECUTION_PROFILE_TAG_OBJECT,
+        "evidence_policy_id": POLICY_ID,
+        "run_id": run_id,
+        "attempt_id": attempt_id,
+        "source": STREAM_SOURCE,
+        "manager_instance_ordinal": 1,
+    }
+    return sha256_bytes(canonical_json_bytes(material))
+
+
+def v1_1_stream_identity(run_id: Any, attempt_id: Any) -> str:
+    """The superseded v1.1 binding, retained only to prove v1.2 rejects it."""
+    material = {
+        "schema_version": 1,
+        "execution_profile_tag_object": EXECUTION_PROFILE_TAG_OBJECT,
+        "evidence_policy_id": BASE_POLICY_ID,
+        "run_id": run_id,
+        "attempt_id": attempt_id,
+        "source": STREAM_SOURCE,
+        "manager_instance_ordinal": 1,
+    }
+    return sha256_bytes(canonical_json_bytes(material))
+
+
+def _finalize_descriptor(
+    descriptor: dict[str, Any], *, carries_evidence_id: bool = True
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Content-address one descriptor and derive its matching EvidenceRef.
+
+    The frozen adjudication descriptor shape carries no `evidence_id`, so its
+    identity is derived from its own canonical bytes and lives only in the ref.
+    """
+    if carries_evidence_id:
+        working = deepcopy(descriptor)
+        working.pop("evidence_id", None)
+        digest = sha256_bytes(canonical_json_bytes(working))
+        descriptor["evidence_id"] = "ev-" + digest[:32]
+    descriptor_bytes = canonical_json_bytes(descriptor)
+    descriptor_sha256 = sha256_bytes(descriptor_bytes)
+    evidence_id = descriptor.get("evidence_id", "ev-" + descriptor_sha256[:32])
+    relative = f"descriptors/sha256/{descriptor_sha256[:2]}/{descriptor_sha256}.json"
+    reference = {
+        "document_type": (
+            "PAYLOAD_EVIDENCE_REF_V1"
+            if descriptor["storage_class"] == "PAYLOAD_WITH_DESCRIPTOR"
+            else "DESCRIPTOR_EVIDENCE_REF_V1"
+        ),
+        "schema_version": 1,
+        "evidence_id": evidence_id,
+        "role": descriptor["role"],
+        "producer": descriptor["producer"],
+        "source_kind": descriptor["source_kind"],
+        "media_type": descriptor["media_type"],
+        "storage_class": descriptor["storage_class"],
+        "redaction_status": "NOT_REDACTED",
+        "descriptor_sha256": descriptor_sha256,
+        "descriptor_size_bytes": len(descriptor_bytes),
+        "descriptor_relative_path": relative,
+    }
+    if descriptor["storage_class"] == "PAYLOAD_WITH_DESCRIPTOR":
+        reference["payload_sha256"] = descriptor["payload_sha256"]
+        reference["payload_size_bytes"] = descriptor["payload_size_bytes"]
+        reference["payload_relative_path"] = descriptor["payload_relative_path"]
+    return descriptor, reference
+
+
+def _common_metadata() -> dict[str, Any]:
+    return {
+        "schema_version": 1,
+        "run_id": FIXTURE_RUN_ID,
+        "attempt_id": FIXTURE_ATTEMPT_ID,
+        "created_utc": FIXTURE_UTC,
+        "boot_identity": FIXTURE_BOOT,
+        "redaction_status": "NOT_REDACTED",
+    }
+
+
+def _payload_paths(payload: bytes) -> dict[str, Any]:
+    digest = sha256_bytes(payload)
+    return {
+        "payload_sha256": digest,
+        "payload_size_bytes": len(payload),
+        "payload_relative_path": f"objects/sha256/{digest[:2]}/{digest}",
+    }
+
+
+def build_sealed_attempt(policy: dict[str, Any], schema: dict[str, Any]) -> dict[str, Any]:
+    """One complete, schema-valid, FINALIZED sealed attempt.
+
+    Raw adjudication backing is the two payload-backed workload roles.  A
+    Kubernetes projection chain would add fixture surface without exercising any
+    semantics this correction changes, so `kubernetes_uid_and_resource_version_
+    references_when_applicable` is the empty array the schema permits.
+    """
+    matrix = predicate_matrix(policy)
+    ordinals = policy["workload_evidence_protocol"]["window_identity"]["phase_ordinal_enum"]
+    identity = stream_identity(FIXTURE_RUN_ID, FIXTURE_ATTEMPT_ID)
+
+    descriptors: dict[str, dict[str, Any]] = {}
+    references: dict[str, dict[str, Any]] = {}
+    payloads: dict[str, bytes] = {}
+    per_predicate: dict[str, dict[str, Any]] = {}
+    monotonic = 1000
+
+    for predicate in PREDICATES:
+        phase = matrix[predicate]["phase"]
+        ordinal = ordinals[phase]
+        window_core = {
+            "phase": phase,
+            "ordinal": ordinal,
+            "run_id": FIXTURE_RUN_ID,
+            "attempt_id": FIXTURE_ATTEMPT_ID,
+            "mutant_id": "MS-M01",
+            "repetition": 1,
+            "stream_identity": identity,
+        }
+        log_payload = canonical_json_bytes({"window": ordinal, "entries": 60}) + b"\n"
+        monotonic += 1
+        log_descriptor, log_reference = _finalize_descriptor({
+            **_common_metadata(),
+            "document_type": "PAYLOAD_EVIDENCE_DESCRIPTOR_V1",
+            "role": "workload_log_bytes",
+            "producer": "WORKLOAD_EVIDENCE_ADAPTER",
+            "source_kind": "IN_PROCESS_WORKLOAD",
+            "media_type": "application/octet-stream",
+            "storage_class": "PAYLOAD_WITH_DESCRIPTOR",
+            "monotonic_ns": monotonic,
+            "complete_entry_count": 60,
+            "entry_indexes": list(range(60)),
+            "entry_time_ieee754_binary64_hex": ["3ff0000000000000"] * 60,
+            "workload_window": dict(window_core),
+            "stream_identity": identity,
+            **_payload_paths(log_payload),
+        })
+        payloads[log_reference["evidence_id"]] = log_payload
+
+        monotonic += 1
+        boundary_descriptor, boundary_reference = _finalize_descriptor({
+            **_common_metadata(),
+            "document_type": "DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1",
+            "role": "workload_boundary",
+            "producer": "WORKLOAD_EVIDENCE_ADAPTER",
+            "source_kind": "IN_PROCESS_WORKLOAD",
+            "media_type": "application/json",
+            "storage_class": "DESCRIPTOR_ONLY",
+            "monotonic_ns": monotonic,
+            "workload_pod_projection_reference": deepcopy(log_reference),
+            "pod_name": "wrk2-job-abcde",
+            "pod_uid": "11111111-1111-4111-8111-111111111111",
+            "container_restart_count": 0,
+            "raw_log_reference": deepcopy(log_reference),
+            "raw_log_byte_length": len(log_payload),
+            "raw_log_sha256": sha256_bytes(log_payload),
+            "complete_entry_count": 60,
+            "request_count": 60,
+            "entry_time_ieee754_binary64_hex": ["3ff0000000000000"] * 60,
+            "workload_window": dict(window_core),
+            "stream_identity": identity,
+        })
+
+        parse_payload = canonical_json_bytes({
+            "document_type": "WORKLOAD_PARSE_RESULT_V1",
+            "schema_version": 1,
+            "fresh_request_count": 60,
+            "failure_marker_count": 0,
+        })
+        monotonic += 1
+        parse_descriptor, parse_reference = _finalize_descriptor({
+            **_common_metadata(),
+            "document_type": "PAYLOAD_EVIDENCE_DESCRIPTOR_V1",
+            "role": "workload_parse_result",
+            "producer": "WORKLOAD_EVIDENCE_ADAPTER",
+            "source_kind": "IN_PROCESS_WORKLOAD",
+            "media_type": "application/json",
+            "storage_class": "PAYLOAD_WITH_DESCRIPTOR",
+            "monotonic_ns": monotonic,
+            "boundary_reference": deepcopy(boundary_reference),
+            "raw_log_reference": deepcopy(log_reference),
+            "fresh_request_count": 60,
+            "failure_marker_count": 0,
+            "workload_window": dict(window_core),
+            "stream_identity": identity,
+            **_payload_paths(parse_payload),
+        })
+        payloads[parse_reference["evidence_id"]] = parse_payload
+
+        window_identity = {
+            **window_core,
+            "boundary_reference": deepcopy(boundary_reference),
+            "raw_log_reference": deepcopy(log_reference),
+            "parse_result_reference": deepcopy(parse_reference),
+        }
+        raw_refs = [deepcopy(log_reference), deepcopy(parse_reference)]
+        monotonic += 1
+        adjudication_descriptor, adjudication_reference = _finalize_descriptor({
+            "document_type": "DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1",
+            "role": "adjudication",
+            "producer": "ADJUDICATOR",
+            "source_kind": "GENERATED_DESCRIPTOR",
+            "media_type": "application/json",
+            "storage_class": "DESCRIPTOR_ONLY",
+            "run_id": FIXTURE_RUN_ID,
+            "attempt_id": FIXTURE_ATTEMPT_ID,
+            "adjudication_id": f"{predicate}:{FIXTURE_RUN_ID}",
+            "predicate_oracle_or_classification_id": predicate,
+            "result_type": "BOOLEAN",
+            "boolean_or_categorical_value": True,
+            "reason": "DERIVED_FROM_RAW_ATTEMPT_EVIDENCE",
+            "first_observation_utc": FIXTURE_UTC,
+            "last_observation_utc": FIXTURE_UTC,
+            "monotonic_elapsed_time": 60,
+            "observation_count": len(raw_refs),
+            "applicable_deadline": matrix[predicate]["deadline_identity"],
+            "evaluator_source_or_runner_bundle_sha256": sha256_bytes(b"evaluator"),
+            "raw_evidence_references": raw_refs,
+            "raw_evidence_sha256_per_reference": [
+                reference["payload_sha256"] for reference in raw_refs
+            ],
+            "kubernetes_uid_and_resource_version_references_when_applicable": [],
+            "dependency_and_toolchain_identity": {"evidence_policy_id": POLICY_ID},
+            "workload_window_adjudication_identity": window_identity,
+        }, carries_evidence_id=False)
+        for descriptor, reference in (
+            (log_descriptor, log_reference),
+            (boundary_descriptor, boundary_reference),
+            (parse_descriptor, parse_reference),
+            (adjudication_descriptor, adjudication_reference),
+        ):
+            descriptors[reference["evidence_id"]] = descriptor
+            references[reference["evidence_id"]] = reference
+        per_predicate[predicate] = {
+            "raw": raw_refs,
+            "adjudication": adjudication_reference,
+            "window": window_identity,
+        }
+
+    records = _build_journal(per_predicate)
+    resolved = _build_resolved_context(policy, records, descriptors, references, payloads)
+    envelope = _build_envelope(schema, records, per_predicate)
+    return {
+        "policy": policy,
+        "records": records,
+        "resolved": resolved,
+        "envelope": envelope,
+        "per_predicate": per_predicate,
+        "references": references,
+        "descriptors": descriptors,
+    }
+
+
+# ---------------------------------------------------------------------------
+# bounded schema-driven synthesis
+#
+# The frozen run-identity and terminal-manifest records are almost entirely
+# `const`-driven.  Deriving them FROM the authenticated schema keeps the fixture
+# honest -- it cannot drift from the frozen definition it must satisfy -- and
+# avoids transcribing dozens of pinned digests by hand.
+# ---------------------------------------------------------------------------
+
+
+_SAMPLE_BY_PATTERN = {
+    r"^[0-9a-f]{64}$": "a" * 64,
+    r"^[0-9a-f]{40}$": "c" * 40,
+    r"^[0-9a-f]{12}$": "d" * 12,
+    r"^ev-[0-9a-f]{32}$": "ev-" + "b" * 32,
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$": FIXTURE_BOOT,
+    r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{9}Z$": FIXTURE_UTC,
+    r"^sremut-ms-(m01|m02|m03)-r0[1-3]-a0[1-2]-[0-9a-f]{12}$": FIXTURE_RUN_ID,
+    r"^a0[1-2]$": FIXTURE_ATTEMPT_ID,
+    r"^descriptors/sha256/[0-9a-f]{2}/[0-9a-f]{64}\.json$":
+        "descriptors/sha256/aa/" + "a" * 64 + ".json",
+    r"^manifests/[A-Za-z0-9._/-]+$": "manifests/terminal.sha256",
+}
+
+
+def _resolve(schema: dict[str, Any], node: Any) -> Any:
+    while isinstance(node, dict) and "$ref" in node:
+        node = schema["$defs"][node["$ref"].split("/")[-1]]
+    return node
+
+
+def synthesize(schema: dict[str, Any], node: Any, overrides: dict[str, Any] | None = None) -> Any:
+    """Build one minimal value satisfying a closed frozen definition."""
+    node = _resolve(schema, node)
+    if not isinstance(node, dict):
+        raise FreezeError("SYNTHESIS_NODE_INVALID")
+    if "const" in node:
+        return deepcopy(node["const"])
+    if "enum" in node:
+        return deepcopy(node["enum"][0])
+    if "oneOf" in node:
+        return synthesize(schema, node["oneOf"][0], overrides)
+    kind = node.get("type")
+    if kind == "object" or "properties" in node:
+        value: dict[str, Any] = {}
+        for name in node.get("required", ()):
+            if overrides and name in overrides:
+                value[name] = deepcopy(overrides[name])
+                continue
+            child = node.get("properties", {}).get(name)
+            if child is None:
+                raise FreezeError(f"SYNTHESIS_PROPERTY_MISSING:{name}")
+            value[name] = synthesize(schema, child, overrides)
+        return value
+    if kind == "array":
+        if "prefixItems" in node:
+            return [synthesize(schema, item, overrides) for item in node["prefixItems"]]
+        count = max(int(node.get("minItems", 0)), 0)
+        return [synthesize(schema, node["items"], overrides) for _ in range(count)]
+    if kind == "integer":
+        return int(node.get("minimum", 0))
+    if kind == "boolean":
+        return True
+    if kind == "null":
+        return None
+    if kind == "string":
+        pattern = node.get("pattern")
+        if pattern is not None:
+            for known, sample in _SAMPLE_BY_PATTERN.items():
+                if known == pattern:
+                    return sample
+            raise FreezeError(f"SYNTHESIS_PATTERN_UNKNOWN:{pattern}")
+        return "x" * max(int(node.get("minLength", 1)), 1)
+    raise FreezeError("SYNTHESIS_NODE_INVALID")
+
+
+def _record(sequence: int, transition: str, previous: str, **extra: Any) -> dict[str, Any]:
+    record = {
+        "document_type": "JOURNAL_RECORD_V1",
+        "schema_version": 1,
+        "journal_record_type": "STATE_TRANSITION",
+        "sequence_number": sequence,
+        "previous_entry_sha256": previous,
+        "canonical_current_entry_sha256": "0" * 64,
+        "run_id": FIXTURE_RUN_ID,
+        "attempt_id": FIXTURE_ATTEMPT_ID,
+        "transition": transition,
+        "referenced_intent_receipt_and_adjudication_sha256": [],
+        "utc_time": FIXTURE_UTC,
+        "monotonic_ns": sequence + 1,
+        "boot_identity": FIXTURE_BOOT,
+    }
+    record.update(extra)
+    record["canonical_current_entry_sha256"] = journal_record_sha256(record)
+    return record
+
+
+def _build_journal(per_predicate: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+    """Publications ride state-neutral STATE_VERIFIED records, before terminal."""
+    plan: list[tuple[str, dict[str, Any]]] = [
+        ("CREATED->PREFLIGHT_PASS", {}),
+        ("PREFLIGHT_PASS->HEALTHY_STATE_CAPTURED", {}),
+        ("HEALTHY_STATE_CAPTURED->MUTANT_INJECTED", {}),
+        ("MUTANT_INJECTED->MUTANT_STATE_VERIFIED", {}),
+        ("MUTANT_STATE_VERIFIED->ORIGINAL_ORACLE_STARTED", {}),
+        ("ORIGINAL_ORACLE_STARTED->ORIGINAL_ORACLE_EVALUATED", {}),
+    ]
+    order = (
+        ("INITIAL_INVARIANT_EVALUATION", "ORIGINAL_ORACLE_EVALUATED",
+         "ORIGINAL_ORACLE_EVALUATED->CONTRACT_EVALUATED"),
+        ("REPLACEMENT_PERSISTENCE_EVALUATION", "CONTRACT_EVALUATED",
+         "CONTRACT_EVALUATED->RESTORE_STARTED"),
+        ("RESTORATION_POSITIVE_CONTROL", "RESTORE_STARTED",
+         "RESTORE_STARTED->RESTORE_VERIFIED"),
+    )
+    for predicate, state, advance in order:
+        bundle = per_predicate[predicate]
+        plan.append((f"{MARKER_PREFIX}{predicate}", {}))
+        plan.append((
+            f"STATE_VERIFIED:{state}",
+            {
+                "referenced_descriptor_sha256": [
+                    reference["descriptor_sha256"] for reference in bundle["raw"]
+                ],
+                "referenced_payload_sha256": [
+                    reference["payload_sha256"] for reference in bundle["raw"]
+                ],
+            },
+        ))
+        plan.append((
+            f"STATE_VERIFIED:{state}",
+            {"referenced_descriptor_sha256": [bundle["adjudication"]["descriptor_sha256"]]},
+        ))
+        plan.append((advance, {}))
+    plan.append(("RESTORE_VERIFIED->FINALIZED", {}))
+
+    records: list[dict[str, Any]] = []
+    previous = "0" * 64
+    for index, (transition, extra) in enumerate(plan):
+        record = _record(index, transition, previous, **extra)
+        previous = record["canonical_current_entry_sha256"]
+        records.append(record)
+    return records
+
+
+def _build_resolved_context(
+    policy: dict[str, Any],
+    records: list[dict[str, Any]],
+    descriptors: dict[str, dict[str, Any]],
+    references: dict[str, dict[str, Any]],
+    payloads: dict[str, bytes],
+) -> dict[str, Any]:
+    derived = reconstruct_journal(policy, records)
+    publications = {}
+    for evidence_id, reference in references.items():
+        row = derived["publication_by_descriptor_sha256"].get(reference["descriptor_sha256"])
+        if row is not None:
+            publications[evidence_id] = dict(row)
+    journal_bytes = b"".join(canonical_json_bytes(record) + b"\n" for record in records)
+    return {
+        "document_type": "RESOLVED_EVIDENCE_CONTEXT_V1_2",
+        "schema_version": 1,
+        "run_id": FIXTURE_RUN_ID,
+        "attempt_id": FIXTURE_ATTEMPT_ID,
+        "mutant_id": "MS-M01",
+        "repetition": 1,
+        "evidence_refs": deepcopy(references),
+        "exact_descriptor_bytes_hex": {
+            evidence_id: canonical_json_bytes(descriptor).hex()
+            for evidence_id, descriptor in descriptors.items()
+        },
+        "parsed_canonical_descriptors": deepcopy(descriptors),
+        "exact_payload_bytes_hex": {
+            evidence_id: payload.hex() for evidence_id, payload in payloads.items()
+        },
+        "journal_publication_records": publications,
+        "attempt_journal_records": deepcopy(records),
+        "exact_authoritative_journal_bytes_hex": journal_bytes.hex(),
+        "validation_mode": "OFFLINE_SEALED_REVALIDATION",
+        "trusted_capture_source_bytes_hex": {},
+        "offline_seal": None,
+        "current_verified_attempt_state": {
+            "state": derived["terminal_state"],
+            "sequence_number": len(records) - 1,
+            "terminal": derived["terminal"],
+        },
+        "frozen_contract_profile_identities": FROZEN_CONTRACT_PROFILE_IDENTITIES,
+        "expected_operation_context": None,
+        "evaluation_authorization_contexts": deepcopy(
+            derived["evaluation_authorization_contexts"]
+        ),
+        "challenge_identity": None,
+    }
+
+
+def _build_envelope(
+    schema: dict[str, Any],
+    records: list[dict[str, Any]],
+    per_predicate: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    raw: list[dict[str, Any]] = []
+    for predicate in PREDICATES:
+        raw.extend(deepcopy(reference) for reference in per_predicate[predicate]["raw"])
+    return {
+        "document_type": "ATTEMPT_VALIDATION_ENVELOPE_V1",
+        "schema_version": 1,
+        "run_id": FIXTURE_RUN_ID,
+        "attempt_id": FIXTURE_ATTEMPT_ID,
+        "terminal_outcome": "FINALIZED",
+        "run_identities": synthesize(
+            schema,
+            {"$ref": "#/$defs/attempt_validation_envelope"}["$ref"]
+            and schema["$defs"]["attempt_validation_envelope"]["properties"]["run_identities"],
+            {"run_id": FIXTURE_RUN_ID, "attempt_id": FIXTURE_ATTEMPT_ID,
+             "terminal_outcome": "FINALIZED"},
+        ),
+        "operations": [],
+        "journal_records": deepcopy(records),
+        "adjudication_references": [
+            deepcopy(per_predicate[predicate]["adjudication"]) for predicate in PREDICATES
+        ],
+        "raw_evidence_references": raw,
+        "terminal_manifest": synthesize(
+            schema,
+            schema["$defs"]["terminal_manifest_record"],
+            {"run_id": FIXTURE_RUN_ID, "attempt_id": FIXTURE_ATTEMPT_ID,
+             "terminal_outcome": "FINALIZED"},
+        ),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -496,7 +1176,7 @@ def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
     policy["document_type"] = "EVIDENCE_POLICY_DOCUMENT_V1_2"
     policy["semantic_version"] = SEMANTIC_VERSION
     policy["policy_id"] = POLICY_ID
-    policy["status"] = "FROZEN_BEFORE_MUTANT_EXECUTION"
+    policy["status"] = "FROZEN_BEFORE_PROSPECTIVE_MUTANT_EXECUTION"
     policy["frozen_at"] = FROZEN_AT
     policy["future_annotated_tag"] = TAG_NAME
     policy["base_policy_provenance"] = {
@@ -517,7 +1197,10 @@ def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
         "claims_to_predate_historical_runs": False,
         "prospective_mutant_matrix_executed_at_freeze": 0,
         "prospective_mutant_matrix_planned_at_freeze": 9,
-        "mutant_results_produced_under_v1_1": False,
+        # Scoped exactly: no OFFICIAL_FROZEN_ATTEMPT from the prospective 0/9
+        # matrix was executed under v1.1.  This says nothing about the historical
+        # mutant executions, which did occur and are not reinterpreted here.
+        "prospective_matrix_results_produced_under_v1_1": False,
     }
     policy["correction_reason"] = [
         "SINGLE_RETAINED_EVALUATION_AUTHORIZATION_MARKER",
@@ -597,9 +1280,10 @@ def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
             codes.append(code)
     full["failure_codes"] = codes
 
+    policy["workload_stream_identity_protocol"]["evidence_policy_id"] = POLICY_ID
     auth = policy["authenticated_policy_input"]
     auth["expected_entry_paths"] = [GENERATOR_REL, POLICY_REL, SCHEMA_REL]
-    auth["required_exact_bytes"] = [GENERATOR_REL, POLICY_REL, SCHEMA_REL]
+    auth["required_exact_bytes"] = [POLICY_REL, SCHEMA_REL, MANIFEST_REL]
     policy["runner_release_binding"]["evidence_policy_annotated_tag"] = TAG_NAME
 
     changed = assert_allowed_diff(base_policy, policy, POLICY_ALLOWED_PREFIXES, "POLICY")
@@ -622,6 +1306,62 @@ def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
         "all_unlisted_policy_and_schema_values_must_equal_v1_1": True,
     }
     return policy
+
+
+def _authorization_context_schema(predicate: str, row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "predicate_id": {"type": "string", "const": predicate},
+            "phase": {"type": "string", "const": row["phase"]},
+            "deadline_identity": {"type": "string", "const": row["deadline_identity"]},
+            "authorization_state": {"type": "string", "enum": list(row["allowed_states"])},
+            "marker_sequence_number": {"type": "integer", "minimum": 0},
+        },
+        "required": [
+            "predicate_id",
+            "phase",
+            "deadline_identity",
+            "authorization_state",
+            "marker_sequence_number",
+        ],
+    }
+
+
+def _correct_resolved_context(schema: dict[str, Any]) -> None:
+    """Replace the scalar last-marker context with the per-predicate mapping."""
+    definition = schema["$defs"]["resolved_evidence_context"]
+    properties = definition["properties"]
+    properties["document_type"] = {
+        "type": "string",
+        "const": "RESOLVED_EVIDENCE_CONTEXT_V1_2",
+    }
+    properties.pop("expected_evaluation_context", None)
+    definition["required"] = [
+        name for name in definition["required"] if name != "expected_evaluation_context"
+    ]
+    matrix = schema["$defs"]["evidence_policy_document"]["properties"][
+        "full_admissibility_validation"
+    ]["properties"]["adjudication_predicate_raw_role_context_deadline_matrix"]["properties"]
+    entries = {}
+    for predicate in PREDICATES:
+        row = {
+            "phase": matrix[predicate]["properties"]["phase"]["const"],
+            "deadline_identity": matrix[predicate]["properties"]["deadline_identity"]["const"],
+            "allowed_states": [
+                item["const"]
+                for item in matrix[predicate]["properties"]["allowed_states"]["prefixItems"]
+            ],
+        }
+        entries[predicate] = _authorization_context_schema(predicate, row)
+    properties["evaluation_authorization_contexts"] = {
+        "type": "object",
+        "additionalProperties": False,
+        "maxProperties": len(PREDICATES),
+        "properties": entries,
+    }
+    definition["required"].append("evaluation_authorization_contexts")
 
 
 def build_schema(v11: Any, v1: Any, policy: dict[str, Any], base_schema: dict[str, Any]) -> dict[str, Any]:
@@ -657,6 +1397,7 @@ def build_schema(v11: Any, v1: Any, policy: dict[str, Any], base_schema: dict[st
     auth["expected_generator_relative_path"] = {"type": "string", "const": GENERATOR_REL}
     release = schema["$defs"]["offline_seal_input"]["properties"]["runner_release_binding"]["properties"]
     release["evidence_policy_annotated_tag"] = {"type": "string", "const": TAG_NAME}
+    _correct_resolved_context(schema)
     schema["x-evidence-policy-semantic-version"] = SEMANTIC_VERSION
     v1.assert_closed_object_schemas(schema)
     Draft202012Validator.check_schema(schema)
@@ -667,280 +1408,300 @@ def build_schema(v11: Any, v1: Any, policy: dict[str, Any], base_schema: dict[st
 
 
 # ---------------------------------------------------------------------------
-# reference tests
+# reference tests -- every positive drives v1_2_full_admissibility
 # ---------------------------------------------------------------------------
 
 
-def expect_failure(code: str, function: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
+def expect_dispatch_failure(code: str, function: Callable[..., Any], *args: Any) -> None:
     try:
-        function(*args, **kwargs)
-    except FreezeError as error:
+        function(*args)
+    except DispatchError as error:
         if str(error) != code:
             raise FreezeError(f"UNEXPECTED_FAILURE_CODE:{error}:{code}") from None
         return
     raise FreezeError(f"EXPECTED_FAILURE_NOT_RAISED:{code}")
 
 
-def terminal_journal() -> list[dict[str, Any]]:
-    """One FINALIZED attempt carrying all three markers in their own states."""
-    transitions = [
-        "CREATED->PREFLIGHT_PASS",
-        "PREFLIGHT_PASS->HEALTHY_STATE_CAPTURED",
-        "HEALTHY_STATE_CAPTURED->MUTANT_INJECTED",
-        "MUTANT_INJECTED->MUTANT_STATE_VERIFIED",
-        "MUTANT_STATE_VERIFIED->ORIGINAL_ORACLE_STARTED",
-        "ORIGINAL_ORACLE_STARTED->ORIGINAL_ORACLE_EVALUATED",
-        f"{MARKER_PREFIX}INITIAL_INVARIANT_EVALUATION",
-        "ORIGINAL_ORACLE_EVALUATED->CONTRACT_EVALUATED",
-        f"{MARKER_PREFIX}REPLACEMENT_PERSISTENCE_EVALUATION",
-        "CONTRACT_EVALUATED->RESTORE_STARTED",
-        f"{MARKER_PREFIX}RESTORATION_POSITIVE_CONTROL",
-        "RESTORE_STARTED->RESTORE_VERIFIED",
-        "RESTORE_VERIFIED->FINALIZED",
-    ]
-    return [
-        {"sequence_number": index, "transition": value}
-        for index, value in enumerate(transitions)
-    ]
+def _mutate(bundle: dict[str, Any], **changes: Any) -> tuple[dict[str, Any], dict[str, Any]]:
+    return deepcopy(bundle["resolved"]), deepcopy(bundle["envelope"])
 
 
-def reference_bundle(policy: dict[str, Any]) -> tuple[
-    list[dict[str, Any]], dict[str, dict[str, Any]], dict[str, dict[str, Any]], dict[str, Any]
-]:
-    """A complete, internally consistent three-evaluation attempt."""
-    records = terminal_journal()
-    contexts = derive_evaluation_authorizations(policy, records)
+def run_reference_tests(policy: dict[str, Any], schema: dict[str, Any]) -> tuple[int, int]:
+    bundle = build_sealed_attempt(policy, schema)
+    resolved = bundle["resolved"]
+    envelope = bundle["envelope"]
     matrix = predicate_matrix(policy)
-    evidence: dict[str, dict[str, Any]] = {}
-    adjudications: dict[str, dict[str, Any]] = {}
-    cited: list[str] = []
-    sequence = 100
-    for predicate in PREDICATES:
-        row = matrix[predicate]
-        context = contexts[predicate]
-        raw_ids = []
-        for role in ("workload_log_bytes", "workload_parse_result"):
-            sequence += 1
-            evidence_id = f"ev-{predicate}-{role}"
-            evidence[evidence_id] = {
-                "role": role,
-                "payload_sha256": sha256_bytes(evidence_id.encode()),
-                "publication_sequence_number": sequence,
-                "window_phase": row["phase"],
-            }
-            raw_ids.append(evidence_id)
-        sequence += 1
-        identifier = f"adj-{predicate}"
-        adjudications[identifier] = {
-            "predicate_oracle_or_classification_id": predicate,
-            "phase": row["phase"],
-            "applicable_deadline": row["deadline_identity"],
-            "result_type": "BOOLEAN",
-            "publication_sequence_number": sequence,
-            "raw_evidence_references": raw_ids,
-            "raw_evidence_sha256_per_reference": [
-                evidence[identifier_raw]["payload_sha256"] for identifier_raw in raw_ids
-            ],
-            "authorization_state": context["authorization_state"],
-        }
-        cited.append(identifier)
-    envelope = {
-        "document_type": "ATTEMPT_VALIDATION_ENVELOPE_V1",
-        "adjudication_references": list(cited),
-        "raw_evidence_references": sorted(evidence),
-    }
-    return records, evidence, adjudications, envelope
+    validator = Draft202012Validator(schema)
+    dispatch = lambda ctx, cand: v1_2_full_admissibility(policy, schema, ctx, cand)
 
-
-def run_reference_tests(policy: dict[str, Any]) -> tuple[int, int]:
-    matrix = predicate_matrix(policy)
     positive = 0
     negative = 0
 
-    records, evidence, adjudications, envelope = reference_bundle(policy)
-    contexts = derive_evaluation_authorizations(policy, records)
+    # P1 - the sealed context and every candidate are v1.2 schema-valid.
+    for document in [resolved, envelope, *[
+        bundle["descriptors"][bundle["per_predicate"][p]["adjudication"]["evidence_id"]]
+        for p in PREDICATES
+    ]]:
+        validator.validate(document)
+    positive += 1
 
-    # P1 - one terminal FINALIZED journal contains all three markers.
-    markers = [r["transition"][len(MARKER_PREFIX):] for r in records
-               if r["transition"].startswith(MARKER_PREFIX)]
-    if sorted(markers) != sorted(PREDICATES) or records[-1]["transition"] != "RESTORE_VERIFIED->FINALIZED":
+    # P2 - one FINALIZED journal carries all three markers, each in its own state.
+    derived = reconstruct_journal(policy, bundle["records"])
+    contexts = derived["evaluation_authorization_contexts"]
+    if derived["terminal_state"] != "FINALIZED" or set(contexts) != set(PREDICATES):
+        raise FreezeError("REFERENCE_JOURNAL_INVALID")
+    for predicate in PREDICATES:
+        if contexts[predicate]["authorization_state"] not in matrix[predicate]["allowed_states"]:
+            raise FreezeError("REFERENCE_JOURNAL_INVALID")
+    if len({c["authorization_state"] for c in contexts.values()}) != 3:
         raise FreezeError("REFERENCE_JOURNAL_INVALID")
     positive += 1
 
-    # P2 - each marker occurs in its own frozen allowed state.
+    # P3 - all three adjudications pass the integrated dispatcher.
     for predicate in PREDICATES:
-        if contexts[predicate]["authorization_state"] not in matrix[predicate]["allowed_states"]:
-            raise FreezeError("REFERENCE_AUTHORIZATION_STATE_INVALID")
-    if len({c["authorization_state"] for c in contexts.values()}) != 3:
-        raise FreezeError("REFERENCE_AUTHORIZATION_STATE_INVALID")
+        candidate = bundle["descriptors"][
+            bundle["per_predicate"][predicate]["adjudication"]["evidence_id"]
+        ]
+        if not dispatch(resolved, candidate)["valid"]:
+            raise FreezeError("REFERENCE_ADJUDICATION_INVALID")
     positive += 1
 
-    # P3 - all three adjudications validate against that one sealed journal.
+    # P4 - all three workload windows pass through the dispatcher's own path.
     for predicate in PREDICATES:
-        validate_adjudication_candidate(
-            policy, contexts, evidence, adjudications[f"adj-{predicate}"]
+        validate_workload_window(
+            policy, derived, predicate, bundle["per_predicate"][predicate]["window"]
         )
     positive += 1
 
-    # P4 - all three workload windows validate against their own contexts.
-    ordinals = policy["workload_evidence_protocol"]["window_identity"]["phase_ordinal_enum"]
-    for predicate in PREDICATES:
-        phase = matrix[predicate]["phase"]
-        validate_workload_window_candidate(
-            policy,
-            contexts,
-            {
-                "predicate_oracle_or_classification_id": predicate,
-                "workload_window": {"phase": phase, "ordinal": ordinals[phase]},
-            },
-        )
+    # P5 - the complete FINALIZED envelope passes closure through the dispatcher.
+    if not dispatch(resolved, envelope)["valid"]:
+        raise FreezeError("REFERENCE_ENVELOPE_INVALID")
     positive += 1
 
-    # P5 - the envelope citing all three passes complete closure validation.
-    validate_attempt_envelope(policy, contexts, evidence, adjudications, envelope)
-    positive += 1
-
-    # P6 - repeated derivation is deterministic and byte-identical.
-    again = derive_evaluation_authorizations(policy, terminal_journal())
-    if json.dumps(again, sort_keys=True) != json.dumps(contexts, sort_keys=True):
+    # P6 - the fixture and derivation are deterministic.
+    again = build_sealed_attempt(policy, schema)
+    if canonical_json_bytes(again["resolved"]) != canonical_json_bytes(resolved):
         raise FreezeError("REFERENCE_DERIVATION_NOT_DETERMINISTIC")
     positive += 1
 
-    # N1 - duplicate marker for one predicate.
-    duplicated = terminal_journal()
-    duplicated.insert(7, {"sequence_number": 7,
-                          "transition": f"{MARKER_PREFIX}INITIAL_INVARIANT_EVALUATION"})
-    for index, record in enumerate(duplicated):
-        record["sequence_number"] = index
-    expect_failure("EVALUATION_AUTHORIZATION_DUPLICATE",
-                   derive_evaluation_authorizations, policy, duplicated)
+    # ---- negatives ---------------------------------------------------------
+
+    # N1 - scalar last-marker context.
+    ctx, env = _mutate(bundle)
+    ctx["expected_evaluation_context"] = {"predicate_id": "RESTORATION_POSITIVE_CONTROL"}
+    expect_dispatch_failure("RESOLVED_CONTEXT_INVALID", dispatch, ctx, env)
     negative += 1
 
-    # N2 - missing marker.
-    missing = [r for r in terminal_journal()
-               if r["transition"] != f"{MARKER_PREFIX}REPLACEMENT_PERSISTENCE_EVALUATION"]
-    for index, record in enumerate(missing):
-        record["sequence_number"] = index
-    partial = derive_evaluation_authorizations(policy, missing)
-    expect_failure("EVALUATION_AUTHORIZATION_CONTEXT_MISSING",
-                   validate_adjudication_candidate, policy, partial, evidence,
-                   adjudications["adj-REPLACEMENT_PERSISTENCE_EVALUATION"])
+    # N2 - missing predicate context.
+    ctx, env = _mutate(bundle)
+    ctx["evaluation_authorization_contexts"].pop("INITIAL_INVARIANT_EVALUATION")
+    expect_dispatch_failure("JOURNAL_CONTEXT_MISMATCH", dispatch, ctx, env)
     negative += 1
 
-    # N3 - unknown predicate.
-    unknown = terminal_journal()
-    unknown[6] = {"sequence_number": 6, "transition": f"{MARKER_PREFIX}NOT_A_PREDICATE"}
-    expect_failure("EVALUATION_AUTHORIZATION_UNKNOWN_PREDICATE",
-                   derive_evaluation_authorizations, policy, unknown)
+    # N3 - duplicate marker for one predicate.
+    ctx, env = _mutate(bundle)
+    ctx["attempt_journal_records"] = _rechain(
+        _insert(bundle["records"], 7, f"{MARKER_PREFIX}INITIAL_INVARIANT_EVALUATION")
+    )
+    expect_dispatch_failure("EVALUATION_AUTHORIZATION_DUPLICATE", dispatch, ctx, env)
     negative += 1
 
-    # N4 - marker in a disallowed state.
-    disallowed = terminal_journal()
-    disallowed[6] = {"sequence_number": 6,
-                     "transition": f"{MARKER_PREFIX}RESTORATION_POSITIVE_CONTROL"}
-    disallowed[10] = {"sequence_number": 10,
-                      "transition": f"{MARKER_PREFIX}INITIAL_INVARIANT_EVALUATION"}
-    expect_failure("EVALUATION_AUTHORIZATION_STATE_INVALID",
-                   derive_evaluation_authorizations, policy, disallowed)
+    # N4 - marker in a state that predicate does not allow.
+    ctx, env = _mutate(bundle)
+    ctx["attempt_journal_records"] = _rechain(
+        _insert(bundle["records"], 2, f"{MARKER_PREFIX}RESTORATION_POSITIVE_CONTROL")
+    )
+    expect_dispatch_failure("EVALUATION_AUTHORIZATION_STATE_INVALID", dispatch, ctx, env)
     negative += 1
 
-    # N5 - wrong phase.
-    wrong_phase = deepcopy(adjudications["adj-INITIAL_INVARIANT_EVALUATION"])
-    wrong_phase["phase"] = matrix["RESTORATION_POSITIVE_CONTROL"]["phase"]
-    expect_failure("ADJUDICATION_EVALUATION_PHASE_MISMATCH",
-                   validate_adjudication_candidate, policy, contexts, evidence, wrong_phase)
+    # N5 - wrong phase in the adjudication's window identity.
+    ctx, env = _mutate(bundle)
+    target = bundle["per_predicate"]["INITIAL_INVARIANT_EVALUATION"]["adjudication"]["evidence_id"]
+    candidate = deepcopy(bundle["descriptors"][target])
+    candidate["workload_window_adjudication_identity"]["phase"] = "RESTORATION_POSITIVE_CONTROL"
+    candidate["workload_window_adjudication_identity"]["ordinal"] = 3
+    expect_dispatch_failure("WORKLOAD_EVALUATION_CONTEXT_MISMATCH", dispatch, ctx, candidate)
     negative += 1
 
     # N6 - wrong deadline.
-    wrong_deadline = deepcopy(adjudications["adj-INITIAL_INVARIANT_EVALUATION"])
-    wrong_deadline["applicable_deadline"] = matrix["RESTORATION_POSITIVE_CONTROL"]["deadline_identity"]
-    expect_failure("ADJUDICATION_DEADLINE_MISMATCH",
-                   validate_adjudication_candidate, policy, contexts, evidence, wrong_deadline)
+    candidate = deepcopy(bundle["descriptors"][target])
+    candidate["applicable_deadline"] = "RESTORATION_FRESH_WORKLOAD_60S"
+    expect_dispatch_failure("ADJUDICATION_DEADLINE_MISMATCH", dispatch, resolved, candidate)
     negative += 1
 
-    # N7 - last-marker substitution for an earlier adjudication.  Under v1.1 the
-    # only retained context was the last marker; v1.2 must not accept it.
-    substituted = deepcopy(adjudications["adj-INITIAL_INVARIANT_EVALUATION"])
-    substituted["predicate_oracle_or_classification_id"] = "RESTORATION_POSITIVE_CONTROL"
-    expect_failure("ADJUDICATION_EVALUATION_PHASE_MISMATCH",
-                   validate_adjudication_candidate, policy, contexts, evidence, substituted)
+    # N7 - cross-window substitution (window ordinal not its frozen ordinal).
+    candidate = deepcopy(bundle["descriptors"][target])
+    candidate["workload_window_adjudication_identity"]["ordinal"] = 2
+    expect_dispatch_failure("WORKLOAD_WINDOW_MISMATCH", dispatch, resolved, candidate)
     negative += 1
 
-    # N8 - cross-window substitution.
-    expect_failure(
-        "WORKLOAD_WINDOW_SUBSTITUTION",
-        validate_workload_window_candidate, policy, contexts,
-        {
-            "predicate_oracle_or_classification_id": "INITIAL_INVARIANT_EVALUATION",
-            "workload_window": {
-                "phase": matrix["RESTORATION_POSITIVE_CONTROL"]["phase"],
-                "ordinal": ordinals[matrix["RESTORATION_POSITIVE_CONTROL"]["phase"]],
-            },
-        },
+    # N8 - evidence publication after the terminal transition.
+    ctx, env = _mutate(bundle)
+    records = deepcopy(bundle["records"])
+    extra = dict(records[-1])
+    records.append(extra)
+    ctx["attempt_journal_records"] = _rechain_records(records)
+    expect_dispatch_failure("POST_TERMINAL_OPERATION", dispatch, ctx, env)
+    negative += 1
+
+    # N9 - evidence publication absent from the journal.
+    ctx, env = _mutate(bundle)
+    stripped = deepcopy(bundle["records"])
+    for record in stripped:
+        record.pop("referenced_descriptor_sha256", None)
+        record.pop("referenced_payload_sha256", None)
+    ctx["attempt_journal_records"] = _rechain_records(stripped)
+    expect_dispatch_failure("PUBLICATION_RECORD_MISSING", dispatch, ctx, env)
+    negative += 1
+
+    # N10 - omitted adjudication together with its raw references.
+    ctx, env = _mutate(bundle)
+    drop = bundle["per_predicate"]["RESTORATION_POSITIVE_CONTROL"]
+    drop_id = drop["adjudication"]["evidence_id"]
+    drop_raw = {reference["evidence_id"] for reference in drop["raw"]}
+    env["adjudication_references"] = [
+        reference for reference in env["adjudication_references"]
+        if reference["evidence_id"] != drop_id
+    ]
+    env["raw_evidence_references"] = [
+        reference for reference in env["raw_evidence_references"]
+        if reference["evidence_id"] not in drop_raw
+    ]
+    expect_dispatch_failure("ADJUDICATION_CLOSURE_INCOMPLETE", dispatch, ctx, env)
+    negative += 1
+
+    # N11 - duplicate predicate under a different evidence ID, fully published so
+    # the duplicate-predicate rule itself is what rejects it.
+    ctx, env = _mutate(bundle)
+    source = bundle["descriptors"][target]
+    clone = deepcopy(source)
+    clone["adjudication_id"] = clone["adjudication_id"] + ":clone"
+    clone, clone_reference = _finalize_descriptor(clone, carries_evidence_id=False)
+    ctx["parsed_canonical_descriptors"][clone_reference["evidence_id"]] = clone
+    ctx["evidence_refs"][clone_reference["evidence_id"]] = clone_reference
+    ctx["exact_descriptor_bytes_hex"][clone_reference["evidence_id"]] = canonical_json_bytes(clone).hex()
+    published = deepcopy(bundle["records"])
+    published.insert(8, _record(8, "STATE_VERIFIED:ORIGINAL_ORACLE_EVALUATED", "0" * 64,
+                                referenced_descriptor_sha256=[clone_reference["descriptor_sha256"]]))
+    ctx["attempt_journal_records"] = _rechain_records(published)
+    ctx["evaluation_authorization_contexts"] = deepcopy(
+        reconstruct_journal(policy, ctx["attempt_journal_records"])[
+            "evaluation_authorization_contexts"
+        ]
     )
+    env["adjudication_references"].append(deepcopy(clone_reference))
+    expect_dispatch_failure("ADJUDICATION_CLOSURE_INCOMPLETE", dispatch, ctx, env)
     negative += 1
 
-    # N9 - raw evidence published before authorization.
-    early_evidence = deepcopy(evidence)
-    early_evidence["ev-INITIAL_INVARIANT_EVALUATION-workload_log_bytes"][
-        "publication_sequence_number"
-    ] = contexts["INITIAL_INVARIANT_EVALUATION"]["marker_sequence_number"]
-    expect_failure("PUBLICATION_ORDER_INVALID",
-                   validate_adjudication_candidate, policy, contexts, early_evidence,
-                   adjudications["adj-INITIAL_INVARIANT_EVALUATION"])
+    # N12 - extra unreferenced adjudication left in the sealed context.
+    ctx, env = _mutate(bundle)
+    orphan = deepcopy(source)
+    orphan["adjudication_id"] = orphan["adjudication_id"] + ":orphan"
+    orphan, orphan_reference = _finalize_descriptor(orphan, carries_evidence_id=False)
+    ctx["parsed_canonical_descriptors"][orphan_reference["evidence_id"]] = orphan
+    ctx["evidence_refs"][orphan_reference["evidence_id"]] = orphan_reference
+    ctx["exact_descriptor_bytes_hex"][orphan_reference["evidence_id"]] = canonical_json_bytes(orphan).hex()
+    expect_dispatch_failure("ADJUDICATION_CLOSURE_INCOMPLETE", dispatch, ctx, env)
     negative += 1
 
-    # N10 - adjudication published before its raw evidence.
-    early_adjudication = deepcopy(adjudications["adj-INITIAL_INVARIANT_EVALUATION"])
-    early_adjudication["publication_sequence_number"] = 100
-    expect_failure("PUBLICATION_ORDER_INVALID",
-                   validate_adjudication_candidate, policy, contexts, evidence,
-                   early_adjudication)
+    # N13 - omitted, extra, and duplicate raw references.
+    for change in ("omit", "extra", "duplicate"):
+        ctx, env = _mutate(bundle)
+        if change == "omit":
+            env["raw_evidence_references"] = env["raw_evidence_references"][:-1]
+        elif change == "extra":
+            spare_payload = b"spare-workload-log\n"
+            spare, spare_reference = _finalize_descriptor({
+                **_common_metadata(),
+                "document_type": "PAYLOAD_EVIDENCE_DESCRIPTOR_V1",
+                "role": "workload_log_bytes",
+                "producer": "WORKLOAD_EVIDENCE_ADAPTER",
+                "source_kind": "IN_PROCESS_WORKLOAD",
+                "media_type": "application/octet-stream",
+                "storage_class": "PAYLOAD_WITH_DESCRIPTOR",
+                "monotonic_ns": 9999,
+                "complete_entry_count": 0,
+                "entry_indexes": [],
+                "entry_time_ieee754_binary64_hex": [],
+                "workload_window": deepcopy(
+                    bundle["per_predicate"]["INITIAL_INVARIANT_EVALUATION"]["window"]
+                ),
+                "stream_identity": stream_identity(FIXTURE_RUN_ID, FIXTURE_ATTEMPT_ID),
+                **_payload_paths(spare_payload),
+            })
+            spare["workload_window"] = {
+                key: value for key, value in spare["workload_window"].items()
+                if key in ("phase", "ordinal", "run_id", "attempt_id", "mutant_id",
+                           "repetition", "stream_identity")
+            }
+            spare, spare_reference = _finalize_descriptor(spare)
+            ctx["evidence_refs"][spare_reference["evidence_id"]] = spare_reference
+            ctx["parsed_canonical_descriptors"][spare_reference["evidence_id"]] = spare
+            ctx["exact_descriptor_bytes_hex"][spare_reference["evidence_id"]] = (
+                canonical_json_bytes(spare).hex()
+            )
+            ctx["exact_payload_bytes_hex"][spare_reference["evidence_id"]] = spare_payload.hex()
+            env["raw_evidence_references"].append(deepcopy(spare_reference))
+        else:
+            env["raw_evidence_references"].append(deepcopy(env["raw_evidence_references"][0]))
+        expect_dispatch_failure("ADJUDICATION_CLOSURE_INCOMPLETE", dispatch, ctx, env)
     negative += 1
 
-    # N11 - omitted adjudication from the envelope.
-    omitted = deepcopy(envelope)
-    omitted["adjudication_references"] = omitted["adjudication_references"][:2]
-    expect_failure("ADJUDICATION_CLOSURE_INCOMPLETE",
-                   validate_attempt_envelope, policy, contexts, evidence, adjudications, omitted)
+    # N14 - non-schema adjudication field (the v1.1 fixture's top-level phase).
+    candidate = deepcopy(bundle["descriptors"][target])
+    candidate["phase"] = "INITIAL_MUTANT_CHALLENGE"
+    expect_dispatch_failure("STRUCTURAL_SCHEMA_INVALID", dispatch, resolved, candidate)
     negative += 1
 
-    # N12 - omitted OR extra raw reference (one requirement, both directions).
-    thin = deepcopy(envelope)
-    thin["raw_evidence_references"] = thin["raw_evidence_references"][:-1]
-    expect_failure("ADJUDICATION_CLOSURE_INCOMPLETE",
-                   validate_attempt_envelope, policy, contexts, evidence, adjudications, thin)
-    fat = deepcopy(envelope)
-    fat["raw_evidence_references"] = fat["raw_evidence_references"] + ["ev-unreferenced"]
-    expect_failure("ADJUDICATION_CLOSURE_INCOMPLETE",
-                   validate_attempt_envelope, policy, contexts, evidence, adjudications, fat)
+    # N15 - caller-supplied context substituted for journal reconstruction.
+    ctx, env = _mutate(bundle)
+    ctx["evaluation_authorization_contexts"]["INITIAL_INVARIANT_EVALUATION"][
+        "authorization_state"
+    ] = "CONTRACT_EVALUATED"
+    expect_dispatch_failure("JOURNAL_CONTEXT_MISMATCH", dispatch, ctx, env)
     negative += 1
 
-    # N13 - duplicate adjudication reference.
-    duplicate_reference = deepcopy(envelope)
-    duplicate_reference["adjudication_references"].append("adj-INITIAL_INVARIANT_EVALUATION")
-    expect_failure("ADJUDICATION_CLOSURE_INCOMPLETE",
-                   validate_attempt_envelope, policy, contexts, evidence, adjudications,
-                   duplicate_reference)
+    # N16 - a v1.1 stream identity presented as a v1.2 identity.
+    ctx, env = _mutate(bundle)
+    candidate = deepcopy(bundle["descriptors"][target])
+    candidate["workload_window_adjudication_identity"]["stream_identity"] = v1_1_stream_identity(
+        FIXTURE_RUN_ID, FIXTURE_ATTEMPT_ID
+    )
+    expect_dispatch_failure("WORKLOAD_STREAM_IDENTITY_MISMATCH", dispatch, ctx, candidate)
     negative += 1
 
-    # N14 - tampered marker sequence.
-    tampered = terminal_journal()
-    tampered[6]["sequence_number"] = 42
-    expect_failure("JOURNAL_SEQUENCE_INVALID",
-                   derive_evaluation_authorizations, policy, tampered)
+    # N17 - tampered journal hash chain.
+    ctx, env = _mutate(bundle)
+    ctx["attempt_journal_records"][5]["canonical_current_entry_sha256"] = "0" * 64
+    expect_dispatch_failure("JOURNAL_CHAIN_INVALID", dispatch, ctx, env)
     negative += 1
 
-    # N15 - caller-supplied context conflicting with journal reconstruction.
-    expect_failure("CALLER_EVALUATION_CONTEXT_NOT_AUTHORITATIVE",
-                   validate_adjudication_candidate, policy, contexts, evidence,
-                   adjudications["adj-INITIAL_INVARIANT_EVALUATION"],
-                   caller_context={"predicate_id": "RESTORATION_POSITIVE_CONTROL"})
-    negative += 1
-
-    if positive != 6 or negative != 15:
+    if positive != 6 or negative != 17:
         raise FreezeError(f"REFERENCE_TEST_COUNT_INVALID:{positive}:{negative}")
     return positive, negative
+
+
+def _insert(records: list[dict[str, Any]], index: int, transition: str) -> list[dict[str, Any]]:
+    working = deepcopy(records)
+    working.insert(index, _record(index, transition, "0" * 64))
+    return working
+
+
+def _rechain(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return _rechain_records(records)
+
+
+def _rechain_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    working = deepcopy(records)
+    previous = "0" * 64
+    for index, record in enumerate(working):
+        record["sequence_number"] = index
+        record["previous_entry_sha256"] = previous
+        record["monotonic_ns"] = index + 1
+        record.pop("canonical_current_entry_sha256", None)
+        record["canonical_current_entry_sha256"] = journal_record_sha256(record)
+        previous = record["canonical_current_entry_sha256"]
+    return working
 
 
 # ---------------------------------------------------------------------------
@@ -971,7 +1732,7 @@ def expected_artifacts() -> tuple[dict[str, Any], dict[str, Any], dict[Path, byt
     v11, v1, _v1_policy, base_policy, base_schema = reconstruct_v1_1()
     policy = build_policy(base_policy)
     schema = build_schema(v11, v1, policy, base_schema)
-    counts = run_reference_tests(policy)
+    counts = run_reference_tests(policy, schema)
     policy_bytes = render_policy(policy)
     schema_bytes = render_schema(schema)
     return policy, schema, {
@@ -1013,7 +1774,7 @@ def generate() -> None:
     for path in (POLICY, SCHEMA, MANIFEST):
         atomic_write(path, artifacts[path])
     print(f"V1_2_REFERENCE_POSITIVE={counts[0]}/6")
-    print(f"V1_2_REFERENCE_NEGATIVE={counts[1]}/15")
+    print(f"V1_2_REFERENCE_NEGATIVE={counts[1]}/17")
 
 
 def check() -> None:
@@ -1033,7 +1794,7 @@ def check() -> None:
     }:
         raise FreezeError("V1_2_MANIFEST_MISMATCH")
     print(f"V1_2_REFERENCE_POSITIVE={counts[0]}/6")
-    print(f"V1_2_REFERENCE_NEGATIVE={counts[1]}/15")
+    print(f"V1_2_REFERENCE_NEGATIVE={counts[1]}/17")
     print("V1_2_CHECK=PASS")
 
 
