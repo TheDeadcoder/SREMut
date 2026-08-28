@@ -121,3 +121,34 @@ Nothing is written into `SREGym/`. No `tasklist.yml` is created. No frozen
 pre-registration artifact is modified. No git command is run. Each repetition begins
 with its own `undeploy_app()` / `deploy_app()`, so husks from the prior run are cleared
 before the healthy checkpoint.
+
+---
+
+## Note added 2026-08-28 (R2 Part D1) — git does not corroborate the ordering claim
+
+The statement above that this protocol was registered before execution is **left
+unmodified and is not withdrawn**. What follows is the independent-corroboration status,
+recorded so that no reader takes the statement as attested by version control.
+
+**Git does not corroborate it.** The commit that introduced this file **postdates every
+execution it governs.**
+
+- Introducing commit: `9314bda3`, commit date **2026-08-26T20:11:56Z** (author date identical; no rebase or amend skew).
+- Earliest execution timestamp recorded inside each run's own JSON record:
+
+| run | earliest execution timestamp |
+|---|---|
+| `g1-run-01` | 2026-08-26T19:28:10.037861Z |
+| `g1-run-02` | 2026-08-26T19:38:01.776896Z |
+| `g1-run-03` | 2026-08-26T19:47:43.375448Z |
+
+- Relation to its own evidence: **SAME COMMIT as its evidence**.
+
+The session transcript records this protocol being written before the run started, and
+the file's content is consistent with that. But the transcript is not a timestamping
+authority, and SREMut has no git remote, so every timestamp here originates on a single
+machine with a user-writable clock and is attested by no external service.
+
+Full forensic record, including the four annotated tags whose pre-registration *is*
+supported by git: `analysis/PREREGISTRATION_TIMELINE.md`.
+

@@ -285,18 +285,25 @@ Source: `SREMut/analysis/census/` — `CENSUS.md`, `coverage.csv`, `oracle-surfa
 
 | Denominator | Value | Source |
 |---|---:|---|
-| **Primary (used)** | **118** | unique keys in `PROBLEM_REGISTRY`, `registry.py:124-356` |
-| Conservative secondary | 99 | intersection of registry with `Problem List.md` (116 rows) |
+| **Primary (used)** | **123** | unique keys in `PROBLEM_REGISTRY`, `registry.py:124-356`, read from the runtime registry |
+| Conservative secondary | 104 | intersection of registry with `Problem List.md` (116 rows) |
 | Paper (May 2026) | 90 | `SREGym/README.md:22` |
 
+The previously published 118/99 were computed with a regex whose character class excluded
+`-`, silently dropping five hyphenated IDs. Corrected in R1; see `CENSUS.md` and
+`METHOD_AUDIT.md`.
+
 **Framing:** the paper reports 90; the pinned commit is from August 2026 and registers
-118. Registry growth between publication and this commit is the plain explanation. Not
+123. Registry growth between publication and this commit is the plain explanation. Not
 a defect. Registry/docs drift is one footnote in `CENSUS.md`.
 
-**Paper's evaluated subset: NOT DETERMINABLE from the repository.** Candidates named
-and set aside: `tests/e2e-testing-scripts/registry.txt` (91 entries, 9 absent from the
-registry), `docs/SREGym-Lite.md` (21), `sregym/conductor/tasklist.yml.example` (87, an
-example file).
+**Paper's evaluated subset: selected by `tasklist.yml`.** `get_problem_ids()` reads
+`sregym/conductor/tasklist.yml` and returns `list(tasklist["all"]["problems"])`
+(`registry.py:388-390`); only when that file is absent does it fall back to the whole
+registry (`registry.py:384-386`). This supersedes the earlier statement that the evaluated
+subset was NOT DETERMINABLE. The file itself is absent from the pinned repository — only
+`tasklist.yml.example` (87 entries) is committed — so the *mechanism* is now determined
+even though the specific list the authors ran is not recoverable from this checkout.
 
 ### Headline counts
 
@@ -304,25 +311,36 @@ Source of record: `analysis/census/ledger.json`, emitted by
 `analysis/census/generate_census.py`. Set-equality against the runtime registry is
 enforced by `SREMut/tests/test_census_completeness.py` (6 tests, verified non-vacuous).
 
+The **counts** are generated; the **verdicts** they tally are hand-read from each oracle's
+`evaluate()`. No mechanical rule reproduces them — a reconstructed classifier disagrees
+with the published verdict on 48 of 123 rows. See `CENSUS.md`, "Other headline counts".
+
+BLIND rose from 6 to 8 on 2026-08-28 (R2 Part A) after hand-verifying rows scored ADEQUATE
+on a prose-attributed resource kind. `Oracle classes with evaluate()` fell from 60 to 59
+(R2 Part B): every route to 60 counted the abstract base `Oracle` itself, whose `evaluate`
+is an `@abstractmethod` (`base.py:19-22`). Derivations:
+`analysis/census/R2_PARTA_CODE_ONLY_RECLASSIFICATION.md`,
+`analysis/census/R2_PARTB_ORACLE_COUNT.md`.
+
 | Quantity | OLD (published) | **NEW** |
 |---|---:|---:|
 | **Denominator (registry problem_ids)** | 118 | **123** |
 | Conservative secondary denominator | 99 | **104** |
-| Oracle classes with `evaluate()` | 60 | 60 |
-| ADEQUATE | 80 | **85** |
-| **BLIND** | 6 | **6** |
+| Oracle classes with `evaluate()` | 60 | **59** |
+| ADEQUATE | 80 | **83** |
+| **BLIND** | 6 | **8** |
 | UNCERTAIN | 32 | 32 |
 | oracle_kind DEDICATED | 82 | **83** |
 | oracle_kind BARE_GENERIC | 27 | **31** |
 | oracle_kind MITIGATIONORACLE_SUBCLASS | 6 | 6 |
 | oracle_kind COMPOUND | 3 | 3 |
-| bare-generic BLIND | 4 | 4 |
-| bare-generic ADEQUATE | 15 | **19** |
+| bare-generic BLIND | 4 | **6** |
+| bare-generic ADEQUATE | 15 | **17** |
 | bare-generic UNCERTAIN | 8 | 8 |
 | injectors restart pods / wait | 16 | 16 |
 | oracles pods+deployments only | 34 | **38** |
 | structural-shape rows | 8 | 8 |
-| BLIND % of denominator | 5.0847 % | **4.878 %** |
+| BLIND % of denominator | 5.0847 % | **6.5041 %** |
 | structural-shape % of denominator | 6.7797 % | **6.5041 %** |
 | `registry.txt` entries absent from registry | 9 | **4** |
 
@@ -481,8 +499,18 @@ and every pod was already `Running` because `inject_fault()`'s own `wait_for_sta
 predicted (dying pods still listed at `inject_fault()` return) did not occur in either
 run. The "you waited for it to settle" objection to G1 and G3 is removed.
 
-Total verdicts now: **13 of 13** measurements `true` on faulted or unrepaired states
-across G1 (9), G3 (1), W1 (2 faulted) plus g02-run-01 (1).
+Total verdicts now: **18 of 18 official** faulted-state measurements `true` on unrepaired
+states — 21 of 21 including the three excluded runs, all of which also returned `true`.
+Recomputed from the run records into `experiments/RESULT_LEDGER.json`
+(`experiments/build_result_ledger.py`); the earlier figure of 13 was an undercount that
+omitted the g02 sidecar instrument artifacts and the later runs.
+
+| instrument | official | all runs |
+|---|---:|---:|
+| in-process `MitigationOracle` | 9 | 11 |
+| isolated SREMut worker | 8 | 9 |
+| real `Conductor` (G3) | 1 | 1 |
+| **total** | **18** | **21** |
 
 ### Item A (W1) — TTM anchor, restated
 
@@ -511,7 +539,7 @@ Failure Scenarios" (Clark, Su, Pial, Tian, Gniedziejko, Jacobsen, Chen, Xu).
 **The one contradiction, conservatively scoped:** the §2.5 description of client-side
 observability does not hold for the **27 problem_ids on the bare generic
 `MitigationOracle`**, one of which we measured end-to-end. It does hold for much of the
-family (18/60 oracle classes reach TCP/HTTP, 3 consume workload).
+family (18/59 oracle classes reach TCP/HTTP, 3 consume workload).
 
 **NOT VERIFIED:** no paragraph headed "Protection against reward hacking" was located.
 Six fetch attempts; an enumeration of all bolded lead-ins in §2 and Appendix B found none
@@ -829,9 +857,34 @@ persistently; the W4 sampler shows it did not.
 (10.96.114.38, 9090/TCP), **30 services, 1 EndpointSlice, 27/27 deployments, 28 pods all
 Running**. All 4 kind nodes Ready. No sampler or driver processes remain.
 
-**Residue: 23 Chaos Mesh CRDs.** Cluster-scoped, so they survived the `chaos-mesh`
-namespace deletion in W3. Inert — no controller running, no CRs present. Not deleted;
-CRD removal was not requested and is more invasive than namespace deletion.
+**Residue, complete list.** Nothing below has been deleted; teardown was not authorised
+in the tasks that created them.
+
+| residue | origin | state |
+|---|---|---|
+| **23 Chaos Mesh CRDs** | H3 noise runs (W2) | Cluster-scoped, so they survived the `chaos-mesh` namespace deletion in W3. Inert — no controller running, no CRs present. |
+| **namespace `astronomy-shop`** | R2 Part A, 2026-08-28 | Empty. Created as a side effect of `ProblemRegistry().get_problem_instance()`. |
+| **namespace `fleetcast`** | R2 Part A, 2026-08-28 | Empty. Same cause. |
+
+The two namespaces were created unintentionally during a task specified as "no cluster
+contact." `Problem.__init__` constructs an `Application`, whose constructor calls kubectl
+and creates the application namespace if absent; ten `get_problem_instance()` calls made
+to map problem_ids to oracle classes therefore created two namespaces. No workload was
+deployed, no fault injected, nothing mutated in `social-network` or `hotel-reservation`,
+and no evidence or experiment was affected. Disclosed in full at
+`analysis/census/R2_PARTA_CODE_ONLY_RECLASSIFICATION.md`.
+
+**Tooling status after the fact.** `analysis/census/generate_census.py` is **inert** with
+respect to the cluster, confirmed from source: its `registry_ids()` calls only
+`list(reg.PROBLEM_REGISTRY)` and `reg.get_problem_ids()`. `ProblemRegistry.__init__`
+(`registry.py:123-359`) builds a dict of class references and lambdas and constructs
+`KubeCtl()` (`registry.py:358`), whose `__init__` reads the local kubeconfig
+(`kubectl.py:33`) and instantiates API client objects (`kubectl.py:37-38`) — it issues no
+API request. `get_problem_ids()` (`registry.py:374-390`) reads `tasklist.yml` from disk.
+Namespace creation happens only in `get_problem_instance()` (`registry.py:361-369`), which
+calls `self.PROBLEM_REGISTRY.get(problem_id)()` and thereby constructs the Problem and its
+Application. The census generator never calls it. `analysis/census/pid2class.json` was
+rebuilt by AST-parsing the registry dict literal so that it makes no such call either.
 
 ---
 
@@ -850,7 +903,7 @@ are unrecoverable. No re-run was performed. The script has been corrected (run s
 `00e7916f9da4fcc1…`, corrected sha `9f0c90fa54f14e6e…`). G1's and W1's workload
 numbers used a different, correct script and are unaffected.
 
-**2. 32 of 118 census rows are UNCERTAIN** — the perturbed resource kind could not
+**2. 32 of 123 census rows are UNCERTAIN** — the perturbed resource kind could not
 be traced to file:line at the uniform depth applied. Not PENDING; attempted and
 unresolved.
 
@@ -879,18 +932,30 @@ with this limitation stated.
 2 zero-delay runs (W1) and 1 pilot (g02-run-01). The three-state *pattern* is
 established; no rate claim is made.
 
-**5. One problem, one fault, one cluster.** Everything measured end-to-end concerns
-`missing_service_social_network` under MS-M01 (no-op after Service deletion) on a
-single 4-node kind cluster. The census extends *structurally* to 118 problem_ids but
-only 3 of the 8 headline ids have been executed; the other 5 are predictions.
+**5. Two problems, one fault type, one cluster.** *(Superseded: this gap previously read
+"One problem, one fault, one cluster." W4 retired the single-application form.)*
+Everything measured end-to-end concerns the `missing_service` fault type under MS-M01
+(no-op after Service deletion) on a single 4-node kind cluster — but now across **two
+applications**: `missing_service_social_network` (9 official runs) and
+`missing_service_hotel_reservation` (`w4-hotel-01`, n=1, single-instrument). The census
+extends *structurally* to 123 problem_ids; only 2 of the 8 BLIND ids have been executed,
+and the other 6 are predictions.
 
 **6. ADEQUATE in the census is structural, not behavioural.** It means the oracle reads
 the perturbed kind or a functional signal — not that it has been shown to reject a
-non-repair. Only `missing_service_social_network` has been tested end-to-end.
+non-repair. *(Superseded: this gap previously ended "Only `missing_service_social_network`
+has been tested end-to-end.")* Two problem_ids have now been tested end-to-end,
+`missing_service_social_network` and `missing_service_hotel_reservation`.
+
+**6b. Census verification coverage.** 28 of 123 rows are hand-verified against injector
+source and oracle `evaluate()` — the 6 originally BLIND, the 5 added in R1, and the 17
+audited in R2 Part A3, three pairwise-disjoint sets. 72 of 123 rows carry at least one
+resource kind attributed from prose rather than code. The BLIND headline is therefore a
+**lower bound**: at least 8 of 123, from 28 rows hand-verified.
 
 **7. Perturbed-kind detection uses regex classification over injector bodies.**
 Spot-checked against `missing_service`, `target_port` and `sidecar_port_conflict`; not
-exhaustively verified for all 118.
+exhaustively verified for all 123.
 
 **8. H4 (second application) is now TESTED — see W4, which supersedes W3.**
 `w4-hotel-01` is a complete three-state run with both instrument defects fixed:
@@ -910,5 +975,9 @@ be measured with both instruments. The app itself deployed healthy (0/29447 non-
 the in-process oracle returned `true`; only the worker leg is missing. Generality across
 applications therefore rests on the census's structural argument, not on measurement.
 
-**9. The paper's own evaluated subset is unknown**, so the census denominator cannot be
-aligned with the paper's 90. Both 118 and 99 are given.
+**9. The paper's evaluated subset is selected by `tasklist.yml`** (`registry.py:388-390`),
+which is absent from the pinned repository — only `tasklist.yml.example` (87 entries) is
+committed. *(Superseded: this gap previously read "The paper's own evaluated subset is
+unknown."* The selection *mechanism* is now determined; the specific list the authors ran
+is still not recoverable from this checkout.) The census denominator therefore still
+cannot be aligned with the paper's 90. Both 123 and 104 are given.

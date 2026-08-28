@@ -51,3 +51,32 @@ R3 (`PROTOCOL_G1.md`) continues to govern classification of any `false` verdict.
 
 30 minutes. On overrun or any failure the run is abandoned and reported; it is not
 debugged.
+
+---
+
+## Note added 2026-08-28 (R2 Part D1) — git does not corroborate the ordering claim
+
+The statement above that this protocol was registered before execution is **left
+unmodified and is not withdrawn**. What follows is the independent-corroboration status,
+recorded so that no reader takes the statement as attested by version control.
+
+**Git does not corroborate it.** The commit that introduced this file **postdates every
+execution it governs.**
+
+- Introducing commit: `96f5b1e6`, commit date **2026-08-27T09:51:15Z** (author date identical; no rebase or amend skew).
+- Earliest execution timestamp recorded inside each run's own JSON record:
+
+| run | earliest execution timestamp |
+|---|---|
+| `w3-hotel-01` | 2026-08-27T05:12:33.384Z |
+
+- Relation to its own evidence: **SAME COMMIT as its evidence**.
+
+The session transcript records this protocol being written before the run started, and
+the file's content is consistent with that. But the transcript is not a timestamping
+authority, and SREMut has no git remote, so every timestamp here originates on a single
+machine with a user-writable clock and is attested by no external service.
+
+Full forensic record, including the four annotated tags whose pre-registration *is*
+supported by git: `analysis/PREREGISTRATION_TIMELINE.md`.
+

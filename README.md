@@ -78,19 +78,23 @@ One action, three measurement effects, none of them about the agent.
 
 ## Census: how widespread is this?
 
-All 118 problem IDs registered at the pinned commit, classified by whether the attached oracle can observe what its injector perturbs.
+All 123 problem IDs registered at the pinned commit, classified by whether the attached oracle can observe what its injector perturbs.
 
 | Verdict | Count |
 |---|---:|
-| ADEQUATE | 80 |
-| BLIND | 6 |
+| ADEQUATE | 83 |
+| BLIND | 8 |
 | UNCERTAIN | 32 |
 
-Of the 27 problem IDs on the bare generic `MitigationOracle`: 15 ADEQUATE, 4 BLIND, 8 UNCERTAIN. Because the UNCERTAIN rows could not be resolved from source, the honest range is **6 to 14 blind problem IDs**.
+Counts are generated from `analysis/census/ledger.json`; the verdicts they tally are hand-read from each oracle's `evaluate()`.
 
-3 of the 6 BLIND are the `missing_service` family. Two of those three have been confirmed end to end. The remaining BLIND classifications are structural predictions.
+Of the 31 problem IDs on the bare generic `MitigationOracle`: 17 ADEQUATE, 6 BLIND, 8 UNCERTAIN. Because the UNCERTAIN rows could not be resolved from source, the honest range is **8 to 16 blind problem IDs**.
 
-BLIND does not correlate with the generic oracle. Two of the six carry a dedicated oracle written for that fault, and 15 of the 27 generic-oracle problems are ADEQUATE.
+**8 is a lower bound, not a point estimate.** 28 of the 123 rows are hand-verified against injector source and oracle `evaluate()`; 72 carry at least one resource kind attributed from injector prose rather than code. The headline is stated as *at least 8 of 123, from 28 rows hand-verified*. The count rose from 6 to 8 on 2026-08-28 by auditing our own attribution method — see `analysis/census/R2_PARTA_CODE_ONLY_RECLASSIFICATION.md`.
+
+3 of the 8 BLIND are the `missing_service` family. Two of those three have been confirmed end to end. The remaining BLIND classifications are structural predictions.
+
+BLIND does not correlate with the generic oracle. Two of the eight carry a dedicated oracle written for that fault, and 17 of the 31 generic-oracle problems are ADEQUATE.
 
 ---
 
@@ -160,10 +164,10 @@ manifests/    Host and cluster provenance logs
 | `analysis/PAPER_NUMBERS.md` | Every number cited, with its source file. Start here. |
 | `analysis/G01_mitigation_verdict_path.md` | What decides the mitigation verdict, traced to file:line |
 | `analysis/G02_null_agent_plan.md` | The experiment plan and the pre-registered interpretation rule |
-| `analysis/census/CENSUS.md` | The 118-problem coverage census |
+| `analysis/census/CENSUS.md` | The 123-problem coverage census |
 | `analysis/census/secondary-defects.md` | D1, D2, D3 |
 | `analysis/PR_PLAN.md` | The proposed patch and why a straight swap does not work |
-| `experiments/PROTOCOL_G1.md` | R1, R2, R3, registered before any repetition ran |
+| `experiments/PROTOCOL_G1.md` | R1, R2, R3. States it was registered before any repetition ran; git does not corroborate the ordering — see Pre-registration |
 | `experiments/PROTOCOL_W4.md` | W4 method and amendment R3-A |
 
 ---
@@ -187,25 +191,44 @@ Each run directory holds `three-state.json`, `samples.jsonl` (2 second cluster s
 
 Only faulted states are evidence of blindness. Healthy and restored states are included in the runs as controls, where `true` is the correct answer.
 
-| Run | In-process oracle | SREMut worker |
-|---|---:|---:|
-| `g02-run-01` | 1 | 1 |
-| `g1-run-01/02/03` | 3 | 3 |
-| `g3-run-01` | 1 | 0 |
-| `w1-delay0-01/02` | 2 | 2 |
-| `w2-noise-01/02` | 2 | 2 |
-| `w3-hotel-01` | 1 | 0 |
-| `w4-hotel-01` | 1 | 0 |
+| Run | In-process oracle | SREMut worker | Real `Conductor` |
+|---|---:|---:|---:|
+| `g02-run-01` | 1 | 1 | 0 |
+| `g1-run-01/02/03` | 3 | 3 | 0 |
+| `g3-run-01` | 0 | 0 | 1 |
+| `w1-delay0-01/02` | 2 | 2 | 0 |
+| `w2-noise-01/02` | 2 | 2 | 0 |
+| `w4-hotel-01` | 1 | 0 | 0 |
+| **official total** | **9** | **8** | **1** |
 
-Every one returned `{"success": true}`. Recompute this table from the run records before citing a total anywhere.
+Excluded runs, listed so the exclusions are visible rather than silent:
+
+| Run | In-process oracle | SREMut worker | Real `Conductor` | Excluded because |
+|---|---:|---:|---:|---|
+| `w2-noise-00-INERT` | 1 | 1 | 0 | `enable_noise=True` had no effect: the driver never called `start_problem()`, where `NoiseManager.start()` lives (`conductor.py:451`). No noise was ever injected. |
+| `w2-hotel-01` | 0 | 0 | 0 | Run stopped at the healthy gate; the faulted state was never reached. |
+| `w3-hotel-01` | 1 | 0 | 0 | Two instrument defects: the state sampler was hardcoded to namespace 'social-network' so its samples describe the wrong namespace, and the supervising loop hit a 10-minute tool timeout and killed the driver during the faulted window. |
+
+**18 official faulted-state measurements; 21 including the excluded runs. Every one returned `{"success": true}`** — the excluded runs point the same way as the included ones, so the exclusions are conservative, not selective.
+
+This table is generated. Regenerate it with `python3 experiments/build_result_ledger.py`, which writes `experiments/RESULT_LEDGER.json` from the run records; do not hand-edit the counts.
 
 ---
 
 ## Pre-registration
 
-Protocol rules were committed before the runs they govern, and the frozen artifacts carry annotated Git tags.
+**Two classes, and git supports only one of them.**
 
-| Rule | Registered before | What it fixes |
+The **four frozen artifacts** — contract, execution profile, and both evidence policies, plus the mutant registry — carry annotated Git tags dated 2026-08-16 to 2026-08-24, in trees containing zero evidence files. The earliest execution anywhere in the project is 2026-08-26T11:00:19Z. Their pre-registration is corroborated by git.
+
+The **six experiment protocols** are not. Every one was introduced by a commit that *postdates* the runs it governs, and five share a commit with their own evidence. Their content says they were written first, and the session transcript records that, but git provides no independent corroboration for any of them, and SREMut has no remote, so every timestamp originates on one machine with a user-writable clock. Each protocol file now carries a note stating this; the full forensic record is `analysis/PREREGISTRATION_TIMELINE.md`.
+
+**Does any conclusion depend on this? No.** The rules whose pre-registration could bias a result are the ones that *exclude or classify* — R3, R3-A, R2's round minimum. R3 was never invoked: all 21 faulted-state measurements returned `true`, and R3 governs `false` verdicts only. R3-A resolved to case (d), the branch that changes nothing. R2 disqualifies only `w3-hotel-01`, which is superseded anyway and whose 60.03 % agrees with w4's 59.74 %. The rest — R1's interval, H2, H3, H4 — are design parameters, and H2 tested R1 directly: runs at 0 s and 60 s give the same verdict.
+
+Rules as stated in their protocol files. The "claimed registered before" column reports
+what each file says, not what git attests — see above.
+
+| Rule | Claimed registered before | What it fixes |
 |---|---|---|
 | R1 | any G1 repetition | 60s between injection returning and the oracle. Matches the poll interval of SREGym's own `autosubmit` agent. |
 | R2 | any G1 repetition | At least 10 complete wrk2 rounds per state, same run |
@@ -213,7 +236,9 @@ Protocol rules were committed before the runs they govern, and the frozen artifa
 | H2, H3, H4 | their runs | Each states in advance that either outcome is reportable |
 | R3-A | see below | Scope of the `harness_timing_failure` classification |
 
-R3-A is the one exception to "registered before the run." It was written after the W4 faulted verdict existed on disk but before its value was read, and the file records the timestamps of both. Its discriminator is defined entirely on the sampler timeline, which is independent of the verdict. It governs `false` verdicts only, and the verdict was `true`, so it was never applied.
+R3-A is the one rule whose *own text* discloses that it was written after its measurement existed. It was registered at 2026-08-27T10:11:11.748Z, after the W4 faulted verdict was written to disk at 10:03:10.423Z but before its value was read; `PROTOCOL_W4.md` records both timestamps and the method used to establish existence without observing the value. Its discriminator is defined entirely on the sampler timeline, which is independent of the verdict. It resolved to case (d), and cases (a)-(c) govern `false` verdicts, so no discriminating branch was ever applied.
+
+For the other five protocols the gap is different in kind: their text claims prior registration and nothing in their content admits otherwise, but the commit that introduced each one postdates its runs. The distinction matters for how the claim is worded, not for any result — see the paragraph above.
 
 Tags: `sremut-missing-service-contract-v1`, `sremut-missing-service-execution-profile-v1`, `sremut-missing-service-evidence-policy-v1`, `sremut-missing-service-evidence-policy-v1.1`.
 
@@ -300,9 +325,9 @@ The input is canonical JSON with `kubernetes_context`, `namespace`, `captured_re
 
 Stated plainly. Each limits what the numbers above support.
 
-1. **Two applications confirmed, not the whole family.** `missing_service_social_network` with two instruments across n=3 three-state repetitions plus four other run families. `missing_service_hotel_reservation` with one instrument, n=1. `missing_service_astronomy_shop` is untested. The other three BLIND classifications are structural predictions with no measurement behind them.
+1. **Two applications confirmed, not the whole family.** `missing_service_social_network` with two instruments across n=3 three-state repetitions plus four other run families. `missing_service_hotel_reservation` with one instrument, n=1. `missing_service_astronomy_shop` is untested. The other six BLIND classifications are structural predictions with no measurement behind them.
 2. **The hotel-reservation runs are single-instrument.** The SREMut worker pins `EXPECTED_NAMESPACE = "social-network"`, a frozen artifact that was not relaxed. Those runs carry one independent measurement, not two, and are weaker than any social-network run.
-3. **32 of 118 census rows are UNCERTAIN.** The perturbed resource kind could not be traced to file:line at uniform depth, mostly where injection is delegated to Khaos, `inject_tt.py`, or a kernel injector.
+3. **32 of 123 census rows are UNCERTAIN.** The perturbed resource kind could not be traced to file:line at uniform depth, mostly where injection is delegated to Khaos, `inject_tt.py`, or a kernel injector.
 4. **ADEQUATE is structural, not behavioural.** It means the oracle reads the perturbed kind or a functional signal. It does not mean the oracle has been shown to reject a non-repair.
 5. **The proposed fix is unexecuted.** See the note under Proposed fix.
 6. **Noise is partially addressed.** Two runs had Chaos Mesh active, but not during the faulted window. The conductor stops noise before every evaluation by design (`conductor.py:476-483`), so the graded instant is quiescent either way. `pod-kill` was never selected in either run.

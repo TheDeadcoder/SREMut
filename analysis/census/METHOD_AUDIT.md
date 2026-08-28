@@ -14,7 +14,7 @@ Read-only. All commands re-runnable at commit `ba07faf1`.
 | # | Step | Method used | Sound? | Impact found |
 |---|---|---|---|---|
 | 1 | Registry ID enumeration | regex over line range | **NO** | **5 IDs dropped; denominator wrong** |
-| 2 | Oracle class enumeration | `grep '^class .*('` | **NO** | count mis-stated; final 60 correct by cancellation |
+| 2 | Oracle class enumeration | `grep '^class .*('` | **NO** | **count mis-stated AND answer wrong: 60 -> 59** (R2 Part B) |
 | 3 | Problem -> oracle mapping | regex + last-match | partially | **no disagreement with AST** |
 | 4 | Perturbed resource kinds | regex over whole class body | **NO** | **prose counted as evidence in 52 files** |
 | 5 | `restarts_pods` / `waits_stability` | regex over class + injector | partially | correct on spot-checks; not exhaustively verified |
@@ -36,7 +36,7 @@ Re-derived by AST: one dict-literal assignment, **123** keys, 0 non-literal keys
 **Fixed.** `generate_census.py` takes IDs from `ProblemRegistry().PROBLEM_REGISTRY` and
 `tests/test_census_completeness.py` asserts set equality.
 
-## 2. Oracle class enumeration — UNSOUND method, correct answer by cancellation
+## 2. Oracle class enumeration — UNSOUND method, and the answer was wrong too
 
 **Matched:** `grep -rn '^class .*(' oracles/`, reported as 64.
 **Silently fails on:** class definitions without parentheses.
@@ -46,15 +46,32 @@ Re-derived by AST:
 
 | | value |
 |---|---:|
-| total classes in `oracles/` | **68** |
-| classes defining `evaluate()` | **60** |
+| total `ClassDef` in `oracles/` | **68** |
+| classes deriving `Oracle` | **59** |
+| ... of those defining `evaluate()` in their own body | **59** |
+| non-Oracle helper classes | **8** |
+| `Oracle(ABC)` itself | 1 |
 | `grep '^class '` | 68 |
 | `grep '^class .*('` | **63** |
+| `grep '^class .*Oracle'` | 60 |
 
-The census stated "64 grep hits minus 4 non-Oracle helpers = 60". The grep actually
-returns 63, and there are **8** classes without `evaluate()`, not 4. The correct
-derivation is 68 − 8 = 60. **The published 60 is correct; both steps of its stated
-derivation were wrong, and the errors cancelled.**
+The census stated "64 grep hits minus 4 non-Oracle helpers = 60". Three errors: the grep
+returns **63**, not 64; there are **8** helpers, not 4; and 63 − 8 = 55 double-subtracts,
+because the grep had already dropped 5 of those 8 (the parenthesis-less classes).
+
+> **CORRECTION 2026-08-28 (R2 Part B).** This section previously concluded "68 − 8 = 60;
+> the published 60 is correct by cancellation." **That repair was itself wrong**: it
+> omitted `Oracle(ABC)` (`base.py:6`) from the subtraction. `Oracle.evaluate` is an
+> `@abstractmethod` with a bare `pass` (`base.py:19-22`) — a declaration, not an
+> implementation — so counting it as an oracle class with `evaluate()` is the error every
+> route to 60 shares. `grep '^class .*Oracle'` returns 60 because it matches the ABC on
+> its own class name.
+>
+> The correct chain is **68 − 8 helpers − 1 ABC = 59**, and all 59 define `evaluate()` in
+> their own body (0 inherit it). Cross-checks close from both directions: 63 + 5
+> parenthesis-less classes = 68, and 60 − 1 ABC = 59.
+>
+> **The correct number is 59.** Full derivation: `analysis/census/R2_PARTB_ORACLE_COUNT.md`.
 
 ## 3. Problem -> oracle mapping — regex, but AST finds no disagreement
 

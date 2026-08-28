@@ -59,3 +59,33 @@ and is excluded from the H1 result set, while being reported in full for H2.
 30 minutes total. If exceeded, or if anything goes wrong, the item is abandoned, the
 cluster is restored, and it is reported as incomplete. W1 Item B is a bonus, not a
 requirement of the study.
+
+---
+
+## Note added 2026-08-28 (R2 Part D1) — git does not corroborate the ordering claim
+
+The statement above that this protocol was registered before execution is **left
+unmodified and is not withdrawn**. What follows is the independent-corroboration status,
+recorded so that no reader takes the statement as attested by version control.
+
+**Git does not corroborate it.** The commit that introduced this file **postdates every
+execution it governs.**
+
+- Introducing commit: `7820e937`, commit date **2026-08-27T03:47:32Z** (author date identical; no rebase or amend skew).
+- Earliest execution timestamp recorded inside each run's own JSON record:
+
+| run | earliest execution timestamp |
+|---|---|
+| `w1-delay0-01` | 2026-08-26T21:51:21.792023Z |
+| `w1-delay0-02` | 2026-08-26T22:01:18.835253Z |
+
+- Relation to its own evidence: **SAME COMMIT as its evidence**.
+
+The session transcript records this protocol being written before the run started, and
+the file's content is consistent with that. But the transcript is not a timestamping
+authority, and SREMut has no git remote, so every timestamp here originates on a single
+machine with a user-writable clock and is attested by no external service.
+
+Full forensic record, including the four annotated tags whose pre-registration *is*
+supported by git: `analysis/PREREGISTRATION_TIMELINE.md`.
+

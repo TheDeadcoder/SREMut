@@ -748,3 +748,32 @@ Consequences:
   `mutants/` are read, never modified. The challenge-pod ordering constraint at
   `evidence-capture-v1.1.yaml:2552` is respected rather than worked around.
 - No step executes until approved.
+
+---
+
+## Note added 2026-08-28 (R2 Part D1) — git does not corroborate the ordering claim
+
+The statement above that this protocol was registered before execution is **left
+unmodified and is not withdrawn**. What follows is the independent-corroboration status,
+recorded so that no reader takes the statement as attested by version control.
+
+**Git does not corroborate it.** The commit that introduced this file **postdates every
+execution it governs.**
+
+- Introducing commit: `9314bda3`, commit date **2026-08-26T20:11:56Z** (author date identical; no rebase or amend skew).
+- Earliest execution timestamp recorded inside each run's own JSON record:
+
+| run | earliest execution timestamp |
+|---|---|
+| `g02-run-01` | 2026-08-26T11:00:19.367292Z |
+
+- Relation to its own evidence: **its evidence was committed EARLIER, in 388872a3 at 2026-08-26T14:27:43Z**.
+
+The session transcript records this protocol being written before the run started, and
+the file's content is consistent with that. But the transcript is not a timestamping
+authority, and SREMut has no git remote, so every timestamp here originates on a single
+machine with a user-writable clock and is attested by no external service.
+
+Full forensic record, including the four annotated tags whose pre-registration *is*
+supported by git: `analysis/PREREGISTRATION_TIMELINE.md`.
+

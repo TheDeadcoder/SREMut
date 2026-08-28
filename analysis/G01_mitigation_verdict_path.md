@@ -265,7 +265,7 @@ throughout the attempt, and nothing ever reads its results for this problem.
 
 ## D. Inventory of `sregym/conductor/oracles/` (seed list)
 
-64 class definitions across 60 files. Signals are grep-derived per file, probing:
+64 class definitions across 60 files. *(Corrected 2026-08-28, R2 Part B: the grep `^class .*(` behind these figures misses parenthesis-less classes. By AST there are **68** `ClassDef` nodes in `oracles/`, of which **59** derive from `Oracle` and all 59 define `evaluate()`; the other 8 are `llm_as_a_judge` helpers and 1 is `Oracle(ABC)` itself. See `analysis/census/R2_PARTB_ORACLE_COUNT.md`. The seed list below is unchanged and remains a seed, not a census.)* Signals are grep-derived per file, probing:
 `read/list_namespaced_service`, `endpoint`, `endpointslice`, `selector`,
 `http://|wget|curl|requests.|urlopen`, `exec_command|connect_get_namespaced_pod_exec`,
 `prometheus|alert`, `nslookup|getent|dig|dns`, `list_pods|list_namespaced_pod`,

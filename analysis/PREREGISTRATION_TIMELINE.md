@@ -94,3 +94,133 @@ after the verdict existed on disk and discloses this in its own text.
 A further limitation applying to all rows: SREMut has no git remote, so every timestamp
 here originates on a single machine with a user-writable clock and is not attested by any
 external service.
+
+---
+
+# Does any conclusion depend on these?
+
+Added 2026-08-28 (R2 Part D2). Determined from the run records, not from the protocol
+text. All figures below are read from `experiments/RESULT_LEDGER.json`, which is generated
+from the run records by `experiments/build_result_ledger.py`.
+
+**Answer: no. No conclusion in this project depends on any of the six experiment
+protocols having been written before its run.**
+
+The reasoning turns on a distinction between two kinds of rule.
+
+- **Selection rules** — rules that *exclude* or *classify* a result (R3, R3-A, and R2's
+  round minimum). These are the rules whose pre-registration matters, because a rule
+  chosen after seeing the data could be shaped to discard inconvenient outcomes.
+- **Design parameters** — rules that fix *what was run* (R1's episode length, H2, H3,
+  H4). Writing these down later cannot bias anything: the run either happened that way or
+  it did not, and the record says which.
+
+## Selection rules
+
+### R3 — `harness_timing_failure` — NOT load-bearing. Never invoked.
+
+R3 governs **FALSE** verdicts only: it excuses a false verdict caused by transient pod
+churn from the injector's own `kubectl delete pods --all`.
+
+**All 21 faulted-state measurements in the project returned `success=true`.** There has
+never been a false faulted verdict, so R3 has had nothing to act on.
+
+Proving command over every run artifact, which returns only a line explicitly *declining*
+the classification and no line applying it:
+
+```
+grep -rn 'harness_timing_failure' experiments/ | grep -v PROTOCOL_
+  experiments/g3-run-01/conductor-path.md:119: "The verdict is a research verdict,
+                                                not a harness_timing_failure."
+```
+
+Zero runs were classified as a harness timing failure, zero were excluded under R3, and
+zero were re-run under it. The only `r3_classification` field ever populated is
+`w3-hotel-01`, which records **"Not applicable — R3 governs FALSE verdicts; this verdict
+is TRUE."**
+
+### R3-A — the case (a)/(b)/(c)/(d) discriminator — NOT load-bearing. Resolved to the no-op branch.
+
+R3-A exists to stop a *persistent* fault-caused pod failure being misfiled as a harness
+timing failure. It classified `w4-hotel-01` as **case (d)** — verdict TRUE with every pod
+`Running`, "as in G1. Report." (`PAPER_NUMBERS.md:754`; 127 consecutive samples with zero
+not-`Running` pods.)
+
+Case (d) is the branch that requires no special handling and is identical to how the G1
+runs were treated. The discriminating branches (a), (b) and (c) never applied.
+
+This matters because R3-A is the one rule in the project **registered after its
+measurement already existed on disk** — disclosed in its own text at
+`experiments/PROTOCOL_W4.md`, written 2026-08-27T10:11:11.748Z when the faulted verdict
+had been on disk since 10:03:10.423Z but had not been read. Since the amendment resolved
+to the branch that changes nothing, that weaker guarantee has no consequence for any
+reported result. The disclosure stands; the exposure is nil.
+
+### R2 — at least 10 workload rounds per state — NOT outcome-bearing.
+
+Every official run's faulted workload satisfies R2. Rounds per faulted state:
+
+| run | rounds | requests | failure rate |
+|---|---:|---:|---:|
+| `g02-run-01` | 1126 | 1,152,844 | 9.9689 % |
+| `g1-run-01/02/03` | 10 each | 10,240 / 10,240 / 10,238 | 10.1172 / 10.1953 / 9.2792 % |
+| `w1-delay0-01/02` | 10 each | 10,240 each | 10.3125 / 10.0098 % |
+| `w2-noise-01/02` | 10 each | 10,240 each | 10.3223 / 9.8340 % |
+| `w4-hotel-01` | 10 | 29,555 | 59.7429 % |
+
+Exactly one run violates R2: `w3-hotel-01`, with 6 rounds captured post hoc after the
+driver was killed. It is excluded — but **not** under R2; it is superseded by
+`w4-hotel-01` because of two instrument defects (sampler on the wrong namespace, driver
+killed mid-window). And admitting it would change nothing: w3 measured **60.03 %** where
+w4 measured **59.74 %**, agreeing to within 0.3 percentage points.
+
+## Design parameters
+
+### R1 — the 60-second null-agent episode — NOT load-bearing, and shown so directly.
+
+H2 was run precisely to test whether the verdict depends on this interval.
+`w1-delay0-01` and `w1-delay0-02` ran with **R1 = 0 s**; `g1-run-01/02/03` and
+`w2-noise-01/02` ran with **R1 = 60 s**. Every one returns `success=true` on both
+instruments. The faulted verdict is invariant to the interval across the range tested, so
+the choice of 60 s carries no weight.
+
+### H2 (submission latency), H3 (noise), H4/H4-lite (second application)
+
+H2 and H3 are robustness checks that returned null results: the verdict did not change
+with submission delay, nor under Chaos Mesh noise. Nothing rests on them; their function
+is to remove alternative explanations, not to support a claim.
+
+H4-lite is different in importance but not in kind. `w4-hotel-01` is the sole official
+hotel-reservation measurement, and it is what retires "one problem, one fault, one
+cluster" and supports the claim that the blindness travels with the oracle rather than
+with the application. But that claim rests on a **direct observation**, not on a selection
+rule: the oracle returned `success=true` while 59.74 % of requests failed. The observation
+is exactly as strong whether the hypothesis was written before or after it.
+
+## The exclusions that were *not* made under any pre-registered rule
+
+Three runs are excluded, and none of the three exclusions was authorised by a rule
+registered in advance. They were post-hoc judgements, and they are recorded as such in
+`RESULT_LEDGER.json`:
+
+| run | status | ground for exclusion | faulted verdict |
+|---|---|---|---|
+| `w2-noise-00-INERT-noise-never-started` | inert | `enable_noise=True` had no effect; the driver never called `start_problem()`, where `NoiseManager.start()` lives (`conductor.py:451`) | `in_process` TRUE, `worker` TRUE |
+| `w2-hotel-01` | abandoned | stopped at the healthy gate; the faulted state was never reached | **no measurement exists** |
+| `w3-hotel-01` | superseded | sampler hardcoded to the wrong namespace; driver killed mid-window | `in_process` TRUE |
+
+**These exclusions cannot have manufactured the result.** Every excluded run that produced
+a faulted measurement returned `success=true` — the same direction as every included run.
+Restoring all three to the official set would raise the count from 18 to 21 measurements
+and leave every conclusion unchanged. The exclusions are conservative, not selective.
+
+## What remains genuinely exposed
+
+Not the conclusions, but the *framing*. The six experiment protocols describe themselves
+as pre-registered, and git does not corroborate that for any of them (sections C3-C6
+above). The honest statement for the paper is that the **frozen artifacts** — contract,
+execution profile, both evidence policies, mutant registry — are pre-registered with
+tag-timestamp support, while the **experiment protocols** are documented-in-advance by
+transcript only. Since no protocol rule excluded or reclassified any result, the
+distinction costs nothing in evidential terms; it costs only the word "pre-registered"
+applied to the second group.

@@ -93,7 +93,7 @@ behaviour. Two determinations that a name-based approach gets wrong:
   signal (DNS, TCP/HTTP, workload, Prometheus, pod exec) the fault necessarily breaks.
 - **BLIND** — neither.
 - **UNCERTAIN** — the perturbed kind or the oracle surface could not be determined from
-  source at the uniform depth applied to all 118.
+  source at the uniform depth applied to all 123.
 
 **One correction, disclosed.** The first pass counted the injector's incidental pod
 deletion as an observable perturbation, which wrongly classified `missing_service_*` as
@@ -109,17 +109,31 @@ known-answer case in the census caught this; the corrected rule reproduces it.
 
 ### THE headline: oracles blind to their own fault
 
-**6 of 123 problem_ids (4.878 %) are BLIND** — the attached oracle observes neither the
-perturbed resource kind nor any functional signal the fault would break. Against the
-conservative 104-id denominator, 6/104 = 5.8 %.
+**At least 8 of 123 problem_ids (6.504 %) are BLIND** — the attached oracle observes
+neither the perturbed resource kind nor any functional signal the fault would break.
+Against the conservative 104-id denominator, 8/104 = 7.7 %.
 
-**3 of those 6 are the `missing_service` family**, and that family is the one confirmed
-end-to-end: in `experiments/g1-run-0{1,2,3}`, `g3-run-01` and `w1-delay0-0{1,2}` the stock
-oracle returned `{"success": true}` on an unrepaired system across 13 of 13 measurements,
-while the functional workload failed ~10 % of requests.
+> **This figure rose from 6 to 8 on 2026-08-28** (R2 Part A), by hand-verifying rows the
+> census had scored ADEQUATE on a resource kind attributed from prose rather than code.
+> `auth_miss_mongodb` and `operator_wrong_operator_image` were both credited to oracles
+> that demonstrably cannot see their fault. Derivation:
+> `analysis/census/R2_PARTA_CODE_ONLY_RECLASSIFICATION.md`. **8 is a lower bound, not a
+> point estimate** — see "Verification coverage" below.
 
-The other 3 BLIND ids (`pvc_claim_mismatch`, `assign_to_non_existent_node`,
-`workload_imbalance`) are **structural predictions, not results** — none has been executed.
+**3 of the 8 are the `missing_service` family**, and that family is the one confirmed
+end-to-end: across `experiments/g02-run-01`, `g1-run-0{1,2,3}`, `g3-run-01`,
+`w1-delay0-0{1,2}`, `w2-noise-0{1,2}` and `w4-hotel-01` the stock oracle returned
+`{"success": true}` on an unrepaired system in **18 of 18 official faulted-state
+measurements** (21 of 21 including the three excluded runs), while the functional workload
+failed ~10 % of requests on social-network and ~60 % on hotel-reservation. Per-run figures
+are generated into `experiments/RESULT_LEDGER.json`.
+
+A fourth, `auth_miss_mongodb`, is a **second instance of the same mechanism**, established
+from source — see "Second instance of the confirmed mechanism" below.
+
+The remaining BLIND ids (`pvc_claim_mismatch`, `assign_to_non_existent_node`,
+`workload_imbalance`, `operator_wrong_operator_image`) are **structural predictions, not
+results** — none has been executed.
 
 ### The bare-generic pool, stated as an interval
 
@@ -127,14 +141,43 @@ Of the 31 problem_ids on the bare generic `MitigationOracle`:
 
 | Verdict | Count |
 |---|---:|
-| BLIND | **4** |
-| ADEQUATE | **19** |
+| BLIND | **6** |
+| ADEQUATE | **17** |
 | UNCERTAIN | **8** |
 
 Because the 8 UNCERTAIN rows could not be resolved from source, the honest statement is a
-range: **between 6 and 14 problem_ids are blind to their own fault** — 6 if every
+range: **between 8 and 16 problem_ids are blind to their own fault** — 8 if every
 UNCERTAIN row turns out ADEQUATE, 14 if every one turns out BLIND. The point estimate on
 resolved rows alone is 6.
+
+### Verification coverage
+
+This is a first-class number, not a caveat. It bounds every count above.
+
+| | rows |
+|---|---:|
+| problem_ids in the census | **123** |
+| **hand-verified against injector source and oracle `evaluate()`** | **28** |
+| carrying at least one resource kind attributed from **prose rather than code** | **72** |
+
+The 28 hand-verified rows are: the 6 rows originally classified BLIND; the 5 rows added
+in R1 when the denominator was corrected from 118 to 123; and the 17 rows audited in
+R2 Part A3. **The three sets are pairwise disjoint** — no row appears in more than one —
+so the union is exactly 6 + 5 + 17 = 28.
+
+**The 17 are an enriched sample, not a random one.** They were selected precisely because
+a code-identifiers-only re-derivation disagreed with the full-text attribution — that is,
+because prose was doing the attribution work. A 2-in-17 defect rate found in an enriched
+sample cannot be extrapolated to the 100 unverified rows, in either direction.
+
+Therefore the headline is stated as a bound:
+
+> **At least 8 of 123 problem_ids are blind to their own fault, from 28 rows
+> hand-verified.**
+
+The 95 unverified rows were scored ADEQUATE or UNCERTAIN without individual hand-checking
+of the kind attribution. `METHOD_AUDIT.md` section 4 records why that column is the
+weakest in the census; R2 Part A quantified the exposure at 72 of 123 rows.
 
 ### Structural shape only — NOT a blindness count
 
@@ -169,17 +212,27 @@ re-verified row by row and found correct. This is a framing fix only.
 
 ### Other headline counts
 
-Generated from `ledger.json` by `generate_census.py`; do not edit by hand.
+**Counts** below are generated from `ledger.json` by `generate_census.py`; do not edit
+them by hand. **Verdicts** are not: the ADEQUATE / BLIND / UNCERTAIN column in
+`coverage.csv` was **hand-read from each oracle's `evaluate()`**, per the C1 method rule,
+and `generate_census.py` only tallies it.
+
+No mechanical rule reproduces those verdicts. A reconstructed classifier — functional
+signal first, then empty kind set to UNCERTAIN, then intersect the perturbed kinds with
+what the oracle reads — run on the published `perturbed_kinds` column **disagrees with
+the published verdict on 48 of 123 rows** (R2 Part A2). `oracle_other_kinds` holds free
+prose rather than a controlled kind vocabulary, and `perturbed_kinds` sometimes holds the
+literal string `UNCERTAIN`. The kind column informed the reading; it did not determine it.
 
 | Quantity | Count |
 |---|---:|
 | problem_ids (denominator) | **123** |
 | attaching the bare generic `MitigationOracle` | 31 |
-| ... of those, BLIND | 4 |
-| ... of those, ADEQUATE | 19 |
+| ... of those, BLIND | 6 |
+| ... of those, ADEQUATE | 17 |
 | ... of those, UNCERTAIN | 8 |
-| BLIND across **all** oracle types | **6** (4.878 %) |
-| ADEQUATE across all oracle types | 85 |
+| BLIND across **all** oracle types | **8** (6.504 %) |
+| ADEQUATE across all oracle types | 83 |
 | UNCERTAIN across all oracle types | 32 |
 | injectors that restart pods or wait for stability | 16 |
 | oracles whose surface is pods+deployments only | 38 |
@@ -189,19 +242,19 @@ Generated from `ledger.json` by `generate_census.py`; do not edit by hand.
 
 | Oracle kind | BLIND |
 |---|---:|
-| BARE_GENERIC | 4 |
+| BARE_GENERIC | 6 |
 | DEDICATED | 2 |
 
 ### BLIND by perturbed resource kind
 
 | Perturbed kind | BLIND problem_ids touching it |
 |---|---:|
-| Pod | 3 |
+| Pod | 4 |
 | Service | 3 |
-| Deployment | 1 |
+| Deployment | 2 |
+| container_cmd_env | 2 |
 | Node | 1 |
 | PVC/PV | 1 |
-| container_cmd_env | 1 |
 
 ---
 
@@ -214,6 +267,25 @@ Generated from `ledger.json` by `generate_census.py`; do not edit by hand.
 - Perturbed kinds: Deployment;Node (injector `VirtualizationFaultInjector`, fault_type `assign_to_non_existent_node`)
 - Injector restarts pods: False; waits for stability: False
 - **Justification:** observes {pods} but the fault mutates Deployment (would need deployments); Node (would need node)
+
+### `auth_miss_mongodb`
+
+Added 2026-08-28 (R2 Part A3), correcting a prior ADEQUATE.
+
+- **Oracle:** bare generic `MitigationOracle`, attached unsubclassed
+  (`auth_miss_mongodb.py:30`).
+- **Perturbed:** `url-shorten-mongodb` TLS mode forced to `requireTLS` via `Helm.upgrade`
+  (`inject_virtual.py:74-88`); each client Deployment scaled to 0
+  (`inject_virtual.py:91`) and **back to 1** (`inject_virtual.py:93`).
+- **Why BLIND:** the injector restores the replica count itself, so the Deployment
+  predicates (`mitigation.py:69-84`) compare equal to baseline. The socialNetwork chart
+  declares no probes of any kind (verified absent — see "The socialNetwork chart defines
+  no health probes at all"), so the pod sweep (`mitigation.py:95-112`) sees Ready for any
+  running process. `url-shorten-service` retries index creation forever
+  (`UrlShortenService.cpp:84-93`, `while (!r) { ...; sleep(1); }`) and never reaches
+  `server.serve()` (`:111`).
+- **Status:** structural prediction, not executed. Full chain: "Second instance of the
+  confirmed mechanism".
 
 ### `missing_service_astronomy_shop`
 
@@ -238,6 +310,25 @@ Generated from `ledger.json` by `generate_census.py`; do not edit by hand.
 - Perturbed kinds: Pod;Service (injector `VirtualizationFaultInjector`, fault_type `missing_service`)
 - Injector restarts pods: True; waits for stability: True
 - **Justification:** observes {deployments,pods} but the fault mutates Service (would need endpoints_or_endpointslices/ports_or_targetports/services) [Pod churn excluded: injector deletes pods then waits for stability, so the pod surface is restored before evaluation]
+
+### `operator_wrong_operator_image`
+
+Added 2026-08-28 (R2 Part A3), correcting a prior ADEQUATE. **Namespace mismatch.**
+
+- **Oracle:** bare generic `MitigationOracle` (`wrong_operator_image.py:31`), reading
+  Deployments (`mitigation.py:66`) and Pods (`mitigation.py:86`) in
+  `self.problem.namespace` (`mitigation.py:59`) — which is `tidb-cluster`
+  (`wrong_operator_image.py:16`).
+- **Perturbed:** a **Pod in namespace `tidb-operator`**. The injector reads the operator
+  pod name (`inject_operator.py:280-281`) and applies a patch whose `metadata.namespace`
+  is the literal `"tidb-operator"` (`inject_operator.py:292`), setting the image to
+  `pingcap/tidb-operatorr:v1.6.3` — a deliberate typo (`inject_operator.py:297`) —
+  producing ImagePullBackOff.
+- **Why BLIND:** the broken object is in a namespace the oracle never queries. The running
+  TiDB cluster pods in `tidb-cluster` are untouched, so the oracle sees a fully healthy
+  namespace while the controller is in ImagePullBackOff. The failure is not subtle; the
+  oracle misses it for a purely structural reason.
+- **Status:** structural prediction, not executed.
 
 ### `pvc_claim_mismatch`
 
@@ -268,6 +359,81 @@ Generated from `ledger.json` by `generate_census.py`; do not edit by hand.
 
 ---
 
+## Second instance of the confirmed mechanism — `auth_miss_mongodb`
+
+The false acceptance confirmed end-to-end for `missing_service` is not a one-off shape.
+`auth_miss_mongodb` reproduces it exactly, and the whole chain is establishable from
+source without running anything.
+
+**The mechanism, in four links:**
+
+1. **The injector restores the replica count itself.** `inject_auth_miss_mongodb`
+   forces `url-shorten-mongodb.tls.mode: requireTLS` through `Helm.upgrade`
+   (`inject_virtual.py:74-88`), then scales each client Deployment to 0
+   (`inject_virtual.py:91`) and **back to 1** (`inject_virtual.py:93`). The oracle's three
+   Deployment predicates (`mitigation.py:69-84`) therefore compare equal to the captured
+   baseline. The fault is invisible on the replica surface *by the injector's own action*.
+
+2. **Pod readiness carries no application signal.** No `readinessProbe`, `livenessProbe`
+   or `startupProbe` exists anywhere in the socialNetwork chart — see the next section.
+   With no probe, the kubelet marks a container Ready as soon as its process is running.
+   The oracle's pod sweep (`mitigation.py:95-112`) is therefore satisfied.
+
+3. **The client never exits and never serves.** `url-shorten-service` cannot reach a
+   `requireTLS` mongod. `UrlShortenService.cpp:84-93` retries index creation in
+   `while (!r) { r = CreateIndex(...); if (!r) { LOG(error) ...; sleep(1); } }` — an
+   **unbounded** loop with no attempt limit and no exit path. The process never reaches
+   `server.serve()` at `UrlShortenService.cpp:111`. It stays Running, stays Ready, and
+   answers nothing.
+
+4. **The oracle is the bare generic one.** `MitigationOracle` is attached unsubclassed
+   (`auth_miss_mongodb.py:30`) and reads only Deployments (`mitigation.py:66`) and Pods
+   (`mitigation.py:86`) in `self.problem.namespace` (`mitigation.py:59`).
+
+**Consequence.** Replica counts at baseline, every pod Ready, the URL-shorten path dead.
+This is the same false-acceptance shape measured 18 times for `missing_service`, arrived
+at by a different fault and a different code path. It is a **structural prediction**, not
+an executed result — `auth_miss_mongodb` has not been run — and it is labelled as such
+throughout.
+
+## The socialNetwork chart defines no health probes at all
+
+**Proving command, which returns nothing:**
+
+```
+$ grep -rn 'readinessProbe\|livenessProbe\|startupProbe' \
+      SREGym-applications/socialNetwork/helm-chart/socialnetwork/templates/
+$
+```
+
+The directory contains the only Deployment templates the chart renders
+(`_baseDeployment.tpl`, `_baseNginxDeployment.tpl`). The single `readinessProbe` key
+anywhere in the chart is in `values.yaml:64-65`, belonging to the vendored upstream
+`redis` subchart, and it is set to `enabled: false`.
+
+**Independent corroboration from captured live cluster state.** The healthy baseline
+capture `baselines/missing_service_social_network/run-03/` records the running cluster,
+not the chart:
+
+| source | objects | containers | `readinessProbe` | `livenessProbe` | `startupProbe` |
+|---|---:|---:|---:|---:|---:|
+| `run-03/deployments.json` | 27 | 27 | **0** | **0** | **0** |
+| `run-03/pods.json` | 28 | 28 | **0** | **0** | **0** |
+
+Not one container in the deployed application declares a probe of any kind.
+
+**Consequence, stated plainly.** For every social-network problem judged by the bare
+generic `MitigationOracle`, the Pod-readiness half of the verdict
+(`mitigation.py:95-112`) distinguishes only whether a container **started** — never
+whether it **serves**. Combined with the Deployment half, which reads only replica counts
+(`mitigation.py:69-84`), the oracle's entire observable surface for these problems is
+"the right number of processes are running." No signal in that surface can distinguish a
+working application from a started-but-dead one.
+
+This is a property of the benchmark's applications interacting with the oracle's design,
+not of any single fault, and it is why `missing_service` and `auth_miss_mongodb` fail the
+same way through different mechanisms.
+
 ## Oracles that a name-based reading would have got wrong
 
 Seven oracles produced no or misleading observation signals in an earlier grep-derived
@@ -285,35 +451,37 @@ be ADEQUATE and one BLIND — but in **no case** was the seed list's silence the
 | `IngressMisrouteMitigationOracle` | Ingress `path.backend.service.name` (`:17`, `:23`) | ADEQUATE |
 
 The point generalises: **BLIND does not correlate with the bare generic oracle.** Of
-the 6 BLIND ids, 2 carry a *dedicated* oracle written for that fault. Conversely
-15 of the 27 bare-generic ids are ADEQUATE, because for those faults the
+the 8 BLIND ids, 2 carry a *dedicated* oracle written for that fault. Conversely
+17 of the 31 bare-generic ids are ADEQUATE, because for those faults the
 generic Deployment/Pod surface does contain the perturbation (scale-to-zero, image
-faults, crash-looping containers). All 118 were classified on the same evidence
+faults, crash-looping containers). All 123 were classified on the same evidence
 standard.
 
 ---
 
 ## Limits of this census, stated plainly
 
-**32 of 118 are UNCERTAIN**, almost all because the perturbed resource kind is
+**32 of 123 are UNCERTAIN**, almost all because the perturbed resource kind is
 not determinable from the problem class: the injection is delegated to Khaos, to
 `inject_tt.py`, or to a kernel/hardware injector whose concrete mutation was not traced
 to file:line at the uniform depth applied here. These are UNCERTAIN, not PENDING — the
 work was attempted at the same depth as every other row and did not resolve.
 
-Nothing in this census is marked PENDING: the join is complete for all 118 rows.
+Nothing in this census is marked PENDING: the join is complete for all 123 rows.
 
 Further specific limits:
 
 - Adequacy here is **structural**, from source. A verdict of ADEQUATE means the oracle
   observes the perturbed kind or a functional signal; it does **not** mean the oracle
-  has been shown to reject a non-repair. Only `missing_service_social_network` has been
-  tested end-to-end (`experiments/g1-run-0{1,2,3}`, n=3).
+  has been shown to reject a non-repair. Two problem_ids have been tested end-to-end:
+  `missing_service_social_network` (`experiments/g02-run-01`, `g1-run-0{1,2,3}`,
+  `g3-run-01`, `w1-delay0-0{1,2}`, `w2-noise-0{1,2}`) and `missing_service_hotel_reservation`
+  (`experiments/w4-hotel-01`) — two applications, 18 official faulted-state measurements.
 - BLIND means the oracle cannot see the fault through the surfaces it reads. Whether an
-  agent could exploit that is a separate, untested question for the 5 non-confirmed ids.
+  agent could exploit that is a separate, untested question for the 6 non-confirmed ids.
 - Perturbed-kind detection uses regex classification over the injector body. It is
   reported per kind, and a kind may be over- or under-attributed where an injector's
   helper indirection hides the mutation. Spot-checked against `missing_service`,
-  `target_port`, and `sidecar_port_conflict`; not exhaustively verified for all 118.
+  `target_port`, and `sidecar_port_conflict`; not exhaustively verified for all 123.
 - Compound oracles are scored as the **union** of their children's surfaces, matching
   `compound.py:40-41` where any child failure fails the whole.

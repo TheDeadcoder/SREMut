@@ -79,3 +79,33 @@ healthy gate, the item is **abandoned and reported** — the deployment is not d
 **90 minutes total for Part D.** On exceeding it, or on any failure, the remaining items
 are abandoned, the cluster is restored, and the shortfall is reported. D2 is contingent on
 D1 finishing early enough.
+
+---
+
+## Note added 2026-08-28 (R2 Part D1) — git does not corroborate the ordering claim
+
+The statement above that this protocol was registered before execution is **left
+unmodified and is not withdrawn**. What follows is the independent-corroboration status,
+recorded so that no reader takes the statement as attested by version control.
+
+**Git does not corroborate it.** The commit that introduced this file **postdates every
+execution it governs.**
+
+- Introducing commit: `3d46355a`, commit date **2026-08-27T05:07:53Z** (author date identical; no rebase or amend skew).
+- Earliest execution timestamp recorded inside each run's own JSON record:
+
+| run | earliest execution timestamp |
+|---|---|
+| `w2-noise-01` | 2026-08-27T04:07:04.382061Z |
+| `w2-noise-02` | 2026-08-27T04:16:48.105650Z |
+
+- Relation to its own evidence: **SAME COMMIT as its evidence**.
+
+The session transcript records this protocol being written before the run started, and
+the file's content is consistent with that. But the transcript is not a timestamping
+authority, and SREMut has no git remote, so every timestamp here originates on a single
+machine with a user-writable clock and is attested by no external service.
+
+Full forensic record, including the four annotated tags whose pre-registration *is*
+supported by git: `analysis/PREREGISTRATION_TIMELINE.md`.
+
