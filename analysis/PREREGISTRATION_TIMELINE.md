@@ -1,8 +1,13 @@
 # Registration-timeline forensic record
 
 Facts only. No wording is proposed for the paper; this document establishes what the
-timestamps do and do not support, and therefore which artifacts may be described as
-independently corroborated pre-execution artifacts and which may not.
+timestamps do and do not support, and therefore how each artifact may be described.
+
+**Nothing in this project is established as an independently corroborated
+pre-execution artifact.** The frozen artifacts are **locally frozen before the recorded
+runs**; the six experiment protocols are **historical documented protocols**. The
+difference between the two classes is real but it is a difference in local evidence, not
+a difference between corroborated and uncorroborated.
 
 All data from `git log`, `git for-each-ref`, `git ls-tree` and the push reflog in
 `SREMut/` (read-only), plus execution timestamps recorded inside each run's own JSON
@@ -52,7 +57,8 @@ skew to appeal to.
 | `G02_null_agent_plan.md` | 2026-08-26T20:11:56Z | `g02-run-01` | 2026-08-26T11:00:19.367292Z | **NO** |
 
 **C4, stated plainly: for every run, the protocol's introducing commit POSTDATES the
-execution it governs.** In no case does a commit timestamp corroborate pre-registration.
+execution it governs.** No commit timestamp corroborates a claim of prior specification
+for any protocol.
 
 ## C5 — the four annotated tags
 
@@ -63,14 +69,26 @@ execution it governs.** In no case does a commit timestamp corroborate pre-regis
 | `sremut-missing-service-evidence-policy-v1` | `40e50e4f` | 2026-08-22T12:59:30Z | `c2f500c9` | 2026-08-22T12:49:50Z | **0** |
 | `sremut-missing-service-evidence-policy-v1.1` | `8e44e66c` | 2026-08-24T16:33:54Z | `560e8e81` | 2026-08-24T16:28:24Z | **0** |
 
+There are **four annotated tag objects**, i.e. four frozen checkpoints: the contract, the
+execution profile, evidence policy v1, and evidence policy v1.1. The **mutant registry is
+not a fifth checkpoint** — it is contained in the tree of the contract-tagged commit.
+
 All four tag objects carry tagger dates between 2026-08-16 and 2026-08-24. The earliest
 execution timestamp anywhere in the project is `g02-run-01` at
-**2026-08-26T11:00:19Z**. Every tag therefore predates all execution by at least two
-days, and no evidence file existed in the tree at any of the four tagged commits.
+**2026-08-26T11:00:19Z**. Every tagger date therefore precedes all recorded execution by
+at least two days, and no evidence file existed in the tree at any of the four tagged
+commits.
+
+> **What a tagger date is, and is not.** A tagger date is a field written into the tag
+> object by the machine that created it. It is **user-controlled**: `git tag` accepts an
+> arbitrary date, and the host clock is writable. A tagger date is therefore evidence
+> that the artifact was **locally frozen before the recorded runs** — it is not
+> third-party attestation, and it does not by itself corroborate anything. Every "YES"
+> in C6 below means "locally frozen first", never "independently corroborated".
 
 ## C6 — summary
 
-| Specification artifact | Independently corroborated as predating the execution it governs? | Basis |
+| Specification artifact | Locally frozen before the execution it governs? | Basis (local evidence only) |
 |---|---|---|
 | `contracts/missing_service_social_network.yaml` (tag `…contract-v1`) | **YES** | tagger date 2026-08-16, 10 days before first execution; 0 evidence files in tree |
 | `profiles/…/pilot-v1.yaml` (tag `…execution-profile-v1`) | **YES** | tagger date 2026-08-20; 0 evidence files in tree |
@@ -84,20 +102,28 @@ days, and no evidence file existed in the tree at any of the four tagged commits
 | `experiments/PROTOCOL_W3.md` (H4-lite) | **NO** | committed 09:51:15Z; run executed from 05:12:33Z |
 | `experiments/PROTOCOL_W4.md` (+ amendment R3-A) | **NO** | committed 10:23:01Z; run executed from 09:54:56Z |
 
-**Two distinct classes.**
+**Two distinct classes — neither of them independently corroborated.**
 
-The **four frozen pre-registration artifacts** — contract, execution profile, and both
-evidence policies, plus the mutant registry — have annotated-tag timestamps that predate
-all execution by days, in trees containing no evidence. They are the only artifacts in
-this project that qualify as **independently corroborated pre-execution artifacts**.
+The **four frozen checkpoints** — contract, execution profile, evidence policy v1 and
+evidence policy v1.1, with the mutant registry contained in the contract-tagged tree —
+carry annotated-tag tagger dates that precede all recorded execution by days, in trees
+containing no evidence. They are **locally frozen before the recorded runs**. That is the
+strongest statement the local evidence supports: the tagger dates are user-controlled, so
+they are not third-party attestation and do not make these artifacts independently
+corroborated pre-execution artifacts.
 
 The **six experiment protocols** are **historical documented protocols**. Their contents
 may well have been specified before execution — their text states it, and the session
 transcript records them being written first — but **git provides no independent
-corroboration of that ordering for any of them.** Every one was committed after the runs
-it governs had executed, and five share a commit with their own evidence. Amendment R3-A
-is a documented special case: it was written after the verdict existed on disk and
-discloses this in its own text.
+corroboration of that ordering for any of them**, and neither does it for the four
+checkpoints. Every protocol was committed after the runs it governs had executed, and five
+share a commit with their own evidence. Amendment R3-A is a documented special case: it
+was written after the verdict existed on disk and discloses this in its own text.
+
+The distinction between the two classes is genuine and worth keeping — one class was
+frozen and tagged before any run, the other was committed afterwards — but it is a
+distinction between two grades of *local* evidence, not between corroborated and
+uncorroborated.
 
 No protocol decision, threshold or recorded run behaviour is withdrawn by this
 classification. What it changes is the terminology and the evidential standing of the
@@ -151,20 +177,53 @@ carrying each protocol postdates every run that protocol governs:
 
 C3-C6 stand unchanged, and the six protocols remain historical documented protocols.
 
-**One observation about the frozen artifacts, recorded as an open lead, not a result.**
-The first push, `4032f64b` at 2026-08-26T10:06:08Z, precedes the earliest execution
-anywhere in the project (2026-08-26T11:00:19Z) by about 54 minutes, and all four frozen
-tag commits — `abed58d6`, `35fcaeec`, `c2f500c9`, `560e8e81` — are ancestors of
-`4032f64b`, verified by `git merge-base --is-ancestor`. *If* that push reached GitHub,
-the frozen artifacts' content was on a third-party server before any run executed, which
-would be stronger corroboration than a local annotated tag.
+## C8 — server-side evidence, and precisely what it does and does not bind
 
-**That is not claimed here.** Two things block it and both need network access: whether
-the push reached the remote at all, and whether the four *annotated tag objects* were ever
-pushed — no tag refs exist under `refs/remotes`, and the reflog covers only `origin/main`.
-Until both are checked against GitHub, the corroboration for the frozen artifacts remains
-exactly what C5 states: local annotated tags whose tagger dates predate all execution, in
-trees containing zero evidence files.
+Two classes of server-side observation exist. Both are recorded here in full, including
+their limits, because each is weaker than it first looks.
+
+**(a) Current tag presence.** Remote inspection confirms that **all four tag refs exist on
+the remote now**. That is a statement about the present. It establishes **nothing about
+when any of them was first pushed**: a tag pushed today and a tag pushed on 2026-08-16
+are indistinguishable from current presence alone. No first-push time for any tag object
+has been established.
+
+**(b) GitHub server events.** Two events are recorded by GitHub, not by this machine:
+
+| event | server timestamp |
+|---|---|
+| repository became public | **2026-08-26T10:01:26Z** |
+| `refs/heads/main` created | **2026-08-26T10:06:08Z** |
+
+Both precede the earliest recorded execution anywhere in the project
+(`g02-run-01`, 2026-08-26T11:00:19Z), the first by about 59 minutes and the second by
+about 54 minutes. The second also coincides with the first entry in the local push reflog
+above, so the two records are mutually consistent.
+
+**The exact limitation, stated plainly.** The main-branch `CreateEvent` **contains no
+commit SHA**. It records that a branch named `main` came into existence at that time; it
+does not record *what* `main` pointed at. So this evidence supports exactly one claim:
+
+> A public repository and a `main` branch existed before the earliest recorded execution.
+
+It does **not** bind any particular artifact commit, tree or tag object to that time. It
+cannot show that the contract, the execution profile, either evidence policy, or the
+mutant registry was on the server at 10:06:08Z, because the event names no object. It is
+**consistent with** the local push record and with the four tagger dates, and consistency
+is not corroboration.
+
+**Net position.** The four frozen checkpoints are **locally frozen before the recorded
+runs**, on user-controlled tagger dates, in trees containing zero evidence files, in a
+repository that server events show was public with a `main` branch before the earliest
+recorded run. No server-side record binds a specific artifact to a specific time.
+**They are not independently corroborated pre-execution artifacts and must not be
+described as such.**
+
+For completeness: all four frozen tag commits — `abed58d6`, `35fcaeec`, `c2f500c9`,
+`560e8e81` — are ancestors of `4032f64b`, the first pushed commit, verified locally by
+`git merge-base --is-ancestor`. Combined with the `CreateEvent` this remains suggestive
+and no more, for the reason above: the event names no SHA, so the ancestry chain has
+nothing on the server end to attach to.
 
 ---
 
@@ -174,17 +233,37 @@ Added 2026-08-28 (R2 Part D2). Determined from the run records, not from the pro
 text. All figures below are read from `experiments/RESULT_LEDGER.json`, which is generated
 from the run records by `experiments/build_result_ledger.py`.
 
-**Answer: no. No conclusion in this project depends on any of the six experiment
-protocols having been written before its run.**
+**Answer: the descriptive findings stand; the confirmatory status of every hypothesis
+does not.**
 
-The reasoning turns on a distinction between two kinds of rule.
+Two things must be separated, and the earlier version of this section ran them together.
 
-- **Selection rules** — rules that *exclude* or *classify* a result (R3, R3-A, and R2's
-  round minimum). These are the rules whose prior specification matters, because a rule
-  chosen after seeing the data could be shaped to discard inconvenient outcomes.
-- **Design parameters** — rules that fix *what was run* (R1's episode length, H2, H3,
-  H4). Writing these down later cannot bias anything: the run either happened that way or
-  it did not, and the record says which.
+- **What was observed** — the recorded verdicts and workload measurements. These remain
+  **descriptive evidence** and are unaffected by when any protocol was written. The
+  oracle returned `success=true` on unrepaired states while the workload failed; the run
+  records say so.
+- **What may be inferred** — whether those observations *confirm* a hypothesis stated in
+  advance. Because the protocols lack independent pre-execution corroboration, **their
+  confirmatory status is limited.** H1, H2, H3 and H4 are historical exploratory
+  robustness evidence, not confirmatory tests.
+
+Within that limit, one specific worry can be bounded and one cannot.
+
+**Bounded: the direction of the exclusions.** Post-hoc exclusions cannot have reversed
+the direction of the available faulted verdicts, because every excluded run that produced
+a faulted reading also returned `true`. Removing them removed nothing that pointed the
+other way.
+
+**Not bounded: selective analysis and incomplete reporting.** That risk **cannot be
+eliminated retrospectively.** No amount of after-the-fact auditing establishes that the
+analysis path, the exclusion grounds, or the set of reported quantities were fixed before
+the data were seen. It is recorded as an open exposure, not resolved.
+
+The old distinction between "selection rules" and "design parameters" is retained below
+because it is still useful for locating *where* the exposure is concentrated — but the
+claim that writing a design parameter down later "cannot bias anything" is **withdrawn**.
+Recording a parameter after the fact still permits selective reporting of which
+parameters, and which runs, were written up at all.
 
 ## Selection rules
 
@@ -193,8 +272,12 @@ The reasoning turns on a distinction between two kinds of rule.
 R3 governs **FALSE** verdicts only: it excuses a false verdict caused by transient pod
 churn from the injector's own `kubectl delete pods --all`.
 
-**All 21 faulted-state instrument readings in the project returned `success=true`.**
-There has never been a false faulted verdict, so R3 has had nothing to act on.
+**All 21 faulted-state instrument readings in the project returned `success=true`** — 18
+from the 10 included historical runs, plus 3 more from two of the three excluded runs
+(`w2-noise-00-INERT`: `in_process` and `worker`; `w3-hotel-01`: `in_process`). The third
+excluded run, `w2-hotel-01`, was abandoned at the healthy gate and produced **no faulted
+reading at all**. There has never been a false faulted verdict, so R3 has had nothing to
+act on.
 
 Proving command over every run artifact, which returns only a line explicitly *declining*
 the classification and no line applying it:
@@ -258,16 +341,24 @@ of invariance over the interval range.
 
 ### H2 (submission latency), H3 (noise), H4/H4-lite (second application)
 
-H2 and H3 are robustness checks that returned null results: the verdict did not change
-with submission delay, nor under Chaos Mesh noise. Nothing rests on them; their function
-is to remove alternative explanations, not to support a claim.
+H2 and H3 are **historical exploratory robustness checks** that returned null results:
+the verdict did not change with submission delay, nor under Chaos Mesh noise. Their
+function is to **test, and thereby weaken, two specific alternative explanations** — "the
+verdict is an artifact of submission timing" and "the verdict is an artifact of a
+quiescent cluster". Weakening a named alternative is not the same as removing the space
+of alternatives, and neither check is confirmatory.
 
 H4-lite is different in importance but not in kind. `w4-hotel-01` is the sole included
-hotel-reservation run — one run, one instrument, n=1 — and it is what retires "one problem, one fault, one
-cluster" and supports the claim that the blindness travels with the oracle rather than
-with the application. But that claim rests on a **direct observation**, not on a selection
-rule: the oracle returned `success=true` while 59.74 % of requests failed. The observation
-is exactly as strong whether the hypothesis was written before or after it.
+hotel-reservation run — one run, one instrument, n=1 — and it is what bounds the earlier
+"one problem, one fault, one cluster" scope and motivates the claim that the blindness
+travels with the oracle rather than with the application.
+
+What that run establishes descriptively is exact and narrow: the oracle returned
+`success=true` while 59.74 % of requests failed. **What it does not establish is
+confirmatory support for H4.** H4 was not corroborated as specified in advance, so this is
+**historical exploratory robustness evidence**, and a single run on a second application
+is a weak base for a generality claim regardless of timing. Confirmatory language is
+reserved for the future frozen MS-M01/MS-M02/MS-M03 matrix, which has not been run.
 
 ## The exclusions that were *not* made under any rule specified in advance
 
@@ -281,24 +372,45 @@ recorded as such in `RESULT_LEDGER.json`:
 | `w2-hotel-01` | `HISTORICAL_EXCLUDED_ABANDONED` | stopped at the healthy gate; the faulted state was never reached | **no reading exists** |
 | `w3-hotel-01` | `HISTORICAL_EXCLUDED_SUPERSEDED` | sampler hardcoded to the wrong namespace; driver killed mid-window | `in_process` TRUE |
 
-**These exclusions cannot have manufactured the result.** Every excluded run that produced
-a faulted reading returned `success=true` — the same direction as every included run.
-Restoring all three would raise the count from 18 to 21 faulted-state instrument readings
-and leave every conclusion unchanged. The exclusions are conservative, not selective.
+**These exclusions cannot have reversed the direction of the available faulted verdicts.**
+Every excluded run that produced a faulted reading returned `success=true` — the same
+direction as every included run. Two of the three excluded runs produced faulted readings
+(3 between them); `w2-hotel-01` produced none. Restoring all three runs would raise the
+count from 18 to 21 faulted-state instrument readings, all `true`.
+
+That bounds one worry and not the general one. It shows the exclusions did not discard
+contrary evidence, because none of the excluded readings was contrary. It does **not**
+show that the exclusion grounds, the analysis path, or the set of quantities reported were
+fixed before the data were seen — **selective-analysis and incomplete-reporting risk
+cannot be eliminated retrospectively.**
 
 On counting: the 10 included runs yield 18 faulted-state instrument readings, and those
-18 are **not** 18 independent repetitions — two instruments reading the same faulted
-cluster in one run share one deployment, one injection and one cluster state. The run is
-the experimental unit.
+18 are **not** 18 independent observations — two provenance categories reading the same
+faulted cluster in one run share one deployment, one injection and one cluster state. The
+run is the experimental unit, and the G1 runs are **separate repetitions** in the sense
+that each had its own deploy, injection and recovery; statistical independence is not
+established and is not claimed.
 
 ## What remains genuinely exposed
 
-Not the conclusions, but the *framing*. The six experiment protocols describe themselves
-as written before execution, and git does not corroborate that for any of them (sections
-C3-C6 above). The honest statement for the paper is that the **frozen artifacts** —
-contract, execution profile, both evidence policies, mutant registry — are independently
-corroborated pre-execution artifacts, their tag timestamps predating all execution, while
-the **experiment protocols** are **historical documented protocols**, attested by
-transcript only. Since no protocol rule excluded or reclassified any result, the
-distinction costs nothing in evidential terms; it costs only the word "pre-registered"
-applied to the second group.
+The descriptive findings are not exposed. The **inferential framing** is.
+
+The honest statement for the paper has three parts:
+
+1. The **four frozen checkpoints** — contract, execution profile, evidence policy v1,
+   evidence policy v1.1, with the mutant registry inside the contract-tagged tree — were
+   **locally frozen before the recorded runs**, on user-controlled tagger dates. Server
+   events place a public repository and a `main` branch before the earliest recorded run,
+   but name no commit SHA, so no artifact is bound to a server-side time (C8). They are
+   **not independently corroborated pre-execution artifacts.**
+2. The **six experiment protocols** are **historical documented protocols**, attested by
+   transcript only, every one committed after the runs it governs.
+3. Consequently every hypothesis in the historical study — H1, H2, H3, H4 — is
+   **historical exploratory robustness evidence**. The measured verdicts and workload
+   observations remain descriptive evidence and are unaffected; what is limited is their
+   confirmatory status.
+
+No protocol rule excluded or reclassified any result, and no excluded reading pointed the
+other way, so the direction of the finding is not in question. What the framing costs is
+the word "confirmatory" — and that word is reserved for the future frozen
+MS-M01/MS-M02/MS-M03 matrix, which has not been run.

@@ -59,14 +59,24 @@ Every cell is the raw dict as returned, never coerced.
 
 **Distinct values: 1. All nine are identical:** `c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97`
 
-The worker input was also byte-identical in all nine invocations
-(distinct `input_sha256`: 1), 
-and the replica baseline was identical across all three runs
+The worker **invocation descriptor** was byte-identical in all nine invocations
+(distinct `input_sha256`: 1, `8356ab1d92fada2ae856a3da26e5204beb375431fd12200f5ae2e00a2369171a`,
+887 bytes), and the replica baseline was identical across all three runs
 (distinct baseline sha256: 1, 27 entries each).
 
-So the oracle's output is not merely `true` in every state — it is *the same bytes*
-in every state, from the same input. The instrument carries zero bits distinguishing
-a working system from a broken one for this fault.
+**Read these two hashes correctly.** `c955e577…` is the SHA-256 of the canonical *output*
+bytes `{"success":true}`. `8356ab1d…` is the SHA-256 of the *invocation descriptor* — the
+`kubernetes_context`, `namespace`, `captured_replica_baseline` and `evidence_paths` handed
+to the worker. These are **identical invocation descriptor bytes, not an identical input.**
+The descriptor holds no cluster state; the live Kubernetes state the worker reads is
+external to it, and it differed materially between the healthy, faulted and restored
+states of every run.
+
+So the finding is this: the oracle returned **the same Boolean, and the same output
+bytes**, across three cluster states that differed materially — `Service/user-service`
+present or absent, its EndpointSlice present or absent, the functional workload at
+0.0000 % or 9.8639 % non-2xx. The same descriptor was passed each time, but what the
+oracle went on to read from the cluster was not the same.
 
 ---
 
@@ -176,21 +186,24 @@ repaired one.
 
 ## Conclusion
 
-Across three independent repetitions, each with its own deploy, injection, 60 s
-null-agent episode, and recovery:
+Across three separate repetitions, each with its own deploy, injection, 60 s
+null-agent episode, and recovery — separate in that sense, not established as
+statistically independent:
 
 - The stock `MitigationOracle` returned `{"success": true}` in **9 of 9**
-  instrument readings, in both instruments, across all three states. The experimental
-  unit is the run: these are **three repeated full three-state runs**, each read by two
-  instruments in three states, not nine independent repetitions.
-- All nine worker results are **byte-identical**, sha256
-  `c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97`.
+  instrument readings, in the `in_process` and `worker` provenance categories, across all
+  three states. The experimental unit is the run: these are **three repeated full
+  three-state runs**, each read in two provenance categories in three states — not nine
+  independent observations.
+- All nine worker results carry **byte-identical output**, sha256
+  `c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97`, observed despite
+  materially different healthy, faulted and restored cluster states.
 - The workload separated the states completely and reproducibly: 0.0000 % healthy,
   9.8639 % faulted, 0.0000 % restored, over 30 rounds per state.
 - No repetition was excluded; R3 was never invoked.
 
-The 60 s null-agent episode removes the strongest remaining objection to
-`g02-run-01`: the oracle was not catching a transient. After a full minute of
+The 60 s null-agent episode weakens the strongest remaining alternative explanation for
+`g02-run-01` — that the oracle was catching a transient. After a full minute of
 quiescence, with a minimum margin of 68.0 s from the last unsettled pod, it still
 reports success on a system that fails ~10 % of its functional workload.
 

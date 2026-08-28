@@ -510,11 +510,15 @@ most adversarial timing obtainable — the oracle still accepts the unrepaired s
 and every pod was already `Running` because `inject_fault()`'s own `wait_for_stable`
 (`inject_virtual.py:307`) had absorbed the churn before returning. The mechanism H2
 predicted (dying pods still listed at `inject_fault()` return) did not occur in either
-run. The "you waited for it to settle" objection to G1 and G3 is removed.
+run. The "you waited for it to settle" alternative explanation for G1 and G3 is
+substantially weakened — not removed; a null result on one named alternative does not
+close the space of alternatives.
 
 Totals now: **18 of 18 faulted-state instrument readings** across the 10 included
-historical runs returned `true` on unrepaired states — 21 of 21 including the three
-excluded runs, all of which also returned `true`. Recomputed from the run records into
+historical runs returned `true` on unrepaired states — 21 of 21 once the excluded runs are
+counted. Of the three excluded runs, **two** contributed faulted readings
+(`w2-noise-00-INERT` 2, `w3-hotel-01` 1), all `true`; `w2-hotel-01` was abandoned at the
+healthy gate and contributed **none**. Recomputed from the run records into
 `experiments/RESULT_LEDGER.json` (`experiments/build_result_ledger.py`); the earlier
 figure of 13 was an undercount that omitted the g02 sidecar instrument artifacts and the
 later runs.
@@ -526,16 +530,37 @@ later runs.
 | real `Conductor` (G3) | 1 | 1 |
 | **total** | **18** | **21** |
 
-**Counting rule.** A reading is one faulted-state verdict from one instrument in one run.
-**18 readings are not 18 independent repetitions** — two instruments reading the same
+**Counting rule.** A reading is one faulted-state verdict from one provenance category in
+one run. `RESULT_LEDGER.json` has three provenance categories — `in_process`, `worker`,
+`conductor` — and all counts here are in those terms. They rest on two underlying
+execution mechanisms (oracle called in-process, whether by the driver or the real
+`Conductor`, versus oracle run as an isolated subprocess); that conceptual pair is not the
+ledger's three categories and the two groupings are not interchangeable.
+
+**18 readings are not 18 independent observations** — two categories reading the same
 faulted cluster in one run share one deployment, one injection and one cluster state, so
-the pair is one observation seen twice. All 9 faulted worker readings — the 8 included
-plus the 1 in the excluded inert run — carry the byte-identical
-`raw_result_sha256 c955e57777ec0d73…`, which is repeated reads of an identical input, not
-independent sampling. **The run is the experimental unit:** 13 historical
-run directories, 10 included (9 social-network, 1 hotel-reservation), of which G1
-contributes three repeated full three-state runs and hotel-reservation one included
-single-instrument run. The four historical statuses are `HISTORICAL_INCLUDED`,
+the pair is one observation read twice.
+
+**Exact accounting.** 18 readings from the 10 included historical runs (`in_process` 9,
+`worker` 8, `conductor` 1); 3 further faulted readings from **two** of the three excluded
+runs (`w2-noise-00-INERT` 2, `w3-hotel-01` 1); `w2-hotel-01` was abandoned at the healthy
+gate and produced **no faulted reading**. All-run totals `in_process` 11, `worker` 9,
+`conductor` 1 = 21.
+
+**On the worker hashes.** All 9 faulted worker readings carry `raw_result_sha256`
+`c955e57777ec0d73…` — the SHA-256 of the canonical *output* bytes `{"success":true}`. The
+*invocation descriptor* hashes to `8356ab1d92fada2ae856a3da26e5204beb375431fd12200f5ae2e00a2369171a`
+(887 bytes) across the 8 included faulted worker evaluations and the excluded 9th. These
+are **identical invocation descriptor bytes, not an identical input**: the descriptor
+carries `kubernetes_context`, `namespace`, `captured_replica_baseline` and
+`evidence_paths` only, and the live Kubernetes state the worker reads is external to it
+and differed by state and by run.
+
+**The run is the experimental unit:** 13 historical run directories, 10 included
+(9 social-network, 1 hotel-reservation), of which G1 contributes three **separate**
+repeated full three-state runs — separate in having their own deploy, injection and
+recovery, not established as statistically independent — and hotel-reservation one
+included single-category run. The four historical statuses are `HISTORICAL_INCLUDED`,
 `HISTORICAL_EXCLUDED_INERT`, `HISTORICAL_EXCLUDED_ABANDONED` and
 `HISTORICAL_EXCLUDED_SUPERSEDED`; `OFFICIAL_FROZEN_ATTEMPT` is reserved for the future
 authenticated MS-M01/MS-M02/MS-M03 matrix.
@@ -826,8 +851,8 @@ error. **It did not occur.** The rate pod trajectory across the whole run:
 
 The only `Failed` rate pod is the **old** pod terminating under the injector's
 `kubectl delete pods --all` churn, present for a single sample and gone by 10:01:07 — 97
-seconds before the oracle started. Its replacement was `Running` continuously across the
-entire oracle window. So `log.Panic()` did not produce a persistent crash, and the oracle
+seconds before the oracle started. Its replacement was `Running` at every two-second
+sample spanning the oracle window; unsampled transients cannot be excluded. So `log.Panic()` did not produce a persistent crash, and the oracle
 had no incidental pod-health signal to detect the fault by.
 
 #### H4 result

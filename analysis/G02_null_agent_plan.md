@@ -449,16 +449,17 @@ without exiting.
 
 **Revised ordering:**
 
-1. E0 sampler starts BEFORE the driver and runs continuously to the end (2 s cadence)
+1. E0 sampler starts BEFORE the driver and runs for the whole period, sampling every 2 s
+   (the process runs without interruption; the observations it yields are discrete)
 2. E1-E6 full JSON dumps immediately before the oracle (T- anchor)
 3. E7, the oracle (~21 s)
 4. E1-E6 full JSON dumps immediately after the oracle (T+ anchor)
 5. E0 sampler stopped after the driver exits
 
-The sampler proves the broken state held CONTINUOUSLY across the oracle's entire
-observation window at 2-second resolution, not merely at its two endpoints. That is
-the evidence that makes the simultaneity claim airtight, and it is exactly what
-candidate (i) cannot produce.
+The sampler shows the broken state observed **at every two-second sample spanning the
+oracle's observation window**, not merely at its two endpoints; unsampled transients
+between samples cannot be excluded. That is the strongest form of the simultaneity
+evidence available here, and it is what candidate (i) cannot produce.
 
 A second purpose, equally important: the sampler is the instrument that lets R3, the
 interpretation rule above, be applied at all. Classifying a False as
@@ -698,8 +699,9 @@ Target artifact: the results CSV cell `Mitigation.success`, plus the sampler tim
 covering its evaluation window.
 
 Sequencing note: Step 13 requires its own deploy and injection, so it runs AFTER the
-Step 12 teardown of the driver-(ii) run — not concurrently. The two runs are
-independent repetitions, not a shared cluster state.
+Step 12 teardown of the driver-(ii) run — not concurrently. The two runs are **separate
+repetitions** — each with its own deploy and injection rather than a shared cluster
+state — which is not the same as statistical independence and is not claimed as such.
 
 ---
 
@@ -755,8 +757,8 @@ Consequences:
 
 ## Note added 2026-08-28 — evidential status: historical documented protocol
 
-**This is a historical documented protocol, not an independently corroborated
-pre-execution artifact.** Its contents may well have been specified before execution —
+**This is a historical documented protocol.** It is not corroborated as
+pre-execution — and neither, on the evidence, is any artifact in this project. Its contents may well have been specified before execution —
 the statement above says so — but git does not independently corroborate that ordering.
 Nothing in this file's decisions, thresholds or recorded run behaviour is changed by this
 note; only its evidential classification is.
@@ -786,8 +788,15 @@ reflog timestamps come from the same local clock. What the remote actually holds
 it received each push, was not checked: that requires network access. Full record:
 `analysis/PREREGISTRATION_TIMELINE.md` §C7.
 
-Only the four frozen artifacts — contract, execution profile and both evidence policies,
-bound by annotated tags that predate all execution in trees holding zero evidence files —
-qualify as independently corroborated pre-execution artifacts. Full forensic record:
-`analysis/PREREGISTRATION_TIMELINE.md`.
+**Nothing in this project is an independently corroborated pre-execution artifact,
+including the frozen ones.** The four frozen checkpoints — contract, execution profile,
+evidence policy v1 and evidence policy v1.1, with the mutant registry contained in the
+contract-tagged tree — are **locally frozen before the recorded runs**: annotated tags
+whose tagger dates precede all recorded execution, in trees holding zero evidence files.
+Tagger dates are user-controlled. GitHub server events place a public repository
+(2026-08-26T10:01:26Z) and the creation of `refs/heads/main` (2026-08-26T10:06:08Z) before
+the earliest recorded run, but the main-branch `CreateEvent` carries **no commit SHA**, so
+it binds no artifact to that time; and current tag-ref presence on the remote says nothing
+about when any tag was first pushed. Full forensic record:
+`analysis/PREREGISTRATION_TIMELINE.md`, §C5 and §C8.
 

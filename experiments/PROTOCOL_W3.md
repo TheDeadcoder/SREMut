@@ -25,7 +25,7 @@ Reason: the SREMut worker hard-pins `EXPECTED_NAMESPACE = "social-network"`
 (`SREMut/src/sremut/original_oracle_worker.py:23`, enforced at `:135`, rejecting any other
 namespace with `ORIGINAL_ORACLE_INPUT_INVALID` / exit 65). That constant is fixed by the
 frozen evidence-capture policy v1.1 and the execution profile; the hard rules forbid
-editing frozen pre-registration artifacts, so it is **not relaxed**. This was observed
+editing frozen artifacts, so it is **not relaxed**. This was observed
 directly in `w2-hotel-01`, which tripped the two-instrument gate for exactly this reason
 while the application itself was healthy (10 rounds, 0/29447 non-2xx, in-process oracle
 `{"success": true}`).
@@ -58,8 +58,8 @@ debugged.
 
 ## Note added 2026-08-28 — evidential status: historical documented protocol
 
-**This is a historical documented protocol, not an independently corroborated
-pre-execution artifact.** Its contents may well have been specified before execution —
+**This is a historical documented protocol.** It is not corroborated as
+pre-execution — and neither, on the evidence, is any artifact in this project. Its contents may well have been specified before execution —
 the statement above says so — but git does not independently corroborate that ordering.
 Nothing in this file's decisions, thresholds or recorded run behaviour is changed by this
 note; only its evidential classification is.
@@ -89,8 +89,15 @@ reflog timestamps come from the same local clock. What the remote actually holds
 it received each push, was not checked: that requires network access. Full record:
 `analysis/PREREGISTRATION_TIMELINE.md` §C7.
 
-Only the four frozen artifacts — contract, execution profile and both evidence policies,
-bound by annotated tags that predate all execution in trees holding zero evidence files —
-qualify as independently corroborated pre-execution artifacts. Full forensic record:
-`analysis/PREREGISTRATION_TIMELINE.md`.
+**Nothing in this project is an independently corroborated pre-execution artifact,
+including the frozen ones.** The four frozen checkpoints — contract, execution profile,
+evidence policy v1 and evidence policy v1.1, with the mutant registry contained in the
+contract-tagged tree — are **locally frozen before the recorded runs**: annotated tags
+whose tagger dates precede all recorded execution, in trees holding zero evidence files.
+Tagger dates are user-controlled. GitHub server events place a public repository
+(2026-08-26T10:01:26Z) and the creation of `refs/heads/main` (2026-08-26T10:06:08Z) before
+the earliest recorded run, but the main-branch `CreateEvent` carries **no commit SHA**, so
+it binds no artifact to that time; and current tag-ref presence on the remote says nothing
+about when any tag was first pushed. Full forensic record:
+`analysis/PREREGISTRATION_TIMELINE.md`, §C5 and §C8.
 

@@ -10,7 +10,7 @@ For the `missing_service` family, the answer is yes.
 
 ## Headline result
 
-**The stock mitigation oracle returned `success=true` for every included historical unrepaired missing-Service state.** Across two applications, two instruments and six run families (g02, G1, G3, W1, W2, W4), no faulted state was ever rejected: 18 faulted-state instrument readings over 10 included historical runs.
+**The stock mitigation oracle returned `success=true` for every included historical unrepaired missing-Service state.** Across two applications and six run families (g02, G1, G3, W1, W2, W4), no faulted state was ever rejected: 18 faulted-state instrument readings over 10 included historical runs, in the three provenance categories `in_process` (9), `worker` (8) and `conductor` (1).
 
 **This is a mitigation verdict, and only that.** It is the Boolean returned by `MitigationOracle.evaluate()` and flattened into `Mitigation.success`. It is not a 100% overall SREGym score, not a diagnosis score, not an agent score, and not an end-to-end benchmark result — nothing here measures diagnosis, and no agent-scoring pipeline was run.
 
@@ -48,7 +48,7 @@ The oracle returned the same Boolean on a system failing 9.86% of user requests 
 | Faulted | 30 | 30,718 | 3,030 | 9.8639% |
 | Restored | 30 | 30,720 | 0 | 0.0000% |
 
-Pooled across three social-network repetitions. Recovery through SREGym's own `recover_fault()` returns the rate to zero, which rules out any explanation of the failures other than the injected fault.
+Pooled across three social-network repetitions. Recovery through SREGym's own `recover_fault()` returns the rate to zero. That restoration step is a positive control: within these runs it attributes the failures to the injected fault rather than to the deployment, the workload or the cluster, since removing the fault removed the failures and nothing else was changed. It does not exclude every conceivable alternative — only those that would have survived the restoration.
 
 ---
 
@@ -202,7 +202,9 @@ Each run directory holds `three-state.json`, `samples.jsonl` (2 second cluster s
 
 13 historical run directories exist. **10 are currently included** — 9 on Social Network and 1 on Hotel Reservation — and 3 are excluded, each for a stated reason.
 
-Those 10 runs produced **18 faulted-state instrument readings**. **18 readings are not 18 independent repetitions.** Two instruments reading the same faulted cluster in the same run share one deployment, one injection and one cluster state, so the pair is one observation seen twice, not two trials. The worker's `raw_result_sha256` is the single value `c955e577…` across all 8 of its included faulted readings (and the 9th, in the excluded inert run) — agreement between repeated reads of an identical input, not independent sampling. **The run is the experimental unit.**
+Those 10 runs produced **18 faulted-state instrument readings**. **18 readings are not 18 independent observations.** Two readings of the same faulted cluster in the same run share one deployment, one injection and one cluster state, so the pair is one observation read twice, not two trials. **The run is the experimental unit**, and the three G1 runs are **separate repetitions** — each with its own deploy, injection and recovery — not established as statistically independent.
+
+A note on the worker hashes, because they are easy to over-read. `raw_result_sha256` `c955e577…` is the SHA-256 of the canonical **output** bytes `{"success":true}`; it says the same answer came back, nothing more. The **invocation descriptor** — `kubernetes_context`, `namespace`, `captured_replica_baseline`, `evidence_paths`, 887 bytes — hashes to `8356ab1d…` across all 8 included faulted worker evaluations and the excluded 9th. Those are **identical invocation descriptor bytes, not an identical input**: the descriptor carries no cluster state, and the live Kubernetes state the worker actually reads is external to it and differed by state and by run. The same descriptor and the same output bytes recur across materially different healthy, faulted and restored clusters — which is the finding, not an artifact of re-running one input.
 
 On that unit: **G1 contributes three repeated full three-state runs** (`g1-run-01/02/03`), the strongest repetition evidence in the project. **Hotel Reservation contributes one included single-instrument run** (`w4-hotel-01`, n=1).
 
@@ -210,7 +212,9 @@ On that unit: **G1 contributes three repeated full three-state runs** (`g1-run-0
 
 Only faulted states are evidence of blindness. Healthy and restored states are included in the runs as controls, where `true` is the correct answer.
 
-| Run | Status | In-process oracle | SREMut worker | Real `Conductor` |
+**Taxonomy, stated once because two different groupings are in play.** `RESULT_LEDGER.json` records **three provenance categories** — `in_process`, `worker`, `conductor` — and every count in this README is in those terms. Separately, those three categories rest on **two underlying execution mechanisms**: the oracle called in-process inside the driver's own Python process (`in_process`) or inside the real `Conductor` (`conductor`), versus the oracle run as an isolated subprocess under the SREGym interpreter (`worker`). The conceptual pair is not the ledger's three categories, and "two instruments" without that qualification is ambiguous — so the phrase is not used.
+
+| Run | Status | `in_process` | `worker` | `conductor` |
 |---|---|---:|---:|---:|
 | `g02-run-01` | HISTORICAL_INCLUDED | 1 | 1 | 0 |
 | `g1-run-01/02/03` | HISTORICAL_INCLUDED | 3 | 3 | 0 |
@@ -222,13 +226,19 @@ Only faulted states are evidence of blindness. Healthy and restored states are i
 
 Excluded runs, listed so the exclusions are visible rather than silent:
 
-| Run | Status | In-process | Worker | `Conductor` | Excluded because |
+| Run | Status | `in_process` | `worker` | `conductor` | Excluded because |
 |---|---|---:|---:|---:|---|
 | `w2-noise-00-INERT` | HISTORICAL_EXCLUDED_INERT | 1 | 1 | 0 | `enable_noise=True` had no effect: the driver never called `start_problem()`, where `NoiseManager.start()` lives (`conductor.py:451`). No noise was ever injected. |
 | `w2-hotel-01` | HISTORICAL_EXCLUDED_ABANDONED | 0 | 0 | 0 | Run stopped at the healthy gate; the faulted state was never reached. |
 | `w3-hotel-01` | HISTORICAL_EXCLUDED_SUPERSEDED | 1 | 0 | 0 | Two instrument defects: the state sampler was hardcoded to namespace 'social-network' so its samples describe the wrong namespace, and the supervising loop hit a 10-minute tool timeout and killed the driver during the faulted window. |
 
-**18 faulted-state instrument readings across the included historical runs; 21 when the excluded runs are counted too. Every one returned `{"success": true}`** — the excluded runs point the same way as the included ones, so the exclusions are conservative, not selective.
+**All 21 faulted-state instrument readings returned `{"success": true}`.** Precisely:
+
+- **18 readings from the 10 included historical runs** — `in_process` 9, `worker` 8, `conductor` 1.
+- **3 further readings from two of the three excluded runs** — `w2-noise-00-INERT` contributed 2 (`in_process`, `worker`) and `w3-hotel-01` contributed 1 (`in_process`).
+- **`w2-hotel-01` contributed none.** It was abandoned at the healthy gate, so it produced no faulted reading at all. Not every excluded run contributed a measurement.
+
+All-run totals are therefore `in_process` 11, `worker` 9, `conductor` 1 — 21. Because every excluded reading also returned `true`, the exclusions cannot have reversed the direction of the available faulted verdicts. That bounds one worry; it does not establish that the exclusion grounds or the reported quantities were fixed before the data were seen, and **selective-analysis and incomplete-reporting risk cannot be eliminated retrospectively.**
 
 These four status values are historical classifications, applied at the analysis layer and never written back into a raw run record. `OFFICIAL_FROZEN_ATTEMPT`, and the word "official", are reserved for the future authenticated MS-M01/MS-M02/MS-M03 experiment matrix, which has not been run.
 
@@ -238,17 +248,17 @@ This table is generated. Regenerate it with `python3 experiments/build_result_le
 
 ## Registration status of the specifications
 
-**Two classes, and only one of them is independently corroborated.**
+**Nothing in this project is an independently corroborated pre-execution artifact.** There are two classes of specification, and the difference between them is a difference in *local* evidence.
 
-The **four frozen artifacts** — contract, execution profile, and both evidence policies, plus the mutant registry — carry annotated Git tags dated 2026-08-16 to 2026-08-24, in trees containing zero evidence files. The earliest execution anywhere in the project is 2026-08-26T11:00:19Z. These are the only artifacts in the project describable as **independently corroborated pre-execution artifacts**, and the corroboration is the tag timestamps predating all execution.
+**Four frozen checkpoints — locally frozen before the recorded runs.** Four annotated tag objects: the contract, the execution profile, evidence policy v1 and evidence policy v1.1. The mutant registry is **not** a fifth checkpoint; it is contained in the tree of the contract-tagged commit. Their tagger dates run 2026-08-16 to 2026-08-24, in trees holding zero evidence files, and the earliest recorded execution anywhere is 2026-08-26T11:00:19Z. **A tagger date is user-controlled** — `git tag` accepts any date and the host clock is writable — so this establishes that the artifacts were *locally frozen first*, not that anyone else attested to it.
 
-The **six experiment protocols** are **historical documented protocols**, not pre-registrations. Their contents may well have been specified before execution — their text says so, and the session transcript records it — but **git does not independently corroborate that ordering**. Every one was introduced by a commit that postdates the runs it governs, and five share a commit with their own evidence. Every timestamp involved is written by one machine with a user-writable clock. Each protocol file carries a note stating this; the full forensic record is `analysis/PREREGISTRATION_TIMELINE.md`.
+**Six experiment protocols — historical documented protocols.** Their contents may well have been specified before execution; their text says so and the session transcript records it. But every one was introduced by a commit that postdates the runs it governs, and five share a commit with their own evidence. Each protocol file carries a note saying so; the full forensic record is `analysis/PREREGISTRATION_TIMELINE.md`.
 
-**Correction (2026-08-28).** Earlier text here and in all six protocol notes said SREMut has no git remote. It does — `https://github.com/TheDeadcoder/SREMut.git`. That changes no verdict: per the local push reflog, every protocol was pushed only after the runs it governs, and the reflog's timestamps come from the same local clock, so it is not third-party attestation either. One open lead is recorded rather than claimed: the first push predates the earliest execution by ~54 minutes and carries all four frozen tag commits as ancestors, but whether it reached GitHub, and whether the annotated tag objects were ever pushed, needs network access to check and was not checked. See `analysis/PREREGISTRATION_TIMELINE.md` §C7.
+**Server-side evidence, and its exact limit.** Remote inspection confirms all four tag refs **exist now** — which says nothing about when any was first pushed. GitHub server events record the repository becoming public at **2026-08-26T10:01:26Z** and `refs/heads/main` being created at **2026-08-26T10:06:08Z**, both before the earliest recorded execution, and consistent with the local push record. But **the main-branch `CreateEvent` carries no commit SHA.** It is therefore evidence that a public repository and a `main` branch existed before the earliest recorded run — and it does **not** bind any specific artifact commit or tag object to that time. Consistency is not corroboration. See `analysis/PREREGISTRATION_TIMELINE.md` §C8.
 
-Nothing about the protocols' *content* is retracted here — no decision, threshold or recorded run behaviour changes. What changes is the evidential classification of the documents, and the word used for them.
+Nothing about the protocols' *content* is retracted here — no decision, threshold or recorded run behaviour changes. What changes is the evidential classification of the documents and the words used for them.
 
-**Does any conclusion depend on the ordering? No.** The rules whose prior specification could bias a result are the ones that *exclude or classify* — R3, R3-A, R2's round minimum. R3 was never invoked: all 21 faulted-state instrument readings returned `true`, and R3 governs `false` verdicts only. R3-A resolved to case (d), the branch that changes nothing. R2 disqualifies only `w3-hotel-01`, which is superseded anyway and whose 60.03 % agrees with w4's 59.74 %. The rest — R1's interval, H2, H3, H4 — are design parameters, and H2 tested R1 directly: runs at 0 s and 60 s give the same verdict.
+**What follows for the conclusions.** The measured verdicts and workload observations remain **descriptive evidence** and do not depend on when anything was written. What is limited is *confirmatory* status: because the protocols lack independent pre-execution corroboration, H1, H2, H3 and H4 are **historical exploratory robustness evidence**, not confirmatory tests. Two further points, one bounding and one not: post-hoc exclusions cannot have reversed the direction of the available faulted verdicts, because every excluded run that produced a faulted reading also returned `true`; but **selective-analysis and incomplete-reporting risk cannot be eliminated retrospectively**. Confirmatory language is reserved for the future frozen MS-M01/MS-M02/MS-M03 matrix, which has not been run.
 
 Rules as stated in their protocol files. The "claimed specified before" column reports
 what each file says, not what git attests — see above.
@@ -293,7 +303,7 @@ For hotel-reservation the workload rate is also the primary evidence that the in
 
 `rate/server.go:267` calls `log.Panic()` on a Mongo error, and the injector's pod restart empties `memcached-rate`, so every search takes the Mongo path. A persistently crashed rate pod would let the oracle detect the fault incidentally through pod health rather than by observing Services, which would weaken the claim.
 
-Amendment R3-A defined, before the verdict was read, what would distinguish that case from transient churn. The W4 sampler excludes it. The only `Failed` rate pod was the old pod terminating under the injector's own `delete pods --all`, present for a single sample at 10:01:03.783Z and gone by 10:01:07. Its replacement was `Running` continuously across the entire oracle window, which began 97 seconds later. 127 consecutive samples across the faulted window show zero pods outside `Running`.
+Amendment R3-A defined, before the verdict was read, what would distinguish that case from transient churn. The W4 sampler weakens it. The only `Failed` rate pod was the old pod terminating under the injector's own `delete pods --all`, present for a single sample at 10:01:03.783Z and gone by 10:01:07. Its replacement was `Running` at every two-second sample spanning the oracle window, which began 97 seconds later; 127 consecutive samples across the faulted window show zero pods outside `Running`. Unsampled transients between samples cannot be excluded.
 
 ---
 
@@ -350,7 +360,7 @@ The input is canonical JSON with `kubernetes_context`, `namespace`, `captured_re
 
 Stated plainly. Each limits what the numbers above support.
 
-1. **Two applications confirmed, not the whole family.** `missing_service_social_network` with two instruments across n=3 three-state repetitions plus four other run families. `missing_service_hotel_reservation` with one instrument, n=1. `missing_service_astronomy_shop` is untested. The other six BLIND classifications are structural predictions with no measurement behind them.
+1. **Two applications measured, not the whole family.** `missing_service_social_network` was read in both the `in_process` and `worker` provenance categories across n=3 three-state repetitions plus four other run families. `missing_service_hotel_reservation` was read in the `in_process` category only, n=1. `missing_service_astronomy_shop` is untested. The other six BLIND classifications are structural predictions with no measurement behind them.
 2. **The hotel-reservation runs are single-instrument.** The SREMut worker pins `EXPECTED_NAMESPACE = "social-network"`, a frozen artifact that was not relaxed. Those runs carry one independent measurement, not two, and are weaker than any social-network run.
 3. **32 of 123 census rows are UNCERTAIN.** The perturbed resource kind could not be traced to file:line at the first-pass depth, mostly where injection is delegated to Khaos, `inject_tt.py`, or a kernel injector. Separately, the 123 rows were not verified to one uniform depth: 28 received deeper injector-and-oracle verification, 95 did not.
 4. **ADEQUATE is structural, not behavioural.** It means the oracle reads the perturbed kind or a functional signal. It does not mean the oracle has been shown to reject a non-repair.
@@ -376,6 +386,6 @@ Five errors were caught and are recorded rather than silently fixed.
 ## Standing rules
 
 - `SREGym/` is read-only reference code. Its cleanliness is a scientific claim, verified beyond `git status` including assume-unchanged and skip-worktree bits.
-- `contracts/`, `profiles/`, `policies/`, `schemas/`, `mutants/` and the four annotated tags are frozen pre-registration artifacts — the only artifacts here whose pre-execution status is independently corroborated, by tags that predate all execution. If something contradicts them, report it rather than fix it.
+- `contracts/`, `profiles/`, `policies/`, `schemas/`, `mutants/` and the four annotated tags are frozen artifacts, locally frozen before the recorded runs. Their tagger dates are user-controlled, so they are not independently corroborated. If something contradicts them, report it rather than fix it.
 - Every claim about SREGym carries a file:line citation. Absences are proven with a grep that returns nothing.
 - Inference is labelled as inference. Predictions are never reported as results.

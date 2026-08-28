@@ -134,11 +134,15 @@ prevalence estimate.
 end-to-end: across `experiments/g02-run-01`, `g1-run-0{1,2,3}`, `g3-run-01`,
 `w1-delay0-0{1,2}`, `w2-noise-0{1,2}` and `w4-hotel-01` the stock oracle returned
 `{"success": true}` on an unrepaired system in **18 of 18 faulted-state instrument
-readings across the 10 included historical runs** (21 of 21 including the three excluded
-runs), while the functional workload failed ~10 % of requests on social-network and ~60 %
-on hotel-reservation. Those 18 readings are **not** 18 independent repetitions — the run
-is the experimental unit, and two instruments in one run read one cluster state. Per-run
-figures are generated into `experiments/RESULT_LEDGER.json`.
+readings across the 10 included historical runs** — provenance categories `in_process` 9,
+`worker` 8, `conductor` 1 — while the functional workload failed ~10 % of requests on
+social-network and ~60 % on hotel-reservation. Counting the excluded runs as well gives
+21 of 21: 3 further faulted readings came from **two** of the three excluded runs
+(`w2-noise-00-INERT` 2, `w3-hotel-01` 1), while `w2-hotel-01` was abandoned at the healthy
+gate and produced **no faulted reading**. Those 18 readings are **not** 18 independent
+observations — the run is the experimental unit, and two provenance categories in one run
+read one cluster state. Per-run figures are generated into
+`experiments/RESULT_LEDGER.json`.
 
 A fourth, `auth_miss_mongodb`, is a **second instance of the same mechanism**, established
 from source — see "Second instance of the confirmed mechanism" below.
