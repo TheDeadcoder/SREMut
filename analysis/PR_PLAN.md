@@ -192,7 +192,8 @@ fails if **either** child fails (`compound.py:40-41`), so the result is
 ### What the composed oracle would have returned in our experiments
 
 Against the `g1`/`g3`/`w1` faulted states — Service absent, 0 EndpointSlices, all
-deployments and pods healthy — the generic child returns `True` (as measured, 13/13) and
+deployments and pods healthy — the generic child returns `True` (as measured, in every
+faulted-state instrument reading of those runs) and
 `ServiceEndpointMitigationOracle` returns `False` at `:158-180` (Endpoints 404). The
 compound verdict is therefore **`False`**, which is the correct answer.
 

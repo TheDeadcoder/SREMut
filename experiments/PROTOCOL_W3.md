@@ -1,7 +1,9 @@
 # W3 protocol — H4-lite, second application, SINGLE INSTRUMENT
 
-Registered 2026-08-27, **before the run executed**. Either outcome is reportable, as with
-H2 (`PROTOCOL_W1.md`) and H3 (`PROTOCOL_W2.md`).
+Written 2026-08-27, stating that it was written **before the run executed**. That ordering
+is not independently corroborated: this is a **historical documented protocol** — see the
+note at the end of this file. Either outcome is reportable, as with H2 (`PROTOCOL_W1.md`)
+and H3 (`PROTOCOL_W2.md`).
 
 ## H4-lite
 
@@ -54,14 +56,16 @@ debugged.
 
 ---
 
-## Note added 2026-08-28 (R2 Part D1) — git does not corroborate the ordering claim
+## Note added 2026-08-28 — evidential status: historical documented protocol
 
-The statement above that this protocol was registered before execution is **left
-unmodified and is not withdrawn**. What follows is the independent-corroboration status,
-recorded so that no reader takes the statement as attested by version control.
+**This is a historical documented protocol, not an independently corroborated
+pre-execution artifact.** Its contents may well have been specified before execution —
+the statement above says so — but git does not independently corroborate that ordering.
+Nothing in this file's decisions, thresholds or recorded run behaviour is changed by this
+note; only its evidential classification is.
 
-**Git does not corroborate it.** The commit that introduced this file **postdates every
-execution it governs.**
+**Git does not corroborate the ordering.** The commit that introduced this file
+**postdates every execution it governs.**
 
 - Introducing commit: `96f5b1e6`, commit date **2026-08-27T09:51:15Z** (author date identical; no rebase or amend skew).
 - Earliest execution timestamp recorded inside each run's own JSON record:
@@ -74,9 +78,19 @@ execution it governs.**
 
 The session transcript records this protocol being written before the run started, and
 the file's content is consistent with that. But the transcript is not a timestamping
-authority, and SREMut has no git remote, so every timestamp here originates on a single
-machine with a user-writable clock and is attested by no external service.
+authority, and every timestamp above originates on a single machine with a user-writable
+clock.
 
-Full forensic record, including the four annotated tags whose pre-registration *is*
-supported by git: `analysis/PREREGISTRATION_TIMELINE.md`.
+**Correction (2026-08-28): SREMut does have a git remote.** Earlier versions of this note
+stated it had none; that is wrong — `origin` is
+`https://github.com/TheDeadcoder/SREMut.git`. It does not change the verdict. Per the
+local push reflog, the push carrying this file postdates every run it governs, and those
+reflog timestamps come from the same local clock. What the remote actually holds, and when
+it received each push, was not checked: that requires network access. Full record:
+`analysis/PREREGISTRATION_TIMELINE.md` §C7.
+
+Only the four frozen artifacts — contract, execution profile and both evidence policies,
+bound by annotated tags that predate all execution in trees holding zero evidence files —
+qualify as independently corroborated pre-execution artifacts. Full forensic record:
+`analysis/PREREGISTRATION_TIMELINE.md`.
 

@@ -1,9 +1,11 @@
 # G1 — three three-state repetitions, driver (ii)
 
-Protocol registered before execution: `SREMut/experiments/PROTOCOL_G1.md`
-(R1 null-agent episode 60 s; R2 >= 10 complete wrk2 rounds per state, same run;
-R3 pre-registered interpretation rule carried forward from
-`SREMut/analysis/G02_null_agent_plan.md`).
+Governing protocol: `SREMut/experiments/PROTOCOL_G1.md` (R1 null-agent episode 60 s;
+R2 >= 10 complete wrk2 rounds per state, same run; R3 interpretation rule for a `False`
+verdict, carried forward from `SREMut/analysis/G02_null_agent_plan.md`). That file is a
+**historical documented protocol**: its text states it was written before execution, and
+git does not independently corroborate the ordering — see its own closing note and
+`SREMut/analysis/PREREGISTRATION_TIMELINE.md`.
 
 Driver: `SREMut/experiments/three_state_run.py`, sha256
 `90488567faa3e7dd991fcab47c52f4e4364cc7cfba857d51060064555e5f3f3e` — identical across all three runs:
@@ -119,7 +121,7 @@ For comparison, `g02-run-01` was **0.638 s**. R1 held to within 1 ms in all thre
 
 ---
 
-## 5. Repetitions excluded under the pre-registered rule
+## 5. Repetitions excluded under R3
 
 **None.** All three repetitions passed the healthy gate and completed.
 
@@ -130,8 +132,9 @@ For comparison, `g02-run-01` was **0.638 s**. R1 held to within 1 ms in all thre
 | `g1-run-03` | `COMPLETE` | True | True | True (n=0) | **PASSED** |
 
 R3 governs the classification of a `False` verdict. **No `False` verdict was
-produced in any of the nine measurements**, so R3 never had to be applied. It
-remains registered and unused, which is the outcome that leaves it credible.
+produced in any of the nine instrument readings**, so R3 never had to be applied. It
+remains recorded and unused, so no exclusion or reclassification in this project rests
+on it.
 
 ---
 
@@ -177,12 +180,14 @@ Across three independent repetitions, each with its own deploy, injection, 60 s
 null-agent episode, and recovery:
 
 - The stock `MitigationOracle` returned `{"success": true}` in **9 of 9**
-  measurements, in both instruments, across all three states.
+  instrument readings, in both instruments, across all three states. The experimental
+  unit is the run: these are **three repeated full three-state runs**, each read by two
+  instruments in three states, not nine independent repetitions.
 - All nine worker results are **byte-identical**, sha256
   `c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97`.
 - The workload separated the states completely and reproducibly: 0.0000 % healthy,
   9.8639 % faulted, 0.0000 % restored, over 30 rounds per state.
-- No repetition was excluded; the pre-registered rule was never invoked.
+- No repetition was excluded; R3 was never invoked.
 
 The 60 s null-agent episode removes the strongest remaining objection to
 `g02-run-01`: the oracle was not catching a transient. After a full minute of

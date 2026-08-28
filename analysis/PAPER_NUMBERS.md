@@ -316,7 +316,9 @@ The **counts** are generated; the **verdicts** they tally are hand-read from eac
 with the published verdict on 48 of 123 rows. See `CENSUS.md`, "Other headline counts".
 
 BLIND rose from 6 to 8 on 2026-08-28 (R2 Part A) after hand-verifying rows scored ADEQUATE
-on a prose-attributed resource kind. `Oracle classes with evaluate()` fell from 60 to 59
+on a prose-attributed resource kind. **The 123 rows were not verified at the same depth:**
+28 received deeper injector-and-oracle verification and 95 did not, so the headline is a
+lower bound — *at least 8 of 123, from 28 rows hand-verified*. `Oracle classes with evaluate()` fell from 60 to 59
 (R2 Part B): every route to 60 counted the abstract base `Oracle` itself, whose `evaluate`
 is an `@abstractmethod` (`base.py:19-22`). Derivations:
 `analysis/census/R2_PARTA_CODE_ONLY_RECLASSIFICATION.md`,
@@ -344,12 +346,21 @@ is an `@abstractmethod` (`base.py:19-22`). Derivations:
 | structural-shape % of denominator | 6.7797 % | **6.5041 %** |
 | `registry.txt` entries absent from registry | 9 | **4** |
 
-**The BLIND set is unchanged** — all six are the same problem_ids. All five newly added
-rows classified ADEQUATE, so the count of blind problems did not move; the denominator
-did, which lowers the percentage.
+The two columns above compose two separate corrections. **R1** (denominator 118 -> 123)
+added five rows, all ADEQUATE, which moved the denominator but not the BLIND count.
+**R2 Part A** then reclassified two previously-ADEQUATE rows as BLIND, taking the count
+from 6 to 8. An earlier draft of this section stated that the BLIND set remained
+unchanged at six; that was true only of R1 and is **withdrawn** — the current set is the
+eight in `analysis/census/ledger.json`.
 
-Bare-generic honest range, unchanged at **6-14** (6 if every UNCERTAIN resolves ADEQUATE,
-14 if every one resolves BLIND).
+**8 of 123 = 6.5041 % is the fraction currently identified**, on rows verified at unequal
+depth. It is a lower-bound discovery count, not an estimate of benchmark-wide prevalence,
+and must never be quoted as one.
+
+Within the **bare generic subset alone** — 31 problem_ids, 6 BLIND / 17 ADEQUATE /
+8 UNCERTAIN — resolving the 8 UNCERTAIN rows in either direction gives a mechanical range
+of **6 to 14 for that subset**. That range is scoped to the bare generic subset; it is not
+a global range over the 123 registered IDs.
 
 ### Denominator correction and its cause
 
@@ -473,8 +484,9 @@ source and is not speculated on here.
 
 ### Item B — H2, submission latency
 
-Protocol registered before execution: `SREMut/experiments/PROTOCOL_W1.md`.
-Runs: `SREMut/experiments/w1-delay0-0{1,2}/three-state.json`.
+Governing protocol: `SREMut/experiments/PROTOCOL_W1.md` — a historical documented
+protocol; its text states it was written before execution and git does not independently
+corroborate that. Runs: `SREMut/experiments/w1-delay0-0{1,2}/three-state.json`.
 
 **H2 is NOT supported.** Both zero-delay runs returned `true`.
 
@@ -491,7 +503,8 @@ Runs: `SREMut/experiments/w1-delay0-0{1,2}/three-state.json`.
 All worker `raw_result_sha256` values match the G1 value
 `c955e57777ec0d73639dca6748560d00…`.
 
-**Interpretation, per the pre-registered statement that either outcome is reportable:**
+**Interpretation, per the protocol's advance statement that either outcome is reportable
+(a historical documented protocol; git does not corroborate the ordering):**
 this is the *stronger* result for the primary claim. At an interval of ~0.15 ms — the
 most adversarial timing obtainable — the oracle still accepts the unrepaired system,
 and every pod was already `Running` because `inject_fault()`'s own `wait_for_stable`
@@ -499,18 +512,33 @@ and every pod was already `Running` because `inject_fault()`'s own `wait_for_sta
 predicted (dying pods still listed at `inject_fault()` return) did not occur in either
 run. The "you waited for it to settle" objection to G1 and G3 is removed.
 
-Total verdicts now: **18 of 18 official** faulted-state measurements `true` on unrepaired
-states — 21 of 21 including the three excluded runs, all of which also returned `true`.
-Recomputed from the run records into `experiments/RESULT_LEDGER.json`
-(`experiments/build_result_ledger.py`); the earlier figure of 13 was an undercount that
-omitted the g02 sidecar instrument artifacts and the later runs.
+Totals now: **18 of 18 faulted-state instrument readings** across the 10 included
+historical runs returned `true` on unrepaired states — 21 of 21 including the three
+excluded runs, all of which also returned `true`. Recomputed from the run records into
+`experiments/RESULT_LEDGER.json` (`experiments/build_result_ledger.py`); the earlier
+figure of 13 was an undercount that omitted the g02 sidecar instrument artifacts and the
+later runs.
 
-| instrument | official | all runs |
+| instrument | included historical | all runs |
 |---|---:|---:|
 | in-process `MitigationOracle` | 9 | 11 |
 | isolated SREMut worker | 8 | 9 |
 | real `Conductor` (G3) | 1 | 1 |
 | **total** | **18** | **21** |
+
+**Counting rule.** A reading is one faulted-state verdict from one instrument in one run.
+**18 readings are not 18 independent repetitions** — two instruments reading the same
+faulted cluster in one run share one deployment, one injection and one cluster state, so
+the pair is one observation seen twice. All 9 faulted worker readings — the 8 included
+plus the 1 in the excluded inert run — carry the byte-identical
+`raw_result_sha256 c955e57777ec0d73…`, which is repeated reads of an identical input, not
+independent sampling. **The run is the experimental unit:** 13 historical
+run directories, 10 included (9 social-network, 1 hotel-reservation), of which G1
+contributes three repeated full three-state runs and hotel-reservation one included
+single-instrument run. The four historical statuses are `HISTORICAL_INCLUDED`,
+`HISTORICAL_EXCLUDED_INERT`, `HISTORICAL_EXCLUDED_ABANDONED` and
+`HISTORICAL_EXCLUDED_SUPERSEDED`; `OFFICIAL_FROZEN_ATTEMPT` is reserved for the future
+authenticated MS-M01/MS-M02/MS-M03 matrix.
 
 ### Item A (W1) — TTM anchor, restated
 
@@ -531,14 +559,15 @@ Failure Scenarios" (Clark, Su, Pial, Tian, Gniedziejko, Jacobsen, Chen, Xu).
 
 | Claim | Verbatim | Our measurement |
 |---|---|---|
-| §2.5 Mitigation Oracle | "The mitigation oracle is problem-specific to accurately reflect whether the target failure is truly mitigated." "The oracle checks whether the target fault is resolved and whether the target system has recovered to a healthy state." "**The mitigation oracle uses both client-side observability such as user request success rate and system-side observability of application processes, Kubernetes cluster, etc.**" | For `missing_service_social_network` the attached oracle uses **only** system-side signals. Client-side observability is verified absent (`http` 0, `workload` 0, `wrk` 0). Measured user request success rate ~90 % while the oracle reported success, 13/13. |
+| §2.5 Mitigation Oracle | "The mitigation oracle is problem-specific to accurately reflect whether the target failure is truly mitigated." "The oracle checks whether the target fault is resolved and whether the target system has recovered to a healthy state." "**The mitigation oracle uses both client-side observability such as user request success rate and system-side observability of application processes, Kubernetes cluster, etc.**" | For `missing_service_social_network` the attached oracle uses **only** system-side signals. Client-side observability is verified absent (`http` 0, `workload` 0, `wrk` 0). Measured user request success rate ~90 % while the oracle reported success, in every faulted-state instrument reading of every included historical run. |
 | §2.5 Diagnosis Oracle | validated at **Cohen's κ = 0.90** vs human experts (κ = 0.94 inter-LLM), Table 2 | No comparable validation is reported for mitigation oracles. |
 | §3.1 | "Mitigation success rate measures whether the agent successfully mitigates failures (verified by the mitigation oracle)." Table 3: 78.5 % / 65.5 % / 57.3 % | Problem subset over which these were computed is **not stated** in the paper. |
 | §2 design principle | "**Simulating faults, not symptoms.** We reject a common practice of existing benchmarks that use chaos engineering tools to create failure symptoms, which can only be mitigated by stopping the tools. Instead, we focus on simulating fine-grained faults." | **Different threat.** Concerns agents gaming the *injector*. Our finding is not that — our agent did nothing at all. **No tension claimed.** |
 
 **The one contradiction, conservatively scoped:** the §2.5 description of client-side
-observability does not hold for the **27 problem_ids on the bare generic
-`MitigationOracle`**, one of which we measured end-to-end. It does hold for much of the
+observability does not hold for the **31 problem_ids on the bare generic
+`MitigationOracle`** (the count after the R1 denominator correction), one of which we
+measured end-to-end. It does hold for much of the
 family (18/59 oracle classes reach TCP/HTTP, 3 consume workload).
 
 **NOT VERIFIED:** no paragraph headed "Protection against reward hacking" was located.
@@ -904,8 +933,9 @@ are unrecoverable. No re-run was performed. The script has been corrected (run s
 numbers used a different, correct script and are unaffected.
 
 **2. 32 of 123 census rows are UNCERTAIN** — the perturbed resource kind could not
-be traced to file:line at the uniform depth applied. Not PENDING; attempted and
-unresolved.
+be traced to file:line at the first-pass depth applied to every row. Not PENDING;
+attempted and unresolved. The census as a whole is not verified to one uniform depth:
+28 rows were re-read against injector source and oracle `evaluate()`, 95 were not.
 
 **3. Noise: now partially addressed, and the caveat is weaker than first stated.**
 G1, G3 and W1 ran with `enable_noise=False`. W2's two runs ran with noise genuinely
@@ -936,7 +966,7 @@ established; no rate claim is made.
 "One problem, one fault, one cluster." W4 retired the single-application form.)*
 Everything measured end-to-end concerns the `missing_service` fault type under MS-M01
 (no-op after Service deletion) on a single 4-node kind cluster — but now across **two
-applications**: `missing_service_social_network` (9 official runs) and
+applications**: `missing_service_social_network` (9 included historical runs) and
 `missing_service_hotel_reservation` (`w4-hotel-01`, n=1, single-instrument). The census
 extends *structurally* to 123 problem_ids; only 2 of the 8 BLIND ids have been executed,
 and the other 6 are predictions.

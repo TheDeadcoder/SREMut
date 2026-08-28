@@ -1,7 +1,9 @@
 # W4 protocol — one clean hotel-reservation three-state run
 
-Registered 2026-08-27, **before the run executed**. Either outcome is reportable, as with
-H2 (`PROTOCOL_W1.md`), H3 (`PROTOCOL_W2.md`) and H4-lite (`PROTOCOL_W3.md`).
+Written 2026-08-27, stating that it was written **before the run executed**. That ordering
+is not independently corroborated: this is a **historical documented protocol** — see the
+note at the end of this file. Either outcome is reportable, as with H2 (`PROTOCOL_W1.md`),
+H3 (`PROTOCOL_W2.md`) and H4-lite (`PROTOCOL_W3.md`).
 
 ## Purpose
 
@@ -71,7 +73,8 @@ not debugged.
 
 # AMENDMENT R3-A — scope of the harness_timing_failure classification
 
-**Registered 2026-08-27T10:11:11.748Z (UTC), recorded at the moment of writing.**
+**Written 2026-08-27T10:11:11.748Z (UTC), timestamp recorded at the moment of writing —
+by this file, not by any independent authority.**
 
 ## Disclosure of what was on disk when this was written
 
@@ -87,9 +90,10 @@ At 2026-08-27T10:11:11.748Z, when this amendment was written:
 - `w4-hotel-01/three-state.json` did **not** yet exist; the driver was still running
   (RESTORED state pending).
 
-This amendment is therefore registered **after the measurement existed but before it was
-observed**. That is a weaker guarantee than R1/R2/R3, which were registered before their
-runs executed, and it is stated plainly here rather than implied. The discriminator below
+This amendment was therefore written **after the measurement existed but before it was
+observed**. That is a weaker guarantee than R1/R2/R3, whose own text says they were
+written before their runs executed — though for none of them, including this one, does
+git corroborate the ordering. It is stated plainly here rather than implied. The discriminator below
 is defined entirely in terms of the **sampler timeline**, which is independent of the
 verdict value, precisely so that the classification cannot be steered by the outcome.
 
@@ -131,14 +135,16 @@ been misfiled as a harness timing failure and re-run, discarding a genuine findi
 
 ---
 
-## Note added 2026-08-28 (R2 Part D1) — git does not corroborate the ordering claim
+## Note added 2026-08-28 — evidential status: historical documented protocol
 
-The statement above that this protocol was registered before execution is **left
-unmodified and is not withdrawn**. What follows is the independent-corroboration status,
-recorded so that no reader takes the statement as attested by version control.
+**This is a historical documented protocol, not an independently corroborated
+pre-execution artifact.** Its contents may well have been specified before execution —
+the statement above says so — but git does not independently corroborate that ordering.
+Nothing in this file's decisions, thresholds or recorded run behaviour is changed by this
+note; only its evidential classification is.
 
-**Git does not corroborate it.** The commit that introduced this file **postdates every
-execution it governs.**
+**Git does not corroborate the ordering.** The commit that introduced this file
+**postdates every execution it governs.**
 
 - Introducing commit: `0a3a0e59`, commit date **2026-08-27T10:23:01Z** (author date identical; no rebase or amend skew).
 - Earliest execution timestamp recorded inside each run's own JSON record:
@@ -151,9 +157,19 @@ execution it governs.**
 
 The session transcript records this protocol being written before the run started, and
 the file's content is consistent with that. But the transcript is not a timestamping
-authority, and SREMut has no git remote, so every timestamp here originates on a single
-machine with a user-writable clock and is attested by no external service.
+authority, and every timestamp above originates on a single machine with a user-writable
+clock.
 
-Full forensic record, including the four annotated tags whose pre-registration *is*
-supported by git: `analysis/PREREGISTRATION_TIMELINE.md`.
+**Correction (2026-08-28): SREMut does have a git remote.** Earlier versions of this note
+stated it had none; that is wrong — `origin` is
+`https://github.com/TheDeadcoder/SREMut.git`. It does not change the verdict. Per the
+local push reflog, the push carrying this file postdates every run it governs, and those
+reflog timestamps come from the same local clock. What the remote actually holds, and when
+it received each push, was not checked: that requires network access. Full record:
+`analysis/PREREGISTRATION_TIMELINE.md` §C7.
+
+Only the four frozen artifacts — contract, execution profile and both evidence policies,
+bound by annotated tags that predate all execution in trees holding zero evidence files —
+qualify as independently corroborated pre-execution artifacts. Full forensic record:
+`analysis/PREREGISTRATION_TIMELINE.md`.
 

@@ -30,11 +30,13 @@ here asserts H1 is true.
 
 ---
 
-## Pre-registered interpretation rule
+## R3 — interpretation rule for a `False` verdict
 
-Registered 2026-08-26, BEFORE the experiment was executed and before any result
-existed. This rule governs how a `False` verdict is to be classified, and is fixed in
-advance precisely so that classification cannot be chosen after seeing the outcome.
+Written 2026-08-26, stating that it was written BEFORE the experiment was executed and
+before any result existed, so that classification could not be chosen after seeing the
+outcome. That ordering is not independently corroborated — this is a **historical
+documented protocol**, see the note at the end of this file. The rule governs how a
+`False` verdict is to be classified.
 
 > A False verdict falsifies H1 only if every pod in the namespace was in
 > phase Running with all containers ready at the moment of evaluation, and
@@ -458,8 +460,8 @@ observation window at 2-second resolution, not merely at its two endpoints. That
 the evidence that makes the simultaneity claim airtight, and it is exactly what
 candidate (i) cannot produce.
 
-A second purpose, equally important: the sampler is the instrument that lets the
-pre-registered interpretation rule be applied at all. Classifying a False as
+A second purpose, equally important: the sampler is the instrument that lets R3, the
+interpretation rule above, be applied at all. Classifying a False as
 `harness_timing_failure` requires knowing every pod's phase AT the moment of
 evaluation — which a T-/T+ pair can only bracket, and a 2 s sampler can actually
 show.
@@ -751,14 +753,16 @@ Consequences:
 
 ---
 
-## Note added 2026-08-28 (R2 Part D1) — git does not corroborate the ordering claim
+## Note added 2026-08-28 — evidential status: historical documented protocol
 
-The statement above that this protocol was registered before execution is **left
-unmodified and is not withdrawn**. What follows is the independent-corroboration status,
-recorded so that no reader takes the statement as attested by version control.
+**This is a historical documented protocol, not an independently corroborated
+pre-execution artifact.** Its contents may well have been specified before execution —
+the statement above says so — but git does not independently corroborate that ordering.
+Nothing in this file's decisions, thresholds or recorded run behaviour is changed by this
+note; only its evidential classification is.
 
-**Git does not corroborate it.** The commit that introduced this file **postdates every
-execution it governs.**
+**Git does not corroborate the ordering.** The commit that introduced this file
+**postdates every execution it governs.**
 
 - Introducing commit: `9314bda3`, commit date **2026-08-26T20:11:56Z** (author date identical; no rebase or amend skew).
 - Earliest execution timestamp recorded inside each run's own JSON record:
@@ -771,9 +775,19 @@ execution it governs.**
 
 The session transcript records this protocol being written before the run started, and
 the file's content is consistent with that. But the transcript is not a timestamping
-authority, and SREMut has no git remote, so every timestamp here originates on a single
-machine with a user-writable clock and is attested by no external service.
+authority, and every timestamp above originates on a single machine with a user-writable
+clock.
 
-Full forensic record, including the four annotated tags whose pre-registration *is*
-supported by git: `analysis/PREREGISTRATION_TIMELINE.md`.
+**Correction (2026-08-28): SREMut does have a git remote.** Earlier versions of this note
+stated it had none; that is wrong — `origin` is
+`https://github.com/TheDeadcoder/SREMut.git`. It does not change the verdict. Per the
+local push reflog, the push carrying this file postdates every run it governs, and those
+reflog timestamps come from the same local clock. What the remote actually holds, and when
+it received each push, was not checked: that requires network access. Full record:
+`analysis/PREREGISTRATION_TIMELINE.md` §C7.
+
+Only the four frozen artifacts — contract, execution profile and both evidence policies,
+bound by annotated tags that predate all execution in trees holding zero evidence files —
+qualify as independently corroborated pre-execution artifacts. Full forensic record:
+`analysis/PREREGISTRATION_TIMELINE.md`.
 

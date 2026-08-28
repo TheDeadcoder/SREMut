@@ -1,23 +1,35 @@
 {
  "faulted_state_measurements": {
-  "note": "A 'measurement' is one faulted-state mitigation verdict produced by one instrument in one run. Recomputed from the run records; not carried forward from any earlier figure.",
+  "note": "An 'instrument reading' is one faulted-state mitigation verdict produced by one instrument in one run. Readings from the same run are NOT independent experimental repetitions: they share one deployment, one injection and one cluster state. The run is the experimental unit. Recomputed from the run records; not carried forward from any earlier figure.",
   "per_instrument_all_runs": {
    "conductor": 1,
    "in_process": 11,
    "worker": 9
   },
-  "per_instrument_official_only": {
+  "per_instrument_historical_included_only": {
    "conductor": 1,
    "in_process": 9,
    "worker": 8
   },
   "total_all_runs": 21,
-  "total_official_only": 18
+  "total_historical_included_only": 18
  },
  "faulted_verdicts_all_true": true,
  "generated_by": "experiments/build_result_ledger.py",
  "hand_edited": false,
  "n_runs": 13,
+ "run_status_vocabulary": {
+  "note": "Status is an analysis-layer classification asserted by experiments/build_result_ledger.py. It is never written back into a raw run record.",
+  "reserved": {
+   "OFFICIAL_FROZEN_ATTEMPT": "Reserved for the future authenticated MS-M01/MS-M02/MS-M03 experiment matrix. No run in this ledger carries it, and the word 'official' is not used for any historical run."
+  },
+  "values": {
+   "HISTORICAL_EXCLUDED_ABANDONED": "Historical run excluded because it stopped before the faulted state and produced no faulted-state measurement.",
+   "HISTORICAL_EXCLUDED_INERT": "Historical run excluded because the condition it was meant to establish was never actually applied.",
+   "HISTORICAL_EXCLUDED_SUPERSEDED": "Historical run excluded because a later run repeated the same measurement with the instrument defects fixed.",
+   "HISTORICAL_INCLUDED": "Historical run whose measurements are included in the reported totals."
+  }
+ },
  "runs": [
   {
    "agent_action_between_injection_and_evaluation": "NONE",
@@ -36,8 +48,8 @@
      "outcome": "RETURNED_TRUE",
      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
      "success": true,
-     "utc": "2026-08-26T14:31:42.349782Z",
-     "utc_source": "file_mtime"
+     "utc": null,
+     "utc_source": "not_recorded_in_artifact"
     }
    },
    "finished_at": "2026-08-26T11:03:21.197921+00:00",
@@ -65,7 +77,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-26T11:00:19.367292+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete end-to-end null-agent run under analysis/G02_null_agent_plan.md.",
    "verdicts": {
     "faulted": {
@@ -79,8 +91,8 @@
       "outcome": "RETURNED_TRUE",
       "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
       "success": true,
-      "utc": "2026-08-26T14:31:42.349782Z",
-      "utc_source": "file_mtime"
+      "utc": null,
+      "utc_source": "not_recorded_in_artifact"
      }
     },
     "healthy": {
@@ -102,8 +114,8 @@
       "outcome": "RETURNED_TRUE",
       "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
       "success": true,
-      "utc": "2026-08-26T15:00:29.249654Z",
-      "utc_source": "file_mtime"
+      "utc": null,
+      "utc_source": "not_recorded_in_artifact"
      }
     }
    },
@@ -165,7 +177,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-26T19:28:10.037861+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete G1 repetition under experiments/PROTOCOL_G1.md.",
    "verdicts": {
     "faulted": {
@@ -279,7 +291,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-26T19:38:01.776896+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete G1 repetition under experiments/PROTOCOL_G1.md.",
    "verdicts": {
     "faulted": {
@@ -393,7 +405,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-26T19:47:43.375448+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete G1 repetition under experiments/PROTOCOL_G1.md.",
    "verdicts": {
     "faulted": {
@@ -501,7 +513,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-26T21:10:18.305481+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete real-Conductor run. Verdict instrument sound; the faulted-state WORKLOAD window is void (jsonpath literal-newline defect in the driver), so this run contributes a verdict but no faulted workload measurement.",
    "verdicts": {
     "faulted": {
@@ -559,7 +571,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-26T21:51:21.792023+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete H2 delay=0 run under experiments/PROTOCOL_W1.md.",
    "verdicts": {
     "faulted": {
@@ -673,7 +685,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-26T22:01:18.835253+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete H2 delay=0 run under experiments/PROTOCOL_W1.md.",
    "verdicts": {
     "faulted": {
@@ -774,7 +786,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-27T04:27:04.719662+00:00",
-   "status": "abandoned",
+   "status": "HISTORICAL_EXCLUDED_ABANDONED",
    "status_reason": "No faulted-state measurement exists in this run.",
    "verdicts": {
     "healthy": {
@@ -840,7 +852,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-27T03:55:22.165179+00:00",
-   "status": "inert",
+   "status": "HISTORICAL_EXCLUDED_INERT",
    "status_reason": "Preserved for provenance. Excluded from every noise claim.",
    "verdicts": {
     "faulted": {
@@ -954,7 +966,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-27T04:07:04.382061+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete H3 noise run under experiments/PROTOCOL_W2.md.",
    "verdicts": {
     "faulted": {
@@ -1068,7 +1080,7 @@
    "schema_version": 1,
    "single_instrument": null,
    "started_at": "2026-08-27T04:16:48.105650+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete H3 noise run under experiments/PROTOCOL_W2.md.",
    "verdicts": {
     "faulted": {
@@ -1189,7 +1201,7 @@
    "schema_version": 1,
    "single_instrument": true,
    "started_at": null,
-   "status": "superseded",
+   "status": "HISTORICAL_EXCLUDED_SUPERSEDED",
    "status_reason": "Superseded by w4-hotel-01, which re-ran the same measurement with both defects fixed.",
    "verdicts": {
     "faulted": {
@@ -1255,7 +1267,7 @@
    "schema_version": 1,
    "single_instrument": true,
    "started_at": "2026-08-27T09:54:56.706800+00:00",
-   "status": "official",
+   "status": "HISTORICAL_INCLUDED",
    "status_reason": "Complete hotel-reservation run under experiments/PROTOCOL_W4.md, with both instrument defects from w3 fixed.",
    "verdicts": {
     "faulted": {
@@ -1309,9 +1321,9 @@
   }
  ],
  "runs_by_status": {
-  "abandoned": 1,
-  "inert": 1,
-  "official": 10,
-  "superseded": 1
+  "HISTORICAL_EXCLUDED_ABANDONED": 1,
+  "HISTORICAL_EXCLUDED_INERT": 1,
+  "HISTORICAL_EXCLUDED_SUPERSEDED": 1,
+  "HISTORICAL_INCLUDED": 10
  }
 }

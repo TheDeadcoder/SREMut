@@ -93,7 +93,11 @@ behaviour. Two determinations that a name-based approach gets wrong:
   signal (DNS, TCP/HTTP, workload, Prometheus, pod exec) the fault necessarily breaks.
 - **BLIND** — neither.
 - **UNCERTAIN** — the perturbed kind or the oracle surface could not be determined from
-  source at the uniform depth applied to all 123.
+  source at the first-pass depth applied to every row.
+
+The first pass was applied uniformly, but the census as it now stands is **not** verified
+to one uniform depth: 28 rows were subsequently re-read against injector source and
+oracle `evaluate()`, and 95 were not. See "Verification coverage".
 
 **One correction, disclosed.** The first pass counted the injector's incidental pod
 deletion as an observable perturbation, which wrongly classified `missing_service_*` as
@@ -109,9 +113,15 @@ known-answer case in the census caught this; the corrected rule reproduces it.
 
 ### THE headline: oracles blind to their own fault
 
-**At least 8 of 123 problem_ids (6.504 %) are BLIND** — the attached oracle observes
-neither the perturbed resource kind nor any functional signal the fault would break.
-Against the conservative 104-id denominator, 8/104 = 7.7 %.
+**Source analysis identified at least 8 structurally blind problem IDs among 123
+registered IDs** — for each, the attached oracle observes neither the perturbed resource
+kind nor any functional signal the fault would break. Against the conservative 104-id
+denominator the same 8 give 7.7 %.
+
+**8 of 123 = 6.5041 % is the fraction currently identified**, not an estimate of
+benchmark-wide prevalence. The 8 are a lower-bound discovery count produced by
+hand-verification of a non-random subset; the percentage must never be quoted as a
+prevalence estimate.
 
 > **This figure rose from 6 to 8 on 2026-08-28** (R2 Part A), by hand-verifying rows the
 > census had scored ADEQUATE on a resource kind attributed from prose rather than code.
@@ -123,10 +133,12 @@ Against the conservative 104-id denominator, 8/104 = 7.7 %.
 **3 of the 8 are the `missing_service` family**, and that family is the one confirmed
 end-to-end: across `experiments/g02-run-01`, `g1-run-0{1,2,3}`, `g3-run-01`,
 `w1-delay0-0{1,2}`, `w2-noise-0{1,2}` and `w4-hotel-01` the stock oracle returned
-`{"success": true}` on an unrepaired system in **18 of 18 official faulted-state
-measurements** (21 of 21 including the three excluded runs), while the functional workload
-failed ~10 % of requests on social-network and ~60 % on hotel-reservation. Per-run figures
-are generated into `experiments/RESULT_LEDGER.json`.
+`{"success": true}` on an unrepaired system in **18 of 18 faulted-state instrument
+readings across the 10 included historical runs** (21 of 21 including the three excluded
+runs), while the functional workload failed ~10 % of requests on social-network and ~60 %
+on hotel-reservation. Those 18 readings are **not** 18 independent repetitions — the run
+is the experimental unit, and two instruments in one run read one cluster state. Per-run
+figures are generated into `experiments/RESULT_LEDGER.json`.
 
 A fourth, `auth_miss_mongodb`, is a **second instance of the same mechanism**, established
 from source — see "Second instance of the confirmed mechanism" below.
@@ -135,7 +147,7 @@ The remaining BLIND ids (`pvc_claim_mismatch`, `assign_to_non_existent_node`,
 `workload_imbalance`, `operator_wrong_operator_image`) are **structural predictions, not
 results** — none has been executed.
 
-### The bare-generic pool, stated as an interval
+### The bare-generic subset, stated as an interval
 
 Of the 31 problem_ids on the bare generic `MitigationOracle`:
 
@@ -145,10 +157,14 @@ Of the 31 problem_ids on the bare generic `MitigationOracle`:
 | ADEQUATE | **17** |
 | UNCERTAIN | **8** |
 
-Because the 8 UNCERTAIN rows could not be resolved from source, the honest statement is a
-range: **between 8 and 16 problem_ids are blind to their own fault** — 8 if every
-UNCERTAIN row turns out ADEQUATE, 14 if every one turns out BLIND. The point estimate on
-resolved rows alone is 6.
+Because the 8 UNCERTAIN rows could not be resolved from source, resolving them in either
+direction gives a mechanical range **within this subset** of **6 to 14**: 6 if every
+UNCERTAIN row turns out ADEQUATE, 14 if every one turns out BLIND.
+
+**That range is scoped to the bare generic subset and to nothing wider.** It is not a
+global range over the 123 registered IDs, and it must not be restated as one: the other
+two BLIND rows carry dedicated oracles and sit outside this subset entirely, and the 24
+UNCERTAIN rows outside it are not covered by either endpoint.
 
 ### Verification coverage
 
@@ -168,7 +184,11 @@ so the union is exactly 6 + 5 + 17 = 28.
 **The 17 are an enriched sample, not a random one.** They were selected precisely because
 a code-identifiers-only re-derivation disagreed with the full-text attribution — that is,
 because prose was doing the attribution work. A 2-in-17 defect rate found in an enriched
-sample cannot be extrapolated to the 100 unverified rows, in either direction.
+sample cannot be extrapolated to the 95 unverified rows, in either direction.
+
+**The 123 rows were not verified at the same depth.** 28 received deeper
+injector-and-oracle verification; 95 did not. Any statement that the whole census was
+verified to one uniform standard is false and is withdrawn.
 
 Therefore the headline is stated as a bound:
 
@@ -237,6 +257,10 @@ literal string `UNCERTAIN`. The kind column informed the reading; it did not det
 | injectors that restart pods or wait for stability | 16 |
 | oracles whose surface is pods+deployments only | 38 |
 | structural-shape rows | 8 (6.5041 %) |
+
+The 6.5041 % in that table is **8 / 123 — the fraction currently identified**, on rows
+verified at unequal depth (28 deep, 95 not). It is not an estimated benchmark-wide
+prevalence and carries no such interpretation.
 
 ### BLIND by oracle kind
 
@@ -454,8 +478,9 @@ The point generalises: **BLIND does not correlate with the bare generic oracle.*
 the 8 BLIND ids, 2 carry a *dedicated* oracle written for that fault. Conversely
 17 of the 31 bare-generic ids are ADEQUATE, because for those faults the
 generic Deployment/Pod surface does contain the perturbation (scale-to-zero, image
-faults, crash-looping containers). All 123 were classified on the same evidence
-standard.
+faults, crash-looping containers). All 123 were classified against the same rule, but not
+at the same verification depth: 28 rows were re-read against injector source and oracle
+`evaluate()` and 95 were not.
 
 ---
 
@@ -464,8 +489,9 @@ standard.
 **32 of 123 are UNCERTAIN**, almost all because the perturbed resource kind is
 not determinable from the problem class: the injection is delegated to Khaos, to
 `inject_tt.py`, or to a kernel/hardware injector whose concrete mutation was not traced
-to file:line at the uniform depth applied here. These are UNCERTAIN, not PENDING — the
-work was attempted at the same depth as every other row and did not resolve.
+to file:line at the first-pass depth applied to every row. These are UNCERTAIN, not
+PENDING — the work was attempted and did not resolve. It is not a claim that all 123 rows
+were verified to one depth; 28 were re-read more deeply and 95 were not.
 
 Nothing in this census is marked PENDING: the join is complete for all 123 rows.
 
@@ -476,7 +502,8 @@ Further specific limits:
   has been shown to reject a non-repair. Two problem_ids have been tested end-to-end:
   `missing_service_social_network` (`experiments/g02-run-01`, `g1-run-0{1,2,3}`,
   `g3-run-01`, `w1-delay0-0{1,2}`, `w2-noise-0{1,2}`) and `missing_service_hotel_reservation`
-  (`experiments/w4-hotel-01`) — two applications, 18 official faulted-state measurements.
+  (`experiments/w4-hotel-01`) — two applications, 10 included historical runs, 18
+  faulted-state instrument readings.
 - BLIND means the oracle cannot see the fault through the surfaces it reads. Whether an
   agent could exploit that is a separate, untested question for the 6 non-confirmed ids.
 - Perturbed-kind detection uses regex classification over the injector body. It is
