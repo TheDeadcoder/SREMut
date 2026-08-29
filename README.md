@@ -24,9 +24,9 @@ Three Service-level mutants, three repetitions each, executed 2026-08-29 on a li
 | MS-M02 | selector matches no pods | 6.81 to 9.84% | **13.3%** | success 6/6 faulted | REJECT 3/3 (I2 I3 I4) |
 | MS-M03 | `targetPort` set to 65535 | 9.75 to 10.05% | 90.1% | success 6/6 faulted | REJECT 3/3 (I2 I4) |
 
-**54 of 54 stock oracle readings returned `{"success": true}`. The contract rejected 9 of 9 faulted states and passed all 18 healthy and restored controls on the five invariants evaluated. Mutation score: contract 3/3, stock oracle 0/3.** Violated invariant sets were identical across all three repetitions of each mutant. Nine completed records, with no recorded exclusions or retries, 93.3 minutes of driver wall clock — see [`DEVIATIONS_AND_LIMITS.md`](DEVIATIONS_AND_LIMITS.md).
+**54 of 54 stock oracle readings returned `{"success": true}`. The contract rejected 9 of 9 faulted states and passed all 18 healthy and restored controls on the five invariants evaluated. Mutation score: contract 3/3, stock oracle 0/3.** Violated invariant sets were identical across all three repetitions of each mutant. Nine completed records, with no recorded exclusions or retries, 93.3 minutes of driver wall clock. See [`DEVIATIONS_AND_LIMITS.md`](DEVIATIONS_AND_LIMITS.md).
 
-This study evaluated **MS-I1 through MS-I5**; MS-I6 (repair persistence) was declared out of scope in advance by §6 of the pre-registration. A REJECT is unaffected by that — a sixth invariant can only add violations — so "REJECT 9 of 9" and the 3/3 mutation score hold for the full contract. The control results do not carry over: the six-invariant contract has never been shown to pass a genuine repair.
+This study evaluated **MS-I1 through MS-I5**; MS-I6 (repair persistence) was declared out of scope in advance by §6 of the pre-registration. A REJECT is unaffected by that, since a sixth invariant can only add violations, so "REJECT 9 of 9" and the 3/3 mutation score hold for the full contract. The control results do not carry over: the six-invariant contract has never been shown to pass a genuine repair.
 
 Every categorical prediction in the pre-registration matched, including the per-mutant invariant sets. The one quantitative miss: about 10% non-2xx was predicted for all three mutants, but MS-M02 collapsed throughput to roughly 12 to 16% of healthy request volume, so its error rate sat on a much smaller denominator. Successful-response volume retained (successful requests versus healthy, window-matched 99 s) tells that story honestly: about 13% for M02 versus about 90% for the others.
 
@@ -94,7 +94,7 @@ self.mitigation_oracle = CompoundedOracle(
 | the same, with `expected_service_port` set | success | reject | reject | reject | success |
 | the composed patch | success | reject | reject | reject | success |
 
-The unpatched oracle **rejects correct repairs**. Attaching it without setting `expected_service_port` makes it reject the healthy and restored systems too, by `AttributeError` at `service_endpoint_mitigation.py:65` — captured verbatim in all nine diagnostic calls. Substituting it would trade a false accept for a false reject.
+The unpatched oracle **rejects correct repairs**. Attaching it without setting `expected_service_port` makes it reject the healthy and restored systems too, by `AttributeError` at `service_endpoint_mitigation.py:65`, captured verbatim in all nine diagnostic calls. Substituting it would trade a false accept for a false reject.
 
 The composed patch, with the port set, accepted every healthy and restored state and rejected every mutant. It was executed, not predicted.
 
@@ -108,7 +108,7 @@ Full comparison against the frozen table, the timing evidence locating each reje
 |---|---|
 | SREGym / applications | `ba07faf1` / `2b2f9c6c`, read-only, never modified |
 | Cluster | kind v0.32.0, Kubernetes v1.32.0, 4 nodes, kubectl pinned 1.32.0 |
-| Runtimes | both instruments ran under `SREGym/.venv` (CPython 3.12.3, kubernetes 30.1.0) — the in-process oracle and the isolated worker subprocess differ in call path, not in client library. The CPython 3.12.3 + kubernetes 32.0.1 runner is the sealed SREMut runtime: specified, not materialised, and not used by any run reported here |
+| Runtimes | both instruments ran under `SREGym/.venv` (CPython 3.12.3, kubernetes 30.1.0). The in-process oracle and the isolated worker subprocess differ in call path, not in client library. The CPython 3.12.3 + kubernetes 32.0.1 runner is the sealed SREMut runtime: specified, not materialised, and not used by any run reported here |
 | Host | GCP e2-standard-8, Ubuntu 24.04 |
 
 ```bash
@@ -122,7 +122,7 @@ Full comparison against the frozen table, the timing evidence locating each reje
 ~/sremut/SREGym/.venv/bin/python experiments/fix_oracle_run.py --run-id fix-m01-rXX --mutant M01
 ```
 
-The fix study is `fix-m01-r01`, `fix-m02-r01`, `fix-m03-r01`, evidence in `experiments/fix-m0*-r01/fix-oracle-run.json` and the ledger in `experiments/FIX_ORACLE_LEDGER.json` (regenerate with `build_fix_oracle_ledger.py --check`). Its attestation chain: the prediction document was timestamped at **15:16:02 UTC** — before `fix_oracle_run.py` existed — and the pre-execution tree at **15:53:19 UTC**, with the first run starting at 15:54:03 UTC. Adjudication against the frozen table: [`ADJUDICATION_FIX_ORACLE.md`](ADJUDICATION_FIX_ORACLE.md).
+The fix study is `fix-m01-r01`, `fix-m02-r01`, `fix-m03-r01`, evidence in `experiments/fix-m0*-r01/fix-oracle-run.json` and the ledger in `experiments/FIX_ORACLE_LEDGER.json` (regenerate with `build_fix_oracle_ledger.py --check`). Its attestation chain: the prediction document was timestamped at **15:16:02 UTC**, before `fix_oracle_run.py` existed, and the pre-execution tree at **15:53:19 UTC**, with the first run starting at 15:54:03 UTC. Adjudication against the frozen table: [`ADJUDICATION_FIX_ORACLE.md`](ADJUDICATION_FIX_ORACLE.md).
 
 Every number above traces to a file in this repo. Start at [`analysis/PAPER_NUMBERS.md`](analysis/PAPER_NUMBERS.md); the mutant evidence lives in `experiments/ms-m0*-r0*/mutant-run.json`, the historical ledger in `experiments/RESULT_LEDGER.json` (regenerate with `build_result_ledger.py --check`).
 
@@ -138,12 +138,12 @@ experiments/    protocols, drivers, and all run evidence
 ## Scope and limits
 
 1. Everything here is a **mitigation verdict** and only that: not a diagnosis score, not an agent score, not an overall SREGym result.
-2. Only the mutant matrix is confirmatory. The 13 historical runs are exploratory: their protocols lack independent pre-execution corroboration, and [`analysis/PREREGISTRATION_TIMELINE.md`](analysis/PREREGISTRATION_TIMELINE.md) documents exactly what git does and does not attest.
+2. Two studies are confirmatory: the nine-repetition mutant matrix and the three-run fix-oracle study, each with its predictions frozen and RFC 3161 timestamped before the driver that measured them was written, and each adjudicated once against its frozen table. The 13 historical runs are exploratory: their protocols lack independent pre-execution corroboration, and [`analysis/PREREGISTRATION_TIMELINE.md`](analysis/PREREGISTRATION_TIMELINE.md) documents exactly what git does and does not attest.
 3. Two applications measured, one cluster. `missing_service_astronomy_shop` and the other BLIND rows outside `missing_service` are structural predictions, never executed. Hotel-reservation is n=1, single instrument.
 4. The census was verified to unequal depth (28 of 123 rows hand-checked), and ADEQUATE is structural: the oracle reads the perturbed kind, which is not proof it rejects non-repairs.
-5. The proposed fix has now been executed against the live cluster (three runs, 2026-08-29) but **not** submitted upstream, and it has not been validated inside SREGym's own conductor — `SREGym/` was never modified; the attribute was set on the problem object in our process.
-6. Every deviation from the frozen pre-registration and every limit on the nine records — including the first faulted workload round straddling the mutation, the unretained wrk2 logs, and the shared Kubernetes client — is recorded in [`DEVIATIONS_AND_LIMITS.md`](DEVIATIONS_AND_LIMITS.md).
-7. The fix study is **single-provenance** (in-process only, no isolated-worker leg) with **one repetition per mutant**, and it evaluates oracle behaviour rather than establishing cluster state — the frozen contract and the workload window do that independently in every state of every run.
-8. Two distinct studies exist and should not be conflated: the pre-registered nine-repetition MS-I1..MS-I5 mutant study is **complete (9/9)**, while the sealed v1.2 six-invariant matrix with authenticated run identities, a hash-chained journal and an external anchor remains **0/9 and unexecuted**.
+5. The proposed fix has now been executed against the live cluster (three runs, 2026-08-29) but **not** submitted upstream, and it has not been validated inside SREGym's own conductor. `SREGym/` was never modified; the attribute was set on the problem object in our process.
+6. Every deviation from the frozen pre-registration and every limit on the nine records, including the first faulted workload round straddling the mutation, the unretained wrk2 logs and the shared Kubernetes client, is recorded in [`DEVIATIONS_AND_LIMITS.md`](DEVIATIONS_AND_LIMITS.md).
+7. The fix study is **single-provenance** (in-process only, no isolated-worker leg) with **one repetition per mutant**, and it evaluates oracle behaviour rather than establishing cluster state; the frozen contract and the workload window do that independently in every state of every run.
+8. Three distinct studies exist and should not be conflated. The pre-registered nine-repetition MS-I1..MS-I5 mutant study is **complete (9/9)**. The pre-registered fix-oracle study is **complete (3/3)**, adjudicated in [`ADJUDICATION_FIX_ORACLE.md`](ADJUDICATION_FIX_ORACLE.md). The sealed v1.2 six-invariant matrix, with authenticated run identities, a hash-chained journal and an external anchor, remains **0/9 and unexecuted**; the word "official" and the status `OFFICIAL_FROZEN_ATTEMPT` stay reserved for it.
 
 A write-up is under review at a NeurIPS 2026 workshop. Errors found along the way, including our own, are disclosed rather than silently fixed: see the census corrections and the disclosed-errors table in [`analysis/census/CENSUS.md`](analysis/census/CENSUS.md).
