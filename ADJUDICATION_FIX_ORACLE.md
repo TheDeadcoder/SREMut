@@ -137,33 +137,62 @@ Every healthy and restored state returned `accuracy: 100.0` with both children `
 
 ---
 
-## 4. The probe-pod barrier: what it measured
+## 4. The probe-pod barrier: what it does and does not establish
 
 The barrier was added after discovering that `ServiceEndpointMitigationOracle` creates a
 real pod at `service_endpoint_mitigation.py:94` and deletes it fire-and-forget at
-`:111-115`. Across the study:
+`:111-115`.
 
-```
-36 of 36 invocations cleared, all on the first attempt
-waited_seconds: min 0.158, mean 0.171, max 0.195
-pods observed: 0
-kubectl wait calls issued: 0
-```
+What the records establish:
 
-**Both halves of this need saying.**
+    36 of 36 pre-evaluation barrier checks cleared on the first check
+    no pod carrying `app=service-connectivity-check` observed at any of them
+    zero `kubectl wait` calls issued
+    the independent `pods_before_call` census, taken immediately before each barrier,
+    likewise recorded 28 pods, none non-Running, and an empty probe-pod list at all 36
 
-It measures how fast SREGym's fire-and-forget delete settles in this cluster: across nine
-invocations that actually created a pod, the object was always gone before the next
-barrier looked, and every clearance came from the independent `kubectl get` re-check
-rather than from `kubectl wait`.
+The defensible statement is: **no residual connectivity-probe pod was present at any of the
+36 pre-evaluation barrier checks**, each of which carries two independent reads.
 
-It does **not** show the hazard was imaginary. The barrier was self-tested against a
-deliberately planted pod carrying the same label: it blocked for the full 30 s deadline
-across eight attempts, reported `cleared: false`, and left the pod untouched — then
-cleared in 0.173 s once the pod was removed. The mechanism works; nothing triggered it.
-The gap between "the delete is fire-and-forget" and "it always settled in time here"
-remains unmeasured, and on a slower or busier cluster the barrier is what stands between
-a residual `Succeeded` pod and a spurious stock-oracle `false`.
+Three things this does **not** establish.
+
+1. **It does not measure how fast the delete settles.** `waited_seconds`, 0.158 to
+   0.195 s, is the runtime of the barrier's own two read commands; its timer starts after
+   the preceding configuration has already returned. The tightest genuine interval in the
+   study is from O3's diagnostic probe returning, which is immediately after that probe
+   issued its delete, to O4's barrier sampling: **0.433 to 0.528 s**, mean 0.481 s. Across
+   all 27 consecutive pairs it is 0.433 to 0.551 s, mean 0.477 s. So the records show
+   absence at instants roughly half a second after the last pod-creating call, which is a
+   real observation and a narrow margin.
+
+   Two earlier versions of this file overstated that margin. The first reported
+   `waited_seconds` as settling time. The second anchored on `finished_utc`, which
+   `fix_oracle_run.py:410` stamps before the diagnostic call at `:414`, so the interval
+   straddled the pod creation it claimed to follow. Both are recorded here rather than
+   silently replaced.
+
+2. **36 is the number of barrier checks, not of probe invocations.** Execution reaches
+   `_run_connectivity_probe` **48** times: 16 O2 calls that raise `AttributeError` at
+   `:65`, which precedes the pod creation at `:93` and so create nothing, and **32** O3/O4
+   calls that do create a pod. Of those 32, **24 returned `True`**, which demonstrates the
+   pod was created and ran. Of the 48, 27 are recorded directly as `direct_probe_call`
+   entries; the other 21 are internal to `evaluate()` and are inferred from the verdicts
+   and the predicate ordering. The totals are sound but are not all direct observations.
+   An earlier version of this file said nine, which was wrong.
+
+3. **The blocking path is covered by an automated test, not by a retained live artifact.**
+   `tests/test_fix_oracle_record.py` stubs the cluster reads and asserts that a present pod
+   yields `cleared: false` at the deadline, that an absent one clears through the
+   independent re-check rather than through `kubectl wait`, and that a failed listing with
+   a pod actually present does **not** clear. A live planted-pod check was performed during
+   development and behaved as expected, but nothing was retained, so it is not evidence and
+   is not cited as such.
+
+The hazard is not imaginary. `mitigation.py:96` rejects any pod not in phase `Running`, a
+residual probe pod sits in `Succeeded`, and `assert_no_probe_pods` matches only the
+`sremut-*` selectors and could not have caught it. Nothing triggered the barrier in this
+study; on a slower or busier cluster it is what stands between a residual pod and a
+spurious stock-oracle `false`.
 
 ---
 

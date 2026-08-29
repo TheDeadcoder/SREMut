@@ -230,11 +230,24 @@ namespace to be free of that label, using the pattern from
 is a fact to surface, not to paper over. Failure to clear within 30 s aborts the run as
 `INFRASTRUCTURE_FAILURE`.
 
-**It never fired.** All 36 invocations cleared on the first attempt, 0.158-0.195 s, zero
-pods ever observed, zero `kubectl wait` calls issued. That measures how fast the delete
-settles in this cluster; it does not show the hazard was imaginary. The barrier was
-self-tested against a deliberately planted pod with the same label and blocked for the
-full 30 s across eight attempts, then cleared in 0.173 s once the pod was removed.
+**It never fired.** All 36 pre-evaluation barrier checks cleared on the first check, with
+no pod carrying that label observed at any of them and zero `kubectl wait` calls issued;
+the independent `pods_before_call` census immediately before each barrier agrees, giving
+72 reads at 36 instants. That is a negative observation, sampled 0.433 to 0.528 s after the
+preceding pod-creating call returned. It is **not** a measurement of how fast the delete
+settles: `waited_seconds`, 0.158 to 0.195 s, is the runtime of the barrier's own two reads.
+Nor is 36 a count of probe invocations: execution reaches `_run_connectivity_probe` 48
+times, of which 32 create a pod and 24 demonstrably ran one. The blocking path is covered
+by an automated test in `tests/test_fix_oracle_record.py`; the live planted-pod check run
+during development was not retained and is not cited as evidence. See
+[`ADJUDICATION_FIX_ORACLE.md`](ADJUDICATION_FIX_ORACLE.md) section 4.
+
+One record-quality limitation of the barrier, which never fired and so never mattered here:
+`pods_seen` is populated only on the branch where the JSON listing itself returns pods. If
+`_kjson` fails while the independent re-check finds a pod, the barrier correctly refuses to
+clear, but records `pods_seen: []` and logs "[] still present"; the pod's name appears only
+in `attempts[...].recheck.names`. Verified by
+`test_barrier_does_not_treat_a_failed_read_as_clearance`.
 
 **O2 creates no pod at all.** `port = self.problem.expected_service_port` at `:65`
 precedes the `try:` at `:93`, so with the attribute absent the `AttributeError` fires

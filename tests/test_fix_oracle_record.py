@@ -153,8 +153,13 @@ def test_diagnostic_probe_is_separate_from_the_verdict():
             for cfg in ("O2", "O3", "O4"):
                 dp = block[cfg]["direct_probe_call"]
                 assert dp["reads_attribute_at"] == "service_endpoint_mitigation.py:65"
-                # diagnostic only: it must not be the verdict
-                assert dp["returned"] is not block[cfg] , "sanity"
+                # Diagnostic only: the verdict must be sourced from evaluate()'s own
+                # returned object, never from the direct probe. Checking that identity
+                # is what rules out the diagnostic having influenced the verdict --
+                # note dp["returned"] and the verdict genuinely differ in the faulted
+                # states for O2, where the probe raises and evaluate() returns False.
+                assert block[cfg]["verdict"] is block[cfg]["returned_object"]["success"], (
+                    f"{rid}/{state}/{cfg}: verdict is not the value evaluate() returned")
                 assert set(dp) >= {"returned", "exception_type", "exception_message",
                                    "attribute_before_call"}, f"{rid}/{state}/{cfg}"
 
