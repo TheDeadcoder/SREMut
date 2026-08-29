@@ -1,5 +1,26 @@
 # PAPER_NUMBERS — canonical figures with sources
 
+> ## Addendum — 2026-08-29
+>
+> **The text below this addendum predates the mutant execution and is preserved unchanged
+> as the historical record. Where it says the MS-M01/M02/M03 matrix "has not been run",
+> read it as referring to the sealed v1.2 matrix, which is still unexecuted.**
+>
+> Two distinct studies now exist and must not be conflated:
+>
+> | Study | Status |
+> |---|---|
+> | Pre-registered MS-M01/M02/M03 **MS-I1..MS-I5** study — RFC 3161 timestamped pre-registration and pre-execution commit, historical-style evidence (per-run JSON plus raw artifacts) | **9/9 complete, 2026-08-29** |
+> | Sealed **v1.2** matrix — authenticated run identities, hash-chained journal, external anchor, all six invariants | **0/9, unexecuted** |
+>
+> "Confirmatory" as used in `README.md` refers to the **first** of these. The word
+> "official" and the status `OFFICIAL_FROZEN_ATTEMPT` remain reserved for the **second**,
+> and no artifact in this repository may use them for the executed study.
+>
+> Deviations from the frozen pre-registration and the limits on the nine records are in
+> [`DEVIATIONS_AND_LIMITS.md`](../DEVIATIONS_AND_LIMITS.md).
+
+
 Every number the write-up cites, with the exact file it came from. Quote from here;
 do not retype from memory. Anything not traceable to a file is marked **UNSOURCED**.
 
@@ -430,7 +451,7 @@ Source: `SREMut/analysis/census/secondary-defects.md`.
 
 | | Defect | Affected | Fix size |
 |---|---|---|---|
-| **D1** | `run-oracle.py` calls `evaluate()` with no `capture_baseline()`, so `replica_count == {}` and all three Deployment predicates are skipped (`mitigation.py:69`) | **27** bare-generic problem_ids + 4 of 6 subclasses that call `super().evaluate()` | one line: call `capture_baseline()` before `run-oracle.py:57` |
+| **D1** | `run-oracle.py` calls `evaluate()` with no `capture_baseline()`, so `replica_count == {}` and all three Deployment predicates are skipped (`mitigation.py:69`) | **31** bare-generic problem_ids (**35** including the 4 of 6 subclasses that call `super().evaluate()`) — corrected 2026-08-29 from 27, which predated the registry-enumeration fix | one line: call `capture_baseline()` before `run-oracle.py:57` |
 | **D2** | namespace-wide pod sweep counts benchmark infrastructure; wrk2 husks in phase `Failed` persisted **9 days** and **17 hours** and never self-cleared | every problem whose app starts a workload Job in the app namespace; only `search_rate_retry_collapse.py:21` opts out (`run_default_workload = False`) | a label selector or an exclusion at `mitigation.py:95` |
 | **D3** | `WrongUpdateStrategyMitigationOracle.evaluatePods()` defined at `:15`, **never called** — `evaluate()` (`:49-73`) omits it, unlike its 4 siblings | **1** problem_id: `operator_wrong_update_strategy_fault` | one line: `if not self.evaluatePods().get("success"): return {"success": False}` |
 
@@ -696,7 +717,7 @@ about what the paper does or does not concede.
 taxonomy is the `Origin` column of `Problem List.md`, whose values are **`New` (95)** and
 **`AIOpsLab` (21)** across 116 rows. The paper's Table 4 uses **Ported (34) / Similar (43)
 / New (13)** across 90. Different taxonomies, different totals, and no join key. Per the
-method rule, **no mapping is attempted and no distribution of the 27 bare-generic
+method rule, **no mapping is attempted and no distribution of the 31 bare-generic
 problem_ids across Table 4 buckets is reported.**
 
 **A4 — Figure 3's `K8sNetworkPortMisconfig`: NOT DETERMINABLE from source.**

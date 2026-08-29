@@ -1,5 +1,26 @@
 # Registration-timeline forensic record
 
+> ## Addendum — 2026-08-29
+>
+> **The text below this addendum predates the mutant execution and is preserved unchanged
+> as the historical record. Where it says the MS-M01/M02/M03 matrix "has not been run",
+> read it as referring to the sealed v1.2 matrix, which is still unexecuted.**
+>
+> Two distinct studies now exist and must not be conflated:
+>
+> | Study | Status |
+> |---|---|
+> | Pre-registered MS-M01/M02/M03 **MS-I1..MS-I5** study — RFC 3161 timestamped pre-registration and pre-execution commit, historical-style evidence (per-run JSON plus raw artifacts) | **9/9 complete, 2026-08-29** |
+> | Sealed **v1.2** matrix — authenticated run identities, hash-chained journal, external anchor, all six invariants | **0/9, unexecuted** |
+>
+> "Confirmatory" as used in `README.md` refers to the **first** of these. The word
+> "official" and the status `OFFICIAL_FROZEN_ATTEMPT` remain reserved for the **second**,
+> and no artifact in this repository may use them for the executed study.
+>
+> Deviations from the frozen pre-registration and the limits on the nine records are in
+> [`DEVIATIONS_AND_LIMITS.md`](../DEVIATIONS_AND_LIMITS.md).
+
+
 Facts only. No wording is proposed for the paper; this document establishes what the
 timestamps do and do not support, and therefore how each artifact may be described.
 
