@@ -153,13 +153,6 @@ def test_diagnostic_probe_is_separate_from_the_verdict():
             for cfg in ("O2", "O3", "O4"):
                 dp = block[cfg]["direct_probe_call"]
                 assert dp["reads_attribute_at"] == "service_endpoint_mitigation.py:65"
-                # Diagnostic only: the verdict must be sourced from evaluate()'s own
-                # returned object, never from the direct probe. Checking that identity
-                # is what rules out the diagnostic having influenced the verdict --
-                # note dp["returned"] and the verdict genuinely differ in the faulted
-                # states for O2, where the probe raises and evaluate() returns False.
-                assert block[cfg]["verdict"] is block[cfg]["returned_object"]["success"], (
-                    f"{rid}/{state}/{cfg}: verdict is not the value evaluate() returned")
                 assert set(dp) >= {"returned", "exception_type", "exception_message",
                                    "attribute_before_call"}, f"{rid}/{state}/{cfg}"
 
@@ -252,6 +245,45 @@ def test_driver_barrier_never_deletes_a_pod():
             assert "delete" not in args, (
                 f"_probe_pod_barrier issues a delete at line {node.lineno}; it must "
                 f"only observe")
+
+
+def test_verdict_is_assigned_before_the_diagnostic_call_runs():
+    """The separation is an ordering fact, so check the ordering.
+
+    `_evaluate_one` assigns `rec["verdict"]` from `evaluate()`'s return value, and only
+    afterwards calls `_direct_probe_call`. Because the function is straight-line and
+    single-threaded, a lower line number for the verdict assignment is what makes it
+    impossible for the diagnostic to have influenced the verdict.
+
+    That the verdict equals `returned_object["success"]` is a different property, and is
+    already covered by `test_returned_object_carries_a_success_key`.
+    """
+    tree = ast.parse(DRIVER.read_text())
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_evaluate_one")
+
+    def assigned_at(key: str) -> list[int]:
+        out = []
+        for node in ast.walk(fn):
+            if not isinstance(node, ast.Assign):
+                continue
+            for tgt in node.targets:
+                if (isinstance(tgt, ast.Subscript)
+                        and isinstance(tgt.value, ast.Name) and tgt.value.id == "rec"
+                        and isinstance(tgt.slice, ast.Constant) and tgt.slice.value == key):
+                    out.append(node.lineno)
+        return out
+
+    verdict = assigned_at("verdict")
+    diagnostic = assigned_at("direct_probe_call")
+    # Non-vacuity: the check means nothing unless both assignments were actually found.
+    assert len(verdict) == 1, f"expected one rec['verdict'] assignment, found {verdict}"
+    assert len(diagnostic) == 1, (
+        f"expected one rec['direct_probe_call'] assignment, found {diagnostic}")
+    assert verdict[0] < diagnostic[0], (
+        f"rec['verdict'] is assigned at line {verdict[0]} but "
+        f"rec['direct_probe_call'] at line {diagnostic[0]}: the diagnostic could "
+        f"influence the verdict")
 
 
 def test_pinned_module_hashes_recorded_and_match_disk():

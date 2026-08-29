@@ -167,6 +167,24 @@ an identical 27-entry replica baseline (`8e42c0db98368a0a04c582e5f0c40ee2…`).
 | `g1-run-01` | 2026-08-26T19:33:11.991257+00:00 | 2026-08-26T19:34:11.991797+00:00 | **60.001 s** |
 | `g1-run-02` | 2026-08-26T19:43:00.151040+00:00 | 2026-08-26T19:44:00.151547+00:00 | **60.001 s** |
 | `g1-run-03` | 2026-08-26T19:52:40.603242+00:00 | 2026-08-26T19:53:40.603819+00:00 | **60.001 s** |
+| `g02-run-01` (pilot, no R1 hold) | 2026-08-26T11:03:19.383650+00:00 | 2026-08-26T11:03:20.021093+00:00 | **0.637 s** |
+
+Sources, per row. G1: each run's `SREMut/experiments/<run-id>/three-state.json`, fields
+`injection_finished_utc` and `faulted_in_process.started_utc`. Pilot:
+`SREMut/experiments/g02-run-01/run-result.json`, fields `injection_finished_utc`
+(`2026-08-26T11:03:19.383650+00:00`) and `treatment.started_utc`
+(`2026-08-26T11:03:20.021093+00:00`), difference **0.637443 s**. The pilot predates rule
+R1 and had no null-agent hold, which is why its interval is sub-second; it is the
+contrast case, not an R1 measurement.
+
+> **Discrepancy, disclosed rather than silently reconciled.**
+> `SREMut/experiments/PROTOCOL_G1.md:28` and `SREMut/experiments/G1_SUMMARY.md:130` both
+> give this pilot interval as **0.638 s**, quoting the same two timestamps. The exact
+> difference is 0.637443 s, which rounds to **0.637 s**, so 0.638 is a rounding error on
+> the same pair and not a different measurement. Nothing downstream depends on the third
+> decimal: the point both documents make is that the pilot's interval was sub-second and
+> far shorter than any real agent episode. This register carries the recomputed value;
+> the two historical documents are left as they stand.
 
 ### Margins to the last not-Running pod observation
 
