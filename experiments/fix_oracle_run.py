@@ -50,6 +50,36 @@ Aug 29 15:16:02 2026 GMT). The healthy baseline is chosen because it is what
 conductor.py:227 and the nine runs both use. This note belongs in the deviations section
 of the write-up.
 
+Implementation note — the probe-pod barrier
+------------------------------------------
+Added after discovering, from source, that `ServiceEndpointMitigationOracle` creates and
+deletes a **real pod** on every evaluation that reaches its connectivity probe:
+`create_namespaced_pod` at service_endpoint_mitigation.py:94, labelled
+`app=service-connectivity-check` at :72, deleted in a `finally` at :111-115.
+
+That delete is **fire-and-forget** — `delete_namespaced_pod` returns when the API accepts
+the deletion, not when the object is gone. A residual pod is in phase `Succeeded` (it runs
+`nc` and exits), and `mitigation.py:96` rejects any pod not in phase `Running`. So one
+leftover would flip the stock oracle — and therefore O1, and O4's first child — to false
+on a healthy cluster, which would read as a falsification produced by our own harness.
+Our `assert_no_probe_pods` cannot see it: that matches only the `sremut-*` selectors.
+
+So before each of the twelve evaluations the driver waits for the namespace to be free of
+that label, using the pattern proven in `contract_check.delete_probe_pod` — `kubectl wait
+--for=delete` plus an INDEPENDENT `kubectl get` re-check. It **never deletes the pod**: if
+SREGym's own `finally` failed, that is a fact to surface, not to paper over. Failure to
+clear within 30 s aborts the run as `INFRASTRUCTURE_FAILURE`, which is the correct
+disposition — a residual pod from our instrumentation is a condition independent of the
+tested mutant, matching the frozen contract's `infrastructure_failure_scope`.
+
+**O2 creates no pod at all.** `port = self.problem.expected_service_port` at :65 precedes
+the `try:` at :93, so with the attribute absent the `AttributeError` fires before
+`create_namespaced_pod` is ever reached. The un-patched configuration has no
+instrumentation footprint.
+
+The pre-registration is not edited. This note belongs in the deviations section of the
+write-up.
+
 Run under SREGym/.venv/bin/python with cwd=SREGym. Writes nothing into SREGym/.
 """
 
@@ -107,6 +137,11 @@ SCHEMA_VERSION = 1
 EXPECTED_SERVICE_PORT = 9090          # wrong_service_selector.py:25, social_network
 ATTR = "expected_service_port"
 BASELINE_SOURCE = "healthy capture at STEP 4"
+
+# SREGym's own connectivity probe pod, service_endpoint_mitigation.py:72.
+SREGYM_PROBE_SELECTOR = "app=service-connectivity-check"
+BARRIER_DEADLINE_SECONDS = 30
+BARRIER_POLL_SECONDS = 2
 STATES = ("healthy", "faulted", "restored")
 CONFIGS = ("O1", "O2", "O3", "O4")
 
@@ -170,6 +205,93 @@ def _pods_before_call() -> dict:
             "kubectl": raw, "observed_utc": utc_now()}
 
 
+class SREGymProbePodPresent(RuntimeError):
+    """A residual `app=service-connectivity-check` pod outlived its own deletion.
+
+    Carries the partial per-config record so the evidence survives the abort.
+    """
+
+    def __init__(self, message: str, partial: dict):
+        super().__init__(message)
+        self.partial = partial
+
+
+def _probe_pod_barrier(deadline_seconds: int = BARRIER_DEADLINE_SECONDS,
+                       poll_seconds: int = BARRIER_POLL_SECONDS) -> dict:
+    """Block until no SREGym connectivity-probe pod exists in the namespace.
+
+    `ServiceEndpointMitigationOracle._run_connectivity_probe` creates a pod at
+    `service_endpoint_mitigation.py:94` and deletes it fire-and-forget at `:111-115`:
+    `delete_namespaced_pod` returns when the API ACCEPTS the deletion, not when the
+    object is gone. A residual pod is in phase `Succeeded` (it runs `nc` and exits),
+    and `mitigation.py:96` rejects any pod not in phase `Running` -- so one leftover
+    flips the stock oracle, and therefore O1 and O4's first child, to false on a
+    healthy cluster.
+
+    The check mirrors `contract_check.delete_probe_pod`: `kubectl wait --for=delete`
+    followed by an INDEPENDENT `kubectl get` re-check, because a successful wait is not
+    by itself proof of absence.
+
+    This barrier NEVER deletes the pod. If SREGym's own `finally` failed to remove it,
+    that is a fact to surface, not to paper over.
+    """
+    rec: dict = {"cleared": False, "waited_seconds": 0.0, "pods_seen": [],
+                 "label_selector": SREGYM_PROBE_SELECTOR,
+                 "deadline_seconds": deadline_seconds, "attempts": [],
+                 "started_utc": utc_now()}
+    t0 = time.monotonic()
+    while True:
+        doc, raw = _kjson("get", "pods", "-n", NAMESPACE,
+                          "-l", SREGYM_PROBE_SELECTOR, "-o", "json")
+        names = [(pod.get("metadata") or {}).get("name")
+                 for pod in (doc or {}).get("items") or []]
+        phases = [(pod.get("status") or {}).get("phase")
+                  for pod in (doc or {}).get("items") or []]
+        attempt: dict = {"utc": utc_now(), "names": names, "phases": phases,
+                         "kubectl": raw}
+
+        if not names:
+            # Independent re-check: a distinct call, not a reuse of the listing above.
+            g = k("get", "pods", "-n", NAMESPACE, "-l", SREGYM_PROBE_SELECTOR,
+                  "-o", "jsonpath={range .items[*]}{.metadata.name}{\"\\n\"}{end}")
+            residual = g.stdout.split()
+            attempt["recheck"] = {"exit": g.returncode, "names": residual,
+                                  "stderr": g.stderr[-500:]}
+            if g.returncode == 0 and not residual:
+                rec["cleared"] = True
+                rec["attempts"].append(attempt)
+                break
+        else:
+            for n in names:
+                if n not in rec["pods_seen"]:
+                    rec["pods_seen"].append(n)
+            remaining = deadline_seconds - (time.monotonic() - t0)
+            if remaining > 0:
+                budget = max(1, int(min(remaining, poll_seconds)))
+                w = k("wait", "--for=delete", "pod",
+                      "-l", SREGYM_PROBE_SELECTOR, "-n", NAMESPACE,
+                      f"--timeout={budget}s")
+                attempt["wait"] = {"exit": w.returncode,
+                                   "stdout": w.stdout[-500:],
+                                   "stderr": w.stderr[-500:]}
+
+        rec["attempts"].append(attempt)
+        if time.monotonic() - t0 >= deadline_seconds:
+            break
+        time.sleep(poll_seconds)
+
+    rec["waited_seconds"] = round(time.monotonic() - t0, 3)
+    rec["finished_utc"] = utc_now()
+    if rec["cleared"]:
+        if rec["pods_seen"]:
+            say(f"      probe-pod barrier: cleared after {rec['waited_seconds']}s "
+                f"(saw {rec['pods_seen']})")
+    else:
+        say(f"      !! probe-pod barrier NOT CLEARED after {rec['waited_seconds']}s: "
+            f"{rec['pods_seen']} still present")
+    return rec
+
+
 # ------------------------------------------------------------------ diagnosis
 def _direct_probe_call(problem) -> dict:
     """Call `_run_connectivity_probe()` UNGUARDED and record what it raises.
@@ -223,6 +345,15 @@ def _evaluate_one(problem, config: str, state: str, healthy_baseline: dict) -> d
     say(f"    {config} [{state}] evaluating")
     rec: dict = {"config": config, "state": state, "started_utc": utc_now(),
                  "pods_before_call": _pods_before_call()}
+
+    # No evaluation proceeds while one of SREGym's own probe pods is still present.
+    rec["probe_pod_barrier"] = _probe_pod_barrier()
+    if not rec["probe_pod_barrier"]["cleared"]:
+        raise SREGymProbePodPresent(
+            f"{config} [{state}]: SREGym connectivity-probe pod(s) "
+            f"{rec['probe_pod_barrier']['pods_seen']} still present after "
+            f"{rec['probe_pod_barrier']['waited_seconds']}s; refusing to evaluate",
+            rec)
 
     if config == "O1":
         _clear_port(problem)
@@ -294,9 +425,15 @@ def evaluate_all(R: dict, problem, state: str) -> dict:
     say(f"  === oracle configurations [{state}] ===")
     healthy_baseline = R["captured_replica_baseline"]
     out = {}
+    R.setdefault(f"oracles_{state}", out)
     for config in CONFIGS:
         guarded_oracle(R, f"{state.upper()}/{config}")
-        out[config] = _evaluate_one(problem, config, state, healthy_baseline)
+        try:
+            out[config] = _evaluate_one(problem, config, state, healthy_baseline)
+        except SREGymProbePodPresent as residual:
+            # Keep the partial record: the barrier evidence is the whole point.
+            out[config] = residual.partial
+            raise
     return out
 
 
@@ -508,6 +645,23 @@ def main() -> int:
         R["status"] = "COMPLETE"
         R["teardown_performed"] = False
 
+    except SREGymProbePodPresent as residual:
+        # A residual pod from SREGym's own probe is a condition independent of the
+        # tested mutant -- exactly the frozen contract's infrastructure_failure_scope.
+        # A verdict taken in that state would be about our harness, not the oracle.
+        R["status"] = "INFRASTRUCTURE_FAILURE"
+        R["infrastructure_failure"] = {
+            "reason": "sregym_connectivity_probe_pod_residual",
+            "message": str(residual),
+            "barrier": residual.partial.get("probe_pod_barrier"),
+            "config": residual.partial.get("config"),
+            "state": residual.partial.get("state"),
+        }
+        say(f"!!! INFRASTRUCTURE_FAILURE: {residual}")
+        say("!!! A residual probe pod is independent of the tested mutant; refusing "
+            "to record a verdict taken in that state.")
+        if R["mutation_may_have_occurred"] and not recovery_completed:
+            attempt_restoration(R, problem, "INFRASTRUCTURE_FAILURE")
     except ProbePodPresent as violation:
         R["status"] = "PROTOCOL_VIOLATION_PROBE_POD_PRESENT"
         R["error"] = {"type": "ProbePodPresent", "message": str(violation)}

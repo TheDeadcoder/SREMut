@@ -210,6 +210,45 @@ def test_pod_census_recorded_before_every_configuration():
                 assert "sregym_connectivity_probe_pods" in pods, f"{rid}/{state}/{cfg}"
 
 
+def test_probe_pod_barrier_cleared_before_every_configuration():
+    """SREGym's probe pod is deleted fire-and-forget; no verdict may be taken while
+    one is still present (service_endpoint_mitigation.py:94, :111-115)."""
+    recs = _records()
+    if not recs:
+        print("   (skipped: no fix-oracle records yet)")
+        return
+    for rid, d in recs.items():
+        for state in STATES:
+            block = d.get(f"oracles_{state}")
+            if block is None:
+                continue
+            for cfg, rec in block.items():
+                b = rec.get("probe_pod_barrier")
+                assert b is not None, f"{rid}/{state}/{cfg}: no probe_pod_barrier"
+                assert b["label_selector"] == "app=service-connectivity-check"
+                assert isinstance(b["waited_seconds"], (int, float))
+                assert isinstance(b["pods_seen"], list)
+                # A recorded verdict implies the barrier cleared; an uncleared barrier
+                # must have aborted the run instead.
+                if "verdict" in rec:
+                    assert b["cleared"] is True, (
+                        f"{rid}/{state}/{cfg}: a verdict was recorded while the "
+                        f"barrier reported cleared=False")
+
+
+def test_driver_barrier_never_deletes_a_pod():
+    """The barrier surfaces a residual pod; it must not paper over it by deleting."""
+    tree = ast.parse(DRIVER.read_text())
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_probe_pod_barrier")
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Call):
+            args = [a.value for a in node.args if isinstance(a, ast.Constant)]
+            assert "delete" not in args, (
+                f"_probe_pod_barrier issues a delete at line {node.lineno}; it must "
+                f"only observe")
+
+
 def test_pinned_module_hashes_recorded_and_match_disk():
     import hashlib
     recs = _records()
