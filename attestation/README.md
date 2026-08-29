@@ -229,3 +229,74 @@ The root certificate and its expected fingerprint are in the first token's secti
 time, and nothing else.** It says nothing about the cluster, nothing about whether any
 oracle configuration had already been tried informally, and nothing about the nine mutant
 records or the thirteen historical runs.
+
+---
+
+# Fourth token — the pre-execution tree for the fix-oracle study
+
+## What was timestamped
+
+The **SHA-256 of `attestation/preexec-fix-oracle-commit.txt`**, a file whose entire
+content is the commit SHA of the pre-execution tree plus a newline:
+
+```
+18f30012b00ce97c7a3d81862adb7237bc0d2b92
+```
+
+```
+503baf270586aa33d690e83825a7490113896334f371873885c1a4c8dfc9b171  attestation/preexec-fix-oracle-commit.txt
+```
+
+That digest is the `Message data` field inside `preexec-fix-oracle-commit.tsr`.
+
+## Which authority answered, and when
+
+| | |
+|---|---|
+| Authority | Free TSA (`https://freetsa.org/tsr`) |
+| Status | `Granted` |
+| Policy OID | `tsa_policy1` |
+| Serial number | `0x075A9267` |
+| **Stated time** | **`Aug 29 15:53:19 2026 GMT`** |
+| Host clock at the time (`date -u`) | `Sat Aug 29 15:53:19 UTC 2026` |
+
+`openssl ts -verify` against Free TSA's root returned `Verification: OK`. The working tree
+was completely clean at `git status --short --untracked-files=all` when the token was
+taken.
+
+## What the tree contains at `18f30012`
+
+Because a git commit SHA is a hash over the whole tree, this token binds every artifact
+the fix-oracle study depends on, in the form it had **before the first run**:
+
+- `PREREGISTRATION_FIX_ORACLE.md` — the predicted 4x3 verdict matrix (itself separately
+  bound by the third token, `0x075A69B3`);
+- `PREREGISTRATION_MS_MUTANTS.md` and the nine attested mutant records;
+- `contracts/missing_service_social_network.yaml`, the frozen contract the study uses to
+  establish cluster state independently of the oracles;
+- `experiments/fix_oracle_run.py` — the study driver, **including the probe-pod barrier**
+  and the O1/O4 healthy-baseline correction;
+- `experiments/mutant_run.py`, `experiments/contract_check.py`,
+  `experiments/three_state_run.py` — the frozen instruments it imports from;
+- `tests/test_fix_oracle_record.py`.
+
+## What this establishes, and what it does not
+
+**It establishes that this tree existed at the stated time. It establishes nothing about
+the cluster** — not that it was healthy, not that it was untouched, not that no oracle
+configuration had been tried informally beforehand. It says nothing about the nine mutant
+records or the thirteen historical runs beyond the fact that those files existed in this
+tree at this time.
+
+## How to re-verify
+
+```bash
+sha256sum attestation/preexec-fix-oracle-commit.txt
+git rev-parse 18f30012b00ce97c7a3d81862adb7237bc0d2b92
+openssl ts -reply -in attestation/preexec-fix-oracle-commit.tsr -text
+openssl ts -verify -in attestation/preexec-fix-oracle-commit.tsr \
+                   -queryfile attestation/preexec-fix-oracle-commit.tsq \
+                   -CAfile root_ca.pem
+```
+
+The root certificate and its expected fingerprint are in the first token's section.
