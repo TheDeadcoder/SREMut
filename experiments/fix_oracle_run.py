@@ -20,6 +20,36 @@ Every measurement primitive is imported from the frozen instruments — `three_s
 (thirteen historical runs) and `mutant_run` (nine attested mutant records). Neither is
 modified; both are hash-bound to records already committed.
 
+Implementation note — where the O1/O4 replica baseline comes from
+----------------------------------------------------------------
+`MitigationOracle` compares the graded cluster against the replica counts captured by
+`capture_baseline()`. WHEN that capture happens decides what the oracle is measuring:
+
+  conductor.py:227    production      captures once, HEALTHY, then grades a later state
+  mutant_run.py:655   the nine runs   captures once, HEALTHY, at STEP 4
+  a capture at evaluate time          compares the graded state against ITSELF
+
+The third form makes the three Deployment predicates (mitigation.py:70-84) trivially
+satisfiable, because every baseline Deployment necessarily still exists, none is scaled
+to zero, and each has ready >= desired by construction. So:
+
+  O1  evaluates `problem.mitigation_oracle` directly. It already carries the healthy
+      baseline from STEP 4, which makes O1 byte-for-byte the same call
+      `three_state_run.evaluate_in_process` makes -- the call the nine attested runs used.
+  O4  builds a FRESH MitigationOracle (never the O1 instance) and seeds it with
+      `replica_count = dict(R["captured_replica_baseline"])` rather than calling
+      `capture_baseline()`.
+
+Both record `baseline_source` and `baseline_deployment_count`, so the baseline's
+provenance is evidenced in the record rather than assumed from this comment.
+
+Section 2 of PREREGISTRATION_FIX_ORACLE.md names the oracle CLASS for each configuration
+and says nothing about baseline timing, so this choice does not contradict it. **The
+pre-registration is not edited** -- it is RFC 3161-bound (token 0x075A69B3,
+Aug 29 15:16:02 2026 GMT). The healthy baseline is chosen because it is what
+conductor.py:227 and the nine runs both use. This note belongs in the deviations section
+of the write-up.
+
 Run under SREGym/.venv/bin/python with cwd=SREGym. Writes nothing into SREGym/.
 """
 
@@ -56,7 +86,7 @@ from three_state_run import (
 )
 
 import contract_check
-from contract_check import evaluate_contract
+from contract_check import _kjson, evaluate_contract
 from mutant_run import (
     ASSERTION_BUDGET_SECONDS,
     MUTANT_IDS,
@@ -76,6 +106,7 @@ PROTOCOL = "sremut-fix-oracle-v1"
 SCHEMA_VERSION = 1
 EXPECTED_SERVICE_PORT = 9090          # wrong_service_selector.py:25, social_network
 ATTR = "expected_service_port"
+BASELINE_SOURCE = "healthy capture at STEP 4"
 STATES = ("healthy", "faulted", "restored")
 CONFIGS = ("O1", "O2", "O3", "O4")
 
@@ -106,6 +137,37 @@ def _clear_port(problem) -> None:
     """Delete the attribute so a later O2 cannot inherit it."""
     if hasattr(problem, ATTR):
         delattr(problem, ATTR)
+
+
+def _pods_before_call() -> dict:
+    """Namespace pod census immediately before an evaluation.
+
+    SREGym's own `_run_connectivity_probe` creates a Pod labelled
+    `app=service-connectivity-check` (service_endpoint_mitigation.py:67-72,94) and
+    deletes it fire-and-forget at :111-115 -- no wait, no re-check. Our
+    `assert_no_probe_pods` matches only the `sremut-*` selectors, so it cannot see that
+    pod. A lingering one would be in phase `Succeeded`, which `mitigation.py:96` rejects,
+    so it would turn a stock-oracle verdict false for a reason unrelated to the mutant.
+    Recording the census makes such contamination visible in the evidence rather than
+    surfacing as an unexplained `false`.
+    """
+    doc, raw = _kjson("get", "pods", "-n", NAMESPACE, "-o", "json")
+    items = (doc or {}).get("items") or []
+    not_running = [
+        {"name": (p.get("metadata") or {}).get("name"),
+         "phase": (p.get("status") or {}).get("phase"),
+         "labels": (p.get("metadata") or {}).get("labels"),
+         "deletion_timestamp": (p.get("metadata") or {}).get("deletionTimestamp")}
+        for p in items if (p.get("status") or {}).get("phase") != "Running"
+    ]
+    sregym_probe = [
+        (p.get("metadata") or {}).get("name") for p in items
+        if ((p.get("metadata") or {}).get("labels") or {}).get("app")
+        == "service-connectivity-check"
+    ]
+    return {"total": len(items), "not_running": not_running,
+            "sregym_connectivity_probe_pods": sregym_probe,
+            "kubectl": raw, "observed_utc": utc_now()}
 
 
 # ------------------------------------------------------------------ diagnosis
@@ -156,16 +218,23 @@ def _strict_bool_of(raw, where: str):
     return None
 
 
-def _evaluate_one(problem, config: str, state: str) -> dict:
+def _evaluate_one(problem, config: str, state: str, healthy_baseline: dict) -> dict:
     """Evaluate one oracle configuration. The verdict comes from evaluate(), always."""
     say(f"    {config} [{state}] evaluating")
-    rec: dict = {"config": config, "state": state, "started_utc": utc_now()}
+    rec: dict = {"config": config, "state": state, "started_utc": utc_now(),
+                 "pods_before_call": _pods_before_call()}
 
     if config == "O1":
         _clear_port(problem)
         rec["attribute_before_call"] = _observe_attr(problem)
-        oracle = MitigationOracle(problem=problem)
-        oracle.capture_baseline()
+        # The problem's own oracle, which already holds the HEALTHY baseline captured
+        # at STEP 4. This makes O1 byte-for-byte the call
+        # three_state_run.evaluate_in_process makes, which is what the nine attested
+        # runs used. Calling capture_baseline() here instead would re-baseline in the
+        # graded state and compare the faulted cluster against itself.
+        oracle = problem.mitigation_oracle
+        rec["baseline_source"] = BASELINE_SOURCE
+        rec["baseline_deployment_count"] = len(oracle.replica_count)
     elif config == "O2":
         _clear_port(problem)
         rec["attribute_before_call"] = _observe_attr(problem)
@@ -184,10 +253,15 @@ def _evaluate_one(problem, config: str, state: str) -> dict:
     elif config == "O4":
         _set_port(problem)
         rec["attribute_before_call"] = _observe_attr(problem)
+        # A FRESH MitigationOracle -- never the O1 instance -- seeded from the healthy
+        # capture rather than re-baselined here. O4 is the proposed patch; a
+        # self-baselining O4 would be an oracle nobody would ever run.
         mit = MitigationOracle(problem=problem)
-        mit.capture_baseline()
+        mit.replica_count = dict(healthy_baseline)
         oracle = CompoundedOracle(problem, mit,
                                   ServiceEndpointMitigationOracle(problem=problem))
+        rec["baseline_source"] = BASELINE_SOURCE
+        rec["baseline_deployment_count"] = len(mit.replica_count)
     else:
         raise ValueError(config)
 
@@ -218,10 +292,11 @@ def _evaluate_one(problem, config: str, state: str) -> dict:
 def evaluate_all(R: dict, problem, state: str) -> dict:
     """O1..O4 for one state, each preceded by the probe-pod assertion."""
     say(f"  === oracle configurations [{state}] ===")
+    healthy_baseline = R["captured_replica_baseline"]
     out = {}
     for config in CONFIGS:
         guarded_oracle(R, f"{state.upper()}/{config}")
-        out[config] = _evaluate_one(problem, config, state)
+        out[config] = _evaluate_one(problem, config, state, healthy_baseline)
     return out
 
 

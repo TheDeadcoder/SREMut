@@ -159,6 +159,57 @@ def test_diagnostic_probe_is_separate_from_the_verdict():
                                    "attribute_before_call"}, f"{rid}/{state}/{cfg}"
 
 
+def test_o1_and_o4_use_the_healthy_baseline_not_a_self_capture():
+    """A baseline captured at evaluate time compares the graded state against itself."""
+    recs = _records()
+    if not recs:
+        print("   (skipped: no fix-oracle records yet)")
+        return
+    for rid, d in recs.items():
+        expected = d.get("captured_replica_baseline_count")
+        for state in STATES:
+            block = d.get(f"oracles_{state}")
+            if block is None:
+                continue
+            for cfg in ("O1", "O4"):
+                rec = block[cfg]
+                assert rec["baseline_source"] == "healthy capture at STEP 4", (
+                    f"{rid}/{state}/{cfg}: {rec.get('baseline_source')!r}")
+                assert rec["baseline_deployment_count"] == expected, (
+                    f"{rid}/{state}/{cfg}: baseline has "
+                    f"{rec['baseline_deployment_count']} deployments, healthy capture "
+                    f"had {expected}")
+
+
+def test_driver_never_calls_capture_baseline_inside_an_evaluation():
+    """O1/O4 must inherit the healthy baseline, never re-capture in the graded state."""
+    tree = ast.parse(DRIVER.read_text())
+    fn = next(n for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef) and n.name == "_evaluate_one")
+    bad = [n.lineno for n in ast.walk(fn)
+           if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+           and n.func.attr == "capture_baseline"]
+    assert not bad, f"capture_baseline() called inside _evaluate_one at lines {bad}"
+
+
+def test_pod_census_recorded_before_every_configuration():
+    """SREGym's own probe pod carries labels our assertion cannot see."""
+    recs = _records()
+    if not recs:
+        print("   (skipped: no fix-oracle records yet)")
+        return
+    for rid, d in recs.items():
+        for state in STATES:
+            block = d.get(f"oracles_{state}")
+            if block is None:
+                continue
+            for cfg in CONFIGS:
+                pods = block[cfg]["pods_before_call"]
+                assert isinstance(pods.get("total"), int), f"{rid}/{state}/{cfg}"
+                assert isinstance(pods.get("not_running"), list), f"{rid}/{state}/{cfg}"
+                assert "sregym_connectivity_probe_pods" in pods, f"{rid}/{state}/{cfg}"
+
+
 def test_pinned_module_hashes_recorded_and_match_disk():
     import hashlib
     recs = _records()
