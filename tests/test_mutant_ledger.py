@@ -198,6 +198,56 @@ def test_controls_have_zero_non2xx_and_faulted_has_some():
         assert d["workload_faulted"]["total_non2xx"] > 0, rid
 
 
+def test_retained_volume_recomputed_independently():
+    """The write-up's headline metric, recomputed from the records rather than read back.
+
+    Definition: successful HTTP responses in the faulted window over successful HTTP
+    responses in the SAME run's healthy window, both ten-round ~99 s windows.
+    """
+    led = json.loads(LEDGER.read_text())
+    by_id = {r["run_id"]: r for r in led["runs"]}
+    for rid, d in _records().items():
+        f, h = d["workload_faulted"], d["workload_healthy"]
+        expect = round(100.0 * (f["total_requests"] - f["total_non2xx"])
+                       / (h["total_requests"] - h["total_non2xx"]), 4)
+        got = by_id[rid]["successful_response_volume_retained_percent"]
+        assert got == expect, f"{rid}: ledger {got} != recomputed {expect}"
+        counts = by_id[rid]["successful_responses"]
+        assert counts["healthy"] == h["total_requests"] - h["total_non2xx"], rid
+        assert counts["faulted"] == f["total_requests"] - f["total_non2xx"], rid
+
+
+def test_retained_volume_per_mutant_lists_and_means_agree():
+    led = json.loads(LEDGER.read_text())
+    by_id = {r["run_id"]: r for r in led["runs"]}
+    for m, info in led["per_mutant"].items():
+        per_run = [by_id[rid]["successful_response_volume_retained_percent"]
+                   for rid in info["run_ids"]]
+        assert info["successful_response_volume_retained_percent"] == per_run, m
+        assert info["successful_response_volume_retained_mean_percent"] == \
+            round(sum(per_run) / len(per_run), 4), m
+
+
+def test_retained_volume_has_the_expected_shape():
+    """Shape, not pinned figures.
+
+    Hard-coding the nine values would pass just as happily against a builder that
+    copied them in from prose. What the study actually shows is a shape: MS-M02
+    collapsed throughput while MS-M01 and MS-M03 did not, and every value is a
+    percentage of a same-run baseline so must lie strictly inside 0..100.
+    """
+    led = json.loads(LEDGER.read_text())
+    means = {m: info["successful_response_volume_retained_mean_percent"]
+             for m, info in led["per_mutant"].items()}
+    assert means["MS-M02"] < 20.0, f"MS-M02 mean {means['MS-M02']} is not below 20%"
+    for m in ("MS-M01", "MS-M03"):
+        assert means[m] > 85.0, f"{m} mean {means[m]} is not above 85%"
+    values = [r["successful_response_volume_retained_percent"] for r in led["runs"]]
+    assert len(values) == 9, len(values)
+    for v in values:
+        assert isinstance(v, float) and 0.0 < v < 100.0, f"out of range: {v}"
+
+
 def test_excluding_first_round_recomputed_independently():
     """DEVIATIONS_AND_LIMITS.md item 4, recomputed here rather than trusted."""
     mod = _load_builder()

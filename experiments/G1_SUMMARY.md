@@ -127,7 +127,9 @@ the frozen baselines, which was the gap in `g02-run-01`.
 | `g1-run-02` | 2026-08-26T19:43:00.151040+00:00 | 2026-08-26T19:44:00.151547+00:00 | **60.001 s** |
 | `g1-run-03` | 2026-08-26T19:52:40.603242+00:00 | 2026-08-26T19:53:40.603819+00:00 | **60.001 s** |
 
-For comparison, `g02-run-01` was **0.638 s**. R1 held to within 1 ms in all three runs.
+For comparison, `g02-run-01` was **0.637 s**. R1 held to within 1 ms in all three runs.
+
+> Corrected 2026-08-29 from 0.638 s. The two timestamps are unchanged (`2026-08-26T11:03:19.383650+00:00` and `2026-08-26T11:03:20.021093+00:00`, `experiments/g02-run-01/run-result.json`); their exact difference is 0.637443 s, which rounds to 0.637. The earlier figure was a rounding slip on the same pair, not a different measurement, and nothing downstream depends on the third decimal. The sourced row is in `analysis/PAPER_NUMBERS.md` section 3. The same figure in `PROTOCOL_G1.md:28` is left as it stands: there it sits inside a rationale passage explaining why 60 s was chosen, so it is recorded reasoning rather than a reported result.
 
 ---
 

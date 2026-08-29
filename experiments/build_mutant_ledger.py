@@ -22,13 +22,28 @@ Three determinism rules, all load-bearing for `--check`:
 2. **No implicit coercion of a verdict.** `strict_bool` refuses anything that is not an
    actual JSON boolean — `"true"`, `1`, `0` and `null` are errors, never coerced. A
    `bool(...)` wrapper would map `bool({"success": false})` onto `True`.
-3. **Derived quantities are computed here, not asserted anywhere.** In particular
+3. **Derived quantities are computed here, not asserted anywhere.** Two are emitted.
+
    `faulted_rate_excluding_first_round` is recomputed from the committed per-round
    detail. Its motivation is in `DEVIATIONS_AND_LIMITS.md` item 4: `wait_for_rounds`
    selects rounds by `report_ts`, the END of an ~11 s round, so in all nine runs the
    first selected round began before the mutation was applied and may contain
    pre-mutation requests. Excluding it changes no categorical result and is the figure
    to prefer for any quantitative claim.
+
+   `successful_response_volume_retained_percent` is the write-up's headline metric:
+
+       (faulted.total_requests - faulted.total_non2xx)
+       ----------------------------------------------  x 100
+       (healthy.total_requests - healthy.total_non2xx)
+
+   It counts successful HTTP responses in the faulted window against successful HTTP
+   responses in the SAME run's healthy window, over equal ten-round windows of about
+   99 s each. **It is a response count, not a measure of application work.** A system
+   returning fewer responses is doing less of what the workload asked for, but nothing
+   here weighs a response by cost, latency or usefulness, and the name must not be read
+   as if it did. The caveat lives here, in the register, so that it travels with the
+   number rather than only with the paragraph in the paper that cites it.
 
 The nine records are attested and are never modified by this script. It reads only.
 """
@@ -237,6 +252,11 @@ def build_record(run_id: str) -> dict:
     mutant = doc.get("mutant") or {}
     faulted_block = _require(doc, "workload_faulted", where)
 
+    workload = {s: _workload(_require(doc, f"workload_{s}", where),
+                             f"{where}.workload_{s}") for s in STATES}
+    healthy_ok = workload["healthy"]["total_requests"] - workload["healthy"]["total_non2xx"]
+    faulted_ok = workload["faulted"]["total_requests"] - workload["faulted"]["total_non2xx"]
+
     rec = {
         "run_id": _require(doc, "run_id", where),
         "mutant_id": _require(doc, "mutant_id", where),
@@ -267,9 +287,10 @@ def build_record(run_id: str) -> dict:
         "captured_service_sha256": doc.get("captured_service_sha256"),
         "oracle_readings": {s: _oracle_readings(doc, s, where) for s in STATES},
         "contract": {s: _contract(doc, s, where) for s in STATES},
-        "workload": {s: _workload(_require(doc, f"workload_{s}", where),
-                                  f"{where}.workload_{s}") for s in STATES},
+        "workload": workload,
         "faulted_rate_excluding_first_round": _excluding_first_round(faulted_block),
+        "successful_responses": {"healthy": healthy_ok, "faulted": faulted_ok},
+        "successful_response_volume_retained_percent": _rate(faulted_ok, healthy_ok),
         "pre_oracle_assertions": {
             "count": len(assertions),
             "all_no_probe_pod": all(strict_bool(a["ok"], f"{where}.assertion.ok")
@@ -318,6 +339,7 @@ def build_ledger(records: list[dict]) -> dict:
     per_mutant = {}
     for m in MUTANTS:
         rs = [r for r in records if r["mutant_id"] == m]
+        retained = [r["successful_response_volume_retained_percent"] for r in rs]
         violated = [tuple(r["contract"]["faulted"]["violated"]) for r in rs]
         bodies = sorted({r["mutant_application"]["body_sha256"] for r in rs})
         per_mutant[m] = {
@@ -331,6 +353,9 @@ def build_ledger(records: list[dict]) -> dict:
                 r["workload"]["faulted"]["non2xx_rate_percent"] for r in rs],
             "faulted_rate_excluding_first_round_percent": [
                 r["faulted_rate_excluding_first_round"]["rate_percent"] for r in rs],
+            "successful_response_volume_retained_percent": retained,
+            "successful_response_volume_retained_mean_percent": (
+                round(sum(retained) / len(retained), 4) if retained else None),
             "faulted_oracle_readings": 2 * len(rs),
         }
 
@@ -396,6 +421,8 @@ def _summarise(led: dict) -> None:
         print(f"  {m}: violated={v['violated_invariants']} "
               f"rate={v['faulted_rate_percent']} "
               f"excl_first={v['faulted_rate_excluding_first_round_percent']}")
+        print(f"       retained volume {v['successful_response_volume_retained_percent']} "
+              f"mean {v['successful_response_volume_retained_mean_percent']}%")
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -178,13 +178,14 @@ R1 and had no null-agent hold, which is why its interval is sub-second; it is th
 contrast case, not an R1 measurement.
 
 > **Discrepancy, disclosed rather than silently reconciled.**
-> `SREMut/experiments/PROTOCOL_G1.md:28` and `SREMut/experiments/G1_SUMMARY.md:130` both
-> give this pilot interval as **0.638 s**, quoting the same two timestamps. The exact
-> difference is 0.637443 s, which rounds to **0.637 s**, so 0.638 is a rounding error on
-> the same pair and not a different measurement. Nothing downstream depends on the third
-> decimal: the point both documents make is that the pilot's interval was sub-second and
-> far shorter than any real agent episode. This register carries the recomputed value;
-> the two historical documents are left as they stand.
+> `SREMut/experiments/PROTOCOL_G1.md:28` gives this pilot interval as **0.638 s**,
+> quoting the same two timestamps. The exact difference is 0.637443 s, which rounds to
+> **0.637 s**, so 0.638 is a rounding error on the same pair and not a different
+> measurement. Nothing downstream depends on the third decimal: the point that passage
+> makes is that the pilot's interval was sub-second and far shorter than any real agent
+> episode. It is left as it stands because it is recorded reasoning explaining why 60 s
+> was chosen, not a reported result. `SREMut/experiments/G1_SUMMARY.md`, which reported
+> the figure in a results table, was corrected in place on 2026-08-29 with a note.
 
 ### Margins to the last not-Running pod observation
 
@@ -312,6 +313,36 @@ by the gate at `harness/capture_healthy_baseline.sh:194-208`:
 198    exit 1
 199  fi
 ```
+
+### Successful-response volume retained (mutant study)
+
+The write-up's headline metric for the MS-M01/M02/M03 study. Defined as
+
+    (faulted.total_requests - faulted.total_non2xx)
+    ----------------------------------------------  x 100
+    (healthy.total_requests - healthy.total_non2xx)
+
+that is, successful HTTP responses in the faulted window over successful HTTP responses
+in the **same run's** healthy window, both ten-round windows of about 99 s.
+
+| Mutant | mean retained |
+|---|---:|
+| MS-M01 | **90.0651 %** |
+| MS-M02 | **13.2943 %** |
+| MS-M03 | **90.1432 %** |
+
+Source: `SREMut/experiments/MUTANT_LEDGER.json`, which is generated from the nine run
+records by `experiments/build_mutant_ledger.py` and carries both the per-run values
+(`runs[].successful_response_volume_retained_percent`) and these means
+(`per_mutant[].successful_response_volume_retained_mean_percent`). The per-run values are
+deliberately not restated here; the ledger holds them, and
+`tests/test_mutant_ledger.py` recomputes every one from the run records. Verify with
+`python3 experiments/build_mutant_ledger.py --check`.
+
+**It is a response count, not a measure of application work.** A system returning fewer
+responses is doing less of what the workload asked for, but nothing here weighs a
+response by cost, latency or usefulness. The same caveat is recorded in the builder's
+docstring so that it travels with the number.
 
 ---
 
