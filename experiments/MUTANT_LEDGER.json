@@ -1,0 +1,2534 @@
+{
+ "DO_NOT_HAND_EDIT": true,
+ "GENERATED_BY": "experiments/build_mutant_ledger.py",
+ "all_runs_complete": true,
+ "contract_verdicts": {
+  "controls": {
+   "PASS": 18
+  },
+  "every_control_pass": true,
+  "every_faulted_reject": true,
+  "faulted": {
+   "REJECT": 9
+  }
+ },
+ "deviations_doc": "DEVIATIONS_AND_LIMITS.md",
+ "instrument_sha256": {
+  "contract_check_sha256": {
+   "identical_across_runs": true,
+   "matches_committed_file": true,
+   "value": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4"
+  },
+  "driver_sha256": {
+   "identical_across_runs": true,
+   "matches_committed_file": true,
+   "value": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec"
+  },
+  "three_state_run_sha256": {
+   "identical_across_runs": true,
+   "matches_committed_file": true,
+   "value": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0"
+  },
+  "worker_sha256": {
+   "identical_across_runs": true,
+   "matches_committed_file": true,
+   "value": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+  }
+ },
+ "n_runs": 9,
+ "oracle_readings": {
+  "controls": 36,
+  "every_faulted_reading_true": true,
+  "every_reading_true": true,
+  "faulted": 18,
+  "total": 54
+ },
+ "per_mutant": {
+  "MS-M01": {
+   "body_sha256": null,
+   "body_sha256_identical_across_repetitions": true,
+   "faulted_oracle_readings": 6,
+   "faulted_rate_excluding_first_round_percent": [
+    9.9284,
+    10.0803,
+    9.9284
+   ],
+   "faulted_rate_percent": [
+    9.9512,
+    9.9707,
+    9.8828
+   ],
+   "n_runs": 3,
+   "run_ids": [
+    "ms-m01-r01",
+    "ms-m01-r02",
+    "ms-m01-r03"
+   ],
+   "violated_identical_across_repetitions": true,
+   "violated_invariants": [
+    "MS-I1",
+    "MS-I2",
+    "MS-I3",
+    "MS-I4"
+   ]
+  },
+  "MS-M02": {
+   "body_sha256": "aeba7401b516273e324411d7f00dc7bc8c6afb31b7c8ba16f3503d46b38690a4",
+   "body_sha256_identical_across_repetitions": true,
+   "faulted_oracle_readings": 6,
+   "faulted_rate_excluding_first_round_percent": [
+    8.6275,
+    7.6397,
+    6.769
+   ],
+   "faulted_rate_percent": [
+    7.7947,
+    9.8401,
+    6.8109
+   ],
+   "n_runs": 3,
+   "run_ids": [
+    "ms-m02-r01",
+    "ms-m02-r02",
+    "ms-m02-r03"
+   ],
+   "violated_identical_across_repetitions": true,
+   "violated_invariants": [
+    "MS-I2",
+    "MS-I3",
+    "MS-I4"
+   ]
+  },
+  "MS-M03": {
+   "body_sha256": "cd4f01ccf14fe348b83a2f9535ea016d28b644bdf777d1b5e8c5160b4d09f734",
+   "body_sha256_identical_across_repetitions": true,
+   "faulted_oracle_readings": 6,
+   "faulted_rate_excluding_first_round_percent": [
+    9.7005,
+    10.2539,
+    9.7222
+   ],
+   "faulted_rate_percent": [
+    9.7461,
+    10.0488,
+    9.7754
+   ],
+   "n_runs": 3,
+   "run_ids": [
+    "ms-m03-r01",
+    "ms-m03-r02",
+    "ms-m03-r03"
+   ],
+   "violated_identical_across_repetitions": true,
+   "violated_invariants": [
+    "MS-I2",
+    "MS-I4"
+   ]
+  }
+ },
+ "protocol": "sremut-preregistered-mutant-v1",
+ "protocol_doc": "PREREGISTRATION_MS_MUTANTS.md",
+ "runs": [
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "service_not_found": true
+     },
+     "elapsed_seconds": 0.099
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "service_not_found": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "d4e18abe1d1c8477a95b980233ab1d1e5726c0ff96d8c7fb592f923879e18b6d",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "FAIL",
+      "MS-I2": "FAIL",
+      "MS-I3": "FAIL",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I1",
+      "MS-I2",
+      "MS-I3",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 104,
+    "dropped_round_report_ts": "2026-08-29T10:22:14.591120099Z",
+    "dropped_round_requests": 1024,
+    "rate_percent": 9.9284,
+    "rounds": 9,
+    "total_non2xx": 915,
+    "total_requests": 9216
+   },
+   "finished_at": "2026-08-29T10:27:23.102830+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "NONE",
+    "applied_utc": "2026-08-29T10:22:09.623818+00:00",
+    "body_sha256": null,
+    "kubectl_exit": null
+   },
+   "mutant_id": "MS-M01",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 0.288,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.071,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.295,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.608,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.327,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.115,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 154.728,
+    "injection": 40.905,
+    "recovery": 35.256,
+    "stabilization": 4.462
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m01-r01",
+   "started_at": "2026-08-29T10:16:33.739562+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 649.363,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T10:22:14.591120099Z",
+     "last_round_utc": "2026-08-29T10:23:53.703824994Z",
+     "non2xx_rate_percent": 9.9512,
+     "per_round_non2xx": [
+      104,
+      88,
+      103,
+      104,
+      97,
+      104,
+      104,
+      96,
+      108,
+      111
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 1019,
+     "total_requests": 10240
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T10:19:24.730245935Z",
+     "last_round_utc": "2026-08-29T10:21:03.842375583Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T10:25:23.182182559Z",
+     "last_round_utc": "2026-08-29T10:27:02.291958204Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  },
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "selector_exact": true,
+      "zero_eligible_endpoints": true,
+      "zero_pods_match_selector": true
+     },
+     "elapsed_seconds": 0.284
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "selector_exact": true,
+      "zero_eligible_endpoints": true,
+      "zero_pods_match_selector": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "8c7c4672de15319aaa8ee8cf37614df8972d679ad8849cb68307c462ede5e524",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "FAIL",
+      "MS-I3": "FAIL",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I2",
+      "MS-I3",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 57,
+    "dropped_round_report_ts": "2026-08-29T10:33:32.497709603Z",
+    "dropped_round_requests": 813,
+    "rate_percent": 8.6275,
+    "rounds": 9,
+    "total_non2xx": 66,
+    "total_requests": 765
+   },
+   "finished_at": "2026-08-29T10:38:43.453399+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "CREATE",
+    "applied_utc": "2026-08-29T10:33:29.302009+00:00",
+    "body_sha256": "aeba7401b516273e324411d7f00dc7bc8c6afb31b7c8ba16f3503d46b38690a4",
+    "kubectl_exit": 0
+   },
+   "mutant_id": "MS-M02",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 1.157,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 12.382,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.295,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.335,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.365,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.164,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 124.12,
+    "injection": 41.249,
+    "recovery": 35.254,
+    "stabilization": 4.447
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m02-r01",
+   "started_at": "2026-08-29T10:28:26.528000+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 616.925,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T10:33:32.497709603Z",
+     "last_round_utc": "2026-08-29T10:35:11.695120106Z",
+     "non2xx_rate_percent": 7.7947,
+     "per_round_non2xx": [
+      57,
+      8,
+      8,
+      9,
+      8,
+      6,
+      7,
+      8,
+      6,
+      6
+     ],
+     "per_round_requests": [
+      813,
+      61,
+      84,
+      107,
+      72,
+      80,
+      78,
+      152,
+      76,
+      55
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 123,
+     "total_requests": 1578
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T10:30:46.785558256Z",
+     "last_round_utc": "2026-08-29T10:32:25.896923438Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T10:36:41.265112412Z",
+     "last_round_utc": "2026-08-29T10:38:20.374059101Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  },
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "at_least_one_backed_endpoint": true,
+      "port_9090": true,
+      "selector_exact": true,
+      "target_port_65535": true
+     },
+     "elapsed_seconds": 0.464
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "at_least_one_backed_endpoint": true,
+      "port_9090": true,
+      "selector_exact": true,
+      "target_port_65535": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "e8928d8e23747826bcf0f8e007f889c3d5c05ff8d590fc1cc35c78225b301b4f",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "FAIL",
+      "MS-I3": "PASS",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I2",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 104,
+    "dropped_round_report_ts": "2026-08-29T10:44:41.476793836Z",
+    "dropped_round_requests": 1024,
+    "rate_percent": 9.7005,
+    "rounds": 9,
+    "total_non2xx": 894,
+    "total_requests": 9216
+   },
+   "finished_at": "2026-08-29T10:49:51.844197+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "CREATE",
+    "applied_utc": "2026-08-29T10:44:38.732593+00:00",
+    "body_sha256": "cd4f01ccf14fe348b83a2f9535ea016d28b644bdf777d1b5e8c5160b4d09f734",
+    "kubectl_exit": 0
+   },
+   "mutant_id": "MS-M03",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 0.296,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.787,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.308,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.726,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.326,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.192,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 126.704,
+    "injection": 41.12,
+    "recovery": 35.433,
+    "stabilization": 4.418
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m03-r01",
+   "started_at": "2026-08-29T10:39:33.945596+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 617.899,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T10:44:41.476793836Z",
+     "last_round_utc": "2026-08-29T10:46:20.586432828Z",
+     "non2xx_rate_percent": 9.7461,
+     "per_round_non2xx": [
+      104,
+      103,
+      95,
+      110,
+      90,
+      114,
+      99,
+      104,
+      84,
+      95
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 998,
+     "total_requests": 10240
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T10:41:56.651934023Z",
+     "last_round_utc": "2026-08-29T10:43:35.754971033Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T10:47:49.159906357Z",
+     "last_round_utc": "2026-08-29T10:49:28.262874216Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  },
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "service_not_found": true
+     },
+     "elapsed_seconds": 0.111
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "service_not_found": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "9a2a68a47239db22102653a17a9633ef022823e9fe6801bb3feb94694b95b17c",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "FAIL",
+      "MS-I2": "FAIL",
+      "MS-I3": "FAIL",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I1",
+      "MS-I2",
+      "MS-I3",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 92,
+    "dropped_round_report_ts": "2026-08-29T11:25:20.529186286Z",
+    "dropped_round_requests": 1024,
+    "rate_percent": 10.0803,
+    "rounds": 9,
+    "total_non2xx": 929,
+    "total_requests": 9216
+   },
+   "finished_at": "2026-08-29T11:30:31.838814+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "NONE",
+    "applied_utc": "2026-08-29T11:25:15.781142+00:00",
+    "body_sha256": null,
+    "kubectl_exit": null
+   },
+   "mutant_id": "MS-M01",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 0.514,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.979,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.31,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.2,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.301,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.078,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 124.997,
+    "injection": 40.897,
+    "recovery": 35.157,
+    "stabilization": 4.444
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m01-r02",
+   "started_at": "2026-08-29T11:20:11.447356+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 620.391,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T11:25:20.529186286Z",
+     "last_round_utc": "2026-08-29T11:26:59.639049981Z",
+     "non2xx_rate_percent": 9.9707,
+     "per_round_non2xx": [
+      92,
+      92,
+      101,
+      110,
+      113,
+      95,
+      107,
+      103,
+      97,
+      111
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 1021,
+     "total_requests": 10240
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T11:22:32.789840694Z",
+     "last_round_utc": "2026-08-29T11:24:11.900031663Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T11:28:31.167612368Z",
+     "last_round_utc": "2026-08-29T11:30:10.275072736Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  },
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "selector_exact": true,
+      "zero_eligible_endpoints": true,
+      "zero_pods_match_selector": true
+     },
+     "elapsed_seconds": 0.277
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "selector_exact": true,
+      "zero_eligible_endpoints": true,
+      "zero_pods_match_selector": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "abaabe66e44aaec9e0e744209aec42da1c95ad7688c5db910316f878bef2d217",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "FAIL",
+      "MS-I3": "FAIL",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I2",
+      "MS-I3",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 93,
+    "dropped_round_report_ts": "2026-08-29T11:36:16.532019503Z",
+    "dropped_round_requests": 749,
+    "rate_percent": 7.6397,
+    "rounds": 9,
+    "total_non2xx": 67,
+    "total_requests": 877
+   },
+   "finished_at": "2026-08-29T11:41:26.699827+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "CREATE",
+    "applied_utc": "2026-08-29T11:36:13.227993+00:00",
+    "body_sha256": "aeba7401b516273e324411d7f00dc7bc8c6afb31b7c8ba16f3503d46b38690a4",
+    "kubectl_exit": 0
+   },
+   "mutant_id": "MS-M02",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 0.474,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.624,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.281,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.966,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.345,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.866,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 126.011,
+    "injection": 41.088,
+    "recovery": 35.263,
+    "stabilization": 4.449
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m02-r02",
+   "started_at": "2026-08-29T11:31:06.325752+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 620.374,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T11:36:16.532019503Z",
+     "last_round_utc": "2026-08-29T11:37:55.648088481Z",
+     "non2xx_rate_percent": 9.8401,
+     "per_round_non2xx": [
+      93,
+      7,
+      10,
+      7,
+      8,
+      9,
+      6,
+      7,
+      6,
+      7
+     ],
+     "per_round_requests": [
+      749,
+      61,
+      132,
+      108,
+      70,
+      121,
+      83,
+      84,
+      105,
+      113
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 160,
+     "total_requests": 1626
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T11:33:28.316099099Z",
+     "last_round_utc": "2026-08-29T11:35:07.429208235Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T11:39:26.199976209Z",
+     "last_round_utc": "2026-08-29T11:41:05.303342275Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  },
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "at_least_one_backed_endpoint": true,
+      "port_9090": true,
+      "selector_exact": true,
+      "target_port_65535": true
+     },
+     "elapsed_seconds": 0.466
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "at_least_one_backed_endpoint": true,
+      "port_9090": true,
+      "selector_exact": true,
+      "target_port_65535": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "1796d4ae39331924dffbf45cfa2d9939ccae49542aaabd4d4533fb1af0105c2e",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "FAIL",
+      "MS-I3": "PASS",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I2",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 84,
+    "dropped_round_report_ts": "2026-08-29T11:47:01.446511772Z",
+    "dropped_round_requests": 1024,
+    "rate_percent": 10.2539,
+    "rounds": 9,
+    "total_non2xx": 945,
+    "total_requests": 9216
+   },
+   "finished_at": "2026-08-29T11:52:11.282096+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "CREATE",
+    "applied_utc": "2026-08-29T11:46:59.582256+00:00",
+    "body_sha256": "cd4f01ccf14fe348b83a2f9535ea016d28b644bdf777d1b5e8c5160b4d09f734",
+    "kubectl_exit": 0
+   },
+   "mutant_id": "MS-M03",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 0.467,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.836,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.331,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.772,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.337,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.729,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 122.757,
+    "injection": 41.146,
+    "recovery": 35.353,
+    "stabilization": 4.48
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m03-r02",
+   "started_at": "2026-08-29T11:41:58.534968+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 612.747,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T11:47:01.446511772Z",
+     "last_round_utc": "2026-08-29T11:48:40.564881382Z",
+     "non2xx_rate_percent": 10.0488,
+     "per_round_non2xx": [
+      84,
+      114,
+      124,
+      114,
+      108,
+      94,
+      90,
+      97,
+      95,
+      109
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 1029,
+     "total_requests": 10240
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T11:44:17.250948749Z",
+     "last_round_utc": "2026-08-29T11:45:56.365460081Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T11:50:10.147889982Z",
+     "last_round_utc": "2026-08-29T11:51:49.258963970Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  },
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "service_not_found": true
+     },
+     "elapsed_seconds": 0.096
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "service_not_found": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "a7a0907e8f812178cfc24a71aa6a7a88a3be272746ff082d4e1ef7a0de86dd04",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "FAIL",
+      "MS-I2": "FAIL",
+      "MS-I3": "FAIL",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I1",
+      "MS-I2",
+      "MS-I3",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 97,
+    "dropped_round_report_ts": "2026-08-29T11:57:56.440552523Z",
+    "dropped_round_requests": 1024,
+    "rate_percent": 9.9284,
+    "rounds": 9,
+    "total_non2xx": 915,
+    "total_requests": 9216
+   },
+   "finished_at": "2026-08-29T12:03:07.849689+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "NONE",
+    "applied_utc": "2026-08-29T11:57:55.011896+00:00",
+    "body_sha256": null,
+    "kubectl_exit": null
+   },
+   "mutant_id": "MS-M01",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 0.289,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.929,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.304,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.797,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.31,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.52,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 126.827,
+    "injection": 41.589,
+    "recovery": 34.923,
+    "stabilization": 4.414
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m01-r03",
+   "started_at": "2026-08-29T11:52:49.866944+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 617.983,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T11:57:56.440552523Z",
+     "last_round_utc": "2026-08-29T11:59:35.552749738Z",
+     "non2xx_rate_percent": 9.8828,
+     "per_round_non2xx": [
+      97,
+      94,
+      108,
+      116,
+      96,
+      104,
+      84,
+      108,
+      108,
+      97
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 1012,
+     "total_requests": 10240
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T11:55:12.675118902Z",
+     "last_round_utc": "2026-08-29T11:56:51.787984995Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T12:01:05.859953797Z",
+     "last_round_utc": "2026-08-29T12:02:44.971520257Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  },
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "selector_exact": true,
+      "zero_eligible_endpoints": true,
+      "zero_pods_match_selector": true
+     },
+     "elapsed_seconds": 0.306
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "selector_exact": true,
+      "zero_eligible_endpoints": true,
+      "zero_pods_match_selector": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "7c8f5fa3f0a00051ea792603b2dbf1012114f77bd1692d60e442c057597d2744",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "FAIL",
+      "MS-I3": "FAIL",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I2",
+      "MS-I3",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 10,
+    "dropped_round_report_ts": "2026-08-29T12:08:56.603348475Z",
+    "dropped_round_requests": 140,
+    "rate_percent": 6.769,
+    "rounds": 9,
+    "total_non2xx": 75,
+    "total_requests": 1108
+   },
+   "finished_at": "2026-08-29T12:14:11.414582+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "CREATE",
+    "applied_utc": "2026-08-29T12:08:46.586130+00:00",
+    "body_sha256": "aeba7401b516273e324411d7f00dc7bc8c6afb31b7c8ba16f3503d46b38690a4",
+    "kubectl_exit": 0
+   },
+   "mutant_id": "MS-M02",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 0.468,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.931,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.298,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.022,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.375,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.926,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 126.419,
+    "injection": 40.655,
+    "recovery": 34.728,
+    "stabilization": 4.48
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m02-r03",
+   "started_at": "2026-08-29T12:03:42.320055+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 629.095,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T12:08:56.603348475Z",
+     "last_round_utc": "2026-08-29T12:10:35.715782555Z",
+     "non2xx_rate_percent": 6.8109,
+     "per_round_non2xx": [
+      10,
+      9,
+      8,
+      7,
+      8,
+      9,
+      8,
+      8,
+      8,
+      10
+     ],
+     "per_round_requests": [
+      140,
+      140,
+      142,
+      172,
+      112,
+      117,
+      146,
+      120,
+      68,
+      91
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 85,
+     "total_requests": 1248
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T12:06:04.779122552Z",
+     "last_round_utc": "2026-08-29T12:07:43.890927709Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T12:12:11.229015262Z",
+     "last_round_utc": "2026-08-29T12:13:50.341602442Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  },
+  {
+   "activation": {
+    "after_apply": {
+     "activated": true,
+     "attempts": 1,
+     "criteria": {
+      "at_least_one_backed_endpoint": true,
+      "port_9090": true,
+      "selector_exact": true,
+      "target_port_65535": true
+     },
+     "elapsed_seconds": 0.459
+    },
+    "before_oracle": {
+     "activated": true,
+     "criteria": {
+      "at_least_one_backed_endpoint": true,
+      "port_9090": true,
+      "selector_exact": true,
+      "target_port_65535": true
+     }
+    },
+    "drift": false
+   },
+   "any_non_running_pod_at_an_oracle_call": false,
+   "captured_replica_baseline_count": 27,
+   "captured_replica_baseline_sha256": "8e42c0db98368a0a04c582e5f0c40ee2203c73636de81220df9f661cf48cad08",
+   "captured_service_sha256": "8aa99c522e0350ba777793e5c270ce6f2996faa73477c2a1802507a03460553e",
+   "contract": {
+    "faulted": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "FAIL",
+      "MS-I3": "PASS",
+      "MS-I4": "FAIL",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "REJECT",
+     "violated": [
+      "MS-I2",
+      "MS-I4"
+     ]
+    },
+    "healthy": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    },
+    "restored": {
+     "invariants": {
+      "MS-I1": "PASS",
+      "MS-I2": "PASS",
+      "MS-I3": "PASS",
+      "MS-I4": "PASS",
+      "MS-I5": "PASS",
+      "MS-I6": "NOT_EVALUATED"
+     },
+     "probe_pod_gone": true,
+     "verdict": "PASS",
+     "violated": []
+    }
+   },
+   "faulted_rate_excluding_first_round": {
+    "dropped_round_non2xx": 105,
+    "dropped_round_report_ts": "2026-08-29T12:19:48.480704351Z",
+    "dropped_round_requests": 1024,
+    "rate_percent": 9.7222,
+    "rounds": 9,
+    "total_non2xx": 896,
+    "total_requests": 9216
+   },
+   "finished_at": "2026-08-29T12:24:57.528336+00:00",
+   "instrument_sha256": {
+    "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+    "driver_sha256": "7930533914eb07c6f690a58c210c1edac787cad37a0ae0d5d81effa7a1a8e7ec",
+    "three_state_run_sha256": "827b34cce2a7a6afab87a32c382b7fbc3130c3d72ab6e43b6d495cf1ebb152d0",
+    "worker_sha256": "933e109b69cd236d38aa1dbcb62b66834a2dc9cfbd138eddf0438e3aac1e2395"
+   },
+   "mutant_application": {
+    "action": "CREATE",
+    "applied_utc": "2026-08-29T12:19:45.158772+00:00",
+    "body_sha256": "cd4f01ccf14fe348b83a2f9535ea016d28b644bdf777d1b5e8c5160b4d09f734",
+    "kubectl_exit": 0
+   },
+   "mutant_id": "MS-M03",
+   "namespace": "social-network",
+   "oracle_readings": {
+    "faulted": {
+     "in_process": {
+      "elapsed_seconds": 0.536,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 7.116,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "healthy": {
+     "in_process": {
+      "elapsed_seconds": 0.282,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.877,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    },
+    "restored": {
+     "in_process": {
+      "elapsed_seconds": 0.34,
+      "verdict": true
+     },
+     "worker": {
+      "elapsed_seconds": 6.857,
+      "exit_code": 0,
+      "outcome": "RETURNED_TRUE",
+      "raw_result_sha256": "c955e57777ec0d73639dca6748560d00aa5eb8e12f13ebb2ed9656add3908f97",
+      "verdict": true
+     }
+    }
+   },
+   "phase_seconds": {
+    "deployment": 122.044,
+    "injection": 41.036,
+    "recovery": 35.443,
+    "stabilization": 4.497
+   },
+   "pre_oracle_assertions": {
+    "all_namespace_fully_running": true,
+    "all_no_probe_pod": true,
+    "count": 6,
+    "labels": [
+     "HEALTHY/in_process",
+     "HEALTHY/worker",
+     "FAULTED/in_process",
+     "FAULTED/worker",
+     "RESTORED/in_process",
+     "RESTORED/worker"
+    ]
+   },
+   "preflight_passed": true,
+   "problem_id": "missing_service_social_network",
+   "protocol": "sremut-preregistered-mutant-v1",
+   "r1_interval_seconds_achieved": 60.0,
+   "restoration_attempted": false,
+   "restoration_outcome": null,
+   "run_id": "ms-m03-r03",
+   "started_at": "2026-08-29T12:14:43.712345+00:00",
+   "status": "COMPLETE",
+   "total_seconds": 613.816,
+   "workload": {
+    "faulted": {
+     "first_round_utc": "2026-08-29T12:19:48.480704351Z",
+     "last_round_utc": "2026-08-29T12:21:27.588835824Z",
+     "non2xx_rate_percent": 9.7754,
+     "per_round_non2xx": [
+      105,
+      83,
+      98,
+      108,
+      116,
+      94,
+      104,
+      103,
+      83,
+      107
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 1001,
+     "total_requests": 10240
+    },
+    "healthy": {
+     "first_round_utc": "2026-08-29T12:17:01.759598529Z",
+     "last_round_utc": "2026-08-29T12:18:40.867591225Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    },
+    "restored": {
+     "first_round_utc": "2026-08-29T12:22:57.275107853Z",
+     "last_round_utc": "2026-08-29T12:24:36.384993955Z",
+     "non2xx_rate_percent": 0.0,
+     "per_round_non2xx": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "per_round_requests": [
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024,
+      1024
+     ],
+     "rounds": 10,
+     "timed_out": false,
+     "total_non2xx": 0,
+     "total_requests": 10240
+    }
+   }
+  }
+ ],
+ "runs_by_status": {
+  "COMPLETE": 9
+ },
+ "scope": "Pre-registered MS-M01/M02/M03 study, invariants MS-I1..MS-I5. MS-I6 was declared out of scope in advance by section 6 of the pre-registration and is recorded as NOT_EVALUATED throughout."
+}

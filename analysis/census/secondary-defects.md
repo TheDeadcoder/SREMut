@@ -55,12 +55,18 @@ state the comment warns about.
 ### Which problem_ids would be misjudged
 
 Any problem whose mitigation oracle relies on the inherited Deployment predicates.
-That is the 27 problem_ids on the bare generic `MitigationOracle`, plus the 4 of the 6
+That is the 31 problem_ids on the bare generic `MitigationOracle`, plus the 4 of the 6
 `MitigationOracle` subclasses that call `super().evaluate()`
 (`fd_exhaustion.py:28`, `kafka_producer_leak_mitigation.py:9`,
 `nightly_rebalance_oom_mitigation.py:27`, `conntrack_mitigation.py:106`).
 
-**Bare generic (27 problem_ids):**
+**Bare generic (31 problem_ids):**
+
+> Corrected 2026-08-29: previously 27. The four hyphenated ids below were dropped by
+> the superseded `[a-z0-9_]` registry regex — the same parser defect that put the
+> census denominator at 118 instead of 123. Verified against
+> `analysis/census/coverage.csv`, where exactly 31 rows carry
+> `oracle_class_or_children == MitigationOracle`.
 
 - `auth_miss_mongodb`
 - `init_container_dependency_hang_astronomy_shop`
@@ -82,12 +88,16 @@ That is the 27 problem_ids on the bare generic `MitigationOracle`, plus the 4 of
 - `rbac_misconfiguration`
 - `resource_request_too_large`
 - `resource_request_too_small`
+- `revoke_auth_mongodb-1`
+- `revoke_auth_mongodb-2`
 - `service_port_conflict_astronomy_shop`
 - `service_port_conflict_hotel_reservation`
 - `service_port_conflict_social_network`
 - `sidecar_port_conflict_astronomy_shop`
 - `sidecar_port_conflict_hotel_reservation`
 - `sidecar_port_conflict_social_network`
+- `storage_user_unregistered-1`
+- `storage_user_unregistered-2`
 - `taint_no_toleration_social_network`
 
 A `scale-to-0` or `delete-the-deployment` non-repair on any of these is accepted by

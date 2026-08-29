@@ -18,15 +18,17 @@ Three Service-level mutants, three repetitions each, executed 2026-08-29 on a li
   <img src="https://ik.imagekit.io/sakib61/SREMut/fig-verdicts.png" width="900" alt="Verdict matrix: stock oracle passes everything, the frozen contract rejects all nine faulted states">
 </p>
 
-| Mutant | What it does | Faulted non-2xx | Useful work retained | Stock oracle | Contract |
+| Mutant | What it does | Faulted non-2xx | Successful-response volume retained | Stock oracle | Contract |
 |---|---|---:|---:|---|---|
-| MS-M01 | delete `Service/user-service` | 9.88 to 9.97% | 90.1% | success 18/18 | REJECT 3/3 (I1 I2 I3 I4) |
-| MS-M02 | selector matches no pods | 6.81 to 9.84% | **13.3%** | success 18/18 | REJECT 3/3 (I2 I3 I4) |
-| MS-M03 | `targetPort` set to 65535 | 9.75 to 10.05% | 90.1% | success 18/18 | REJECT 3/3 (I2 I4) |
+| MS-M01 | delete `Service/user-service` | 9.88 to 9.97% | 90.1% | success 6/6 faulted | REJECT 3/3 (I1 I2 I3 I4) |
+| MS-M02 | selector matches no pods | 6.81 to 9.84% | **13.3%** | success 6/6 faulted | REJECT 3/3 (I2 I3 I4) |
+| MS-M03 | `targetPort` set to 65535 | 9.75 to 10.05% | 90.1% | success 6/6 faulted | REJECT 3/3 (I2 I4) |
 
-**54 of 54 stock oracle readings returned `{"success": true}`. The contract rejected 9 of 9 faulted states and passed all 18 healthy and restored controls. Mutation score: contract 3/3, stock oracle 0/3.** Violated invariant sets were identical across all three repetitions of each mutant. Zero failed runs, zero retries, 93.3 minutes of driver wall clock.
+**54 of 54 stock oracle readings returned `{"success": true}`. The contract rejected 9 of 9 faulted states and passed all 18 healthy and restored controls on the five invariants evaluated. Mutation score: contract 3/3, stock oracle 0/3.** Violated invariant sets were identical across all three repetitions of each mutant. Nine completed records, with no recorded exclusions or retries, 93.3 minutes of driver wall clock — see [`DEVIATIONS_AND_LIMITS.md`](DEVIATIONS_AND_LIMITS.md).
 
-Every categorical prediction in the pre-registration matched, including the per-mutant invariant sets. The one quantitative miss: about 10% non-2xx was predicted for all three mutants, but MS-M02 collapsed throughput to roughly 12 to 16% of healthy request volume, so its error rate sat on a much smaller denominator. Useful work retained (successful requests versus healthy, window-matched 99 s) tells that story honestly: about 13% for M02 versus about 90% for the others.
+This study evaluated **MS-I1 through MS-I5**; MS-I6 (repair persistence) was declared out of scope in advance by §6 of the pre-registration. A REJECT is unaffected by that — a sixth invariant can only add violations — so "REJECT 9 of 9" and the 3/3 mutation score hold for the full contract. The control results do not carry over: the six-invariant contract has never been shown to pass a genuine repair.
+
+Every categorical prediction in the pre-registration matched, including the per-mutant invariant sets. The one quantitative miss: about 10% non-2xx was predicted for all three mutants, but MS-M02 collapsed throughput to roughly 12 to 16% of healthy request volume, so its error rate sat on a much smaller denominator. Successful-response volume retained (successful requests versus healthy, window-matched 99 s) tells that story honestly: about 13% for M02 versus about 90% for the others.
 
 Attestation chain, all on 2026-08-29, tokens from Free TSA, verifiable offline with `openssl ts`: pre-registration document hashed and timestamped at **09:08:34 UTC**, pre-execution commit SHA timestamped at **10:15:38 UTC**, first mutant applied at **10:22:09 UTC**. See [`PREREGISTRATION_MS_MUTANTS.md`](PREREGISTRATION_MS_MUTANTS.md) and [`attestation/`](attestation/).
 
@@ -65,7 +67,7 @@ Three secondary defects, each with file:line citations in [`analysis/census/seco
 
 | ID | Defect | Direction |
 |---|---|---|
-| D1 | `run-oracle.py` evaluates without `capture_baseline()`, silently skipping all Deployment predicates for 27 problem IDs | false accept |
+| D1 | `run-oracle.py` evaluates without `capture_baseline()`, silently skipping all Deployment predicates for 31 bare-generic problem IDs, 35 including the four subclasses | false accept |
 | D2 | namespace-wide pod sweep counts benchmark infrastructure; failed wrk2 husks persisted 9+ days and never self-clear | false reject |
 | D3 | `WrongUpdateStrategyMitigationOracle.evaluatePods()` defined but never called | false accept |
 
@@ -91,7 +93,7 @@ This patch is a prediction, not a result: the standing rules forbid modifying `S
 |---|---|
 | SREGym / applications | `ba07faf1` / `2b2f9c6c`, read-only, never modified |
 | Cluster | kind v0.32.0, Kubernetes v1.32.0, 4 nodes, kubectl pinned 1.32.0 |
-| Runtimes | oracle: CPython 3.12.3 + kubernetes 30.1.0 (SREGym's own venv, isolated subprocess); runner: CPython 3.12.3 + kubernetes 32.0.1 |
+| Runtimes | both instruments ran under `SREGym/.venv` (CPython 3.12.3, kubernetes 30.1.0) — the in-process oracle and the isolated worker subprocess differ in call path, not in client library. The CPython 3.12.3 + kubernetes 32.0.1 runner is the sealed SREMut runtime: specified, not materialised, and not used by any run reported here |
 | Host | GCP e2-standard-8, Ubuntu 24.04 |
 
 ```bash
@@ -120,5 +122,7 @@ experiments/    protocols, drivers, and all run evidence
 3. Two applications measured, one cluster. `missing_service_astronomy_shop` and the other BLIND rows outside `missing_service` are structural predictions, never executed. Hotel-reservation is n=1, single instrument.
 4. The census was verified to unequal depth (28 of 123 rows hand-checked), and ADEQUATE is structural: the oracle reads the perturbed kind, which is not proof it rejects non-repairs.
 5. The proposed fix is unexecuted.
+6. Every deviation from the frozen pre-registration and every limit on the nine records — including the first faulted workload round straddling the mutation, the unretained wrk2 logs, and the shared Kubernetes client — is recorded in [`DEVIATIONS_AND_LIMITS.md`](DEVIATIONS_AND_LIMITS.md).
+7. Two distinct studies exist and should not be conflated: the pre-registered nine-repetition MS-I1..MS-I5 mutant study is **complete (9/9)**, while the sealed v1.2 six-invariant matrix with authenticated run identities, a hash-chained journal and an external anchor remains **0/9 and unexecuted**.
 
 A write-up is under review at a NeurIPS 2026 workshop. Errors found along the way, including our own, are disclosed rather than silently fixed: see the census corrections and the disclosed-errors table in [`analysis/census/CENSUS.md`](analysis/census/CENSUS.md).
