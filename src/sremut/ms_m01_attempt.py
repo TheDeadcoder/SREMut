@@ -20,7 +20,8 @@ from sremut.kubernetes_mutation import (
 from sremut.policy_runtime import (
     AuthenticatedPolicy,
     EXPECTED_HOOK_ORDER,
-    POLICY_MANIFEST_SHA256,
+    POLICY_V1_2_ID,
+    POLICY_V1_2_MANIFEST_SHA256,
 )
 from sremut.workload_evidence import recompute_stream_identity
 
@@ -28,7 +29,10 @@ from sremut.workload_evidence import recompute_stream_identity
 MUTANT_ID = "MS-M01"
 NAMESPACE = "social-network"
 SERVICE_NAME = "user-service"
-POLICY_ID = "sremut/missing-service-social-network/evidence-capture-v1.1"
+# MS-M01 runs under authenticated evidence-policy v1.2 only.  v1.1 remains the
+# authority for everything already built against it; nothing here reads it.
+POLICY_ID = POLICY_V1_2_ID
+POLICY_MANIFEST_SHA256 = POLICY_V1_2_MANIFEST_SHA256
 REGISTRY_ID = "sremut/missing-service-social-network/pilot-mutants-v1"
 _RUN_ID = re.compile(r"^sremut-ms-m01-r0[1-3]-a0[1-2]-[0-9a-f]{12}$")
 _ATTEMPT_ID = re.compile(r"^a0[1-2]$")
@@ -81,6 +85,27 @@ WORKLOAD_WINDOWS = MappingProxyType(
     }
 )
 
+#: The three frozen adjudication predicates, in the exact order MS-M01 reaches
+#: them.  There is no aggregate predicate: `MS_M01_CONTRACT_V1` was never in the
+#: frozen matrix, and the contract verdict is derived from these three rather
+#: than published as a fourth adjudication.
+PREDICATES = (
+    "INITIAL_INVARIANT_EVALUATION",
+    "REPLACEMENT_PERSISTENCE_EVALUATION",
+    "RESTORATION_POSITIVE_CONTROL",
+)
+#: predicate -> (workload phase, authorizing state)
+PREDICATE_PHASES = MappingProxyType(
+    {
+        "INITIAL_INVARIANT_EVALUATION": (
+            "INITIAL_MUTANT_CHALLENGE", "ORIGINAL_ORACLE_EVALUATED"),
+        "REPLACEMENT_PERSISTENCE_EVALUATION": (
+            "POST_REPLACEMENT_PERSISTENCE", "CONTRACT_EVALUATED"),
+        "RESTORATION_POSITIVE_CONTROL": (
+            "RESTORATION_POSITIVE_CONTROL", "RESTORE_STARTED"),
+    }
+)
+
 _TERMINAL = frozenset({"FINALIZED", "ABORTED_SAFE", "RESTORATION_BLOCKED"})
 _CLASSIFICATIONS = frozenset(
     {
@@ -111,6 +136,16 @@ class MsM01AttemptError(RuntimeError):
 
 def _reject(code: str, result: Any | None = None) -> NoReturn:
     raise MsM01AttemptError(code, result) from None
+
+
+def _reference_digest(reference: Any) -> str | None:
+    value = getattr(reference, "descriptor_sha256", None)
+    if isinstance(value, str):
+        return value
+    if isinstance(reference, Mapping):
+        value = reference.get("descriptor_sha256")
+        return value if isinstance(value, str) else None
+    return None
 
 
 def _freeze(value: Any) -> Any:
@@ -200,7 +235,9 @@ class HealthyPrestate:
                 for name, count in baseline.items()
             )
             or self.workload_stream_identity
-            != recompute_stream_identity(self.run_id, self.attempt_id)
+            != recompute_stream_identity(
+                self.run_id, self.attempt_id, policy_id=POLICY_ID
+            )
             or not self.evidence_references
         ):
             _reject("HEALTHY_PRESTATE_INVALID")
@@ -348,6 +385,11 @@ class WorkloadWindowResult:
     fresh_request_count: int
     failure_marker_count: int
     evidence_references: tuple[Any, ...] = field(repr=False, compare=False)
+    #: The frozen `workload_window_adjudication_identity` this window produced.
+    #: An adjudication for this phase must carry exactly this identity.
+    window: Mapping[str, Any] = field(
+        default_factory=dict, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
         if (
@@ -355,7 +397,9 @@ class WorkloadWindowResult:
             or _RUN_ID.fullmatch(self.run_id) is None
             or _ATTEMPT_ID.fullmatch(self.attempt_id) is None
             or self.stream_identity
-            != recompute_stream_identity(self.run_id, self.attempt_id)
+            != recompute_stream_identity(
+                self.run_id, self.attempt_id, policy_id=POLICY_ID
+            )
             or type(self.fresh_request_count) is not int
             or self.fresh_request_count < 0
             or type(self.failure_marker_count) is not int
@@ -363,6 +407,7 @@ class WorkloadWindowResult:
             or not self.evidence_references
         ):
             _reject("WORKLOAD_WINDOW_INVALID")
+        object.__setattr__(self, "window", _freeze(dict(self.window)))
 
     @property
     def healthy(self) -> bool:
@@ -370,11 +415,42 @@ class WorkloadWindowResult:
 
 
 @dataclass(frozen=True, slots=True)
+class PredicateAdjudication:
+    """One published adjudication for one frozen predicate.
+
+    Exactly three of these exist per completed attempt.  Each is backed by the
+    payload evidence its own window produced, and each is published after its
+    own `EVALUATION_AUTHORIZED` marker and after every raw reference it cites.
+    """
+
+    predicate_id: str
+    value: bool
+    raw_evidence_references: tuple[Any, ...] = field(repr=False, compare=False)
+    adjudication_reference: Any = field(repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        if (
+            self.predicate_id not in PREDICATES
+            or type(self.value) is not bool
+            or not self.raw_evidence_references
+            or self.adjudication_reference is None
+        ):
+            _reject("PREDICATE_ADJUDICATION_INVALID")
+
+
+@dataclass(frozen=True, slots=True)
 class ContractEvaluation:
+    """The derived MS-I1..MS-I6 contract verdict.
+
+    Derived from the three published predicate adjudications and the raw
+    observations behind them.  It is NOT itself published as an adjudication:
+    the frozen matrix defines three predicates and no aggregate.
+    """
+
     verdict: str
     invariant_outcomes: Mapping[str, str]
     raw_evidence_references: tuple[Any, ...] = field(repr=False, compare=False)
-    adjudication_reference: Any = field(repr=False, compare=False)
+    adjudication_references: tuple[Any, ...] = field(repr=False, compare=False)
 
     def __post_init__(self) -> None:
         outcomes = dict(self.invariant_outcomes)
@@ -383,7 +459,7 @@ class ContractEvaluation:
             or tuple(outcomes) != _INVARIANTS
             or any(value not in {"PASS", "REJECT", "INCOMPLETE"} for value in outcomes.values())
             or not self.raw_evidence_references
-            or self.adjudication_reference is None
+            or not self.adjudication_references
             or (self.verdict == "PASS" and any(value != "PASS" for value in outcomes.values()))
             or (self.verdict == "REJECT" and "REJECT" not in outcomes.values())
         ):
@@ -426,7 +502,20 @@ class TerminalizationResult:
             self.seal_count != 1
             or self.anchor_count != 1
             or self.anchor_authenticated is not True
-            or (self.full_admissibility and self.hook_outcomes != EXPECTED_HOOK_ORDER)
+            # The executed hooks, exactly as the dispatcher ran them.  An
+            # ATTEMPT_VALIDATION_ENVELOPE_V1 candidate runs the five hooks the
+            # frozen applicability matrix declares for it, not all twelve, so
+            # the requirement is a non-empty subset in frozen order -- never a
+            # claim that every hook ran.
+            or (
+                self.full_admissibility
+                and (
+                    not self.hook_outcomes
+                    or any(hook not in EXPECTED_HOOK_ORDER for hook in self.hook_outcomes)
+                    or list(self.hook_outcomes)
+                    != [hook for hook in EXPECTED_HOOK_ORDER if hook in set(self.hook_outcomes)]
+                )
+            )
             or self.global_stop_created
             is not (self.outcome is TerminalOutcome.RESTORATION_BLOCKED)
             or self.post_terminal_publication_rejected is not True
@@ -448,6 +537,15 @@ class AttemptDraft:
     trace: tuple[str, ...]
     operation_counts: Mapping[str, int]
     mutation_may_have_occurred: bool
+    #: The published adjudications this attempt actually authorized, in order,
+    #: and the exact union of the raw evidence they cite.  A terminal outcome
+    #: that authorized nothing carries empty tuples.
+    adjudication_references: tuple[Any, ...] = field(
+        default=(), repr=False, compare=False
+    )
+    raw_evidence_references: tuple[Any, ...] = field(
+        default=(), repr=False, compare=False
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -484,6 +582,10 @@ class AttemptState(Protocol):
     def current_state(self) -> str: ...
 
     def transition(self, transition: str, *, evidence_references: tuple[Any, ...]) -> None: ...
+
+    def authorize_evaluation(self, predicate_id: str) -> None: ...
+
+    def publish_evidence(self, label: str, references: tuple[Any, ...]) -> None: ...
 
 
 @runtime_checkable
@@ -556,7 +658,28 @@ class WorkloadCapability(Protocol):
 
 @runtime_checkable
 class AdjudicationCapability(Protocol):
-    def evaluate(
+    def adjudicate_initial_invariants(
+        self,
+        original_oracle: OriginalOracleOutcome,
+        initial_challenge: ChallengeRun,
+        initial_workload: WorkloadWindowResult,
+    ) -> PredicateAdjudication: ...
+
+    def adjudicate_replacement_persistence(
+        self,
+        captured_pod: CapturedPod,
+        replacement: ReplacementObservation,
+        replacement_challenge: ChallengeRun | None,
+        replacement_workload: WorkloadWindowResult | None,
+    ) -> PredicateAdjudication: ...
+
+    def adjudicate_restoration_positive_control(
+        self,
+        verification: RestorationVerification,
+        positive_workload: WorkloadWindowResult,
+    ) -> PredicateAdjudication: ...
+
+    def derive_contract(
         self,
         original_oracle: OriginalOracleOutcome,
         initial_challenge: ChallengeRun,
@@ -565,11 +688,14 @@ class AdjudicationCapability(Protocol):
         replacement: ReplacementObservation,
         replacement_challenge: ChallengeRun | None,
         replacement_workload: WorkloadWindowResult | None,
+        adjudications: tuple[PredicateAdjudication, ...],
     ) -> ContractEvaluation: ...
 
 
 @runtime_checkable
 class TerminalizationCapability(Protocol):
+    def publish_terminal_identity(self, outcome: TerminalOutcome) -> Any: ...
+
     def finalize(self, draft: AttemptDraft) -> TerminalizationResult: ...
 
 
@@ -625,6 +751,9 @@ class MsM01Attempt:
         "_pending",
         "_trace",
         "_counts",
+        "_adjudications",
+        "_raw",
+        "_authorized",
         "_ran",
         "_state",
         "_mutation_may_have_occurred",
@@ -666,6 +795,9 @@ class MsM01Attempt:
         self._pending = pending_initial_deletion
         self._trace: list[str] = []
         self._counts: dict[str, int] = {}
+        self._adjudications: list[PredicateAdjudication] = []
+        self._raw: list[Any] = []
+        self._authorized: list[str] = []
         self._ran = False
         self._state = ""
         self._mutation_may_have_occurred = False
@@ -678,6 +810,70 @@ class MsM01Attempt:
         if count != 1:
             _reject("DUPLICATE_OPERATION_FORBIDDEN")
         self._counts[operation] = count
+
+    def _authorize(self, predicate_id: str) -> None:
+        """Raise the frozen `EVALUATION_AUTHORIZED` marker for one predicate.
+
+        The marker is raised BEFORE any evidence this predicate will cite is
+        published to the journal, and each predicate is authorized at most once.
+        """
+        if predicate_id not in PREDICATES or predicate_id in self._authorized:
+            _reject("EVALUATION_AUTHORIZATION_INVALID")
+        expected_state = PREDICATE_PHASES[predicate_id][1]
+        if self._state != expected_state:
+            _reject("EVALUATION_AUTHORIZATION_STATE_INVALID")
+        self._capabilities.state.authorize_evaluation(predicate_id)
+        self._authorized.append(predicate_id)
+        self._event(f"EVALUATION_AUTHORIZED:{predicate_id}")
+
+    def _publish_window_evidence(
+        self,
+        predicate_id: str,
+        challenge: Any,
+        workload: WorkloadWindowResult,
+    ) -> None:
+        """Record the publication of everything this predicate will cite.
+
+        The frozen workload hook requires a strict publication order
+        (pod <= prefix < boundary <= raw <= parse < adjudication), which needs
+        two distinct records before the adjudication's own.  Both are state
+        neutral, so neither invents a transition the frozen machine lacks.
+        """
+        references = tuple(workload.evidence_references)
+        if len(references) != 5:
+            _reject("WORKLOAD_WINDOW_INVALID")
+        challenge_references = tuple(
+            getattr(challenge, "evidence_references", ()) or ()
+        )
+        self._capabilities.state.publish_evidence(
+            f"{predicate_id}:capture", references[:2] + challenge_references
+        )
+        self._capabilities.state.publish_evidence(
+            f"{predicate_id}:window", references[2:]
+        )
+
+    def _record_adjudication(
+        self, predicate_id: str, adjudication: Any
+    ) -> PredicateAdjudication:
+        if (
+            not isinstance(adjudication, PredicateAdjudication)
+            or adjudication.predicate_id != predicate_id
+        ):
+            _reject("PREDICATE_ADJUDICATION_INVALID")
+        self._adjudications.append(adjudication)
+        seen = {
+            digest
+            for digest in (_reference_digest(item) for item in self._raw)
+            if digest is not None
+        }
+        for reference in adjudication.raw_evidence_references:
+            digest = _reference_digest(reference)
+            if digest is None or digest in seen:
+                continue
+            seen.add(digest)
+            self._raw.append(reference)
+        self._event(f"ADJUDICATION_PUBLISHED:{predicate_id}")
+        return adjudication
 
     def _transition(self, target: str, *references: Any) -> None:
         observed = self._capabilities.state.current_state()
@@ -741,6 +937,10 @@ class MsM01Attempt:
             trace=tuple(self._trace),
             operation_counts=_freeze(dict(self._counts)),
             mutation_may_have_occurred=self._mutation_may_have_occurred,
+            adjudication_references=tuple(
+                item.adjudication_reference for item in self._adjudications
+            ),
+            raw_evidence_references=tuple(self._raw),
         )
         terminal = self._capabilities.terminalizer.finalize(draft)
         if terminal.outcome is not outcome:
@@ -769,7 +969,10 @@ class MsM01Attempt:
     ) -> AttemptResult:
         if self._state != "RESTORE_STARTED":
             self._transition("RESTORE_STARTED")
-        self._transition("RESTORATION_BLOCKED")
+        terminal_identity = self._capabilities.terminalizer.publish_terminal_identity(
+            TerminalOutcome.RESTORATION_BLOCKED
+        )
+        self._transition("RESTORATION_BLOCKED", terminal_identity)
         return self._terminalize(
             TerminalOutcome.RESTORATION_BLOCKED,
             original_verdict=original_verdict,
@@ -787,9 +990,17 @@ class MsM01Attempt:
         contract_verdict: str,
         classification: str,
         invariants: Mapping[str, str] | None,
+        replacement_adjudication: PredicateAdjudication | None = None,
     ) -> AttemptResult:
         if self._state != "RESTORE_STARTED":
-            self._transition("RESTORE_STARTED")
+            # The replacement adjudication, when one exists, is published on the
+            # record that enters RESTORE_STARTED.
+            references = (
+                (replacement_adjudication.adjudication_reference,)
+                if replacement_adjudication is not None
+                else ()
+            )
+            self._transition("RESTORE_STARTED", *references)
         try:
             if challenge_target is not None:
                 self._count("CHALLENGE_POD_DELETION")
@@ -812,6 +1023,13 @@ class MsM01Attempt:
                     invariants=invariants,
                 )
             self._event("RESTORATION_INVARIANTS_VERIFIED")
+            # ---- RESTORATION_POSITIVE_CONTROL ----------------------------
+            # Authorized at RESTORE_STARTED, before the positive-control
+            # window it will cite is captured.
+            authorized_positive = False
+            if "RESTORATION_POSITIVE_CONTROL" not in self._authorized:
+                self._authorize("RESTORATION_POSITIVE_CONTROL")
+                authorized_positive = True
             positive = self._capabilities.workload.evaluate(
                 "RESTORATION_POSITIVE_CONTROL", 3, None, prestate
             )
@@ -823,14 +1041,30 @@ class MsM01Attempt:
                     contract_verdict=contract_verdict,
                     invariants=invariants,
                 )
+            positive_adjudication = None
+            if authorized_positive:
+                self._publish_window_evidence(
+                    "RESTORATION_POSITIVE_CONTROL", None, positive
+                )
+                positive_adjudication = self._record_adjudication(
+                    "RESTORATION_POSITIVE_CONTROL",
+                    self._capabilities.adjudication
+                    .adjudicate_restoration_positive_control(verification, positive),
+                )
         except (KubernetesMutationError, MsM01AttemptError):
             return self._block_restoration(
                 original_verdict=original_verdict,
                 contract_verdict=contract_verdict,
                 invariants=invariants,
             )
-        self._transition("RESTORE_VERIFIED", *verification.evidence_references)
-        self._transition("FINALIZED")
+        verified_references = list(verification.evidence_references)
+        if positive_adjudication is not None:
+            verified_references.append(positive_adjudication.adjudication_reference)
+        self._transition("RESTORE_VERIFIED", *verified_references)
+        terminal_identity = self._capabilities.terminalizer.publish_terminal_identity(
+            TerminalOutcome.FINALIZED
+        )
+        self._transition("FINALIZED", terminal_identity)
         return self._terminalize(
             TerminalOutcome.FINALIZED,
             original_verdict=original_verdict,
@@ -919,7 +1153,10 @@ class MsM01Attempt:
         self._event(f"INITIAL_EFFECT:{effect.value}")
         if effect is ObservedEffect.OBSERVED_NOT_APPLIED_AFTER_RECOVERY:
             self._mutation_may_have_occurred = False
-            self._transition("ABORTED_SAFE")
+            terminal_identity = self._capabilities.terminalizer.publish_terminal_identity(
+                TerminalOutcome.ABORTED_SAFE
+            )
+            self._transition("ABORTED_SAFE", terminal_identity)
             return self._terminalize(
                 TerminalOutcome.ABORTED_SAFE,
                 original_verdict="NOT_EVALUATED",
@@ -966,6 +1203,11 @@ class MsM01Attempt:
                 classification="HARNESS_TIMING_FAILURE",
                 invariants=None,
             )
+
+        # ---- INITIAL_INVARIANT_EVALUATION -------------------------------
+        # Authorized first, at ORIGINAL_ORACLE_EVALUATED, so the marker
+        # precedes every raw reference the predicate will cite.
+        self._authorize("INITIAL_INVARIANT_EVALUATION")
 
         challenge_target = None
         try:
@@ -1021,6 +1263,21 @@ class MsM01Attempt:
                 invariants=None,
             )
         self._event("INITIAL_MUTANT_CHALLENGE_WORKLOAD")
+        self._publish_window_evidence(
+            "INITIAL_INVARIANT_EVALUATION", initial_challenge, initial_workload
+        )
+        initial_adjudication = self._record_adjudication(
+            "INITIAL_INVARIANT_EVALUATION",
+            self._capabilities.adjudication.adjudicate_initial_invariants(
+                original, initial_challenge, initial_workload
+            ),
+        )
+        self._transition(
+            "CONTRACT_EVALUATED", initial_adjudication.adjudication_reference
+        )
+
+        # ---- REPLACEMENT_PERSISTENCE_EVALUATION --------------------------
+        self._authorize("REPLACEMENT_PERSISTENCE_EVALUATION")
 
         captured = self._capabilities.observations.select_replacement_pod(prestate)
         if not isinstance(captured, CapturedPod):
@@ -1086,8 +1343,30 @@ class MsM01Attempt:
                     invariants=None,
                 )
             self._event("POST_REPLACEMENT_PERSISTENCE_WORKLOAD")
+            self._publish_window_evidence(
+                "REPLACEMENT_PERSISTENCE_EVALUATION",
+                replacement_challenge,
+                replacement_workload,
+            )
+        if replacement_workload is None:
+            # The persistence window never happened, so the predicate has no
+            # payload-backed evidence to adjudicate.  Restoration still runs.
+            return self._restore(
+                prestate,
+                challenge_target,
+                original_verdict=original.verdict,
+                contract_verdict="INCOMPLETE",
+                classification="INFRASTRUCTURE_FAILURE",
+                invariants=None,
+            )
+        replacement_adjudication = self._record_adjudication(
+            "REPLACEMENT_PERSISTENCE_EVALUATION",
+            self._capabilities.adjudication.adjudicate_replacement_persistence(
+                captured, replacement, replacement_challenge, replacement_workload
+            ),
+        )
 
-        contract = self._capabilities.adjudication.evaluate(
+        contract = self._capabilities.adjudication.derive_contract(
             original,
             initial_challenge,
             initial_workload,
@@ -1095,6 +1374,7 @@ class MsM01Attempt:
             replacement,
             replacement_challenge,
             replacement_workload,
+            tuple(self._adjudications),
         )
         if not isinstance(contract, ContractEvaluation):
             _reject("CONTRACT_ADJUDICATION_INVALID")
@@ -1109,7 +1389,6 @@ class MsM01Attempt:
         ):
             _reject("CONTRACT_ADJUDICATION_RAW_BACKING_INVALID")
         self._event("CONTRACT_ADJUDICATION_RAW_BACKED")
-        self._transition("CONTRACT_EVALUATED", contract.adjudication_reference)
         if contract.verdict == "REJECT":
             classification = "CONTRACT_REJECT"
         elif original.returned_boolean is False:
@@ -1123,6 +1402,7 @@ class MsM01Attempt:
             contract_verdict=contract.verdict,
             classification=classification,
             invariants=contract.invariant_outcomes,
+            replacement_adjudication=replacement_adjudication,
         )
 
 
@@ -1144,7 +1424,10 @@ __all__ = [
     "ObservationCapability",
     "OriginalOracleCapability",
     "OriginalOracleOutcome",
+    "PREDICATES",
+    "PREDICATE_PHASES",
     "PendingMutation",
+    "PredicateAdjudication",
     "PrestateAuthority",
     "ReplacementObservation",
     "RestorationVerification",

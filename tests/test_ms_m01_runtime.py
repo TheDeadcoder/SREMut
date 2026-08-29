@@ -38,8 +38,14 @@ from sremut.ms_m01_runtime import (
     OracleExecution,
     WorkloadSnapshot,
     compose_ms_m01_attempt,
+    publish_run_identity_start,
+    reconstruct_pending_initial_deletion,
 )
-from sremut.policy_runtime import POLICY_MANIFEST_SHA256, load_policy_bundle
+from sremut.policy_runtime import (
+    POLICY_V1_2_ID,
+    POLICY_V1_2_MANIFEST_SHA256,
+    load_v1_2_policy_bundle,
+)
 from sremut.workload_evidence import WorkloadHistoryEntry
 
 import tests.test_kubernetes_mutation as mutation_tests
@@ -58,12 +64,23 @@ BOOT = "123e4567-e89b-12d3-a456-426614174000"
 REGISTRY = "sremut/missing-service-social-network/pilot-mutants-v1"
 
 
+ALIAS_KEYS = (
+    "SREMUT_REPOSITORY", "SREGYM_REPOSITORY", "SREGYM_APPLICATIONS_REPOSITORY",
+    "EXECUTION_PROFILE", "CONTRACT", "EXECUTION_PROFILE_SCHEMA",
+    "EVIDENCE_POLICY_SCHEMA", "PYPROJECT", "UV_LOCK", "ORIGINAL_ORACLE_EXECUTABLE",
+    "ATTEMPT_ROOT", "WORKLOAD_HISTORY", "BOOT_ID_SOURCE", "KUBECONFIG_HASH_SOURCE",
+    "KUBECTL_CACHE_SNAPSHOT",
+)
+IDENTITY_HEX = "b" * 64
+
+
 def load_policy():
-    return load_policy_bundle(
-        ROOT / "policies/missing_service_social_network/evidence-capture-v1.1.yaml",
-        ROOT / "schemas/evidence-capture-policy-v1.1.schema.json",
-        ROOT / "EVIDENCE_CAPTURE_POLICY_V1_1_SHA256SUMS",
-        expected_manifest_sha256=POLICY_MANIFEST_SHA256,
+    """The committed, authenticated evidence-policy v1.2 bundle."""
+    return load_v1_2_policy_bundle(
+        ROOT / "policies/missing_service_social_network/evidence-capture-v1.2.yaml",
+        ROOT / "schemas/evidence-capture-policy-v1.2.schema.json",
+        ROOT / "EVIDENCE_CAPTURE_POLICY_V1_2_SHA256SUMS",
+        expected_manifest_sha256=POLICY_V1_2_MANIFEST_SHA256,
     )
 
 
@@ -379,6 +396,21 @@ class RuntimeCase(unittest.TestCase):
             execution_profile_sha256=bindings["execution_profile"]["sha256"],
             contract_sha256=bindings["contract"]["sha256"],
         )
+        # The START run identity is published through the production helper and
+        # cited on the attempt's first journal publication, exactly as the real
+        # preflight will.
+        self.run_identity_start = publish_run_identity_start(
+            policy=self.policy,
+            identity=self.identity,
+            attempt_root=self.attempt,
+            runner_bundle=self.runner,
+            boot_identity=BOOT,
+            created_utc=self._utc(),
+            monotonic_ns=self._monotonic(),
+            source_alias_sha256={key: IDENTITY_HEX for key in ALIAS_KEYS},
+            kubeconfig_content_sha256=IDENTITY_HEX,
+            kubectl_default_cache_before_sha256=IDENTITY_HEX,
+        )
         self._seed_journal()
         self.references = self._seed_references()
 
@@ -393,16 +425,21 @@ class RuntimeCase(unittest.TestCase):
         return "2026-08-20T10:00:00.123456789Z"
 
     def _seed_journal(self) -> None:
+        start = self.run_identity_start
         with Journal(self.attempt, self.policy, RUN_ID, ATTEMPT_ID) as journal:
-            for transition in (
-                "CREATED->PREFLIGHT_PASS",
-                "PREFLIGHT_PASS->HEALTHY_STATE_CAPTURED",
+            for index, transition in enumerate(
+                (
+                    "CREATED->PREFLIGHT_PASS",
+                    "PREFLIGHT_PASS->HEALTHY_STATE_CAPTURED",
+                )
             ):
                 journal.append_state_transition(
                     transition,
                     utc_time=self._utc(),
                     monotonic_ns=self._monotonic(),
                     boot_identity=BOOT,
+                    # START is cited on the initial publication record.
+                    descriptor_sha256=(start.descriptor_sha256,) if index == 0 else (),
                 )
 
     def _seed_references(self) -> dict:
@@ -508,6 +545,7 @@ class RuntimeCase(unittest.TestCase):
             utc_clock=self._utc,
             monotonic_clock=self._monotonic,
             timeout_seconds=7,
+            run_identity_start=self.run_identity_start,
         )
         kwargs.update(overrides)
         return compose_ms_m01_attempt(**kwargs)

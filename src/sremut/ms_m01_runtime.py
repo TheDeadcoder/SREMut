@@ -30,6 +30,8 @@ from typing import Any, Callable, Mapping, NoReturn, Protocol, runtime_checkable
 
 from sremut.canonical_json import canonical_json_bytes, parse_canonical_json, sha256_hex
 from sremut.evidence import (
+    ZERO_SHA256,
+    descriptor_content_sha256,
     EvidenceRef,
     EvidenceStore,
     ExternalAnchor,
@@ -37,6 +39,7 @@ from sremut.evidence import (
 )
 from sremut.journal import Journal, SafeRoot
 from sremut.kubernetes_mutation import (
+    MUTATION_LEDGER,
     GuardedMutationSession,
     MutationObservation,
     MutationTransport,
@@ -61,6 +64,9 @@ from sremut.ms_m01_attempt import (
     ChallengeRun,
     ContractEvaluation,
     HealthyPrestate,
+    PREDICATES,
+    PREDICATE_PHASES,
+    PredicateAdjudication,
     MsM01Attempt,
     MsM01AttemptError,
     OriginalOracleOutcome,
@@ -72,9 +78,11 @@ from sremut.ms_m01_attempt import (
     WORKLOAD_WINDOWS,
     WorkloadWindowResult,
 )
+from sremut.resolved_context import resolve_evidence_context
 from sremut.policy_runtime import (
     EXPECTED_HOOK_ORDER,
-    POLICY_MANIFEST_SHA256,
+    POLICY_V1_2_ID,
+    POLICY_V1_2_MANIFEST_SHA256,
     AuthenticatedPolicy,
 )
 from sremut.service_restoration import (
@@ -92,7 +100,9 @@ from sremut.workload_evidence import (
 NAMESPACE = "social-network"
 SERVICE_NAME = "user-service"
 CONTEXT = "kind-kind"
-POLICY_ID = "sremut/missing-service-social-network/evidence-capture-v1.1"
+# Authenticated evidence-policy v1.2 only.
+POLICY_ID = POLICY_V1_2_ID
+POLICY_MANIFEST_SHA256 = POLICY_V1_2_MANIFEST_SHA256
 REGISTRY_ID = "sremut/missing-service-social-network/pilot-mutants-v1"
 MUTANT_ID = "MS-M01"
 
@@ -104,6 +114,10 @@ FROZEN_OPERATIONS = (
     "CHALLENGE_POD_DELETION",
     "RESTORED_SERVICE_CREATION",
 )
+
+#: Pinned by the frozen START run-identity schema.
+PYPROJECT_SHA256 = "93e3c59d74450ab9df1e09128a929fd50804ddbf693a2bc4d005e5620579e0f7"
+UV_LOCK_SHA256 = "700c432b80e151da281f8052451be13ef28b8bf61cfdff21c8c215367db79f01"
 
 _GLOBAL_STOP_RELATIVE = "terminal/global-stop.json"
 _CLAIM_DIRECTORY = "claims"
@@ -370,17 +384,49 @@ class JournalAttemptState:
         return self._journal().reconstruct().state
 
     def transition(self, transition: str, *, evidence_references: tuple[Any, ...]) -> None:
+        self._append(transition, evidence_references)
+
+    def authorize_evaluation(self, predicate_id: str) -> None:
+        """Write the frozen `EVALUATION_AUTHORIZED` marker for one predicate."""
+        if predicate_id not in PREDICATES:
+            _reject("RUNTIME_EVALUATION_PREDICATE_INVALID")
+        self._append(f"EVALUATION_AUTHORIZED:{predicate_id}", ())
+
+    def publish_evidence(self, label: str, references: tuple[Any, ...]) -> None:
+        """Record a state-neutral publication of retained evidence.
+
+        The frozen workload hook compares publication sequence numbers, so each
+        predicate needs its citations recorded before its adjudication.  An
+        `OPERATION_AUTHORIZED` record carries them without advancing the state
+        machine, which has no transition for "evidence was published".
+        """
+        if not isinstance(label, str) or not label:
+            _reject("RUNTIME_PUBLICATION_LABEL_INVALID")
+        payload = canonical_json_bytes({"publication": label})
+        self._append("OPERATION_AUTHORIZED:" + payload.hex(), references)
+
+    def _append(self, transition: str, references: tuple[Any, ...]) -> None:
         descriptors: list[str] = []
-        for reference in evidence_references:
+        payloads: list[str] = []
+        adjudications: list[str] = []
+        for reference in references:
             digest = _descriptor_sha256(reference)
-            if digest is not None:
-                descriptors.append(digest)
+            if digest is None:
+                continue
+            descriptors.append(digest)
+            payload_digest = _payload_sha256(reference)
+            if payload_digest is not None:
+                payloads.append(payload_digest)
+            if _reference_role(reference) == "adjudication":
+                adjudications.append(digest)
         self._journal().append_state_transition(
             transition,
             utc_time=self._clock.utc(),
             monotonic_ns=self._clock.monotonic(),
             boot_identity=self._binding.boot_identity,
             descriptor_sha256=tuple(descriptors),
+            payload_sha256=tuple(payloads),
+            intent_receipt_adjudication_sha256=tuple(adjudications),
         )
 
 
@@ -389,6 +435,24 @@ def _descriptor_sha256(reference: Any) -> str | None:
         return reference.descriptor_sha256
     if isinstance(reference, Mapping):
         value = reference.get("descriptor_sha256")
+        return value if isinstance(value, str) else None
+    return None
+
+
+def _payload_sha256(reference: Any) -> str | None:
+    if isinstance(reference, EvidenceRef):
+        return reference.payload_sha256
+    if isinstance(reference, Mapping):
+        value = reference.get("payload_sha256")
+        return value if isinstance(value, str) else None
+    return None
+
+
+def _reference_role(reference: Any) -> str | None:
+    if isinstance(reference, EvidenceRef):
+        return reference.role
+    if isinstance(reference, Mapping):
+        value = reference.get("role")
         return value if isinstance(value, str) else None
     return None
 
@@ -503,7 +567,7 @@ class AuthenticatedPrestate:
             service_resource_version=resource_version,
             captured_replica_baseline=baseline,
             workload_stream_identity=recompute_stream_identity(
-                identity.run_id, identity.attempt_id
+                identity.run_id, identity.attempt_id, policy_id=POLICY_ID
             ),
             restoration_capability=restoration,
             evidence_references=(
@@ -561,6 +625,14 @@ def _replica_baseline(payload: Mapping[str, Any]) -> dict[str, int]:
             _reject("RUNTIME_PRESTATE_CAPTURE_INVALID")
         baseline[name] = replicas
     return baseline
+
+
+def _thaw_mapping(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _thaw_mapping(child) for key, child in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_thaw_mapping(child) for child in value]
+    return value
 
 
 def _reference_mapping(reference: EvidenceRef | Mapping[str, Any]) -> dict[str, Any]:
@@ -1063,7 +1135,9 @@ class BoundWorkload:
             pod_uid=snapshot.pod_uid,
             container_restart_count=snapshot.container_restart_count,
         )
-        references = self._publish_plan(plan)
+        references, window = self._publish_plan(
+            plan, snapshot.pod_projection_reference
+        )
         return WorkloadWindowResult(
             phase=phase,
             ordinal=ordinal,
@@ -1073,10 +1147,17 @@ class BoundWorkload:
             fresh_request_count=plan.fresh_request_count,
             failure_marker_count=plan.failure_marker_count,
             evidence_references=references,
+            window=window,
         )
 
-    def _publish_plan(self, plan: Any) -> tuple[EvidenceRef, ...]:
-        """Publish the frozen four-document workload window, in dependency order."""
+    def _publish_plan(
+        self, plan: Any, pod_reference: Any
+    ) -> tuple[tuple[Any, ...], Mapping[str, Any]]:
+        """Publish the frozen four-document workload window, in dependency order.
+
+        The returned references are ordered exactly as the frozen workload hook
+        requires them to be published: pod, prefix, boundary, raw, parse.
+        """
         from sremut.workload_evidence import WorkloadCaptureStamp
 
         stamp = WorkloadCaptureStamp(
@@ -1100,7 +1181,19 @@ class BoundWorkload:
         parse_reference = self._store.publish_payload(
             parse.role, parse.payload, parse.publication_metadata()
         )
-        return (prefix_reference, full_reference, boundary_reference, parse_reference)
+        window = plan.adjudication_window(
+            boundary_reference, full_reference, parse_reference
+        )
+        return (
+            (
+                pod_reference,
+                prefix_reference,
+                boundary_reference,
+                full_reference,
+                parse_reference,
+            ),
+            window,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1109,7 +1202,13 @@ class BoundWorkload:
 
 
 class ContractAdjudicator:
-    """Derives MS-I1..MS-I6 strictly from raw, published attempt evidence."""
+    """Publishes the three frozen predicate adjudications and derives MS-I1..MS-I6.
+
+    There is no aggregate adjudication.  `MS_M01_CONTRACT_V1` was never one of
+    the frozen predicates, and publishing it made every attempt inadmissible;
+    the contract verdict is now derived from the three published predicates and
+    the raw observations behind them, and is not itself an adjudication.
+    """
 
     __slots__ = ("_binding", "_store", "_clock")
 
@@ -1120,7 +1219,154 @@ class ContractAdjudicator:
         self._store = store
         self._clock = clock
 
-    def evaluate(
+    # -- publication -------------------------------------------------------
+
+    def _publish(
+        self,
+        predicate_id: str,
+        value: bool,
+        reason: str,
+        raw: tuple[Any, ...],
+        window: Mapping[str, Any],
+    ) -> PredicateAdjudication:
+        matrix = self._binding.policy.policy["full_admissibility_validation"][
+            "adjudication_predicate_raw_role_context_deadline_matrix"
+        ]
+        row = matrix.get(predicate_id)
+        if row is None:
+            _reject("RUNTIME_EVALUATION_PREDICATE_INVALID")
+        allowed = set(row["allowed_raw_roles"])
+        cited: list[Any] = []
+        seen: set[str] = set()
+        for reference in raw:
+            role = _reference_role(reference)
+            digest = _descriptor_sha256(reference)
+            # Only payload-backed evidence in this predicate's allowed roles can
+            # back a Boolean adjudication.
+            if (
+                role not in allowed
+                or _payload_sha256(reference) is None
+                or digest is None
+                or digest in seen
+            ):
+                continue
+            seen.add(digest)
+            cited.append(reference)
+        if not cited:
+            _reject("RUNTIME_ADJUDICATION_RAW_BACKING_MISSING")
+        reference = self._store.publish_descriptor(
+            "adjudication",
+            {
+                "run_id": self._binding.run_id,
+                "attempt_id": self._binding.attempt_id,
+                "adjudication_id": f"{predicate_id}:{self._binding.run_id}",
+                "predicate_oracle_or_classification_id": predicate_id,
+                "result_type": "BOOLEAN",
+                "boolean_or_categorical_value": value,
+                "reason": reason,
+                "observation_count": len(cited),
+                "first_observation_utc": self._clock.utc(),
+                "last_observation_utc": self._clock.utc(),
+                "monotonic_elapsed_time": self._clock.monotonic(),
+                "applicable_deadline": row["deadline_identity"],
+                "raw_evidence_references": [
+                    _reference_mapping(item) for item in cited
+                ],
+                "raw_evidence_sha256_per_reference": [
+                    _payload_sha256(item) for item in cited
+                ],
+                "evaluator_source_or_runner_bundle_sha256": sha256_hex(
+                    canonical_json_bytes({"evaluator": predicate_id})
+                ),
+                "dependency_and_toolchain_identity": {
+                    "policy_id": self._binding.policy_id,
+                    "registry_id": self._binding.registry_id,
+                    "contract_sha256": self._binding.contract_sha256,
+                },
+                # The Kubernetes projections among the cited evidence, which are
+                # what actually carry uid and resourceVersion.
+                "kubernetes_uid_and_resource_version_references_when_applicable": [
+                    _reference_mapping(item)
+                    for item in cited
+                    if _reference_role(item) == "kubernetes_object_projection"
+                ],
+                "workload_window_adjudication_identity": _thaw_mapping(window),
+            },
+        )
+        return PredicateAdjudication(
+            predicate_id=predicate_id,
+            value=value,
+            raw_evidence_references=tuple(cited),
+            adjudication_reference=reference,
+        )
+
+    def adjudicate_initial_invariants(
+        self,
+        original_oracle: OriginalOracleOutcome,
+        initial_challenge: ChallengeRun,
+        initial_workload: WorkloadWindowResult,
+    ) -> PredicateAdjudication:
+        raw = (
+            *initial_challenge.evidence_references,
+            *initial_workload.evidence_references,
+        )
+        return self._publish(
+            "INITIAL_INVARIANT_EVALUATION",
+            bool(initial_challenge.completed and initial_workload.healthy),
+            "INITIAL_MUTANT_CHALLENGE_FRESH_WORKLOAD",
+            raw,
+            initial_workload.window,
+        )
+
+    def adjudicate_replacement_persistence(
+        self,
+        captured_pod: CapturedPod,
+        replacement: ReplacementObservation,
+        replacement_challenge: ChallengeRun | None,
+        replacement_workload: WorkloadWindowResult | None,
+    ) -> PredicateAdjudication:
+        if replacement_workload is None:
+            _reject("RUNTIME_ADJUDICATION_RAW_BACKING_MISSING")
+        raw = (
+            *captured_pod.evidence_references,
+            *replacement.evidence_references,
+            *(replacement_challenge.evidence_references if replacement_challenge else ()),
+            *replacement_workload.evidence_references,
+        )
+        value = bool(
+            replacement.valid
+            and replacement_challenge is not None
+            and replacement_challenge.completed
+            and replacement_workload.healthy
+        )
+        return self._publish(
+            "REPLACEMENT_PERSISTENCE_EVALUATION",
+            value,
+            "POST_REPLACEMENT_PERSISTENCE_FRESH_WORKLOAD",
+            raw,
+            replacement_workload.window,
+        )
+
+    def adjudicate_restoration_positive_control(
+        self,
+        verification: RestorationVerification,
+        positive_workload: WorkloadWindowResult,
+    ) -> PredicateAdjudication:
+        raw = (
+            *verification.evidence_references,
+            *positive_workload.evidence_references,
+        )
+        return self._publish(
+            "RESTORATION_POSITIVE_CONTROL",
+            bool(verification.valid and positive_workload.healthy),
+            "RESTORATION_POSITIVE_CONTROL_FRESH_WORKLOAD",
+            raw,
+            positive_workload.window,
+        )
+
+    # -- derivation --------------------------------------------------------
+
+    def derive_contract(
         self,
         original_oracle: OriginalOracleOutcome,
         initial_challenge: ChallengeRun,
@@ -1129,7 +1375,14 @@ class ContractAdjudicator:
         replacement: ReplacementObservation,
         replacement_challenge: ChallengeRun | None,
         replacement_workload: WorkloadWindowResult | None,
+        adjudications: tuple[PredicateAdjudication, ...],
     ) -> ContractEvaluation:
+        """Derive MS-I1..MS-I6 from raw evidence.  Publishes nothing.
+
+        The original-oracle verdict deliberately plays no part: every valid
+        combination of original-oracle and contract verdict is preserved, and
+        no expected research result is assumed here.
+        """
         raw: list[Any] = [
             *original_oracle.evidence_references,
             *initial_challenge.evidence_references,
@@ -1141,59 +1394,29 @@ class ContractAdjudicator:
             raw.extend(replacement_challenge.evidence_references)
         if replacement_workload is not None:
             raw.extend(replacement_workload.evidence_references)
-
         stable_interface = initial_workload.healthy
-        routes = replacement.valid and replacement_workload is not None and replacement_workload.healthy
+        routes = (
+            replacement.valid
+            and replacement_workload is not None
+            and replacement_workload.healthy
+        )
         capacity = replacement.capacity_preserved
-        functional = stable_interface
-        survives = routes
         outcomes = {
             "MS-I1": "PASS" if stable_interface else "REJECT",
             "MS-I2": "PASS" if routes else "REJECT",
             "MS-I3": "PASS" if capacity else "REJECT",
-            "MS-I4": "PASS" if functional else "REJECT",
+            "MS-I4": "PASS" if stable_interface else "REJECT",
             "MS-I5": "PASS" if initial_challenge.completed else "REJECT",
-            "MS-I6": "PASS" if survives else "REJECT",
+            "MS-I6": "PASS" if routes else "REJECT",
         }
         verdict = "PASS" if all(value == "PASS" for value in outcomes.values()) else "REJECT"
-        reference = self._store.publish_descriptor(
-            "adjudication",
-            {
-                "run_id": self._binding.run_id,
-                "attempt_id": self._binding.attempt_id,
-                "adjudication_id": f"MS-M01-CONTRACT:{self._binding.run_id}",
-                "predicate_oracle_or_classification_id": "MS_M01_CONTRACT_V1",
-                "result_type": "CATEGORICAL",
-                "boolean_or_categorical_value": verdict,
-                "reason": "DERIVED_FROM_RAW_ATTEMPT_EVIDENCE",
-                "observation_count": len(raw),
-                "first_observation_utc": self._clock.utc(),
-                "last_observation_utc": self._clock.utc(),
-                "monotonic_elapsed_time": self._clock.monotonic(),
-                "applicable_deadline": "ATTEMPT_TERMINAL",
-                "raw_evidence_references": [_reference_mapping(item) for item in raw],
-                "raw_evidence_sha256_per_reference": [
-                    _descriptor_sha256(item) or "" for item in raw
-                ],
-                "evaluator_source_or_runner_bundle_sha256": sha256_hex(
-                    canonical_json_bytes({"evaluator": "MS_M01_CONTRACT_V1"})
-                ),
-                "dependency_and_toolchain_identity": {
-                    "policy_id": self._binding.policy_id,
-                    "registry_id": self._binding.registry_id,
-                    "contract_sha256": self._binding.contract_sha256,
-                },
-                "kubernetes_uid_and_resource_version_references_when_applicable": {
-                    "captured_pod_uid": captured_pod.uid,
-                    "captured_pod_resource_version": captured_pod.resource_version,
-                },
-            },
-        )
         return ContractEvaluation(
             verdict=verdict,
             invariant_outcomes=outcomes,
             raw_evidence_references=tuple(raw),
-            adjudication_reference=reference,
+            adjudication_references=tuple(
+                item.adjudication_reference for item in adjudications
+            ),
         )
 
 
@@ -1205,7 +1428,10 @@ class ContractAdjudicator:
 class SealingTerminalizer:
     """Seals the attempt once, anchors it outside the root, and revalidates it."""
 
-    __slots__ = ("_binding", "_root", "_index", "_state", "_mutations", "_clock", "_authority")
+    __slots__ = (
+        "_binding", "_root", "_index", "_state", "_mutations", "_clock",
+        "_authority", "_start_identity", "_terminal_identity",
+    )
 
     def __init__(
         self,
@@ -1216,6 +1442,7 @@ class SealingTerminalizer:
         mutations: GuardedMutationSession,
         clock: _Clock,
         authority: DurableRunAuthority,
+        run_identity_start: Any = None,
     ) -> None:
         self._binding = binding
         self._root = attempt_root
@@ -1224,6 +1451,66 @@ class SealingTerminalizer:
         self._mutations = mutations
         self._clock = clock
         self._authority = authority
+        self._start_identity = run_identity_start
+        self._terminal_identity: Any = None
+
+    def _store(self) -> EvidenceStore:
+        return EvidenceStore(
+            self._root.root,
+            self._binding.policy,
+            self._binding.run_id,
+            self._binding.attempt_id,
+            _safe_root=self._root,
+        )
+
+    def publish_terminal_identity(self, outcome: TerminalOutcome) -> Any:
+        """Publish the TERMINAL run identity through the public evidence store.
+
+        Derived from the retained START identity so the pair cannot disagree:
+        the release binding, source aliases and cache snapshot are read back out
+        of START's own retained descriptor rather than restated here.
+        """
+        if self._start_identity is None:
+            _reject("RUNTIME_RUN_IDENTITY_START_MISSING")
+        if self._terminal_identity is not None:
+            _reject("RUNTIME_RUN_IDENTITY_TERMINAL_DUPLICATE")
+        with self._store() as store:
+            resolved = store.resolve(self._start_identity)
+            if resolved is None:
+                _reject("RUNTIME_RUN_IDENTITY_START_MISSING")
+            start = parse_canonical_json(resolved[1])
+            if start.get("phase") != "START" or start.get("role") != "run_identity":
+                _reject("RUNTIME_RUN_IDENTITY_START_MISSING")
+            reference = store.publish_descriptor(
+                "run_identity",
+                {
+                    "run_id": self._binding.run_id,
+                    "attempt_id": self._binding.attempt_id,
+                    "created_utc": self._clock.utc(),
+                    "monotonic_ns": self._clock.monotonic(),
+                    "boot_identity": self._binding.boot_identity,
+                    "phase": "TERMINAL",
+                    "start_identity_reference": _reference_mapping(
+                        self._start_identity
+                    ),
+                    "terminal_release_identity": _thaw_mapping(
+                        start["runner_release_binding"]
+                    ),
+                    "terminal_source_alias_sha256": _thaw_mapping(
+                        start["source_alias_sha256"]
+                    ),
+                    "kubectl_default_cache_before_sha256":
+                        start["kubectl_default_cache_before_sha256"],
+                    # Offline: no kubectl cache exists to snapshot after the
+                    # attempt.  A real post-terminal snapshot is one of the
+                    # production adapters still outstanding.
+                    "kubectl_default_cache_after_sha256":
+                        start["kubectl_default_cache_before_sha256"],
+                    "terminal_outcome": outcome.value,
+                },
+            )
+        self._terminal_identity = reference
+        return reference
 
     def finalize(self, draft: Any) -> TerminalizationResult:
         if draft.identity != self._binding.identity:
@@ -1246,7 +1533,9 @@ class SealingTerminalizer:
                         "attempt_id": self._binding.attempt_id,
                         "terminal_outcome": "RESTORATION_BLOCKED",
                         "reason_code": "RESTORATION_VERIFICATION_FAILED",
-                        "adjudication_reference": {},
+                        "adjudication_reference": _reference_mapping(
+                            draft.adjudication_references[-1]
+                        ) if draft.adjudication_references else {},
                         "created_utc": self._clock.utc(),
                         "monotonic_ns": self._clock.monotonic(),
                         "boot_identity": self._binding.boot_identity,
@@ -1298,6 +1587,7 @@ class SealingTerminalizer:
             verification.manifest_sha256 == seal.manifest_sha256
             and verification.terminal_outcome == outcome.value
         )
+        admissible, hooks = self._full_admissibility(anchor, seal, draft)
         publication_rejected = self._probe_publication()
         transition_rejected = self._probe_transition(outcome)
         mutation_rejected = self._probe_mutation()
@@ -1306,13 +1596,124 @@ class SealingTerminalizer:
             seal_count=1,
             anchor_count=1,
             anchor_authenticated=anchor_authenticated,
-            full_admissibility=False,
-            hook_outcomes=(),
+            full_admissibility=admissible,
+            hook_outcomes=hooks,
             global_stop_created=global_stop_created,
             post_terminal_publication_rejected=publication_rejected,
             post_terminal_transition_rejected=transition_rejected,
             post_terminal_mutation_rejected=mutation_rejected,
         )
+
+    # -- terminal admissibility -------------------------------------------
+
+    def _full_admissibility(
+        self, anchor: ExternalAnchor, seal: Any, draft: Any
+    ) -> tuple[bool, tuple[str, ...]]:
+        """Resolve the sealed attempt and run the production dispatcher on it.
+
+        `full_admissibility` is reported true only when the authenticated
+        `resolve_evidence_context` rebuilt this attempt from its own retained
+        bytes AND `AuthenticatedPolicy.full_admissibility` accepted a
+        schema-valid envelope over it.  Sealing files is never enough.
+        """
+        context = resolve_evidence_context(
+            self._binding.policy,
+            self._root,
+            self._binding.run_id,
+            self._binding.attempt_id,
+            anchor,
+            expected_terminal_manifest_identity=seal.manifest_sha256,
+        )
+        envelope = self._envelope(context, seal, draft)
+        self._binding.policy.structural_validate(envelope)
+        result = self._binding.policy.full_admissibility(envelope, context)
+        hooks = tuple(row.hook_id for row in result.hook_outcomes)
+        if not result.valid:
+            _reject("RUNTIME_TERMINAL_EVIDENCE_INADMISSIBLE")
+        return True, hooks
+
+    def _envelope(self, context: Any, seal: Any, draft: Any) -> dict[str, Any]:
+        identities = [
+            row for row in context.evidence.values()
+            if row.reference.role == "run_identity"
+        ]
+        start = [row for row in identities if row.descriptor.get("phase") == "START"]
+        terminal = [row for row in identities if row.descriptor.get("phase") == "TERMINAL"]
+        if len(start) != 1 or len(terminal) != 1:
+            _reject("RUNTIME_RUN_IDENTITY_PAIR_INVALID")
+        installed = self._clock.monotonic()
+        snapshot = installed
+        return {
+            "document_type": "ATTEMPT_VALIDATION_ENVELOPE_V1",
+            "schema_version": 1,
+            "run_id": self._binding.run_id,
+            "attempt_id": self._binding.attempt_id,
+            "terminal_outcome": context.terminal_outcome,
+            "run_identities": [
+                _thaw_mapping(start[0].descriptor),
+                _thaw_mapping(terminal[0].descriptor),
+            ],
+            "operations": self._operations(context, installed),
+            "journal_records": [
+                _thaw_mapping(record) for record in context.journal_records
+            ],
+            "adjudication_references": [
+                _reference_mapping(item) for item in draft.adjudication_references
+            ],
+            "raw_evidence_references": [
+                _reference_mapping(item) for item in draft.raw_evidence_references
+            ],
+            "terminal_manifest": {
+                "document_type": "TERMINAL_MANIFEST_V1",
+                "schema_version": 1,
+                "run_id": self._binding.run_id,
+                "attempt_id": self._binding.attempt_id,
+                "terminal_outcome": context.terminal_outcome,
+                "terminal_cache_snapshot_monotonic_ns": snapshot,
+                "installed_monotonic_ns": installed,
+                "manifest_relative_path": context.manifest_relative_path,
+            },
+        }
+
+    def _operations(self, context: Any, installed: int) -> list[dict[str, Any]]:
+        """The attempt's mutation operations, read out of retained evidence.
+
+        Intent and receipt are paired by the operation id each carries.  An
+        intent with no durable receipt -- a crash between dispatch and receipt --
+        contributes no operation, because there is no receipt to cite.
+        """
+        intents: dict[str, Any] = {}
+        receipts: dict[str, Any] = {}
+        for row in context.evidence.values():
+            role = row.reference.role
+            operation_id = row.descriptor.get("operation_id")
+            if not isinstance(operation_id, str):
+                continue
+            if role == "mutation_intent":
+                intents[operation_id] = row
+            elif role == "mutation_receipt":
+                receipts[operation_id] = row
+        operations: list[dict[str, Any]] = []
+        for operation_id in sorted(intents):
+            receipt = receipts.get(operation_id)
+            if receipt is None:
+                continue
+            created = intents[operation_id].descriptor.get("monotonic_time")
+            if not isinstance(created, int) or isinstance(created, bool):
+                _reject("RUNTIME_OPERATION_EVIDENCE_INVALID")
+            if created >= installed:
+                _reject("RUNTIME_OPERATION_EVIDENCE_INVALID")
+            operations.append(
+                {
+                    "operation_id": operation_id,
+                    "created_monotonic_ns": created,
+                    "intent_reference": _reference_mapping(
+                        intents[operation_id].reference
+                    ),
+                    "receipt_reference": _reference_mapping(receipt.reference),
+                }
+            )
+        return operations
 
     def _probe_publication(self) -> bool:
         try:
@@ -1411,6 +1812,177 @@ class MsM01RuntimeComposition:
         self.close()
 
 
+def publish_run_identity_start(
+    *,
+    policy: AuthenticatedPolicy,
+    identity: AttemptIdentity,
+    attempt_root: Path,
+    runner_bundle: VerifiedRunnerBundle,
+    boot_identity: str,
+    created_utc: str,
+    monotonic_ns: int,
+    source_alias_sha256: Mapping[str, str],
+    kubeconfig_content_sha256: str,
+    kubectl_default_cache_before_sha256: str,
+    _safe_root: SafeRoot | None = None,
+) -> EvidenceRef:
+    """Publish the START run identity through the public evidence store.
+
+    The runtime identity, contract and execution-profile bindings are taken
+    from the authenticated policy and the verified runner bundle, never from a
+    caller-supplied literal.  The caller cites the returned reference on the
+    attempt's first journal publication.
+    """
+    bindings = policy.policy["bindings"]
+    contract = bindings["contract"]
+    profile = bindings["execution_profile"]
+    with EvidenceStore(
+        Path(attempt_root),
+        policy,
+        identity.run_id,
+        identity.attempt_id,
+        _safe_root=_safe_root,
+    ) as store:
+        return store.publish_descriptor(
+            "run_identity",
+            {
+                "run_id": identity.run_id,
+                "attempt_id": identity.attempt_id,
+                "created_utc": created_utc,
+                "monotonic_ns": monotonic_ns,
+                "boot_identity": boot_identity,
+                "phase": "START",
+                "runtime_identity": {
+                    "python_version": "3.12.3",
+                    "pyyaml_version": "6.0.2",
+                    "kubernetes_version": "32.0.1",
+                    "jsonschema_version": "4.23.0",
+                    "uv_version": "0.12.5",
+                    "kubectl_version": "v1.32.0",
+                },
+                "contract_binding": {
+                    "tag_object": contract["tag_object"],
+                    "commit": contract["commit"],
+                    "tree": contract["tree"],
+                    "sha256": contract["sha256"],
+                },
+                "execution_profile_binding": {
+                    "tag_object": profile["tag_object"],
+                    "commit": profile["commit"],
+                    "tree": profile["tree"],
+                    "sha256": profile["sha256"],
+                },
+                "runner_release_binding": {
+                    "binding_mode": "SEPARATELY_FROZEN_EXECUTION_RELEASE",
+                    "release_artifact": "RUNNER_BUNDLE_SHA256SUMS",
+                    "manifest_sha256": runner_bundle.manifest_sha256,
+                    "bundle_sha256": runner_bundle.bundle_sha256,
+                    "git_commit": runner_bundle.git_commit,
+                    "git_tree": runner_bundle.git_tree,
+                    "annotated_tag_name": runner_bundle.annotated_tag_name,
+                    "annotated_tag_object": runner_bundle.annotated_tag_object,
+                    "pyproject_sha256": runner_bundle.pyproject_sha256,
+                    "uv_lock_sha256": runner_bundle.uv_lock_sha256,
+                },
+                "pyproject_sha256": PYPROJECT_SHA256,
+                "uv_lock_sha256": UV_LOCK_SHA256,
+                "source_alias_sha256": dict(source_alias_sha256),
+                "kubeconfig_content_sha256": kubeconfig_content_sha256,
+                "kubectl_default_cache_before_sha256":
+                    kubectl_default_cache_before_sha256,
+            },
+        )
+
+
+def reconstruct_pending_initial_deletion(
+    *,
+    policy: AuthenticatedPolicy,
+    attempt_root: Path,
+    run_id: str,
+    attempt_id: str,
+    _safe_root: SafeRoot | None = None,
+) -> PendingMutation | None:
+    """Rebuild the pending initial deletion from durable evidence alone.
+
+    A crash between dispatch and receipt leaves an `INTENT_DURABLE` row with no
+    `RECEIPT_DURABLE` row.  This re-verifies the mutation ledger's hash chain,
+    finds that operation, and authenticates the retained intent descriptor it
+    names before believing anything it says -- so the resumed attempt's captured
+    uid comes from evidence the attempt itself published, never from a caller.
+
+    Returns None when there is nothing pending.
+    """
+    root = _safe_root if _safe_root is not None else SafeRoot(Path(attempt_root))
+    if not root.exists(MUTATION_LEDGER):
+        return None
+    data = root.read_bytes(MUTATION_LEDGER)
+    if data and not data.endswith(b"\n"):
+        _reject("RUNTIME_MUTATION_LEDGER_INVALID")
+    rows: list[Mapping[str, Any]] = []
+    previous = ZERO_SHA256
+    for sequence, line in enumerate(data.splitlines(keepends=True)):
+        try:
+            row = parse_canonical_json(line, line=True)
+        except Exception:
+            _reject("RUNTIME_MUTATION_LEDGER_INVALID")
+        material = dict(row)
+        digest = material.pop("record_sha256", None)
+        if (
+            not isinstance(row, dict)
+            or row.get("sequence") != sequence
+            or row.get("previous_sha256") != previous
+            or digest != sha256_hex(canonical_json_bytes(material))
+        ):
+            _reject("RUNTIME_MUTATION_LEDGER_INVALID")
+        previous = digest
+        rows.append(row)
+    events: dict[str, list[Mapping[str, Any]]] = {}
+    for row in rows:
+        events.setdefault(row["operation_id"], []).append(row)
+    pending = [
+        operation_id
+        for operation_id, group in events.items()
+        if tuple(item["event"] for item in group) == ("INTENT_DURABLE",)
+        and operation_id.startswith("INITIAL_USER_SERVICE_DELETION:")
+    ]
+    if not pending:
+        return None
+    if len(pending) != 1:
+        _reject("RUNTIME_PENDING_MUTATION_AMBIGUOUS")
+    operation_id = pending[0]
+    intent_digest = events[operation_id][0]["descriptor_sha256"]
+    relative = f"descriptors/sha256/{intent_digest[:2]}/{intent_digest}.json"
+    if not root.exists(relative):
+        _reject("RUNTIME_PENDING_MUTATION_EVIDENCE_MISSING")
+    descriptor_bytes = root.read_bytes(relative)
+    try:
+        intent = parse_canonical_json(descriptor_bytes)
+    except Exception:
+        _reject("RUNTIME_PENDING_MUTATION_EVIDENCE_MISSING")
+    if (
+        descriptor_content_sha256(intent) != intent_digest
+        or intent.get("role") != "mutation_intent"
+        or intent.get("run_id") != run_id
+        or intent.get("attempt_id") != attempt_id
+        or intent.get("operation_id") != operation_id
+        or intent.get("operation_kind") != "INITIAL_USER_SERVICE_DELETION"
+        or intent.get("status") != "INTENT_DURABLE"
+    ):
+        _reject("RUNTIME_PENDING_MUTATION_EVIDENCE_MISSING")
+    try:
+        policy.structural_validate(intent)
+    except Exception:
+        _reject("RUNTIME_PENDING_MUTATION_EVIDENCE_MISSING")
+    captured_uid = intent.get("expected_uid_when_existing")
+    if not isinstance(captured_uid, str) or not captured_uid:
+        _reject("RUNTIME_PENDING_MUTATION_EVIDENCE_MISSING")
+    return PendingMutation(
+        operation_id=operation_id,
+        operation_kind="INITIAL_USER_SERVICE_DELETION",
+        captured_uid=captured_uid,
+    )
+
+
 def compose_ms_m01_attempt(
     *,
     policy: AuthenticatedPolicy,
@@ -1430,6 +2002,7 @@ def compose_ms_m01_attempt(
     timeout_seconds: int = 10,
     consumers: ConsumerBinding = ConsumerBinding(),
     pending_initial_deletion: PendingMutation | None = None,
+    run_identity_start: EvidenceRef | None = None,
 ) -> MsM01RuntimeComposition:
     """Compose one unrun MS-M01 attempt from production components.
 
@@ -1527,7 +2100,8 @@ def compose_ms_m01_attempt(
         workload=BoundWorkload(binding, workload_source, store, clock),
         adjudication=ContractAdjudicator(binding, store, clock),
         terminalizer=SealingTerminalizer(
-            binding, attempt_safe_root, index_safe_root, state, session, clock, authority
+            binding, attempt_safe_root, index_safe_root, state, session, clock,
+            authority, run_identity_start,
         ),
     )
     attempt = MsM01Attempt(
