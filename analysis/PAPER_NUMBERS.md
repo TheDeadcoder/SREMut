@@ -717,7 +717,7 @@ about what the paper does or does not concede.
 taxonomy is the `Origin` column of `Problem List.md`, whose values are **`New` (95)** and
 **`AIOpsLab` (21)** across 116 rows. The paper's Table 4 uses **Ported (34) / Similar (43)
 / New (13)** across 90. Different taxonomies, different totals, and no join key. Per the
-method rule, **no mapping is attempted and no distribution of the 27 bare-generic
+method rule, **no mapping is attempted and no distribution of the 31 bare-generic
 problem_ids across Table 4 buckets is reported.**
 
 **A4 — Figure 3's `K8sNetworkPortMisconfig`: NOT DETERMINABLE from source.**
