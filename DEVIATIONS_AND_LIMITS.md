@@ -195,3 +195,95 @@ Items 7 to 12 are scheduled for a hardening pass **after the current submission*
 nine attested records will **not** be regenerated: they were produced by one unmodified
 instrument whose hashes are recorded in every record, and that property is worth more than
 the fixes.
+
+---
+
+# Deviations and limits — the fix-oracle study
+
+A separate study, executed 2026-08-29: `fix-m01-r01`, `fix-m02-r01`, `fix-m03-r01`, driven
+by `experiments/fix_oracle_run.py` against the prediction table in
+`PREREGISTRATION_FIX_ORACLE.md` (RFC 3161 token `0x075A69B3`). Adjudication in
+`ADJUDICATION_FIX_ORACLE.md`. The section above, on the MS-M01/M02/M03 matrix, is
+unaffected by anything here.
+
+That pre-registration is never amended either. Its bytes carry a token; every departure is
+recorded here.
+
+## 13. The probe-pod barrier is instrumentation we added
+
+`ServiceEndpointMitigationOracle` creates a **real pod** on every evaluation that reaches
+its connectivity probe — `create_namespaced_pod` at `service_endpoint_mitigation.py:94`,
+labelled `app=service-connectivity-check` at `:72` — and deletes it in a `finally` at
+`:111-115`. That delete is **fire-and-forget**: `delete_namespaced_pod` returns when the
+API accepts the deletion, not when the object is gone.
+
+A residual pod would sit in phase `Succeeded` (it runs `nc` and exits), and
+`mitigation.py:96` rejects any pod not in phase `Running`. So one leftover would flip the
+stock oracle — and therefore O1, and O4's first child — to `false` on a healthy cluster.
+Our own `assert_no_probe_pods` could not have caught it: that matches only the `sremut-*`
+selectors.
+
+The driver therefore waits, before each of the twelve evaluations per run, for the
+namespace to be free of that label, using the pattern from
+`contract_check.delete_probe_pod`: `kubectl wait --for=delete` plus an **independent**
+`kubectl get` re-check. It never deletes the pod — if SREGym's own `finally` failed, that
+is a fact to surface, not to paper over. Failure to clear within 30 s aborts the run as
+`INFRASTRUCTURE_FAILURE`.
+
+**It never fired.** All 36 invocations cleared on the first attempt, 0.158-0.195 s, zero
+pods ever observed, zero `kubectl wait` calls issued. That measures how fast the delete
+settles in this cluster; it does not show the hazard was imaginary. The barrier was
+self-tested against a deliberately planted pod with the same label and blocked for the
+full 30 s across eight attempts, then cleared in 0.173 s once the pod was removed.
+
+**O2 creates no pod at all.** `port = self.problem.expected_service_port` at `:65`
+precedes the `try:` at `:93`, so with the attribute absent the `AttributeError` fires
+before `create_namespaced_pod` is ever reached. The un-patched configuration has no
+instrumentation footprint whatsoever.
+
+## 14. O1 and O4 use the healthy baseline, not one captured at evaluation time
+
+`MitigationOracle` compares the graded cluster against the replica counts captured by
+`capture_baseline()`, so *when* that capture happens decides what is being measured:
+
+| | baseline captured | compared against |
+|---|---|---|
+| `conductor.py:227`, production | once, healthy | the graded state |
+| `mutant_run.py:655`, the nine runs | once, healthy, at STEP 4 | the graded state |
+| a capture at evaluate time | in the graded state | **itself** |
+
+The third form makes the three Deployment predicates (`mitigation.py:70-84`) trivially
+satisfiable: every baseline Deployment necessarily still exists, none is scaled to zero,
+and each has `ready >= desired` by construction.
+
+So O1 evaluates `problem.mitigation_oracle` directly — it already holds the healthy
+baseline from STEP 4, which makes O1 byte-for-byte the call
+`three_state_run.evaluate_in_process` makes, the call the nine attested runs used. O4
+builds a **fresh** `MitigationOracle` (never the O1 instance) and seeds it with
+`replica_count = dict(captured_replica_baseline)` rather than re-capturing. Both record
+`baseline_source` and `baseline_deployment_count` in every cell, so provenance is evidenced
+rather than assumed; all 18 recorded 27 deployments from the healthy capture.
+
+§2 of the pre-registration names the oracle **class** for each configuration and says
+nothing about baseline timing, so this choice does not contradict it. The healthy baseline
+is chosen because it is what `conductor.py:227` and the nine-repetition matrix both do.
+
+An earlier revision of the driver called `capture_baseline()` inside the evaluation. That
+was corrected before any run, and `tests/test_fix_oracle_record.py` now AST-checks that no
+`capture_baseline()` call exists inside `_evaluate_one`.
+
+## 15. Single provenance, one repetition, and what the study is about
+
+- **No isolated-worker leg.** Every one of the 36 verdicts is an in-process call inside
+  the driver's own process. The nine-repetition matrix read each state twice, through two
+  call paths; this study reads it once. A reading here is one reading, not two.
+- **One repetition per mutant.** Three runs. The three agreed cell-for-cell, which is
+  consistency, not a measured variance, and no claim is made about stability across
+  repetitions.
+- **The claim is about oracle behaviour, not about cluster state.** What state the cluster
+  was in is established independently, by the frozen contract (MS-I1..MS-I5) and the
+  workload window, both evaluated in every state of every run. The oracle verdicts are read
+  against that independently established state rather than being the evidence for it.
+
+Items 13 to 15 are properties of a completed study, not defects scheduled for repair. The
+three attested fix-oracle records will not be regenerated.

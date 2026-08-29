@@ -263,6 +263,13 @@ def test_pinned_module_hashes_recorded_and_match_disk():
         "mitigation.py": sregym / "sregym/conductor/oracles/mitigation.py",
         "missing_service.py": sregym / "sregym/conductor/problems/missing_service.py",
     }
+    # SREGym is a sibling checkout, not part of this repository. A clone without it
+    # must skip rather than raise FileNotFoundError: the hashes are still recorded in
+    # every run record, they simply cannot be re-verified against disk here.
+    absent = [str(p) for p in paths.values() if not p.is_file()]
+    if absent:
+        print(f"   (skipped: SREGym checkout not present: {absent[0]})")
+        return
     for rid, d in recs.items():
         pinned = d["pinned_module_sha256"]
         for name, path in paths.items():
