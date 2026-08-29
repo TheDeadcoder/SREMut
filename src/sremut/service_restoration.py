@@ -218,7 +218,7 @@ def derive_service_restoration_body_preseal(
         _reject("RESTORATION_SOURCE_UNRESOLVED")
     if source_resolved is None or request_resolved is None:
         _reject("RESTORATION_SOURCE_UNRESOLVED")
-    source_ref, _source_descriptor, source_payload = source_resolved
+    source_ref, source_descriptor_bytes, source_payload = source_resolved
     request_ref, _request_descriptor, _request_payload = request_resolved
     if (
         source_ref.role != "kubernetes_object_projection"
@@ -227,6 +227,19 @@ def derive_service_restoration_body_preseal(
         _reject("RESTORATION_SOURCE_CLASS_INVALID")
     if request_ref.role != "kubernetes_request_identity":
         _reject("RESTORATION_SOURCE_REFERENCE_MISSING")
+    # The Service projection was captured by ONE request, and its retained
+    # descriptor says which.  The caller does not get to nominate a different
+    # request: any other request descriptor -- even a valid, same-run, same-role
+    # one -- would attribute this body to a capture that did not produce it.
+    try:
+        source_descriptor = parse_canonical_json(source_descriptor_bytes)
+    except Exception:
+        _reject("RESTORATION_SOURCE_UNRESOLVED")
+    cited_request = source_descriptor.get("request_identity_reference")
+    if not isinstance(cited_request, Mapping):
+        _reject("RESTORATION_SOURCE_REFERENCE_MISSING")
+    if _thaw(cited_request) != request_ref.as_dict():
+        _reject("KUBERNETES_PROJECTION_REQUEST_MISMATCH")
     if source_payload is None:
         _reject("PAYLOAD_BYTES_MISSING")
     # The run/attempt binding is already enforced inside `EvidenceStore.resolve`,

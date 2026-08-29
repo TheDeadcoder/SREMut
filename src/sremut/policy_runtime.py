@@ -226,7 +226,14 @@ def _validation_result(
 
 @dataclass(frozen=True, slots=True)
 class AuthenticatedPolicy:
-    """Immutable policy and closed runtime contracts."""
+    """Immutable policy and closed runtime contracts.
+
+    `binding` is the exact pinned version binding this bundle authenticated
+    against.  It is set only by `_load_bundle`, only to one of the two frozen
+    bindings, and it travels with the policy so that downstream modules never
+    have to re-derive a version from a caller-supplied string or duplicate the
+    manifest pins.
+    """
 
     policy_bytes: bytes
     schema_bytes: bytes
@@ -238,6 +245,7 @@ class AuthenticatedPolicy:
     hooks: tuple[HookContract, ...]
     applicability: tuple[ApplicabilityRule, ...]
     dispatcher_id: str
+    binding: "_VersionBinding"
 
     def role(self, name: str) -> RoleContract:
         try:
@@ -393,6 +401,19 @@ class _VersionBinding:
     semantic_version: str
     status: str
 
+    @property
+    def manifest_paths(self) -> tuple[str, str, str]:
+        """The exact three manifest rows this version's checksum file must carry.
+
+        One definition, used by both the loader and every downstream consumer,
+        so partially authenticated manifest logic is never restated elsewhere.
+        """
+        return (
+            self.generator_relative_path,
+            self.policy_relative_path,
+            self.schema_relative_path,
+        )
+
 
 _V1_1_BINDING = _VersionBinding(
     manifest_sha256=POLICY_MANIFEST_SHA256,
@@ -419,6 +440,29 @@ _V1_2_BINDING = _VersionBinding(
     semantic_version=POLICY_V1_2_SEMANTIC_VERSION,
     status=POLICY_V1_2_STATUS,
 )
+
+# The closed set.  There is no third binding and no way to add one at runtime:
+# `policy_binding` returns an element of this tuple or refuses.
+PINNED_BINDINGS = (_V1_1_BINDING, _V1_2_BINDING)
+
+
+def policy_binding(policy: Any) -> _VersionBinding:
+    """The exact pinned binding an `AuthenticatedPolicy` authenticated against.
+
+    Version is never inferred from a caller-supplied string, a policy id read
+    out of parsed content, or a semantic-version field.  The binding is the one
+    `_load_bundle` attached while authenticating exact bytes, and it is accepted
+    only if it is identically one of the two frozen bindings and still agrees
+    with the policy's own authenticated manifest digest.
+    """
+    if not isinstance(policy, AuthenticatedPolicy):
+        _reject("POLICY_BINDING_MISSING")
+    binding = policy.binding
+    if not any(binding is pinned for pinned in PINNED_BINDINGS):
+        _reject("POLICY_BINDING_MISSING")
+    if policy.manifest_sha256 != binding.manifest_sha256:
+        _reject("POLICY_MANIFEST_HASH_MISMATCH")
+    return binding
 
 
 def _load_bundle(
@@ -454,14 +498,7 @@ def _load_bundle(
         _reject("POLICY_SUPERSEDED")
     if _sha256(manifest_bytes) != expected_manifest_sha256:
         _reject("POLICY_MANIFEST_HASH_MISMATCH")
-    rows = _parse_manifest(
-        manifest_bytes,
-        (
-            binding.generator_relative_path,
-            binding.policy_relative_path,
-            binding.schema_relative_path,
-        ),
-    )
+    rows = _parse_manifest(manifest_bytes, binding.manifest_paths)
     if rows.get(binding.policy_relative_path) != _sha256(policy_bytes):
         _reject("POLICY_HASH_MISMATCH")
     if rows.get(binding.schema_relative_path) != _sha256(schema_bytes):
@@ -564,6 +601,7 @@ def _load_bundle(
         hooks=hooks,
         applicability=applicability,
         dispatcher_id=dispatcher_id,
+        binding=binding,
     )
 
 

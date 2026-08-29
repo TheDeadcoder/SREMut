@@ -23,10 +23,8 @@ from sremut.journal import Journal, JournalError, JournalState, SafeRoot
 from sremut.policy_runtime import (
     AuthenticatedPolicy,
     EXPECTED_HOOK_ORDER,
-    GENERATOR_RELATIVE_PATH,
-    POLICY_MANIFEST_SHA256,
-    POLICY_RELATIVE_PATH,
-    SCHEMA_RELATIVE_PATH,
+    POLICY_V1_2_SEMANTIC_VERSION,
+    policy_binding,
     _parse_manifest as _parse_policy_manifest,
 )
 from sremut.sensitive import SensitiveCaptureError, detect_sensitive, validate_payload
@@ -49,6 +47,11 @@ CONNECTED_HOOKS = frozenset(
     }
 )
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+_RUN_ID = re.compile(r"^sremut-ms-(m01|m02|m03)-r0([1-3])-a0([1-2])-[0-9a-f]{12}$")
+# Named by the frozen v1.2 schema's offline-seal release binding.  Emitting the
+# constant the schema requires is not the same as creating the tag: no v1.2 tag
+# exists in this repository and none is created here.
+V1_2_EVIDENCE_POLICY_TAG_NAME = "sremut-missing-service-evidence-policy-v1.2"
 _RESOLVER_TOKEN = object()
 _MAXIMUM_MANIFEST_BYTES = 4 * 1024 * 1024
 _MAXIMUM_JOURNAL_BYTES = 16 * 1024 * 1024
@@ -189,6 +192,105 @@ class ResolvedEvidenceContext:
         if row is None or row.reference.as_dict() != validated.as_dict():
             _reject("EVIDENCE_REFERENCE_UNRESOLVED")
         return row
+
+    def as_v1_2_document(self) -> dict[str, Any]:
+        """Serialize this authenticated context as a `RESOLVED_EVIDENCE_CONTEXT_V1_2`.
+
+        Every field is derived from bytes this context already authenticated --
+        retained descriptor and payload bytes, the authoritative journal, the
+        terminal manifest and the external anchor.  Nothing is caller supplied.
+
+        Only a v1.2-bound context can produce one: the v1.1 schema defines no
+        such document, so the result would have nothing to validate against.
+        """
+        binding = policy_binding(self._policy)
+        if binding.semantic_version != POLICY_V1_2_SEMANTIC_VERSION:
+            _reject("POLICY_BINDING_MISSING")
+        match = _RUN_ID.fullmatch(self.run_id)
+        if match is None:
+            _reject("RUN_ATTEMPT_MISMATCH")
+        identity = self.policy_identity
+        evidence_refs: dict[str, Any] = {}
+        descriptor_hex: dict[str, str] = {}
+        parsed: dict[str, Any] = {}
+        payload_hex: dict[str, str] = {}
+        publications: dict[str, Any] = {}
+        for evidence_id, row in self.evidence.items():
+            evidence_refs[evidence_id] = row.reference.as_dict()
+            descriptor_hex[evidence_id] = row.descriptor_bytes.hex()
+            parsed[evidence_id] = _thaw(row.descriptor)
+            if row.payload_bytes is not None:
+                payload_hex[evidence_id] = row.payload_bytes.hex()
+            publications[evidence_id] = {
+                "sequence_number": row.publication.sequence_number,
+                "journal_record_sha256": row.publication.journal_record_sha256,
+            }
+        return {
+            "document_type": "RESOLVED_EVIDENCE_CONTEXT_V1_2",
+            "schema_version": 1,
+            "run_id": self.run_id,
+            "attempt_id": self.attempt_id,
+            # Both are read out of the authenticated run id, not supplied.
+            "mutant_id": f"MS-M{match.group(1)[1:]}",
+            "repetition": int(match.group(2)),
+            "evidence_refs": evidence_refs,
+            "exact_descriptor_bytes_hex": descriptor_hex,
+            "parsed_canonical_descriptors": parsed,
+            "exact_payload_bytes_hex": payload_hex,
+            "journal_publication_records": publications,
+            "attempt_journal_records": [_thaw(record) for record in self.journal_records],
+            "exact_authoritative_journal_bytes_hex": self.journal_bytes.hex(),
+            # This context was rebuilt from a sealed attempt root under an
+            # external anchor; there is no capture-time trusted source here.
+            "validation_mode": "OFFLINE_SEALED_REVALIDATION",
+            "trusted_capture_source_bytes_hex": {},
+            "offline_seal": {
+                "document_type": "OFFLINE_SEALED_REVALIDATION_INPUT_V1",
+                "schema_version": 1,
+                "attempt_root_identifier": self.attempt_root_identifier,
+                "run_id": self.run_id,
+                "attempt_id": self.attempt_id,
+                "terminal_state": self.terminal_outcome,
+                "terminal_manifest_bytes_hex": self.terminal_manifest_bytes.hex(),
+                "externally_recorded_terminal_manifest_sha256": self.terminal_manifest_sha256,
+                "expected_manifest_relative_path": self.manifest_relative_path,
+                "sealed_journal_sha256": hashlib.sha256(self.journal_bytes).hexdigest(),
+                "runner_release_binding": {
+                    "evidence_policy_annotated_tag": V1_2_EVIDENCE_POLICY_TAG_NAME,
+                    "evidence_policy_checksum_manifest_sha256": identity.manifest_sha256,
+                    "evidence_policy_sha256": identity.policy_sha256,
+                    "evidence_policy_schema_sha256": identity.schema_sha256,
+                    "dispatcher_id": identity.dispatcher_id,
+                },
+                "aggregation_anchor": {
+                    "recorded_by": "IMMUTABLE_RUN_INDEX_OUTSIDE_ATTEMPT_ROOT",
+                    "cited_by_result_aggregation": True,
+                    "attempt_root_identifier": self.attempt_root_identifier,
+                    "manifest_relative_path": self.manifest_relative_path,
+                    "terminal_manifest_sha256": self.terminal_manifest_sha256,
+                },
+            },
+            "current_verified_attempt_state": {
+                "state": self.journal_state.state,
+                "sequence_number": self.journal_state.sequence_number,
+                "terminal": self.journal_state.terminal,
+            },
+            "frozen_contract_profile_identities": {
+                "contract_sha256": identity.contract_sha256,
+                "execution_profile_sha256": identity.execution_profile_sha256,
+                "contract_tag_object": identity.contract_tag_object,
+                "execution_profile_tag_object": identity.execution_profile_tag_object,
+            },
+            "expected_operation_context": (
+                None
+                if self.expected_operation_context is None
+                else _thaw(self.expected_operation_context)
+            ),
+            "challenge_identity": None,
+            "evaluation_authorization_contexts": _thaw(
+                self.evaluation_authorization_contexts
+            ),
+        }
 
     def validate_hook(self, hook_id: str, candidate: Mapping[str, Any]) -> None:
         handlers = {
@@ -483,20 +585,22 @@ def _policy_identity(policy: AuthenticatedPolicy) -> PolicyIdentity:
     cached = _AUTHENTICATED_POLICY_CACHE.get(id(policy))
     if cached is not None and cached[0] is policy:
         return cached[1]
-    if (
-        policy.manifest_sha256 != POLICY_MANIFEST_SHA256
-        or hashlib.sha256(policy.manifest_bytes).hexdigest() != POLICY_MANIFEST_SHA256
-    ):
+    # The version binding travels with the authenticated policy.  There is no
+    # hardcoded v1.1 pin here any more, and no second copy of the manifest
+    # pins: `policy_binding` is the single closed authority, and it accepts
+    # only the two explicitly pinned bundles.
+    binding = policy_binding(policy)
+    if hashlib.sha256(policy.manifest_bytes).hexdigest() != binding.manifest_sha256:
         _reject("POLICY_MANIFEST_HASH_MISMATCH")
     try:
-        rows = _parse_policy_manifest(policy.manifest_bytes)
+        rows = _parse_policy_manifest(policy.manifest_bytes, binding.manifest_paths)
     except Exception:
         _reject("POLICY_MANIFEST_INVALID")
-    if rows[POLICY_RELATIVE_PATH] != hashlib.sha256(policy.policy_bytes).hexdigest():
+    if rows[binding.policy_relative_path] != hashlib.sha256(policy.policy_bytes).hexdigest():
         _reject("POLICY_HASH_MISMATCH")
-    if rows[SCHEMA_RELATIVE_PATH] != hashlib.sha256(policy.schema_bytes).hexdigest():
+    if rows[binding.schema_relative_path] != hashlib.sha256(policy.schema_bytes).hexdigest():
         _reject("POLICY_SCHEMA_HASH_MISMATCH")
-    if GENERATOR_RELATIVE_PATH not in rows:
+    if rows.get(binding.generator_relative_path) != binding.generator_sha256:
         _reject("POLICY_MANIFEST_INVALID")
     try:
         parsed_policy = yaml.safe_load(policy.policy_bytes.decode("utf-8", errors="strict"))

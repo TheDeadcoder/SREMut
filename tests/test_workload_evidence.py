@@ -37,6 +37,18 @@ CREATED = "2026-08-20T10:00:00.123456789Z"
 BOOT = "123e4567-e89b-12d3-a456-426614174000"
 
 
+def load_v1_2_policy():
+    """The exact authenticated v1.2 bundle."""
+    from sremut import policy_runtime as runtime
+
+    return runtime.load_v1_2_policy_bundle(
+        REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.2.yaml",
+        REPOSITORY / "schemas/evidence-capture-policy-v1.2.schema.json",
+        REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_2_SHA256SUMS",
+        expected_manifest_sha256=runtime.POLICY_V1_2_MANIFEST_SHA256,
+    )
+
+
 def load_policy():
     return load_policy_bundle(
         REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.1.yaml",
@@ -536,6 +548,106 @@ class WorkloadResolvedHookTests(unittest.TestCase):
 
 def reference_is_adjudication(references, adjudication_reference):
     return any(reference.evidence_id == adjudication_reference.evidence_id for reference in references)
+
+
+class VersionAwareWorkloadPolicyTests(unittest.TestCase):
+    """Both pinned bundles reach the workload protocol; nothing else does."""
+
+    @classmethod
+    def setUpClass(cls):
+        from sremut import policy_runtime as runtime
+
+        cls.runtime = runtime
+        cls.v1_1 = load_policy()
+        cls.v1_2 = load_v1_2_policy()
+
+    def test_both_pinned_bundles_are_accepted(self):
+        from sremut.workload_evidence import _validate_policy
+
+        for policy, version in ((self.v1_1, "1.1"), (self.v1_2, "1.2")):
+            self.assertEqual(policy.policy["semantic_version"], version)
+            _validate_policy(policy)
+
+    def test_v1_2_was_previously_rejected_as_superseded(self):
+        """The corrected gate keys off the carried binding, not a hardcoded pin."""
+        self.assertIs(
+            self.runtime.policy_binding(self.v1_2), self.runtime._V1_2_BINDING)
+        self.assertEqual(
+            self.v1_2.policy["workload_stream_identity_protocol"]["evidence_policy_id"],
+            self.runtime.POLICY_V1_2_ID,
+        )
+
+    def test_the_two_stream_identities_differ_only_by_evidence_policy_id(self):
+        first = recompute_stream_identity(
+            RUN_ID, ATTEMPT_ID, policy_id=self.runtime.POLICY_ID)
+        second = recompute_stream_identity(
+            RUN_ID, ATTEMPT_ID, policy_id=self.runtime.POLICY_V1_2_ID)
+        self.assertNotEqual(first, second)
+        # Recompute both hash materials here and confirm the ONLY difference is
+        # the evidence policy id.
+        from sremut.workload_evidence import EXECUTION_PROFILE_TAG_OBJECT, WORKLOAD_SOURCE
+
+        def material(policy_id):
+            return {
+                "schema_version": 1,
+                "execution_profile_tag_object": EXECUTION_PROFILE_TAG_OBJECT,
+                "evidence_policy_id": policy_id,
+                "run_id": RUN_ID,
+                "attempt_id": ATTEMPT_ID,
+                "source": WORKLOAD_SOURCE,
+                "manager_instance_ordinal": 1,
+            }
+
+        left = material(self.runtime.POLICY_ID)
+        right = material(self.runtime.POLICY_V1_2_ID)
+        self.assertEqual(
+            [key for key in left if left[key] != right[key]], ["evidence_policy_id"])
+        self.assertEqual(
+            hashlib.sha256(canonical_json_bytes(left)).hexdigest(), first)
+        self.assertEqual(
+            hashlib.sha256(canonical_json_bytes(right)).hexdigest(), second)
+
+    def test_unpinned_policy_id_is_refused(self):
+        for policy_id in ("", "sremut/other", POLICY_ID + "x", None, 1):
+            with self.assertRaises(WorkloadEvidenceError) as caught:
+                recompute_stream_identity(RUN_ID, ATTEMPT_ID, policy_id=policy_id)
+            self.assertEqual(str(caught.exception), "WORKLOAD_STREAM_IDENTITY_MISMATCH")
+
+    def test_cross_version_stream_substitution_rejects(self):
+        """A window prepared under one bundle cannot be presented under the other."""
+        pod = fake_reference("kubernetes_object_projection", digest="2" * 64)
+        common = dict(
+            before=(entry(1.0, 1),), after=(entry(1.0, 1), entry(2.0, 50)),
+            phase="INITIAL_MUTANT_CHALLENGE", ordinal=1, run_id=RUN_ID,
+            attempt_id=ATTEMPT_ID, mutant_id="MS-M01", repetition=1,
+            workload_pod_projection_reference=pod, pod_name="user-service",
+            pod_uid="pod-uid-1", container_restart_count=0,
+        )
+        under_v1_1 = prepare_workload_window(self.v1_1, **common)
+        under_v1_2 = prepare_workload_window(self.v1_2, **common)
+        first = under_v1_1.window["stream_identity"]
+        second = under_v1_2.window["stream_identity"]
+        self.assertNotEqual(first, second)
+        self.assertEqual(
+            first, recompute_stream_identity(
+                RUN_ID, ATTEMPT_ID, policy_id=self.runtime.POLICY_ID))
+        self.assertEqual(
+            second, recompute_stream_identity(
+                RUN_ID, ATTEMPT_ID, policy_id=self.runtime.POLICY_V1_2_ID))
+        # Substituting one identity into the other version's window is refused
+        # by the same recomputation the hook performs.
+        from sremut.workload_evidence import _window_core
+
+        with self.assertRaises(WorkloadEvidenceError) as caught:
+            _window_core(
+                "INITIAL_MUTANT_CHALLENGE", 1, RUN_ID, ATTEMPT_ID, "MS-M01", 1,
+                second, self.runtime.POLICY_ID)
+        self.assertEqual(str(caught.exception), "WORKLOAD_WINDOW_MISMATCH")
+        with self.assertRaises(WorkloadEvidenceError) as caught:
+            _window_core(
+                "INITIAL_MUTANT_CHALLENGE", 1, RUN_ID, ATTEMPT_ID, "MS-M01", 1,
+                first, self.runtime.POLICY_V1_2_ID)
+        self.assertEqual(str(caught.exception), "WORKLOAD_WINDOW_MISMATCH")
 
 
 if __name__ == "__main__":

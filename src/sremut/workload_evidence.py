@@ -1,4 +1,4 @@
-"""Non-executing, frozen-v1.1 workload evidence capture and validation."""
+"""Non-executing workload evidence capture and validation for the two pinned policy bundles."""
 
 from __future__ import annotations
 
@@ -12,8 +12,18 @@ from typing import Any, Mapping, NoReturn, Sequence
 
 from sremut.canonical_json import canonical_json_bytes, parse_canonical_json
 from sremut.evidence import EvidenceRef, validate_evidence_ref
-from sremut.policy_runtime import AuthenticatedPolicy, POLICY_ID, POLICY_MANIFEST_SHA256
+from sremut.policy_runtime import (
+    AuthenticatedPolicy,
+    PINNED_BINDINGS,
+    POLICY_ID,
+    policy_binding,
+)
 
+
+# The two pinned evidence-policy identities, taken from the frozen bindings so
+# there is no third copy of them here.  A stream identity may be computed for
+# these ids and no others.
+PINNED_POLICY_IDS = frozenset(binding.policy_id for binding in PINNED_BINDINGS)
 
 EXECUTION_PROFILE_TAG_OBJECT = "7c6493eb7dce68370fd0d5be572edd968654a1d6"
 SREGYM_COMMIT = "ba07faf1a322f9b6d4a279643bb796aa2f36f64b"
@@ -75,14 +85,22 @@ def _validate_policy(policy: AuthenticatedPolicy) -> None:
         stream = policy.policy["workload_stream_identity_protocol"]
     except Exception:
         _reject("POLICY_BINDING_MISSING")
+    # Both pinned bundles are supported.  The version is taken from the binding
+    # the authenticated policy carries, never from a string in parsed content:
+    # `policy_binding` accepts only the two frozen bundles, so an unpinned or
+    # superseded policy still cannot reach the workload protocol.
+    try:
+        binding = policy_binding(policy)
+    except Exception:
+        _reject("POLICY_SUPERSEDED")
     if (
-        policy.manifest_sha256 != POLICY_MANIFEST_SHA256
-        or policy.policy.get("policy_id") != POLICY_ID
-        or policy.policy.get("semantic_version") != "1.1"
+        policy.manifest_sha256 != binding.manifest_sha256
+        or policy.policy.get("policy_id") != binding.policy_id
+        or policy.policy.get("semantic_version") != binding.semantic_version
         or protocol.get("authoritative_raw_representation")
         != "CANONICAL_WORKLOAD_ENTRY_JSONL_V1_1"
         or protocol.get("joined_entry_log_compatibility_mode") is not False
-        or stream.get("evidence_policy_id") != POLICY_ID
+        or stream.get("evidence_policy_id") != binding.policy_id
     ):
         _reject("POLICY_SUPERSEDED")
 
@@ -106,7 +124,7 @@ def recompute_stream_identity(
         or _RUN.fullmatch(run_id) is None
         or type(attempt_id) is not str
         or _ATTEMPT.fullmatch(attempt_id) is None
-        or policy_id != POLICY_ID
+        or policy_id not in PINNED_POLICY_IDS
         or source != WORKLOAD_SOURCE
         or type(manager_instance_ordinal) is not int
         or manager_instance_ordinal != 1
@@ -117,7 +135,12 @@ def recompute_stream_identity(
             {
                 "schema_version": 1,
                 "execution_profile_tag_object": EXECUTION_PROFILE_TAG_OBJECT,
-                "evidence_policy_id": POLICY_ID,
+                # The only field that differs between the two pinned versions.
+                # Everything else in the hash material is byte-identical, so a
+                # v1.1 identity and a v1.2 identity for the same run and attempt
+                # differ exactly because `evidence_policy_id` differs -- which is
+                # what makes cross-version substitution detectable.
+                "evidence_policy_id": policy_id,
                 "run_id": run_id,
                 "attempt_id": attempt_id,
                 "source": WORKLOAD_SOURCE,
@@ -353,6 +376,7 @@ def _window_core(
     mutant_id: Any,
     repetition: Any,
     stream_identity: str,
+    policy_id: str,
 ) -> dict[str, Any]:
     match = _RUN.fullmatch(run_id) if type(run_id) is str else None
     expected_mutant = f"MS-M{match.group(1)[1:]}" if match is not None else None
@@ -368,7 +392,9 @@ def _window_core(
         or expected_mutant != mutant_id
         or type(repetition) is not int
         or repetition != expected_repetition
-        or stream_identity != recompute_stream_identity(run_id, attempt_id)
+        or stream_identity != recompute_stream_identity(
+            run_id, attempt_id, policy_id=policy_id
+        )
     ):
         _reject("WORKLOAD_WINDOW_MISMATCH")
     return {
@@ -577,8 +603,13 @@ def prepare_workload_window(
         _reject("WORKLOAD_POD_IDENTITY_MISMATCH")
     if pod_reference.role != "kubernetes_object_projection":
         _reject("WORKLOAD_POD_IDENTITY_MISMATCH")
-    stream = recompute_stream_identity(run_id, attempt_id)
-    window = _window_core(phase, ordinal, run_id, attempt_id, mutant_id, repetition, stream)
+    stream = recompute_stream_identity(
+        run_id, attempt_id, policy_id=policy_binding(policy).policy_id
+    )
+    window = _window_core(
+        phase, ordinal, run_id, attempt_id, mutant_id, repetition, stream,
+        policy_binding(policy).policy_id,
+    )
     return WorkloadEvidencePlan(
         policy,
         prefix_payload,
@@ -656,7 +687,10 @@ def _resolved_workload(context: Any, candidate: Mapping[str, Any]) -> dict[str, 
         _reject("ADJUDICATION_DEADLINE_MISMATCH")
     if window.get("run_id") != context.run_id or window.get("attempt_id") != context.attempt_id:
         _reject("RUN_ATTEMPT_MISMATCH")
-    recomputed_stream = recompute_stream_identity(context.run_id, context.attempt_id)
+    recomputed_stream = recompute_stream_identity(
+        context.run_id, context.attempt_id,
+        policy_id=policy_binding(context._policy).policy_id,
+    )
     if window.get("stream_identity") != recomputed_stream:
         _reject("WORKLOAD_STREAM_IDENTITY_MISMATCH")
     try:

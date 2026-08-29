@@ -21,6 +21,7 @@ from sremut.resolved_context import (
     CONNECTED_HOOKS,
     ResolvedContextError,
     ResolvedEvidenceContext,
+    _policy_identity,
     resolve_evidence_context,
 )
 
@@ -720,6 +721,85 @@ class SealedTamperTests(ResolvedContextCase):
         manifest.write_bytes(b"".join(rows))
         changed = replace(anchor, terminal_manifest_sha256=sha256_hex(manifest.read_bytes()))
         self.assert_code("ATTEMPT_FINALITY_INVALID", self.resolve, changed)
+
+
+class VersionAwarePolicyIdentityTests(ResolvedContextCase):
+    """Authentication follows the binding the policy carries, not a fixed pin."""
+
+    @classmethod
+    def setUpClass(cls):
+        from sremut import policy_runtime as runtime
+
+        cls.runtime = runtime
+        cls.policy = load_policy()
+        cls.v1_2 = runtime.load_v1_2_policy_bundle(
+            REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.2.yaml",
+            REPOSITORY / "schemas/evidence-capture-policy-v1.2.schema.json",
+            REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_2_SHA256SUMS",
+            expected_manifest_sha256=runtime.POLICY_V1_2_MANIFEST_SHA256,
+        )
+
+    def test_policy_binding_is_closed_over_exactly_two_bundles(self):
+        binding = self.runtime.policy_binding
+        self.assertIs(binding(self.policy), self.runtime._V1_1_BINDING)
+        self.assertIs(binding(self.v1_2), self.runtime._V1_2_BINDING)
+        self.assertEqual(len(self.runtime.PINNED_BINDINGS), 2)
+        for value in (None, object(), "1.2", {"semantic_version": "1.2"}):
+            with self.assertRaises(Exception) as caught:
+                binding(value)
+            self.assertEqual(str(caught.exception), "POLICY_BINDING_MISSING")
+
+    def test_version_is_never_taken_from_a_caller_supplied_string(self):
+        """A policy whose carried binding is not pinned is refused outright."""
+        from dataclasses import replace as _replace
+
+        forged = _replace(self.v1_2, binding=_replace(self.runtime._V1_2_BINDING))
+        with self.assertRaises(Exception) as caught:
+            self.runtime.policy_binding(forged)
+        self.assertEqual(str(caught.exception), "POLICY_BINDING_MISSING")
+
+    def test_identity_reports_each_version_exactly(self):
+        first = _policy_identity(self.policy)
+        second = _policy_identity(self.v1_2)
+        self.assertEqual(first.manifest_sha256, self.runtime.POLICY_MANIFEST_SHA256)
+        self.assertEqual(second.manifest_sha256, self.runtime.POLICY_V1_2_MANIFEST_SHA256)
+        self.assertEqual(second.policy_sha256, self.runtime.POLICY_V1_2_POLICY_SHA256)
+        self.assertEqual(second.schema_sha256, self.runtime.POLICY_V1_2_SCHEMA_SHA256)
+        self.assertNotEqual(first.manifest_sha256, second.manifest_sha256)
+        # The frozen contract and profile identities are shared, as they must be.
+        self.assertEqual(first.contract_sha256, second.contract_sha256)
+        self.assertEqual(
+            first.execution_profile_tag_object, second.execution_profile_tag_object)
+
+    def test_a_v1_2_sealed_attempt_resolves_through_the_production_path(self):
+        # Build and seal the attempt with the v1.2 bundle itself.
+        v1_1 = self.policy
+        self.policy = self.v1_2
+        seal, anchor, _references = self.seal("ABORTED_SAFE")
+        context = resolve_evidence_context(
+            self.v1_2, self.root, RUN_ID, ATTEMPT_ID, anchor,
+            expected_terminal_manifest_identity=seal.manifest_sha256,
+        )
+        self.assertEqual(
+            context.policy_identity.manifest_sha256,
+            self.runtime.POLICY_V1_2_MANIFEST_SHA256,
+        )
+        self.assertEqual(self.v1_2.policy["policy_id"], self.runtime.POLICY_V1_2_ID)
+        self.assertTrue(context.authenticates(self.v1_2))
+        # A v1.2 context does not authenticate under the v1.1 bundle.
+        self.assertFalse(context.authenticates(v1_1))
+        self.assertEqual(dict(context.evaluation_authorization_contexts), {})
+        self.assertFalse(hasattr(context.journal_state, "evaluation"))
+
+    def test_v1_1_attempts_still_resolve_unchanged(self):
+        seal, anchor, _references = self.seal("ABORTED_SAFE")
+        context = self.resolve(anchor, expected=seal.manifest_sha256)
+        self.assertEqual(
+            context.policy_identity.manifest_sha256, self.runtime.POLICY_MANIFEST_SHA256)
+        # v1.1 defines no resolved-context document, so none is emitted for it.
+        with self.assertRaises(Exception) as caught:
+            context.as_v1_2_document()
+        self.assertEqual(str(caught.exception), "POLICY_BINDING_MISSING")
 
 
 if __name__ == "__main__":

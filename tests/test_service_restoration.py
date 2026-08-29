@@ -9,7 +9,7 @@ from pathlib import Path
 from types import MappingProxyType, SimpleNamespace
 import unittest
 
-from sremut.canonical_json import canonical_json_bytes
+from sremut.canonical_json import canonical_json_bytes, parse_canonical_json
 from sremut.policy_runtime import POLICY_MANIFEST_SHA256, load_policy_bundle
 from sremut.service_restoration import (
     SERVICE_RESTORATION_BODY,
@@ -440,6 +440,60 @@ class PreSealDerivationTests(unittest.TestCase):
             derive_service_restoration_body_preseal(*args)
         self.assertEqual(str(caught.exception), code)
         return caught.exception
+
+    def _second_request(self, monotonic_ns=97):
+        """Another VALID, same-run, same-role request identity descriptor."""
+        from sremut.kubernetes_readonly import KubernetesConsumer, ReadOnlyKubernetesClient
+
+        mutation_tests = self.mutation_tests
+        client = ReadOnlyKubernetesClient(
+            policy=self.policy,
+            transport=mutation_tests.FakeReadTransport(),
+            context="kind-kind",
+            namespace="social-network",
+            timeout_seconds=7,
+            run_id=self.run_id,
+            attempt_id=self.attempt_id,
+        )
+        capture = client.get_user_service(consumer=KubernetesConsumer.MUTATION_CONTROLLER)
+        return self.store.publish_descriptor(
+            capture.request_evidence.role,
+            capture.request_evidence.publication_metadata(
+                run_id=self.run_id,
+                attempt_id=self.attempt_id,
+                created_utc=mutation_tests.UTC,
+                monotonic_ns=monotonic_ns,
+                boot_identity=mutation_tests.BOOT,
+            ),
+        )
+
+    def test_request_must_be_the_one_the_projection_cites(self):
+        """A different valid request cannot be attributed to this capture.
+
+        The Service projection was produced by exactly one request, and its
+        retained descriptor records which.  A second request descriptor is
+        equally well formed -- same run, same attempt, same role, resolvable --
+        and is still refused, because it did not produce this projection.
+        """
+        other = self._second_request()
+        self.assertNotEqual(other.evidence_id, self.request.evidence_id)
+        cited = parse_canonical_json(
+            self.store.resolve(self.source)[1])["request_identity_reference"]
+        self.assertEqual(cited["evidence_id"], self.request.evidence_id)
+        self.assert_code(
+            "KUBERNETES_PROJECTION_REQUEST_MISMATCH",
+            self.store, self.source, other, CREATED,
+        )
+
+    def test_the_cited_request_still_derives(self):
+        """The correlation check does not disturb the legitimate path."""
+        self._second_request()
+        body = derive_service_restoration_body_preseal(
+            self.store, self.source, self.request, CREATED
+        )
+        self.assertEqual(body["document_type"], SERVICE_RESTORATION_BODY)
+        self.assertEqual(
+            body["source_request_reference"]["evidence_id"], self.request.evidence_id)
 
     def test_derives_a_valid_body_from_retained_bytes(self):
         body = derive_service_restoration_body_preseal(
