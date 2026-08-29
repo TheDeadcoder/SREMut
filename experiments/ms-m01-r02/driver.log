@@ -1,0 +1,194 @@
+[2026-08-29T11:20:11.447379+00:00] STEP 0: preflight [read-only, except the mandated Failed-pod deletion]
+[2026-08-29T11:20:12.431432+00:00]   preflight passed=True  failed_pods_deleted=0  stale_probe_pods_deleted=0
+[2026-08-29T11:20:12.431587+00:00] STEP 1: starting state sampler on namespace 'social-network'
+[2026-08-29T11:20:12.432347+00:00]   sampler PID 905114
+[2026-08-29T11:20:15.432504+00:00] STEP 2: Conductor / fix_kubernetes / undeploy_app / deploy_app  [MUTATING]
+2026-08-29 11:20:15,566 - all.sregym.conductor - INFO - Fixing Kubernetes... to normal state.
+2026-08-29 11:20:15,566 - all.sregym.conductor - INFO - [FIX] Imbalance leftover if any
+2026-08-29 11:20:15,754 - all.sregym.conductor - INFO - [FIX] KubeletCrash leftover if any
+2026-08-29 11:20:16,447 - all.sregym.conductor - INFO - [FIX] KubeletEvictionThresholdMisconfig leftover if any
+2026-08-29 11:20:17,842 - all.sregym.conductor - INFO - [FIX] Calico IPPool/strictAffinity leftover if any
+2026-08-29 11:20:18,294 - all.sregym.conductor - INFO - [FIX] Calico route-reflector label drift leftovers if any
+2026-08-29 11:20:18,497 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get bgppeer cluster-peer-policy -o json
+  stderr: Error from server (NotFound): bgppeers.crd.projectcalico.org "cluster-peer-policy" not found
+2026-08-29 11:20:18,651 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get bgpconfiguration default -o json
+  stderr: Error from server (NotFound): bgpconfigurations.crd.projectcalico.org "default" not found
+2026-08-29 11:20:18,728 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get namespace platform-checks -o json
+  stderr: Error from server (NotFound): namespaces "platform-checks" not found
+2026-08-29 11:20:18,833 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl -n khaos get configmap network-case-state -o json
+  stderr: Error from server (NotFound): namespaces "khaos" not found
+2026-08-29 11:20:18,833 - all.sregym.conductor - INFO - [FIX] Stale CoreDNS NXDOMAIN templates if any
+2026-08-29 11:20:18,918 - all.sregym.conductor - INFO - [FIX] Leftover dm-flakey infrastructure if any
+2026-08-29 11:20:19,256 - all.sregym.conductor - INFO - [FIX] NightlyRebalanceOOM kube-system actor leftover if any
+2026-08-29 11:20:19,341 - all.sregym.conductor - INFO - [FIX] Clock drift leftover if any
+2026-08-29 11:20:19,433 - all.sregym.conductor - INFO - Fix Kubernetes completed.
+2026-08-29 11:20:19,433 - all.infra.helm - INFO - Helm Uninstall: social-network in namespace social-network
+2026-08-29 11:20:20,470 - all.infra.helm - DEBUG - release "social-network" uninstalled
+Starting kubelet in kind-worker...
+Kubelet started in kind-worker
+Starting kubelet in kind-worker2...
+Kubelet started in kind-worker2
+Starting kubelet in kind-worker3...
+Kubelet started in kind-worker3
+Waiting for worker nodes {'kind-worker2', 'kind-worker3', 'kind-worker'} to become Ready...
+All worker nodes are Ready.
+Recovering disk pressure in kind-worker...
+Waiting for node kind-worker to become Ready...
+Node kind-worker is Ready.
+Recovering disk pressure in kind-worker2...
+Waiting for node kind-worker2 to become Ready...
+Node kind-worker2 is Ready.
+Recovering disk pressure in kind-worker3...
+Waiting for node kind-worker3 to become Ready...
+Node kind-worker3 is Ready.
+No NXDOMAIN templates found in CoreDNS config; nothing to do
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-control-plane (may not exist): No running Khaos pod found on node kind-control-plane
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker (may not exist): No running Khaos pod found on node kind-worker
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker2 (may not exist): No running Khaos pod found on node kind-worker2
+[dm-flakey] ⚠️ Could not remove dm-flakey on kind-worker3 (may not exist): No running Khaos pod found on node kind-worker3
+No leftover node-probe pods found; nothing to do
+[11:20:20] Job with label 'job=workload' deleted successfully.    kubectl.py:320
+           Waiting for namespace deletion...                      kubectl.py:239
+[11:20:56] Namespace 'social-network' has been deleted.           kubectl.py:247
+2026-08-29 11:20:56,688 - all.infra.kubectl - INFO - Namespace 'social-network' deleted successfully.
+2026-08-29 11:20:56,689 - all.infra.cluster_state - INFO - Baseline state loaded from /home/sakibbuet2k19/cache_dir/cluster_baseline_state.json
+2026-08-29 11:20:56,689 - all.sregym.conductor - INFO - [DEPLOY] Loaded persisted cluster baseline state
+2026-08-29 11:20:56,689 - all.sregym.conductor - INFO - [DEPLOY] Setting up metrics-server…
+[11:20:58] Waiting for all pods in namespace 'kube-system' to be  kubectl.py:194
+           ready...                                                             
+[11:21:00] All pods in namespace 'kube-system' are ready.         kubectl.py:223
+2026-08-29 11:21:00,640 - all.sregym.conductor - INFO - [DEPLOY] Setting up OpenEBS…
+[11:21:02] Waiting for all pods in namespace 'openebs' to be      kubectl.py:194
+           ready...                                                             
+           All pods in namespace 'openebs' are ready.             kubectl.py:223
+2026-08-29 11:21:02,898 - all.sregym.conductor - INFO - [DEPLOY] Ensuring OpenEBS LocalPV-Device StorageClass…
+2026-08-29 11:21:02,976 - all.sregym.conductor - INFO - [DEPLOY] StorageClass/openebs-device already exists; leaving it unchanged
+2026-08-29 11:21:02,976 - all.sregym.conductor - INFO - [DEPLOY] Deploying Prometheus…
+2026-08-29 11:21:03,062 - all.infra.prometheus - WARNING - Prometheus is already running. Skipping redeployment.
+2026-08-29 11:21:03,062 - all.sregym.conductor - INFO - [DEPLOY] Deploying Jaeger…
+2026-08-29 11:21:03,604 - all.sregym.jaeger - INFO - Jaeger deployed successfully.
+2026-08-29 11:21:03,604 - all.sregym.conductor - INFO - [DEPLOY] Deploying OTel Collector…
+2026-08-29 11:21:04,389 - all.sregym.otel_collector - INFO - OTel Collector deployed successfully.
+2026-08-29 11:21:04,389 - all.sregym.conductor - INFO - [DEPLOY] Skipping Loki deployment (external harness mode)
+2026-08-29 11:21:04,390 - all.sregym.conductor - INFO - [DEPLOY] Deploying MCP server…
+2026-08-29 11:21:04,613 - all.sregym.mcp_server - INFO - MCP server RBAC resources ensured.
+2026-08-29 11:21:04,689 - all.sregym.mcp_server - INFO - MCP server already running, skipping redeploy.
+2026-08-29 11:21:04,695 - all.sregym.mcp_server - INFO - Port-forward is absent or stale, restarting.
+2026-08-29 11:21:07,697 - all.sregym.mcp_server - INFO - Port forwarding established at 9954. MCP_SERVER_PORT set.
+2026-08-29 11:21:07,697 - all.sregym.conductor - INFO - [ENV] Set up necessary components: metrics-server, Khaos, OpenEBS, Prometheus, Jaeger, Loki
+2026-08-29 11:21:07,697 - all.sregym.conductor - INFO - [DEPLOY] Deploying and starting workload
+2026-08-29 11:21:07,777 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get namespace social-network
+  stderr: Error from server (NotFound): namespaces "social-network" not found
+2026-08-29 11:21:07,777 - all.application - INFO - Namespace social-network not found. Creating namespace.
+2026-08-29 11:21:07,856 - all.application - INFO - Namespace social-network created successfully: namespace/social-network created
+
+2026-08-29 11:21:07,942 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl get secret mongodb-tls -n social-network
+  stderr: Error from server (NotFound): secrets "mongodb-tls" not found
+2026-08-29 11:21:08,025 - all.sregym.social_network - DEBUG - TLS secret created: secret/mongodb-tls created
+2026-08-29 11:21:08,051 - all.infra.helm - INFO - Helm Install: social-network in namespace social-network
+2026-08-29 11:21:59,173 - all.infra.helm - DEBUG - NAME: social-network
+LAST DEPLOYED: Sat Aug 29 11:21:57 2026
+NAMESPACE: social-network
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+[11:21:59] Waiting for all pods in namespace 'social-network' to  kubectl.py:194
+           be ready...                                                          
+[11:22:19] All pods in namespace 'social-network' are ready.      kubectl.py:223
+2026-08-29 11:22:19,556 - all.sregym.conductor - INFO - [ENV] Deploy application: Social Network
+2026-08-29 11:22:19,921 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger' in namespace 'social-network' -> otel-collector.observe.svc.cluster.local
+2026-08-29 11:22:20,080 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-agent' in namespace 'social-network' -> otel-collector.observe.svc.cluster.local
+2026-08-29 11:22:20,248 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-collector' in namespace 'social-network' -> otel-collector.observe.svc.cluster.local
+2026-08-29 11:22:20,408 - all.sregym.jaeger - INFO - Created ExternalName service 'jaeger-query' in namespace 'social-network' -> otel-collector.observe.svc.cluster.local
+2026-08-29 11:22:20,512 - all.infra.workload - INFO - Start Workload with Wrk2
+2026-08-29 11:22:20,513 - all.infra.workload - INFO - Checking for existing ConfigMap 'wrk2-payload-script'...
+2026-08-29 11:22:20,526 - all.infra.workload - INFO - Creating ConfigMap 'wrk2-payload-script'...
+2026-08-29 11:22:20,534 - all.infra.workload - INFO - ConfigMap 'wrk2-payload-script' created successfully.
+2026-08-29 11:22:20,562 - all.infra.workload - INFO - Job created: wrk2-job
+2026-08-29 11:22:20,562 - all.sregym.conductor - INFO - [ENV] Start workload
+[2026-08-29T11:22:20.562821+00:00]   deploy complete in 124.997s
+[2026-08-29T11:22:20.562850+00:00] STEP 2b: wait_for_ready(max_wait=600)
+[11:22:20] Waiting for all pods in namespace 'social-network' to  kubectl.py:194
+           be ready...                                                          
+[11:22:25] All pods in namespace 'social-network' are ready.      kubectl.py:223
+[2026-08-29T11:22:25.007100+00:00]   stable in 4.444s
+[2026-08-29T11:22:25.007149+00:00] STEP 3: healthy workload window  [R2]
+[2026-08-29T11:22:25.007162+00:00]   waiting for >= 10 complete wrk2 rounds (HEALTHY) since deploy
+[2026-08-29T11:24:17.321553+00:00]   HEALTHY: 10 rounds, 0/10240 non-2xx = 0.0000%  (112.3s)
+[2026-08-29T11:24:17.321637+00:00] STEP 4: capture_baseline()   [conductor.py:227]
+[2026-08-29T11:24:17.415217+00:00]   captured 27 deployments
+[2026-08-29T11:24:17.415257+00:00] STEP 5: HEALTHY oracles
+[2026-08-29T11:24:17.769577+00:00]   pre-oracle assertion [HEALTHY/in_process]: no_probe_pod=True pods=28 fully_running=True non_running=0
+[2026-08-29T11:24:17.770397+00:00]   HEALTHY in-process evaluate() starting
+== Mitigation Evaluation ==
+[2026-08-29T11:24:18.080992+00:00]   HEALTHY in-process raw verdict = {"success": true} (0.31s)
+[2026-08-29T11:24:18.416350+00:00]   pre-oracle assertion [HEALTHY/worker]: no_probe_pod=True pods=28 fully_running=True non_running=0
+[2026-08-29T11:24:18.417214+00:00]   HEALTHY SREMut worker starting
+[2026-08-29T11:24:25.617303+00:00]   HEALTHY worker exit=0 outcome=RETURNED_TRUE returned_boolean=True (7.2s)
+[2026-08-29T11:24:25.617380+00:00]   GATE PASSED (both oracles True, zero non-2xx). Proceeding.
+[2026-08-29T11:24:25.617399+00:00] STEP 6: capturing the live Service/user-service
+[2026-08-29T11:24:25.713414+00:00]   captured Service sha256=9a2a68a47239db22…
+[2026-08-29T11:24:25.713461+00:00] STEP 7: HEALTHY contract evaluation
+[2026-08-29T11:24:25.713486+00:00]   contract evaluation [healthy] starting (deadline 30s)
+[2026-08-29T11:24:32.762075+00:00]   contract [healthy] verdict = PASS
+[2026-08-29T11:24:34.884397+00:00]   dumped healthy -> /home/sakibbuet2k19/sremut/SREMut/experiments/ms-m01-r02/healthy
+[2026-08-29T11:24:34.884443+00:00] STEP 8: inject_fault()   [conductor.py:229]  [MUTATING]
+== Fault Injection ==
+Deleted service user-service to enforce the fault: service "user-service" deleted from social-network namespace
+
+[11:25:09] Waiting for namespace 'social-network' to be stable... kubectl.py:281
+           All pods in namespace 'social-network' are stable.     kubectl.py:291
+Service: user-service | Namespace: social-network
+
+[2026-08-29T11:25:15.781192+00:00]   injection complete in 40.897s
+[2026-08-29T11:25:15.781266+00:00] STEP 9: applying mutant MS-M01  [MUTATING]
+[2026-08-29T11:25:15.781300+00:00]   MS-M01: no action taken (the Service stays absent)
+[2026-08-29T11:25:15.781329+00:00] STEP 11a: verifying mutant activation structurally  [section 2, polled]
+[2026-08-29T11:25:15.891948+00:00]   activation [MS-M01] activated=True after 1 attempt(s), 0.111s
+[2026-08-29T11:25:15.892020+00:00] STEP 10: holding to R1 = 60s from injection
+[2026-08-29T11:26:12.092143+00:00]   pre-oracle assertion [FAULTED/in_process]: no_probe_pod=True pods=28 fully_running=True non_running=0
+[2026-08-29T11:26:15.781270+00:00] STEP 12: FAULTED oracles
+[2026-08-29T11:26:15.781384+00:00]   FAULTED in-process evaluate() starting
+== Mitigation Evaluation ==
+[2026-08-29T11:26:16.295792+00:00]   FAULTED in-process raw verdict = {"success": true} (0.514s)
+[2026-08-29T11:26:16.590584+00:00]   pre-oracle assertion [FAULTED/worker]: no_probe_pod=True pods=28 fully_running=True non_running=0
+[2026-08-29T11:26:16.591366+00:00]   FAULTED SREMut worker starting
+[2026-08-29T11:26:24.571089+00:00]   FAULTED worker exit=0 outcome=RETURNED_TRUE returned_boolean=True (7.979s)
+[2026-08-29T11:26:24.571165+00:00]   R1 achieved = 60.0s
+[2026-08-29T11:26:24.571199+00:00] STEP 14: faulted workload window  [R2]
+[2026-08-29T11:26:24.571222+00:00]   waiting for >= 10 complete wrk2 rounds (FAULTED) after 2026-08-29T11:25:15.781142Z
+[2026-08-29T11:27:05.516105+00:00]   FAULTED: 10 rounds, 1021/10240 non-2xx = 9.9707%  (40.9s)
+[2026-08-29T11:27:05.516189+00:00] STEP 13: FAULTED contract evaluation
+[2026-08-29T11:27:05.516217+00:00]   contract evaluation [faulted] starting (deadline 30s)
+[2026-08-29T11:27:44.088646+00:00]   contract [faulted] verdict = REJECT  violated=['MS-I1', 'MS-I2', 'MS-I3', 'MS-I4']
+[2026-08-29T11:27:45.997051+00:00]   dumped faulted -> /home/sakibbuet2k19/sremut/SREMut/experiments/ms-m01-r02/faulted
+[2026-08-29T11:27:45.997126+00:00] STEP 16: recover_fault()   [missing_service.py:52]  [MUTATING]
+[2026-08-29T11:27:45.997145+00:00]   the driver deletes no Service of its own; SREGym's recover_missing_service removes the mutant (inject_virtual.py:309-320)
+2026-08-29 11:27:46,093 - all.infra.kubectl - ERROR - Command failed (exit 1): kubectl delete service user-service -n social-network
+  stderr: Error from server (NotFound): services "user-service" not found
+== Fault Recovery ==
+Recreated service user-service to recover from the fault: service/user-service created
+
+[11:28:21] Waiting for namespace 'social-network' to be stable... kubectl.py:281
+           All pods in namespace 'social-network' are stable.     kubectl.py:291
+Service: user-service | Namespace: social-network
+
+[2026-08-29T11:28:21.154374+00:00]   recovery complete in 35.157s
+[2026-08-29T11:28:21.154415+00:00] STEP 17: restored workload window  [R2]
+[2026-08-29T11:28:21.154439+00:00]   waiting for >= 10 complete wrk2 rounds (RESTORED) after 2026-08-29T11:28:21.154338Z
+[2026-08-29T11:30:13.480634+00:00]   RESTORED: 10 rounds, 0/10240 non-2xx = 0.0000%  (112.3s)
+[2026-08-29T11:30:13.480772+00:00] STEP 17b: RESTORED oracles
+[2026-08-29T11:30:13.790691+00:00]   pre-oracle assertion [RESTORED/in_process]: no_probe_pod=True pods=28 fully_running=True non_running=0
+[2026-08-29T11:30:13.791049+00:00]   RESTORED in-process evaluate() starting
+== Mitigation Evaluation ==
+[2026-08-29T11:30:14.092005+00:00]   RESTORED in-process raw verdict = {"success": true} (0.301s)
+[2026-08-29T11:30:14.400695+00:00]   pre-oracle assertion [RESTORED/worker]: no_probe_pod=True pods=28 fully_running=True non_running=0
+[2026-08-29T11:30:14.401659+00:00]   RESTORED SREMut worker starting
+[2026-08-29T11:30:21.479762+00:00]   RESTORED worker exit=0 outcome=RETURNED_TRUE returned_boolean=True (7.078s)
+[2026-08-29T11:30:21.479831+00:00] STEP 17c: RESTORED contract evaluation
+[2026-08-29T11:30:21.479868+00:00]   contract evaluation [restored] starting (deadline 30s)
+[2026-08-29T11:30:28.251959+00:00]   contract [restored] verdict = PASS
+[2026-08-29T11:30:29.838464+00:00]   dumped restored -> /home/sakibbuet2k19/sremut/SREMut/experiments/ms-m01-r02/restored
+[2026-08-29T11:30:29.838508+00:00] STEP 18: stopping sampler
+[2026-08-29T11:30:31.845751+00:00] mutant-run.json -> /home/sakibbuet2k19/sremut/SREMut/experiments/ms-m01-r02/mutant-run.json  status=COMPLETE

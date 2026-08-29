@@ -1,0 +1,1132 @@
+{
+  "contract_check_sha256": "036ad9f7193ea2ffe1fee69a1d7352310a29401b27c96e53322c051b1fb732d4",
+  "note": "NOT a research result. No mutant, no fault injection, no oracle invocation. The expected answer here is known in advance: this state is healthy and the stock oracle agrees with it.",
+  "protocol_doc": "SREMut/PREREGISTRATION_MS_MUTANTS.md",
+  "purpose": "instrument validation: contract_check.evaluate_contract exercised once against the known-good healthy cluster before any mutant run",
+  "replica_baseline": {
+    "compose-post-service": 1,
+    "home-timeline-redis": 1,
+    "home-timeline-service": 1,
+    "jaeger": 1,
+    "media-frontend": 1,
+    "media-memcached": 1,
+    "media-mongodb": 1,
+    "media-service": 1,
+    "nginx-thrift": 1,
+    "post-storage-memcached": 1,
+    "post-storage-mongodb": 1,
+    "post-storage-service": 1,
+    "social-graph-mongodb": 1,
+    "social-graph-redis": 1,
+    "social-graph-service": 1,
+    "text-service": 1,
+    "unique-id-service": 1,
+    "url-shorten-memcached": 1,
+    "url-shorten-mongodb": 1,
+    "url-shorten-service": 1,
+    "user-memcached": 1,
+    "user-mention-service": 1,
+    "user-mongodb": 1,
+    "user-service": 1,
+    "user-timeline-mongodb": 1,
+    "user-timeline-redis": 1,
+    "user-timeline-service": 1
+  },
+  "result": {
+    "evaluated_utc": "2026-08-29T10:06:27.971749+00:00",
+    "finished_utc": "2026-08-29T10:06:37.105344+00:00",
+    "invariants": {
+      "MS-I1": {
+        "attempts": 1,
+        "elapsed_seconds": 2.128,
+        "first_observation_utc": "2026-08-29T10:06:34.977148+00:00",
+        "last_observation_utc": "2026-08-29T10:06:34.977153+00:00",
+        "observations": {
+          "all_observations": [
+            {
+              "all_eligible_endpoints_mapped": true,
+              "cluster_ip": "10.96.114.38",
+              "cluster_ip_usable": true,
+              "dns_answer_addresses": [
+                "10.96.114.38"
+              ],
+              "dns_matches_cluster_ip": true,
+              "dns_naive_contains_cluster_ip": true,
+              "eligible_endpoints": [
+                {
+                  "address": "10.244.162.177",
+                  "address_type": "IPv4",
+                  "conditions": {
+                    "ready": true,
+                    "serving": true,
+                    "terminating": false
+                  },
+                  "slice": "user-service-9swzp",
+                  "target_ref": {
+                    "kind": "Pod",
+                    "name": "user-service-6d5985bd55-2xpqj",
+                    "namespace": "social-network",
+                    "uid": "3b78d36b-2355-425c-99f7-cb3dedcc891d"
+                  }
+                }
+              ],
+              "endpoint_pod_mappings": [
+                {
+                  "address": "10.244.162.177",
+                  "deletion_timestamp": null,
+                  "deployment_ref": {
+                    "apiVersion": "apps/v1",
+                    "blockOwnerDeletion": true,
+                    "controller": true,
+                    "kind": "Deployment",
+                    "name": "user-service",
+                    "uid": "099a83aa-36ef-4d13-9bd1-2660cc38ce7d"
+                  },
+                  "mapped": true,
+                  "pod": "user-service-6d5985bd55-2xpqj",
+                  "pod_ready": true,
+                  "pod_uid": "3b78d36b-2355-425c-99f7-cb3dedcc891d",
+                  "replicaset_ref": {
+                    "apiVersion": "apps/v1",
+                    "blockOwnerDeletion": true,
+                    "controller": true,
+                    "kind": "ReplicaSet",
+                    "name": "user-service-6d5985bd55",
+                    "uid": "dca558f0-a67f-41d3-9094-18acefe83a9c"
+                  }
+                }
+              ],
+              "endpointslice_count": 1,
+              "endpointslices_kubectl": {
+                "argv": [
+                  "get",
+                  "endpointslices.discovery.k8s.io",
+                  "-n",
+                  "social-network",
+                  "-l",
+                  "kubernetes.io/service-name=user-service",
+                  "-o",
+                  "json"
+                ],
+                "exit": 0,
+                "stderr": "",
+                "stdout_bytes": 2342
+              },
+              "ineligible_endpoints": [],
+              "ms_i1_pass": true,
+              "ms_i2_pass": true,
+              "ms_i3_pass": true,
+              "nc": {
+                "argv": [
+                  "nc",
+                  "-z",
+                  "-w",
+                  "3",
+                  "user-service.social-network.svc.cluster.local",
+                  "9090"
+                ],
+                "exit": 0,
+                "stderr": "",
+                "stdout": ""
+              },
+              "nslookup": {
+                "argv": [
+                  "nslookup",
+                  "user-service.social-network.svc.cluster.local"
+                ],
+                "exit": 0,
+                "stderr": "",
+                "stdout": "Server:\t\t10.96.0.10\nAddress:\t10.96.0.10:53\n\nName:\tuser-service.social-network.svc.cluster.local\nAddress: 10.96.114.38\n\n\n"
+              },
+              "observed_utc": "2026-08-29T10:06:34.977153+00:00",
+              "pods_kubectl": {
+                "argv": [
+                  "get",
+                  "pods",
+                  "-n",
+                  "social-network",
+                  "-o",
+                  "json"
+                ],
+                "exit": 0,
+                "stderr": "",
+                "stdout_bytes": 293617
+              },
+              "replicasets_kubectl": {
+                "argv": [
+                  "get",
+                  "replicasets",
+                  "-n",
+                  "social-network",
+                  "-o",
+                  "json"
+                ],
+                "exit": 0,
+                "stderr": "",
+                "stdout_bytes": 135481
+              },
+              "service": {
+                "apiVersion": "v1",
+                "kind": "Service",
+                "metadata": {
+                  "annotations": {
+                    "meta.helm.sh/release-name": "social-network",
+                    "meta.helm.sh/release-namespace": "social-network"
+                  },
+                  "creationTimestamp": "2026-08-27T04:37:18Z",
+                  "labels": {
+                    "app.kubernetes.io/managed-by": "Helm"
+                  },
+                  "name": "user-service",
+                  "namespace": "social-network",
+                  "resourceVersion": "2156725",
+                  "uid": "0b10e912-ee24-4fca-a21d-62fb18227136"
+                },
+                "spec": {
+                  "clusterIP": "10.96.114.38",
+                  "clusterIPs": [
+                    "10.96.114.38"
+                  ],
+                  "internalTrafficPolicy": "Cluster",
+                  "ipFamilies": [
+                    "IPv4"
+                  ],
+                  "ipFamilyPolicy": "SingleStack",
+                  "ports": [
+                    {
+                      "name": "9090",
+                      "port": 9090,
+                      "protocol": "TCP",
+                      "targetPort": 9090
+                    }
+                  ],
+                  "selector": {
+                    "service": "user-service"
+                  },
+                  "sessionAffinity": "None",
+                  "type": "ClusterIP"
+                },
+                "status": {
+                  "loadBalancer": {}
+                }
+              },
+              "service_kubectl": {
+                "argv": [
+                  "get",
+                  "service",
+                  "user-service",
+                  "-n",
+                  "social-network",
+                  "--ignore-not-found",
+                  "-o",
+                  "json"
+                ],
+                "exit": 0,
+                "stderr": "",
+                "stdout_bytes": 1164
+              },
+              "service_present": true,
+              "tcp_connect_ok": true
+            }
+          ],
+          "deciding_observation": {
+            "all_eligible_endpoints_mapped": true,
+            "cluster_ip": "10.96.114.38",
+            "cluster_ip_usable": true,
+            "dns_answer_addresses": [
+              "10.96.114.38"
+            ],
+            "dns_matches_cluster_ip": true,
+            "dns_naive_contains_cluster_ip": true,
+            "eligible_endpoints": [
+              {
+                "address": "10.244.162.177",
+                "address_type": "IPv4",
+                "conditions": {
+                  "ready": true,
+                  "serving": true,
+                  "terminating": false
+                },
+                "slice": "user-service-9swzp",
+                "target_ref": {
+                  "kind": "Pod",
+                  "name": "user-service-6d5985bd55-2xpqj",
+                  "namespace": "social-network",
+                  "uid": "3b78d36b-2355-425c-99f7-cb3dedcc891d"
+                }
+              }
+            ],
+            "endpoint_pod_mappings": [
+              {
+                "address": "10.244.162.177",
+                "deletion_timestamp": null,
+                "deployment_ref": {
+                  "apiVersion": "apps/v1",
+                  "blockOwnerDeletion": true,
+                  "controller": true,
+                  "kind": "Deployment",
+                  "name": "user-service",
+                  "uid": "099a83aa-36ef-4d13-9bd1-2660cc38ce7d"
+                },
+                "mapped": true,
+                "pod": "user-service-6d5985bd55-2xpqj",
+                "pod_ready": true,
+                "pod_uid": "3b78d36b-2355-425c-99f7-cb3dedcc891d",
+                "replicaset_ref": {
+                  "apiVersion": "apps/v1",
+                  "blockOwnerDeletion": true,
+                  "controller": true,
+                  "kind": "ReplicaSet",
+                  "name": "user-service-6d5985bd55",
+                  "uid": "dca558f0-a67f-41d3-9094-18acefe83a9c"
+                }
+              }
+            ],
+            "endpointslice_count": 1,
+            "endpointslices_kubectl": {
+              "argv": [
+                "get",
+                "endpointslices.discovery.k8s.io",
+                "-n",
+                "social-network",
+                "-l",
+                "kubernetes.io/service-name=user-service",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 2342
+            },
+            "ineligible_endpoints": [],
+            "ms_i1_pass": true,
+            "ms_i2_pass": true,
+            "ms_i3_pass": true,
+            "nc": {
+              "argv": [
+                "nc",
+                "-z",
+                "-w",
+                "3",
+                "user-service.social-network.svc.cluster.local",
+                "9090"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout": ""
+            },
+            "nslookup": {
+              "argv": [
+                "nslookup",
+                "user-service.social-network.svc.cluster.local"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout": "Server:\t\t10.96.0.10\nAddress:\t10.96.0.10:53\n\nName:\tuser-service.social-network.svc.cluster.local\nAddress: 10.96.114.38\n\n\n"
+            },
+            "observed_utc": "2026-08-29T10:06:34.977153+00:00",
+            "pods_kubectl": {
+              "argv": [
+                "get",
+                "pods",
+                "-n",
+                "social-network",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 293617
+            },
+            "replicasets_kubectl": {
+              "argv": [
+                "get",
+                "replicasets",
+                "-n",
+                "social-network",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 135481
+            },
+            "service": {
+              "apiVersion": "v1",
+              "kind": "Service",
+              "metadata": {
+                "annotations": {
+                  "meta.helm.sh/release-name": "social-network",
+                  "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-27T04:37:18Z",
+                "labels": {
+                  "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-service",
+                "namespace": "social-network",
+                "resourceVersion": "2156725",
+                "uid": "0b10e912-ee24-4fca-a21d-62fb18227136"
+              },
+              "spec": {
+                "clusterIP": "10.96.114.38",
+                "clusterIPs": [
+                  "10.96.114.38"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                  "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                  {
+                    "name": "9090",
+                    "port": 9090,
+                    "protocol": "TCP",
+                    "targetPort": 9090
+                  }
+                ],
+                "selector": {
+                  "service": "user-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+              },
+              "status": {
+                "loadBalancer": {}
+              }
+            },
+            "service_kubectl": {
+              "argv": [
+                "get",
+                "service",
+                "user-service",
+                "-n",
+                "social-network",
+                "--ignore-not-found",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 1164
+            },
+            "service_present": true,
+            "tcp_connect_ok": true
+          },
+          "probe_pod_running": true,
+          "total_observations": 1
+        },
+        "result": "PASS"
+      },
+      "MS-I2": {
+        "attempts": 1,
+        "elapsed_seconds": 2.128,
+        "first_observation_utc": "2026-08-29T10:06:34.977148+00:00",
+        "last_observation_utc": "2026-08-29T10:06:34.977153+00:00",
+        "observations": {
+          "deciding_observation": {
+            "all_eligible_endpoints_mapped": true,
+            "cluster_ip": "10.96.114.38",
+            "cluster_ip_usable": true,
+            "dns_answer_addresses": [
+              "10.96.114.38"
+            ],
+            "dns_matches_cluster_ip": true,
+            "dns_naive_contains_cluster_ip": true,
+            "eligible_endpoints": [
+              {
+                "address": "10.244.162.177",
+                "address_type": "IPv4",
+                "conditions": {
+                  "ready": true,
+                  "serving": true,
+                  "terminating": false
+                },
+                "slice": "user-service-9swzp",
+                "target_ref": {
+                  "kind": "Pod",
+                  "name": "user-service-6d5985bd55-2xpqj",
+                  "namespace": "social-network",
+                  "uid": "3b78d36b-2355-425c-99f7-cb3dedcc891d"
+                }
+              }
+            ],
+            "endpoint_pod_mappings": [
+              {
+                "address": "10.244.162.177",
+                "deletion_timestamp": null,
+                "deployment_ref": {
+                  "apiVersion": "apps/v1",
+                  "blockOwnerDeletion": true,
+                  "controller": true,
+                  "kind": "Deployment",
+                  "name": "user-service",
+                  "uid": "099a83aa-36ef-4d13-9bd1-2660cc38ce7d"
+                },
+                "mapped": true,
+                "pod": "user-service-6d5985bd55-2xpqj",
+                "pod_ready": true,
+                "pod_uid": "3b78d36b-2355-425c-99f7-cb3dedcc891d",
+                "replicaset_ref": {
+                  "apiVersion": "apps/v1",
+                  "blockOwnerDeletion": true,
+                  "controller": true,
+                  "kind": "ReplicaSet",
+                  "name": "user-service-6d5985bd55",
+                  "uid": "dca558f0-a67f-41d3-9094-18acefe83a9c"
+                }
+              }
+            ],
+            "endpointslice_count": 1,
+            "endpointslices_kubectl": {
+              "argv": [
+                "get",
+                "endpointslices.discovery.k8s.io",
+                "-n",
+                "social-network",
+                "-l",
+                "kubernetes.io/service-name=user-service",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 2342
+            },
+            "ineligible_endpoints": [],
+            "ms_i1_pass": true,
+            "ms_i2_pass": true,
+            "ms_i3_pass": true,
+            "nc": {
+              "argv": [
+                "nc",
+                "-z",
+                "-w",
+                "3",
+                "user-service.social-network.svc.cluster.local",
+                "9090"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout": ""
+            },
+            "nslookup": {
+              "argv": [
+                "nslookup",
+                "user-service.social-network.svc.cluster.local"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout": "Server:\t\t10.96.0.10\nAddress:\t10.96.0.10:53\n\nName:\tuser-service.social-network.svc.cluster.local\nAddress: 10.96.114.38\n\n\n"
+            },
+            "observed_utc": "2026-08-29T10:06:34.977153+00:00",
+            "pods_kubectl": {
+              "argv": [
+                "get",
+                "pods",
+                "-n",
+                "social-network",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 293617
+            },
+            "replicasets_kubectl": {
+              "argv": [
+                "get",
+                "replicasets",
+                "-n",
+                "social-network",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 135481
+            },
+            "service": {
+              "apiVersion": "v1",
+              "kind": "Service",
+              "metadata": {
+                "annotations": {
+                  "meta.helm.sh/release-name": "social-network",
+                  "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-27T04:37:18Z",
+                "labels": {
+                  "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-service",
+                "namespace": "social-network",
+                "resourceVersion": "2156725",
+                "uid": "0b10e912-ee24-4fca-a21d-62fb18227136"
+              },
+              "spec": {
+                "clusterIP": "10.96.114.38",
+                "clusterIPs": [
+                  "10.96.114.38"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                  "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                  {
+                    "name": "9090",
+                    "port": 9090,
+                    "protocol": "TCP",
+                    "targetPort": 9090
+                  }
+                ],
+                "selector": {
+                  "service": "user-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+              },
+              "status": {
+                "loadBalancer": {}
+              }
+            },
+            "service_kubectl": {
+              "argv": [
+                "get",
+                "service",
+                "user-service",
+                "-n",
+                "social-network",
+                "--ignore-not-found",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 1164
+            },
+            "service_present": true,
+            "tcp_connect_ok": true
+          },
+          "probe_pod_running": true,
+          "total_observations": 1
+        },
+        "result": "PASS"
+      },
+      "MS-I3": {
+        "attempts": 1,
+        "elapsed_seconds": 2.128,
+        "first_observation_utc": "2026-08-29T10:06:34.977148+00:00",
+        "last_observation_utc": "2026-08-29T10:06:34.977153+00:00",
+        "observations": {
+          "deciding_observation": {
+            "all_eligible_endpoints_mapped": true,
+            "cluster_ip": "10.96.114.38",
+            "cluster_ip_usable": true,
+            "dns_answer_addresses": [
+              "10.96.114.38"
+            ],
+            "dns_matches_cluster_ip": true,
+            "dns_naive_contains_cluster_ip": true,
+            "eligible_endpoints": [
+              {
+                "address": "10.244.162.177",
+                "address_type": "IPv4",
+                "conditions": {
+                  "ready": true,
+                  "serving": true,
+                  "terminating": false
+                },
+                "slice": "user-service-9swzp",
+                "target_ref": {
+                  "kind": "Pod",
+                  "name": "user-service-6d5985bd55-2xpqj",
+                  "namespace": "social-network",
+                  "uid": "3b78d36b-2355-425c-99f7-cb3dedcc891d"
+                }
+              }
+            ],
+            "endpoint_pod_mappings": [
+              {
+                "address": "10.244.162.177",
+                "deletion_timestamp": null,
+                "deployment_ref": {
+                  "apiVersion": "apps/v1",
+                  "blockOwnerDeletion": true,
+                  "controller": true,
+                  "kind": "Deployment",
+                  "name": "user-service",
+                  "uid": "099a83aa-36ef-4d13-9bd1-2660cc38ce7d"
+                },
+                "mapped": true,
+                "pod": "user-service-6d5985bd55-2xpqj",
+                "pod_ready": true,
+                "pod_uid": "3b78d36b-2355-425c-99f7-cb3dedcc891d",
+                "replicaset_ref": {
+                  "apiVersion": "apps/v1",
+                  "blockOwnerDeletion": true,
+                  "controller": true,
+                  "kind": "ReplicaSet",
+                  "name": "user-service-6d5985bd55",
+                  "uid": "dca558f0-a67f-41d3-9094-18acefe83a9c"
+                }
+              }
+            ],
+            "endpointslice_count": 1,
+            "endpointslices_kubectl": {
+              "argv": [
+                "get",
+                "endpointslices.discovery.k8s.io",
+                "-n",
+                "social-network",
+                "-l",
+                "kubernetes.io/service-name=user-service",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 2342
+            },
+            "ineligible_endpoints": [],
+            "ms_i1_pass": true,
+            "ms_i2_pass": true,
+            "ms_i3_pass": true,
+            "nc": {
+              "argv": [
+                "nc",
+                "-z",
+                "-w",
+                "3",
+                "user-service.social-network.svc.cluster.local",
+                "9090"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout": ""
+            },
+            "nslookup": {
+              "argv": [
+                "nslookup",
+                "user-service.social-network.svc.cluster.local"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout": "Server:\t\t10.96.0.10\nAddress:\t10.96.0.10:53\n\nName:\tuser-service.social-network.svc.cluster.local\nAddress: 10.96.114.38\n\n\n"
+            },
+            "observed_utc": "2026-08-29T10:06:34.977153+00:00",
+            "pods_kubectl": {
+              "argv": [
+                "get",
+                "pods",
+                "-n",
+                "social-network",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 293617
+            },
+            "replicasets_kubectl": {
+              "argv": [
+                "get",
+                "replicasets",
+                "-n",
+                "social-network",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 135481
+            },
+            "service": {
+              "apiVersion": "v1",
+              "kind": "Service",
+              "metadata": {
+                "annotations": {
+                  "meta.helm.sh/release-name": "social-network",
+                  "meta.helm.sh/release-namespace": "social-network"
+                },
+                "creationTimestamp": "2026-08-27T04:37:18Z",
+                "labels": {
+                  "app.kubernetes.io/managed-by": "Helm"
+                },
+                "name": "user-service",
+                "namespace": "social-network",
+                "resourceVersion": "2156725",
+                "uid": "0b10e912-ee24-4fca-a21d-62fb18227136"
+              },
+              "spec": {
+                "clusterIP": "10.96.114.38",
+                "clusterIPs": [
+                  "10.96.114.38"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                  "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                  {
+                    "name": "9090",
+                    "port": 9090,
+                    "protocol": "TCP",
+                    "targetPort": 9090
+                  }
+                ],
+                "selector": {
+                  "service": "user-service"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+              },
+              "status": {
+                "loadBalancer": {}
+              }
+            },
+            "service_kubectl": {
+              "argv": [
+                "get",
+                "service",
+                "user-service",
+                "-n",
+                "social-network",
+                "--ignore-not-found",
+                "-o",
+                "json"
+              ],
+              "exit": 0,
+              "stderr": "",
+              "stdout_bytes": 1164
+            },
+            "service_present": true,
+            "tcp_connect_ok": true
+          },
+          "probe_pod_running": true,
+          "total_observations": 1
+        },
+        "result": "PASS"
+      },
+      "MS-I4": {
+        "attempts": 1,
+        "elapsed_seconds": 0.0,
+        "first_observation_utc": "2026-08-29T10:06:27.971763+00:00",
+        "last_observation_utc": "2026-08-29T10:06:27.971777+00:00",
+        "observations": {
+          "maximum_non_2xx_or_3xx": 0,
+          "minimum_requests": 50,
+          "window": {
+            "first_round_utc": "2026-08-29T02:25:15.778776004Z",
+            "last_round_utc": "2026-08-29T10:06:18.443680216Z",
+            "non2xx_rate": 0.0,
+            "rounds": 2513,
+            "rounds_with_non2xx": 0,
+            "timed_out": false,
+            "total_non2xx": 0,
+            "total_requests": 2573150,
+            "wait_seconds": 3.8
+          }
+        },
+        "result": "PASS"
+      },
+      "MS-I5": {
+        "attempts": 1,
+        "elapsed_seconds": 0.122,
+        "first_observation_utc": "2026-08-29T10:06:27.971793+00:00",
+        "last_observation_utc": "2026-08-29T10:06:28.093453+00:00",
+        "observations": {
+          "baseline_entries": 27,
+          "below_floor": [],
+          "kubectl": {
+            "argv": [
+              "get",
+              "deployments",
+              "-n",
+              "social-network",
+              "-o",
+              "json"
+            ],
+            "exit": 0,
+            "stderr": "",
+            "stdout_bytes": 149031
+          },
+          "missing": [],
+          "per_deployment": {
+            "compose-post-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "home-timeline-redis": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "home-timeline-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "jaeger": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "media-frontend": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "media-memcached": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "media-mongodb": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "media-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "nginx-thrift": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "post-storage-memcached": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "post-storage-mongodb": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "post-storage-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "social-graph-mongodb": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "social-graph-redis": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "social-graph-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "text-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "unique-id-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "url-shorten-memcached": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "url-shorten-mongodb": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "url-shorten-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "user-memcached": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "user-mention-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "user-mongodb": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "user-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "user-timeline-mongodb": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "user-timeline-redis": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            },
+            "user-timeline-service": {
+              "available_replicas": 1,
+              "floor": 1,
+              "present": true,
+              "ready_replicas": 1,
+              "spec_replicas": 1
+            }
+          }
+        },
+        "result": "PASS"
+      },
+      "MS-I6": {
+        "attempts": 0,
+        "elapsed_seconds": 0.0,
+        "first_observation_utc": null,
+        "last_observation_utc": null,
+        "observations": {
+          "reason": "deferred: not discriminating for MS-M01..M03; see PREREGISTRATION_MS_MUTANTS.md section 6"
+        },
+        "result": "NOT_EVALUATED"
+      }
+    },
+    "parameters": {
+      "deadline_seconds": 30,
+      "poll_seconds": 2,
+      "tcp_timeout_seconds": 3
+    },
+    "probe_pod": {
+      "create": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "pod/sremut-probe-smoke-00-healthy created\n"
+      },
+      "delete": {
+        "delete": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "pod \"sremut-probe-smoke-00-healthy\" deleted\n"
+        },
+        "deleted_utc": "2026-08-29T10:06:38.167352+00:00",
+        "gone": true,
+        "name": "sremut-probe-smoke-00-healthy",
+        "recheck": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": ""
+        },
+        "requested_utc": "2026-08-29T10:06:37.105351+00:00",
+        "wait": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": ""
+        }
+      },
+      "manifest_path": "/home/sakibbuet2k19/sremut/SREMut/experiments/smoke-00/healthy/probe-pod.json",
+      "name": "sremut-probe-smoke-00-healthy",
+      "phase_timeline": [
+        {
+          "phase": "Pending",
+          "utc": "2026-08-29T10:06:28.409492+00:00"
+        },
+        {
+          "phase": "Running",
+          "utc": "2026-08-29T10:06:34.977095+00:00"
+        }
+      ],
+      "ready_utc": "2026-08-29T10:06:34.977117+00:00",
+      "requested_utc": "2026-08-29T10:06:28.098508+00:00",
+      "running": true,
+      "state": "healthy",
+      "template": "/home/sakibbuet2k19/sremut/SREMut/experiments/g02-run-01/post/challenge/challenge-pod.yaml",
+      "uid": "1fd8f0ce-6993-47d5-a94e-a7ae3c7a5a5f",
+      "wait_seconds": 6.686
+    },
+    "verdict": "PASS",
+    "violated": []
+  },
+  "run_id": "smoke-00",
+  "workload_window": {
+    "detail_dropped_note": "per-round detail dropped: this smoke window used wait_for_rounds(None, ...), which selects every round in the wrk2 job's log, and that job had been running 2d5h. The 2513-round array was non-evidential smoke-test noise, ~313KB of the original 333KB file. The summary counts beside this note are unchanged and are the whole of what MS-I4 consumed. No other field was altered.",
+    "detail_rounds_dropped": 2513,
+    "first_round_utc": "2026-08-29T02:25:15.778776004Z",
+    "last_round_utc": "2026-08-29T10:06:18.443680216Z",
+    "non2xx_rate": 0.0,
+    "rounds": 2513,
+    "rounds_with_non2xx": 0,
+    "timed_out": false,
+    "total_non2xx": 0,
+    "total_requests": 2573150,
+    "wait_seconds": 3.8
+  }
+}

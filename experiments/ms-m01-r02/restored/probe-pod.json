@@ -1,0 +1,58 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "labels": {
+      "app.kubernetes.io/managed-by": "sremut",
+      "app.kubernetes.io/name": "sremut-challenge",
+      "sremut-attempt": "1",
+      "sremut-mutant": "MS-M01",
+      "sremut-run-id": "ms-m01-r02"
+    },
+    "name": "sremut-probe-ms-m01-r02-restored",
+    "namespace": "social-network"
+  },
+  "spec": {
+    "activeDeadlineSeconds": 600,
+    "automountServiceAccountToken": false,
+    "containers": [
+      {
+        "command": [
+          "sh",
+          "-c",
+          "trap 'exit 0' TERM INT; sleep 600 & wait"
+        ],
+        "image": "docker.io/library/busybox@sha256:b7f3d86d6e84fc17718c48bcde1450807faa2d56704205c697b4bd5df7b9e29f",
+        "imagePullPolicy": "IfNotPresent",
+        "name": "challenge",
+        "resources": {
+          "limits": {
+            "cpu": "50m",
+            "memory": "32Mi"
+          },
+          "requests": {
+            "cpu": "5m",
+            "memory": "8Mi"
+          }
+        },
+        "securityContext": {
+          "allowPrivilegeEscalation": false,
+          "capabilities": {
+            "drop": [
+              "ALL"
+            ]
+          },
+          "readOnlyRootFilesystem": true,
+          "runAsGroup": 65532,
+          "runAsNonRoot": true,
+          "runAsUser": 65532,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        }
+      }
+    ],
+    "restartPolicy": "Never",
+    "terminationGracePeriodSeconds": 5
+  }
+}
