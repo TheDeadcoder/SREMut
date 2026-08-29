@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import tempfile
 import unittest
 
+from sremut.canonical_json import canonical_json_bytes
 from sremut.evidence import EvidenceStore, ExternalAnchor, revalidate_sealed_attempt
 from sremut.journal import Journal
 from sremut.kubernetes_mutation import (
@@ -26,7 +27,9 @@ from sremut.ms_m01_attempt import (
     MsM01Attempt,
     MsM01AttemptError,
     OriginalOracleOutcome,
+    PREDICATES,
     PendingMutation,
+    PredicateAdjudication,
     ReplacementObservation,
     RestorationVerification,
     TerminalOutcome,
@@ -35,8 +38,9 @@ from sremut.ms_m01_attempt import (
 )
 from sremut.policy_runtime import (
     EXPECTED_HOOK_ORDER,
-    POLICY_MANIFEST_SHA256,
-    load_policy_bundle,
+    POLICY_V1_2_ID,
+    POLICY_V1_2_MANIFEST_SHA256,
+    load_v1_2_policy_bundle,
 )
 from sremut.workload_evidence import (
     WorkloadHistoryEntry,
@@ -57,11 +61,12 @@ INVARIANTS = ("MS-I1", "MS-I2", "MS-I3", "MS-I4", "MS-I5", "MS-I6")
 
 
 def load_policy():
-    return load_policy_bundle(
-        ROOT / "policies/missing_service_social_network/evidence-capture-v1.1.yaml",
-        ROOT / "schemas/evidence-capture-policy-v1.1.schema.json",
-        ROOT / "EVIDENCE_CAPTURE_POLICY_V1_1_SHA256SUMS",
-        expected_manifest_sha256=POLICY_MANIFEST_SHA256,
+    """The committed, authenticated evidence-policy v1.2 bundle."""
+    return load_v1_2_policy_bundle(
+        ROOT / "policies/missing_service_social_network/evidence-capture-v1.2.yaml",
+        ROOT / "schemas/evidence-capture-policy-v1.2.schema.json",
+        ROOT / "EVIDENCE_CAPTURE_POLICY_V1_2_SHA256SUMS",
+        expected_manifest_sha256=POLICY_V1_2_MANIFEST_SHA256,
     )
 
 
@@ -74,6 +79,24 @@ def fake_adjudication_ref():
         "role": "adjudication",
         "producer": "ADJUDICATOR",
         "source_kind": "GENERATED_DESCRIPTOR",
+        "media_type": "application/json",
+        "storage_class": "DESCRIPTOR_ONLY",
+        "descriptor_sha256": digest,
+        "descriptor_size_bytes": 1,
+        "descriptor_relative_path": f"descriptors/sha256/{digest[:2]}/{digest}.json",
+        "redaction_status": "NOT_REDACTED",
+    }
+
+
+def fake_run_identity_ref():
+    digest = "4" * 64
+    return {
+        "document_type": "DESCRIPTOR_EVIDENCE_REF_V1",
+        "schema_version": 1,
+        "evidence_id": "ev-" + digest[:32],
+        "role": "run_identity",
+        "producer": "RUNNER_IDENTITY_RECORDER",
+        "source_kind": "LOCAL_IDENTITY",
         "media_type": "application/json",
         "storage_class": "DESCRIPTOR_ONLY",
         "descriptor_sha256": digest,
@@ -136,6 +159,8 @@ class RealState:
         self.root = root
         self.policy = policy
         self.clock = 0
+        self.markers = []
+        self.publications = []
         with Journal(root, policy, RUN_ID, ATTEMPT_ID) as journal:
             for transition in (
                 "CREATED->PREFLIGHT_PASS",
@@ -155,6 +180,20 @@ class RealState:
 
     def transition(self, transition, *, evidence_references):
         del evidence_references
+        self._append(transition)
+
+    def authorize_evaluation(self, predicate_id):
+        """Raise the frozen EVALUATION_AUTHORIZED marker for one predicate."""
+        self.markers.append((predicate_id, self.current_state()))
+        self._append(f"EVALUATION_AUTHORIZED:{predicate_id}")
+
+    def publish_evidence(self, label, references):
+        """Record a state-neutral publication of the evidence a predicate cites."""
+        self.publications.append((label, tuple(references)))
+        payload = canonical_json_bytes({"publication": label})
+        self._append("OPERATION_AUTHORIZED:" + payload.hex())
+
+    def _append(self, transition):
         self.clock += 1
         with Journal(self.root, self.policy, RUN_ID, ATTEMPT_ID) as journal:
             journal.append_state_transition(
@@ -189,7 +228,7 @@ class Prestate:
             service_resource_version="10",
             captured_replica_baseline={"user-service": 1},
             workload_stream_identity=recompute_stream_identity(
-                identity.run_id, identity.attempt_id
+                identity.run_id, identity.attempt_id, policy_id=POLICY_V1_2_ID
             ),
             restoration_capability=object(),
             evidence_references=("healthy-prestate",),
@@ -406,17 +445,71 @@ class Workloads:
             plan.window["stream_identity"],
             plan.fresh_request_count,
             plan.failure_marker_count,
-            (f"workload:{phase}",),
+            # pod, prefix, boundary, raw, parse -- the five references the
+            # kernel splits across this predicate's two publication carriers.
+            tuple(f"workload:{phase}:{name}" for name in
+                  ("pod", "prefix", "boundary", "raw", "parse")),
+            plan.window,
         )
 
 
 class Adjudicator:
+    """Publishes the three frozen predicate adjudications and derives MS-I1..I6."""
+
     def __init__(self):
         self.verdict = "REJECT"
         self.raw_backing = True
         self.calls = 0
+        self.predicates = []
 
-    def evaluate(
+    def _adjudicate(self, predicate_id, value, sources):
+        self.calls += 1
+        self.predicates.append(predicate_id)
+        references = ()
+        for source in sources:
+            references += tuple(getattr(source, "evidence_references", ()) or ())
+        if not self.raw_backing:
+            references = ()
+        return PredicateAdjudication(
+            predicate_id=predicate_id,
+            value=bool(value),
+            raw_evidence_references=references,
+            adjudication_reference=fake_adjudication_ref(),
+        )
+
+    def adjudicate_initial_invariants(
+        self, original_oracle, initial_challenge, initial_workload
+    ):
+        return self._adjudicate(
+            "INITIAL_INVARIANT_EVALUATION",
+            initial_challenge.completed and initial_workload.healthy,
+            (initial_challenge, initial_workload),
+        )
+
+    def adjudicate_replacement_persistence(
+        self, captured_pod, replacement, replacement_challenge, replacement_workload
+    ):
+        value = bool(
+            replacement.valid
+            and replacement_challenge is not None
+            and replacement_challenge.completed
+            and replacement_workload is not None
+            and replacement_workload.healthy
+        )
+        return self._adjudicate(
+            "REPLACEMENT_PERSISTENCE_EVALUATION",
+            value,
+            (captured_pod, replacement, replacement_challenge, replacement_workload),
+        )
+
+    def adjudicate_restoration_positive_control(self, verification, positive_workload):
+        return self._adjudicate(
+            "RESTORATION_POSITIVE_CONTROL",
+            verification.valid and positive_workload.healthy,
+            (verification, positive_workload),
+        )
+
+    def derive_contract(
         self,
         original,
         initial_challenge,
@@ -425,8 +518,8 @@ class Adjudicator:
         replacement,
         replacement_challenge,
         replacement_workload,
+        adjudications,
     ):
-        self.calls += 1
         references = (
             *original.evidence_references,
             *initial_challenge.evidence_references,
@@ -451,7 +544,7 @@ class Adjudicator:
             self.verdict,
             outcomes,
             tuple(references),
-            fake_adjudication_ref(),
+            tuple(item.adjudication_reference for item in adjudications),
         )
 
 
@@ -467,6 +560,8 @@ class Terminalizer:
         self.anchor = None
         self.verification = None
         self.calls = 0
+        self.coverage_calls = 0
+        self.terminal_identities = []
 
     def _global_stop(self):
         return {
@@ -481,6 +576,15 @@ class Terminalizer:
             "monotonic_ns": 99,
             "boot_identity": BOOT,
         }
+
+    def publish_retained_coverage(self):
+        """The real terminalizer records retained evidence here; this fake counts it."""
+        self.coverage_calls += 1
+        return ()
+
+    def publish_terminal_identity(self, outcome):
+        self.terminal_identities.append(outcome)
+        return fake_run_identity_ref()
 
     def finalize(self, draft):
         self.calls += 1
@@ -867,9 +971,16 @@ class MsM01AttemptTests(unittest.TestCase):
             case.attempt.run()
 
     def test_missing_raw_backing_fails_before_terminalization(self):
+        """An adjudication with no raw backing never reaches terminalization.
+
+        Under the three frozen predicates the refusal now happens per predicate,
+        the moment the unbacked adjudication is returned, rather than after an
+        aggregate contract is assembled -- earlier and more precise, and still
+        before the terminalizer is ever called.
+        """
         case = self.build()
         case.adjudication.raw_backing = False
-        with self.assertRaisesRegex(MsM01AttemptError, "CONTRACT_ADJUDICATION_INVALID"):
+        with self.assertRaisesRegex(MsM01AttemptError, "PREDICATE_ADJUDICATION_INVALID"):
             case.attempt.run()
         self.assertEqual(case.terminalizer.calls, 0)
 
@@ -961,7 +1072,7 @@ class MsM01AttemptTests(unittest.TestCase):
                 "CONTRACT_ADJUDICATION_RAW_BACKING_INVALID" in value,
                 value.count("return self._restore(") >= 9,
                 '"RESTORATION_POSITIVE_CONTROL", 3' in value,
-                'self._transition("RESTORATION_BLOCKED")' in value,
+                'self._transition("RESTORATION_BLOCKED", terminal_identity)' in value,
                 'self._event("TERMINAL_SEALED_AND_ANCHORED")' in value,
                 "post_terminal_mutation_rejected" in value,
                 "EXPECTED_HOOK_ORDER" in value,
@@ -998,8 +1109,8 @@ class MsM01AttemptTests(unittest.TestCase):
                 '"RESTORATION_POSITIVE_CONTROL", 3', '"RESTORATION_SKIPPED", 3'
             ),
             source.replace(
-                'self._transition("RESTORATION_BLOCKED")',
-                'self._transition("ABORTED_SAFE")',
+                'self._transition("RESTORATION_BLOCKED", terminal_identity)',
+                'self._transition("ABORTED_SAFE", terminal_identity)',
             ),
             source.replace(
                 'self._event("TERMINAL_SEALED_AND_ANCHORED")',

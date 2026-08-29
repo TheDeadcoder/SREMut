@@ -88,7 +88,12 @@ OPERATION_TABLE = MappingProxyType(
             {
                 "kind": "Pod", "namespace": NAMESPACE, "name_rule": "captured replacement Pod",
                 "method": "CoreV1Api.delete_namespaced_pod",
-                "consumer": "CONTRACT_EVALUATOR", "states": ("ORIGINAL_ORACLE_EVALUATED",),
+                # The replacement deletion belongs to REPLACEMENT_PERSISTENCE_EVALUATION,
+                # whose evidence-policy authorization state is CONTRACT_EVALUATED.  The
+                # deletion must therefore be dispatchable exactly there: dispatching it
+                # in ORIGINAL_ORACLE_EVALUATED would publish the persistence window's raw
+                # evidence before that predicate's EVALUATION_AUTHORIZED marker.
+                "consumer": "CONTRACT_EVALUATOR", "states": ("CONTRACT_EVALUATED",),
                 "body": "V1DeleteOptions(uid,resourceVersion)",
             }
         ),
@@ -545,6 +550,87 @@ class MutationDispatchResult:
     challenge_target: ChallengePodTarget | None = field(default=None, repr=False)
 
 
+#: The only two events a mutation-ledger row may carry, in dependency order.
+MUTATION_LEDGER_EVENTS = ("INTENT_DURABLE", "RECEIPT_DURABLE")
+#: The exact key set of a mutation-ledger row.
+_MUTATION_LEDGER_KEYS = frozenset(
+    {
+        "schema_version",
+        "sequence",
+        "previous_sha256",
+        "event",
+        "operation_id",
+        "descriptor_sha256",
+        "record_sha256",
+    }
+)
+_MUTATION_LEDGER_SHA256 = re.compile(r"^[0-9a-f]{64}$")
+_MUTATION_OPERATION_ID = re.compile(r"^[A-Z_]+:[0-9]{2}$")
+
+
+def validate_mutation_ledger_bytes(data: bytes) -> tuple[Mapping[str, Any], ...]:
+    """The single strict reader for the durable mutation ledger.
+
+    One definition, used by live reconstruction inside `GuardedMutationSession`,
+    by sealed-context resolution, and by pending-mutation recovery, so a ledger
+    that any one of them accepts is a ledger all three accept.
+
+    Every row must be a canonical JSON line with exactly the frozen key set, a
+    contiguous sequence from zero, the previous row's record hash, its own
+    correct record hash, one of the two frozen events, and an operation id
+    matching the frozen grammar.  Per operation the events must be exactly
+    (INTENT_DURABLE,) or (INTENT_DURABLE, RECEIPT_DURABLE): a receipt without an
+    intent, a duplicated event, or an out-of-order pair is refused.
+    """
+    if not isinstance(data, (bytes, bytearray)):
+        _reject("MUTATION_LEDGER_INVALID")
+    data = bytes(data)
+    if not data:
+        return ()
+    if not data.endswith(b"\n"):
+        _reject("MUTATION_LEDGER_INVALID")
+    rows: list[Mapping[str, Any]] = []
+    previous = ZERO_SHA256
+    for sequence, line in enumerate(data.splitlines(keepends=True)):
+        try:
+            row = parse_canonical_json(line, line=True)
+        except Exception:
+            _reject("MUTATION_LEDGER_INVALID")
+        if not isinstance(row, dict) or set(row) != _MUTATION_LEDGER_KEYS:
+            _reject("MUTATION_LEDGER_INVALID")
+        material = dict(row)
+        digest = material.pop("record_sha256", None)
+        if (
+            row.get("schema_version") != 1
+            or row.get("sequence") != sequence
+            or type(row.get("sequence")) is not int
+            or row.get("previous_sha256") != previous
+            or row.get("event") not in MUTATION_LEDGER_EVENTS
+            or not isinstance(row.get("operation_id"), str)
+            or _MUTATION_OPERATION_ID.fullmatch(row["operation_id"]) is None
+            or not isinstance(row.get("descriptor_sha256"), str)
+            or _MUTATION_LEDGER_SHA256.fullmatch(row["descriptor_sha256"]) is None
+            or not isinstance(digest, str)
+            or _MUTATION_LEDGER_SHA256.fullmatch(digest) is None
+            or digest != hashlib.sha256(canonical_json_bytes(material)).hexdigest()
+        ):
+            _reject("MUTATION_LEDGER_INVALID")
+        previous = digest
+        rows.append(MappingProxyType(dict(row)))
+    events: dict[str, list[str]] = {}
+    for row in rows:
+        events.setdefault(row["operation_id"], []).append(row["event"])
+    for operation_id, group in events.items():
+        if tuple(group) not in (
+            ("INTENT_DURABLE",),
+            ("INTENT_DURABLE", "RECEIPT_DURABLE"),
+        ):
+            _reject("MUTATION_LEDGER_INVALID")
+        if not operation_id.startswith(tuple(f"{name}:" for name in OPERATION_TABLE)):
+            _reject("MUTATION_LEDGER_INVALID")
+    return tuple(rows)
+
+
 class GuardedMutationSession:
     """One lock-held attempt-local mutation facade with five closed primitives."""
 
@@ -685,28 +771,9 @@ class GuardedMutationSession:
     def _ledger_rows(self) -> list[dict[str, Any]]:
         if not self._root.exists(MUTATION_LEDGER):
             return []
-        data = self._root.read_bytes(MUTATION_LEDGER)
-        if data and not data.endswith(b"\n"):
-            _reject("MUTATION_LEDGER_INVALID")
-        rows: list[dict[str, Any]] = []
-        previous = ZERO_SHA256
-        for sequence, line in enumerate(data.splitlines(keepends=True)):
-            try:
-                row = parse_canonical_json(line, line=True)
-            except Exception:
-                _reject("MUTATION_LEDGER_INVALID")
-            material = dict(row)
-            digest = material.pop("record_sha256", None)
-            if (
-                not isinstance(row, dict)
-                or row.get("sequence") != sequence
-                or row.get("previous_sha256") != previous
-                or digest != hashlib.sha256(canonical_json_bytes(material)).hexdigest()
-            ):
-                _reject("MUTATION_LEDGER_INVALID")
-            previous = digest
-            rows.append(row)
-        return rows
+        return [dict(row) for row in validate_mutation_ledger_bytes(
+            self._root.read_bytes(MUTATION_LEDGER)
+        )]
 
     def _append_ledger(
         self, event: str, operation_id: str, descriptor_sha256: str

@@ -10,7 +10,11 @@ import sys
 import tempfile
 import unittest
 
-from sremut.canonical_json import canonical_json_bytes, parse_canonical_json
+from sremut.canonical_json import (
+    canonical_json_bytes,
+    canonical_json_line,
+    parse_canonical_json,
+)
 from sremut.evidence import EvidenceStore
 from sremut.journal import Journal, SafeRoot
 from sremut.kubernetes_mutation import (
@@ -19,12 +23,15 @@ from sremut.kubernetes_mutation import (
     MutationObservation,
     MutationTransportResult,
     ObservedEffect,
+    MUTATION_LEDGER,
+    MUTATION_LEDGER_EVENTS,
     OPERATION_TABLE,
     ReplacementPodTarget,
     RestorationBodyCapability,
     VerifiedRunnerBundle,
     authenticate_restoration_body,
     select_replacement_pod,
+    validate_mutation_ledger_bytes,
 )
 from sremut.kubernetes_readonly import (
     KubernetesConsumer,
@@ -480,7 +487,9 @@ class PrimitiveTests(MutationCase):
     def test_replacement_selection_is_lexical_and_delete_is_uid_guarded_once(self):
         target = self.replacement_target()
         self.assertEqual((target.name, target.uid), ("user-service-a", "pod-a"))
-        self.advance("ORIGINAL_ORACLE_EVALUATED")
+        # The replacement deletion belongs to REPLACEMENT_PERSISTENCE_EVALUATION,
+        # which the evidence policy authorizes only in CONTRACT_EVALUATED.
+        self.advance("CONTRACT_EVALUATED")
         with self.open_session() as session:
             session.delete_replacement_pod(target)
             self.assert_code(
@@ -778,6 +787,113 @@ class MutationStrengthTests(MutationCase):
                 self.assertFalse(observed[index])
 
 
+class ReplacementDeletionStateTests(MutationCase):
+    """The replacement deletion is dispatchable exactly in CONTRACT_EVALUATED."""
+
+    def test_table_pins_the_single_authorized_state(self):
+        self.assertEqual(
+            tuple(OPERATION_TABLE["REPLACEMENT_POD_DELETION"]["states"]),
+            ("CONTRACT_EVALUATED",),
+        )
+        # The challenge pod is unchanged: it is created before the contract state.
+        self.assertEqual(
+            tuple(OPERATION_TABLE["CHALLENGE_POD_CREATION"]["states"]),
+            ("ORIGINAL_ORACLE_EVALUATED",),
+        )
+
+    def _rejects_in(self, state):
+        target = self.replacement_target()
+        self.advance(state)
+        with self.open_session() as session:
+            self.assert_code(
+                "STATE_OPERATION_FORBIDDEN", session.delete_replacement_pod, target
+            )
+        self.assertEqual(self.transport.calls, [])
+
+    def test_replacement_deletion_rejects_in_healthy_state_captured(self):
+        self._rejects_in("HEALTHY_STATE_CAPTURED")
+
+    def test_replacement_deletion_rejects_in_original_oracle_evaluated(self):
+        self._rejects_in("ORIGINAL_ORACLE_EVALUATED")
+
+    def test_replacement_deletion_succeeds_in_contract_evaluated(self):
+        target = self.replacement_target()
+        self.advance("CONTRACT_EVALUATED")
+        with self.open_session() as session:
+            dispatch = session.delete_replacement_pod(target)
+        self.assertEqual(dispatch.operation_kind, "REPLACEMENT_POD_DELETION")
+        self.assertEqual(
+            [method for method, _args in self.transport.calls],
+            ["delete_namespaced_pod"],
+        )
+
+
+class MutationLedgerValidatorTests(MutationCase):
+    """The one strict ledger reader shared by every consumer."""
+
+    def _ledger(self) -> bytes:
+        restoration = self.restoration_capability()
+        self.advance("HEALTHY_STATE_CAPTURED")
+        with self.open_session() as session:
+            session.delete_user_service(restoration)
+        return (self.attempt / MUTATION_LEDGER).read_bytes()
+
+    def test_a_real_ledger_validates_and_reports_its_rows(self):
+        rows = validate_mutation_ledger_bytes(self._ledger())
+        self.assertEqual(
+            [row["event"] for row in rows], list(MUTATION_LEDGER_EVENTS)
+        )
+        self.assertEqual([row["sequence"] for row in rows], [0, 1])
+        self.assertEqual(len({row["operation_id"] for row in rows}), 1)
+
+    def test_empty_ledger_is_empty_not_an_error(self):
+        self.assertEqual(validate_mutation_ledger_bytes(b""), ())
+
+    def test_tampered_and_malformed_ledgers_reject(self):
+        data = self._ledger()
+        lines = data.splitlines(keepends=True)
+        cases = {
+            "missing final newline": data[:-1],
+            "not a ledger row": b"{}\n",
+            "truncated chain": lines[1],
+            "reordered rows": lines[1] + lines[0],
+            "duplicated row": data + lines[-1],
+            "renumbered sequence": data.replace(b'"sequence":1', b'"sequence":2', 1),
+            "unknown event": data.replace(b"RECEIPT_DURABLE", b"RECEIPT_MAYBE", 1),
+        }
+        # A record hash that no longer covers its own row.
+        first = dict(validate_mutation_ledger_bytes(data)[0])
+        digest = first["record_sha256"]
+        first["record_sha256"] = ("0" if digest[0] != "0" else "1") + digest[1:]
+        cases["flipped record hash"] = canonical_json_line(first) + lines[1]
+        # A payload field inside the hashed material, changed after the fact.
+        second = dict(validate_mutation_ledger_bytes(data)[0])
+        second["descriptor_sha256"] = "f" * 64
+        cases["tampered descriptor hash"] = canonical_json_line(second) + lines[1]
+        for label, payload in cases.items():
+            with self.subTest(case=label):
+                self.assert_code(
+                    "MUTATION_LEDGER_INVALID",
+                    validate_mutation_ledger_bytes,
+                    payload,
+                )
+
+    def test_receipt_without_intent_rejects(self):
+        """Structurally perfect bytes whose event structure is impossible."""
+        rows = validate_mutation_ledger_bytes(self._ledger())
+        row = dict(rows[1])
+        row["sequence"] = 0
+        row["previous_sha256"] = "0" * 64
+        material = {key: value for key, value in row.items() if key != "record_sha256"}
+        row["record_sha256"] = hashlib.sha256(
+            canonical_json_bytes(material)
+        ).hexdigest()
+        self.assert_code(
+            "MUTATION_LEDGER_INVALID",
+            validate_mutation_ledger_bytes,
+            canonical_json_line(row),
+        )
+
+
 if __name__ == "__main__":
-    unittest.main()
     unittest.main()

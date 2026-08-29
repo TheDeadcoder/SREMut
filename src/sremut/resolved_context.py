@@ -20,6 +20,10 @@ from sremut.evidence import (
     validate_evidence_ref,
 )
 from sremut.journal import Journal, JournalError, JournalState, SafeRoot
+from sremut.kubernetes_mutation import (
+    MUTATION_LEDGER as MUTATION_LEDGER_RELATIVE_PATH,
+    validate_mutation_ledger_bytes,
+)
 from sremut.policy_runtime import (
     AuthenticatedPolicy,
     EXPECTED_HOOK_ORDER,
@@ -46,6 +50,7 @@ CONNECTED_HOOKS = frozenset(
         "VALIDATE_SENSITIVE_CAPTURE_V1",
     }
 )
+JOURNAL_RELATIVE_PATH = "journal/attempt.jsonl"
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _RUN_ID = re.compile(r"^sremut-ms-(m01|m02|m03)-r0([1-3])-a0([1-2])-[0-9a-f]{12}$")
 # Named by the frozen v1.2 schema's offline-seal release binding.  Emitting the
@@ -770,8 +775,21 @@ def _publication_for(
     reference: EvidenceRef,
     records: tuple[Mapping[str, Any], ...],
 ) -> PublicationRecord:
+    """The journal record that published this descriptor.
+
+    A descriptor's publication may be established through either citation list
+    the frozen journal record carries: `referenced_descriptor_sha256`, or
+    `referenced_intent_receipt_and_adjudication_sha256`, which is where mutation
+    intents, mutation receipts and adjudications are cited.  A payload-backed
+    reference must additionally appear in `referenced_payload_sha256`, so
+    payload evidence can never be published by a descriptor-only citation.
+    """
     for record in records:
-        if reference.descriptor_sha256 not in record.get("referenced_descriptor_sha256", ()):
+        if reference.descriptor_sha256 not in record.get(
+            "referenced_descriptor_sha256", ()
+        ) and reference.descriptor_sha256 not in record.get(
+            "referenced_intent_receipt_and_adjudication_sha256", ()
+        ):
             continue
         if (
             reference.payload_sha256 is not None
@@ -948,14 +966,35 @@ def resolve_evidence_context(
         descriptor_paths = tuple(path for path in paths if path.startswith("descriptors/"))
         payload_paths = tuple(path for path in paths if path.startswith("objects/"))
         terminal_paths = tuple(path for path in paths if path.startswith("terminal/"))
+        # The authoritative journal, optionally accompanied by the durable
+        # mutation ledger the guarded session appends beside it.  Both are
+        # covered by the terminal seal and neither may be omitted or relocated;
+        # every other journal path is refused.
         if (
-            journal_paths != ("journal/attempt.jsonl",)
+            journal_paths not in (
+                (JOURNAL_RELATIVE_PATH,),
+                (JOURNAL_RELATIVE_PATH, MUTATION_LEDGER_RELATIVE_PATH),
+            )
             or any(path != "terminal/global-stop.json" for path in terminal_paths)
             or len(terminal_paths) > 1
             or len(paths)
             != len(journal_paths) + len(descriptor_paths) + len(payload_paths) + len(terminal_paths)
         ):
             _reject("EXTERNAL_MANIFEST_INVALID")
+        if MUTATION_LEDGER_RELATIVE_PATH in journal_paths:
+            # The sealed ledger is authenticated by the same strict reader the
+            # live session and pending-mutation recovery use.
+            try:
+                ledger_bytes = fs.read_bytes_bounded(
+                    MUTATION_LEDGER_RELATIVE_PATH,
+                    maximum_bytes=_MAXIMUM_JOURNAL_BYTES,
+                )
+            except JournalError:
+                _reject("EXTERNAL_MANIFEST_COVERAGE_MISMATCH")
+            try:
+                validate_mutation_ledger_bytes(ledger_bytes)
+            except Exception:
+                _reject("MUTATION_LEDGER_INVALID")
         actual = fs.list_all_regular_files()
         expected_files = tuple(
             sorted(paths + (external_anchor.manifest_relative_path,), key=lambda item: item.encode("utf-8"))

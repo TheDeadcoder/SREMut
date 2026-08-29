@@ -11,20 +11,29 @@ real one, wired to the real `Journal`, `EvidenceStore`, `GuardedMutationSession`
 from __future__ import annotations
 
 import copy
+from dataclasses import replace
 import hashlib
 from pathlib import Path
 import sys
 import tempfile
 import unittest
 
-from sremut.canonical_json import canonical_json_bytes
+from sremut.canonical_json import canonical_json_bytes, parse_canonical_json
 from sremut.evidence import EvidenceStore
+import json
+
+from sremut.evidence import ExternalAnchor
 from sremut.journal import Journal
+from sremut.resolved_context import resolve_evidence_context
 from sremut.kubernetes_mutation import (
     MutationTransportResult,
     VerifiedRunnerBundle,
 )
-from sremut.kubernetes_readonly import KubernetesConsumer, PodSelector
+from sremut.kubernetes_readonly import (
+    CapturedObjectIdentity,
+    KubernetesConsumer,
+    PodSelector,
+)
 from sremut.ms_m01_attempt import (
     AttemptIdentity,
     MsM01AttemptError,
@@ -41,6 +50,7 @@ from sremut.ms_m01_runtime import (
     publish_run_identity_start,
     reconstruct_pending_initial_deletion,
 )
+from sremut.kubernetes_mutation import validate_mutation_ledger_bytes
 from sremut.policy_runtime import (
     POLICY_V1_2_ID,
     POLICY_V1_2_MANIFEST_SHA256,
@@ -62,6 +72,11 @@ RUN_ID = "sremut-ms-m01-r01-a01-abcdef123456"
 ATTEMPT_ID = "a01"
 BOOT = "123e4567-e89b-12d3-a456-426614174000"
 REGISTRY = "sremut/missing-service-social-network/pilot-mutants-v1"
+WORKLOAD_PHASES = (
+    "INITIAL_MUTANT_CHALLENGE",
+    "POST_REPLACEMENT_PERSISTENCE",
+    "RESTORATION_POSITIVE_CONTROL",
+)
 
 
 ALIAS_KEYS = (
@@ -170,7 +185,14 @@ class ScenarioReadTransport:
 
     def read_namespaced_pod(self, name, namespace, timeout_seconds):
         self.calls.append("read_namespaced_pod")
-        return copy.deepcopy(self.pods["items"][0])
+        if name.startswith("wrk2-job"):
+            entry = workload_pod()
+            entry["metadata"]["resourceVersion"] = self._next_version()
+            return copy.deepcopy(entry)
+        for item in self.pods["items"]:
+            if item["metadata"]["name"] == name:
+                return copy.deepcopy(item)
+        raise NotFound()
 
     def list_namespaced_pod(self, namespace, label_selector, field_selector, timeout_seconds):
         self.calls.append("list_namespaced_pod")
@@ -305,6 +327,7 @@ class RecordingWorkload:
     """Bounded workload source; returns pre-captured history, runs nothing."""
 
     def __init__(self, pod_reference, *, fresh: int = 2, failures: int = 0) -> None:
+        #: phase -> the Pod projection that window observed.
         self.pod_reference = pod_reference
         self.fresh = fresh
         self.failures = failures
@@ -320,7 +343,7 @@ class RecordingWorkload:
             pod_name="wrk2-job-abc",
             pod_uid="wrk2-uid",
             container_restart_count=0,
-            pod_projection_reference=self.pod_reference,
+            pod_projection_reference=self.pod_reference[phase],
         )
 
 
@@ -479,11 +502,37 @@ class RuntimeCase(unittest.TestCase):
                 )
             )
             metadata["capture_state"] = "HEALTHY_STATE_CAPTURED"
-            pod_reference = store.publish_payload(
+            list_reference = store.publish_payload(
                 capture.response_evidence.role,
                 capture.response_evidence.payload_bytes,
                 metadata,
             )
+            # The frozen workload hook binds a window to a SINGLE Pod object:
+            # it reads metadata.name, metadata.uid and status.containerStatuses.
+            # The WORKLOAD list capture above supplies the authenticated request
+            # identity; the Pod document itself is what the injected workload
+            # adapter observes.  The frozen read surface derives Pod identities
+            # only from the user-service selector, so there is no GET for a wrk2
+            # Pod -- publishing that document is the adapter's job.
+            # One projection per window: each window observes the workload Pod
+            # again, so each predicate cites its own capture rather than sharing
+            # one publication record with the windows before it.
+            pod_references = {}
+            for index, phase in enumerate(WORKLOAD_PHASES):
+                observed = workload_pod()
+                observed["metadata"]["resourceVersion"] = str(50 + index)
+                pod_references[phase] = store.publish_payload(
+                    capture.response_evidence.role,
+                    canonical_json_bytes(observed),
+                    {
+                        **common,
+                        "monotonic_ns": self._monotonic(),
+                        "request_identity_reference": request_ref.as_dict(),
+                        "object_count": 1,
+                        "projection_class": "KUBERNETES_OBJECT_PROJECTION_V1",
+                        "capture_state": "HEALTHY_STATE_CAPTURED",
+                    },
+                )
             oracle_input = store.publish_payload(
                 "original_oracle_input",
                 canonical_json_bytes({"kubernetes_context": "kind-kind"}),
@@ -521,7 +570,7 @@ class RuntimeCase(unittest.TestCase):
                 },
             )
         return {
-            "pod": pod_reference,
+            "pod": pod_references,
             "oracle_input": oracle_input,
             "oracle_result": oracle_result,
         }
@@ -718,13 +767,19 @@ class LifecycleTests(RuntimeCase):
 
     def test_workload_window_substitution_rejects(self):
         class Substituting(RecordingWorkload):
+            """Names a Pod the projection it hands back does not describe.
+
+            The previous version overrode `attempt_id`, an argument the source
+            ignores, so it substituted nothing at all.
+            """
+
             def snapshot(self, *, run_id, attempt_id, phase, ordinal):
-                return super().snapshot(
-                    run_id=run_id,
-                    attempt_id="a02" if phase == "INITIAL_MUTANT_CHALLENGE" else attempt_id,
-                    phase=phase,
-                    ordinal=ordinal,
+                value = super().snapshot(
+                    run_id=run_id, attempt_id=attempt_id, phase=phase, ordinal=ordinal
                 )
+                if phase != "INITIAL_MUTANT_CHALLENGE":
+                    return value
+                return replace(value, pod_uid="wrk2-uid-from-another-window")
 
         with self.compose(
             workload_source=Substituting(self.references["pod"])
@@ -756,19 +811,91 @@ class LifecycleTests(RuntimeCase):
         self.assertTrue((self.index / "terminal/global-stop.json").exists())
 
     def test_dispatch_crash_before_receipt_is_reopened_without_redispatch(self):
-        """A durable intent with no receipt resumes from the stores, not the API."""
-        with self.compose() as first:
-            first.capabilities.authority.claim_once(self.identity, resume=False)
-            prestate = first.capabilities.prestate.authenticate(
-                self.policy, self.identity
-            )
-            with self.assertRaises(Exception):
-                first.capabilities.mutations.delete_user_service(
-                    prestate.restoration_capability
+        """A real crash between dispatch and receipt durability, then recovery.
+
+        The first process applies the Service deletion and dies before the
+        receipt is durable.  The second process reopens the same durable root,
+        reconstructs the pending mutation from retained evidence alone, observes
+        that the deletion was applied, and finishes the attempt without ever
+        dispatching the deletion again.
+        """
+
+        class SimulatedProcessCrash(BaseException):
+            """Not an Exception: nothing in the runtime may catch this."""
+
+        class CrashingTransport(ScenarioMutationTransport):
+            """Applies the deletion, then dies before the receipt is written."""
+
+            def __init__(self, attempt_root, reads):
+                super().__init__(attempt_root, reads)
+                self.crashed = False
+
+            def delete_namespaced_service(self, name, namespace, body, timeout_seconds):
+                result = super().delete_namespaced_service(
+                    name, namespace, body, timeout_seconds
                 )
+                self.crashed = True
+                raise SimulatedProcessCrash("process died after dispatch")
+
+        first_transport = CrashingTransport(self.attempt, self.reads)
+        with self.assertRaises(SimulatedProcessCrash):
+            with self.compose(mutation_transport=first_transport) as first:
+                first.attempt.run()
+        self.assertTrue(first_transport.crashed)
+        self.assertEqual(
+            [call for call in first_transport.calls if call == "delete_namespaced_service"],
+            ["delete_namespaced_service"],
+        )
+
+        # The intent is durable; the receipt is not.
         ledger = (self.attempt / "journal/mutation-events.jsonl").read_bytes()
-        self.assertIn(b'"event":"INTENT_DURABLE"', ledger)
-        self.assertNotIn(b'"event":"RECEIPT_DURABLE"', ledger)
+        rows = validate_mutation_ledger_bytes(ledger)
+        self.assertEqual([row["event"] for row in rows], ["INTENT_DURABLE"])
+
+        # Second process: reconstruct the pending mutation from durable evidence.
+        pending = reconstruct_pending_initial_deletion(
+            policy=self.policy,
+            attempt_root=self.attempt,
+            run_id=RUN_ID,
+            attempt_id=ATTEMPT_ID,
+        )
+        self.assertIsNotNone(pending)
+        self.assertEqual(pending.operation_kind, "INITIAL_USER_SERVICE_DELETION")
+        self.assertTrue(pending.operation_id.startswith("INITIAL_USER_SERVICE_DELETION:"))
+        # The uid came from the retained intent, not from this test.
+        self.assertEqual(pending.captured_uid, "service-uid-0")
+
+        second_transport = ScenarioMutationTransport(self.attempt, self.reads)
+        with self.compose(
+            mutation_transport=second_transport, pending_initial_deletion=pending
+        ) as second:
+            result = second.attempt.run()
+
+        # The deletion was observed as already applied and never redispatched.
+        self.assertIn("INITIAL_USER_SERVICE_DELETION_RECOVERED", result.trace)
+        self.assertIn("INITIAL_EFFECT:OBSERVED_APPLIED_AFTER_RECOVERY", result.trace)
+        self.assertNotIn("delete_namespaced_service", second_transport.calls)
+        self.assertEqual(
+            first_transport.calls.count("delete_namespaced_service")
+            + second_transport.calls.count("delete_namespaced_service"),
+            1,
+            "the Service deletion must be dispatched exactly once across processes",
+        )
+
+        # A durable recovery receipt now exists for that operation.
+        recovered = validate_mutation_ledger_bytes(
+            (self.attempt / "journal/mutation-events.jsonl").read_bytes()
+        )
+        events = [
+            row["event"] for row in recovered if row["operation_id"] == pending.operation_id
+        ]
+        self.assertEqual(events, ["INTENT_DURABLE"])
+        self.assertIn("RECEIPT_DURABLE", {row["event"] for row in recovered})
+
+        # And the attempt reached a valid terminal result.
+        self.assertEqual(result.terminal_outcome, TerminalOutcome.FINALIZED)
+        self.assertIs(result.terminalization.anchor_authenticated, True)
+        self.assertIs(result.terminalization.full_admissibility, True)
 
     def test_post_terminal_operations_all_reject(self):
         with self.compose() as composition:
@@ -779,6 +906,190 @@ class LifecycleTests(RuntimeCase):
             self.assertIs(terminal.post_terminal_mutation_rejected, True)
             with self.assertRaises(Exception):
                 composition.attempt.run()
+
+
+class TerminalEvidenceTests(RuntimeCase):
+    """What the sealed attempt must contain for resolution to succeed."""
+
+    def _finalized(self):
+        with self.compose() as composition:
+            result = composition.attempt.run()
+        self.assertEqual(result.terminal_outcome, TerminalOutcome.FINALIZED)
+        return result
+
+    def test_runtime_is_bound_to_the_authenticated_v1_2_policy(self):
+        from sremut import policy_runtime as runtime
+        from sremut import ms_m01_attempt, ms_m01_runtime
+
+        self.assertEqual(self.policy.manifest_sha256, runtime.POLICY_V1_2_MANIFEST_SHA256)
+        self.assertEqual(self.policy.policy["policy_id"], runtime.POLICY_V1_2_ID)
+        self.assertEqual(self.policy.policy["semantic_version"], "1.2")
+        self.assertEqual(ms_m01_runtime.POLICY_ID, runtime.POLICY_V1_2_ID)
+        self.assertEqual(ms_m01_attempt.POLICY_ID, runtime.POLICY_V1_2_ID)
+
+    def test_three_markers_and_three_adjudications_in_frozen_order(self):
+        result = self._finalized()
+        with Journal(self.attempt, self.policy, RUN_ID, ATTEMPT_ID) as journal:
+            state = journal.reconstruct()
+        markers = [
+            (record["transition"].split(":", 1)[1], record["sequence_number"])
+            for record in state.records
+            if record["transition"].startswith("EVALUATION_AUTHORIZED:")
+        ]
+        self.assertEqual(
+            [name for name, _sequence in markers],
+            [
+                "INITIAL_INVARIANT_EVALUATION",
+                "REPLACEMENT_PERSISTENCE_EVALUATION",
+                "RESTORATION_POSITIVE_CONTROL",
+            ],
+        )
+        self.assertEqual(
+            set(state.evaluation_authorization_contexts),
+            {name for name, _sequence in markers},
+        )
+        # marker < every cited raw publication < the adjudication publication
+        first_publication = {}
+        for record in state.records:
+            for digest in list(record.get("referenced_descriptor_sha256", ())) + list(
+                record.get("referenced_intent_receipt_and_adjudication_sha256", ())
+            ):
+                first_publication.setdefault(digest, record["sequence_number"])
+        adjudications = {}
+        for relative in sorted((self.attempt / "descriptors").rglob("*.json")):
+            descriptor = json.loads(relative.read_bytes())
+            if descriptor.get("role") == "adjudication":
+                # The descriptor digest is its content address, i.e. the file name.
+                descriptor["_digest"] = relative.stem
+                adjudications[
+                    descriptor["predicate_oracle_or_classification_id"]
+                ] = descriptor
+        self.assertEqual(set(adjudications), {name for name, _s in markers})
+        for predicate, sequence in markers:
+            descriptor = adjudications[predicate]
+            published = first_publication[descriptor["_digest"]]
+            for raw in descriptor["raw_evidence_references"]:
+                raw_sequence = first_publication[raw["descriptor_sha256"]]
+                self.assertLess(sequence, raw_sequence, f"{predicate}: marker < raw")
+                self.assertLess(
+                    raw_sequence, published, f"{predicate}: raw < adjudication"
+                )
+
+    def test_start_is_cited_initially_and_terminal_only_at_the_end(self):
+        self._finalized()
+        with Journal(self.attempt, self.policy, RUN_ID, ATTEMPT_ID) as journal:
+            state = journal.reconstruct()
+        identities = {}
+        for relative in sorted((self.attempt / "descriptors").rglob("*.json")):
+            descriptor = json.loads(relative.read_bytes())
+            if descriptor.get("role") == "run_identity":
+                identities[descriptor["phase"]] = relative.stem
+        self.assertEqual(set(identities), {"START", "TERMINAL"})
+        citing = {
+            phase: [
+                record["sequence_number"]
+                for record in state.records
+                if digest in record.get("referenced_descriptor_sha256", ())
+            ]
+            for phase, digest in identities.items()
+        }
+        self.assertEqual(citing["START"], [0])
+        last = state.records[-1]
+        self.assertEqual(citing["TERMINAL"], [last["sequence_number"]])
+        self.assertTrue(last["transition"].endswith("->FINALIZED"))
+
+    def test_every_retained_reference_has_a_journal_publication(self):
+        """Enumerate the sealed attempt and resolve every retained reference."""
+        self._finalized()
+        anchor_path = self.index / f"anchors/{RUN_ID}.{ATTEMPT_ID}.json"
+        anchor_document = json.loads(anchor_path.read_bytes())
+        anchor = ExternalAnchor(
+            anchor_document["attempt_root_identifier"],
+            anchor_document["manifest_relative_path"],
+            anchor_document["terminal_manifest_sha256"],
+        )
+        context = resolve_evidence_context(
+            self.policy,
+            self.attempt,
+            RUN_ID,
+            ATTEMPT_ID,
+            anchor,
+            expected_terminal_manifest_identity=anchor.terminal_manifest_sha256,
+        )
+        retained = sorted((self.attempt / "descriptors").rglob("*.json"))
+        self.assertEqual(len(context.evidence), len(retained))
+        roles = set()
+        by_sequence = {
+            record["sequence_number"]: record for record in context.journal_records
+        }
+        for row in context.evidence.values():
+            roles.add(row.reference.role)
+            record = by_sequence[row.publication.sequence_number]
+            self.assertEqual(
+                record["canonical_current_entry_sha256"],
+                row.publication.journal_record_sha256,
+            )
+            cited = set(record.get("referenced_descriptor_sha256", ())) | set(
+                record.get("referenced_intent_receipt_and_adjudication_sha256", ())
+            )
+            self.assertIn(row.reference.descriptor_sha256, cited)
+            if row.reference.payload_sha256 is not None:
+                self.assertIn(
+                    row.reference.payload_sha256,
+                    set(record.get("referenced_payload_sha256", ())),
+                )
+        # The roles resolution actually had to cover, not a sample.
+        for role in (
+            "run_identity", "healthy_prestate", "mutation_intent", "mutation_receipt",
+            "kubernetes_request_identity", "kubernetes_api_status", "adjudication",
+            "workload_log_bytes", "workload_parse_result", "workload_boundary",
+            "original_oracle_input", "original_oracle_result",
+        ):
+            self.assertIn(role, roles)
+
+    def test_sealed_mutation_ledger_is_authenticated_by_the_shared_validator(self):
+        self._finalized()
+        manifest = (self.attempt / "manifests/terminal.sha256").read_text()
+        journal_paths = [
+            line.split("  ", 1)[1]
+            for line in manifest.splitlines()
+            if line.split("  ", 1)[1].startswith("journal/")
+        ]
+        self.assertEqual(
+            journal_paths,
+            ["journal/attempt.jsonl", "journal/mutation-events.jsonl"],
+        )
+        ledger = self.attempt / "journal/mutation-events.jsonl"
+        rows = validate_mutation_ledger_bytes(ledger.read_bytes())
+        self.assertTrue(rows)
+
+        anchor_document = json.loads(
+            (self.index / f"anchors/{RUN_ID}.{ATTEMPT_ID}.json").read_bytes()
+        )
+        anchor = ExternalAnchor(
+            anchor_document["attempt_root_identifier"],
+            anchor_document["manifest_relative_path"],
+            anchor_document["terminal_manifest_sha256"],
+        )
+
+        def resolve():
+            return resolve_evidence_context(
+                self.policy, self.attempt, RUN_ID, ATTEMPT_ID, anchor,
+                expected_terminal_manifest_identity=anchor.terminal_manifest_sha256,
+            )
+
+        resolve()
+        # A tampered sealed ledger is refused, even though it is manifest covered.
+        ledger.chmod(0o600)
+        original = ledger.read_bytes()
+        ledger.write_bytes(original.replace(b'"sequence":1', b'"sequence":3', 1))
+        with self.assertRaises(Exception) as caught:
+            resolve()
+        self.assertIn(
+            str(caught.exception),
+            {"MUTATION_LEDGER_INVALID", "EXTERNAL_MANIFEST_COVERAGE_MISMATCH"},
+        )
+        ledger.write_bytes(original)
 
 
 if __name__ == "__main__":

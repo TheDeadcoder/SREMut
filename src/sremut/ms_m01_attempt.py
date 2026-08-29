@@ -694,6 +694,8 @@ class AdjudicationCapability(Protocol):
 
 @runtime_checkable
 class TerminalizationCapability(Protocol):
+    def publish_retained_coverage(self) -> tuple[str, ...]: ...
+
     def publish_terminal_identity(self, outcome: TerminalOutcome) -> Any: ...
 
     def finalize(self, draft: AttemptDraft) -> TerminalizationResult: ...
@@ -829,8 +831,8 @@ class MsM01Attempt:
     def _publish_window_evidence(
         self,
         predicate_id: str,
-        challenge: Any,
-        workload: WorkloadWindowResult,
+        workload: WorkloadWindowResult | None,
+        *observations: Any,
     ) -> None:
         """Record the publication of everything this predicate will cite.
 
@@ -839,18 +841,24 @@ class MsM01Attempt:
         two distinct records before the adjudication's own.  Both are state
         neutral, so neither invents a transition the frozen machine lacks.
         """
-        references = tuple(workload.evidence_references)
-        if len(references) != 5:
-            _reject("WORKLOAD_WINDOW_INVALID")
-        challenge_references = tuple(
-            getattr(challenge, "evidence_references", ()) or ()
-        )
+        references: tuple[Any, ...] = ()
+        if workload is not None:
+            references = tuple(workload.evidence_references)
+            if len(references) != 5:
+                _reject("WORKLOAD_WINDOW_INVALID")
+        # Everything this predicate will cite, recorded before its adjudication:
+        # the challenge streams and the Kubernetes observations belong to the
+        # predicate just as much as the workload window does.
+        observed: tuple[Any, ...] = ()
+        for source in observations:
+            observed += tuple(getattr(source, "evidence_references", ()) or ())
         self._capabilities.state.publish_evidence(
-            f"{predicate_id}:capture", references[:2] + challenge_references
+            f"{predicate_id}:capture", references[:2] + observed
         )
-        self._capabilities.state.publish_evidence(
-            f"{predicate_id}:window", references[2:]
-        )
+        if references:
+            self._capabilities.state.publish_evidence(
+                f"{predicate_id}:window", references[2:]
+            )
 
     def _record_adjudication(
         self, predicate_id: str, adjudication: Any
@@ -969,6 +977,7 @@ class MsM01Attempt:
     ) -> AttemptResult:
         if self._state != "RESTORE_STARTED":
             self._transition("RESTORE_STARTED")
+        self._capabilities.terminalizer.publish_retained_coverage()
         terminal_identity = self._capabilities.terminalizer.publish_terminal_identity(
             TerminalOutcome.RESTORATION_BLOCKED
         )
@@ -1044,7 +1053,7 @@ class MsM01Attempt:
             positive_adjudication = None
             if authorized_positive:
                 self._publish_window_evidence(
-                    "RESTORATION_POSITIVE_CONTROL", None, positive
+                    "RESTORATION_POSITIVE_CONTROL", positive, verification
                 )
                 positive_adjudication = self._record_adjudication(
                     "RESTORATION_POSITIVE_CONTROL",
@@ -1061,6 +1070,7 @@ class MsM01Attempt:
         if positive_adjudication is not None:
             verified_references.append(positive_adjudication.adjudication_reference)
         self._transition("RESTORE_VERIFIED", *verified_references)
+        self._capabilities.terminalizer.publish_retained_coverage()
         terminal_identity = self._capabilities.terminalizer.publish_terminal_identity(
             TerminalOutcome.FINALIZED
         )
@@ -1153,6 +1163,7 @@ class MsM01Attempt:
         self._event(f"INITIAL_EFFECT:{effect.value}")
         if effect is ObservedEffect.OBSERVED_NOT_APPLIED_AFTER_RECOVERY:
             self._mutation_may_have_occurred = False
+            self._capabilities.terminalizer.publish_retained_coverage()
             terminal_identity = self._capabilities.terminalizer.publish_terminal_identity(
                 TerminalOutcome.ABORTED_SAFE
             )
@@ -1264,7 +1275,7 @@ class MsM01Attempt:
             )
         self._event("INITIAL_MUTANT_CHALLENGE_WORKLOAD")
         self._publish_window_evidence(
-            "INITIAL_INVARIANT_EVALUATION", initial_challenge, initial_workload
+            "INITIAL_INVARIANT_EVALUATION", initial_workload, initial_challenge
         )
         initial_adjudication = self._record_adjudication(
             "INITIAL_INVARIANT_EVALUATION",
@@ -1345,19 +1356,18 @@ class MsM01Attempt:
             self._event("POST_REPLACEMENT_PERSISTENCE_WORKLOAD")
             self._publish_window_evidence(
                 "REPLACEMENT_PERSISTENCE_EVALUATION",
-                replacement_challenge,
                 replacement_workload,
+                replacement_challenge,
+                captured,
+                replacement,
             )
         if replacement_workload is None:
-            # The persistence window never happened, so the predicate has no
-            # payload-backed evidence to adjudicate.  Restoration still runs.
-            return self._restore(
-                prestate,
-                challenge_target,
-                original_verdict=original.verdict,
-                contract_verdict="INCOMPLETE",
-                classification="INFRASTRUCTURE_FAILURE",
-                invariants=None,
+            # The replacement was not valid, so no persistence window ran.  That
+            # is a contract REJECT, not an infrastructure failure: the predicate
+            # is still adjudicated FALSE, backed by the capture and observation
+            # evidence that shows why.
+            self._publish_window_evidence(
+                "REPLACEMENT_PERSISTENCE_EVALUATION", None, captured, replacement
             )
         replacement_adjudication = self._record_adjudication(
             "REPLACEMENT_PERSISTENCE_EVALUATION",

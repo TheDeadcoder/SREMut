@@ -32,14 +32,17 @@ from sremut.canonical_json import canonical_json_bytes, parse_canonical_json, sh
 from sremut.evidence import (
     ZERO_SHA256,
     descriptor_content_sha256,
+    validate_evidence_ref,
     EvidenceRef,
     EvidenceStore,
     ExternalAnchor,
     revalidate_sealed_attempt,
+    validate_evidence_ref,
 )
 from sremut.journal import Journal, SafeRoot
 from sremut.kubernetes_mutation import (
     MUTATION_LEDGER,
+    validate_mutation_ledger_bytes,
     GuardedMutationSession,
     MutationObservation,
     MutationTransport,
@@ -91,6 +94,7 @@ from sremut.service_restoration import (
     _derive_document,
 )
 from sremut.workload_evidence import (
+    WorkloadEvidenceError,
     WorkloadHistoryEntry,
     prepare_workload_window,
     recompute_stream_identity,
@@ -465,7 +469,7 @@ def _reference_role(reference: Any) -> str | None:
 class AuthenticatedPrestate:
     """Captures the healthy Service and replica baseline, and authenticates them."""
 
-    __slots__ = ("_binding", "_reader", "_store", "_clock", "_publisher")
+    __slots__ = ("_binding", "_reader", "_store", "_clock", "_publisher", "_resume")
 
     def __init__(
         self,
@@ -474,12 +478,14 @@ class AuthenticatedPrestate:
         store: EvidenceStore,
         clock: _Clock,
         publisher: "_CapturePublisher",
+        resume: bool = False,
     ) -> None:
         self._binding = binding
         self._reader = reader
         self._store = store
         self._clock = clock
         self._publisher = publisher
+        self._resume = bool(resume)
 
     def authenticate(
         self, policy: AuthenticatedPolicy, identity: AttemptIdentity
@@ -488,6 +494,8 @@ class AuthenticatedPrestate:
             _reject("RUNTIME_IDENTITY_MISMATCH")
         consumer = self._binding.consumers.preflight
         self._binding.require_consumer(consumer)
+        if self._resume:
+            return self._resumed(policy, identity)
 
         service = self._reader.get_user_service(consumer=consumer)
         service_request, source_reference, _bytes = self._publisher.publish(
@@ -577,6 +585,128 @@ class AuthenticatedPrestate:
                 deployment_reference,
             ),
         )
+
+
+    def _resumed(
+        self, policy: AuthenticatedPolicy, identity: AttemptIdentity
+    ) -> HealthyPrestate:
+        """Rebuild the healthy prestate from the evidence the crashed process retained.
+
+        A resumed attempt cannot re-read the healthy Service: MS-M01 deleted it,
+        which is the whole point of the mutant.  The prestate was captured and
+        published before that deletion, so recovery re-authenticates those exact
+        retained bytes instead of capturing anything new.  Nothing is published
+        here, and no read is issued.
+        """
+        retained = _retained_descriptors(self._store)
+        prestates = [row for _digest, row in retained if row.get("role") == "healthy_prestate"]
+        if len(prestates) != 1:
+            _reject("RUNTIME_PRESTATE_RECOVERY_INVALID")
+        prestate_descriptor = prestates[0]
+        captured_service = prestate_descriptor.get("captured_service_reference")
+        baseline = prestate_descriptor.get("captured_replica_baseline")
+        if not isinstance(captured_service, Mapping) or not isinstance(baseline, Mapping):
+            _reject("RUNTIME_PRESTATE_RECOVERY_INVALID")
+
+        def _projection(projection_class: str) -> Any:
+            matches = [
+                digest
+                for digest, row in retained
+                if row.get("role") == "kubernetes_object_projection"
+                and row.get("projection_class") == projection_class
+            ]
+            if len(matches) != 1:
+                _reject("RUNTIME_PRESTATE_RECOVERY_INVALID")
+            return matches[0]
+
+        source_digest = _projection(SERVICE_RESTORATION_SOURCE)
+        if captured_service.get("descriptor_sha256") != source_digest:
+            _reject("RUNTIME_PRESTATE_RECOVERY_INVALID")
+        body_digest = _projection(SERVICE_RESTORATION_BODY)
+        source_reference = self._reference(source_digest)
+        body_reference = self._reference(body_digest)
+        prestate_reference = self._reference(
+            descriptor_content_sha256(prestate_descriptor)
+        )
+        restoration = authenticate_restoration_body(
+            self._store, source_reference, body_reference
+        )
+        resolved = self._store.resolve(source_reference)
+        if resolved is None or resolved[2] is None:
+            _reject("RUNTIME_PRESTATE_RECOVERY_INVALID")
+        uid, resource_version = _service_identity(parse_canonical_json(resolved[2]))
+        return HealthyPrestate(
+            policy_manifest_sha256=policy.manifest_sha256,
+            run_id=identity.run_id,
+            attempt_id=identity.attempt_id,
+            namespace=NAMESPACE,
+            service_name=SERVICE_NAME,
+            service_uid=uid,
+            service_resource_version=resource_version,
+            captured_replica_baseline={
+                str(name): int(count) for name, count in baseline.items()
+            },
+            workload_stream_identity=recompute_stream_identity(
+                identity.run_id, identity.attempt_id, policy_id=POLICY_ID
+            ),
+            restoration_capability=restoration,
+            evidence_references=(
+                prestate_reference,
+                source_reference,
+                body_reference,
+            ),
+        )
+
+    def _reference(self, descriptor_sha256: str) -> EvidenceRef:
+        relative = (
+            f"descriptors/sha256/{descriptor_sha256[:2]}/{descriptor_sha256}.json"
+        )
+        descriptor = parse_canonical_json(self._store.fs.read_bytes(relative))
+        reference = EvidenceRef(
+            document_type=(
+                "PAYLOAD_EVIDENCE_REF_V1"
+                if descriptor.get("payload_sha256") is not None
+                else "DESCRIPTOR_EVIDENCE_REF_V1"
+            ),
+            schema_version=1,
+            evidence_id="ev-" + descriptor_sha256[:32],
+            role=descriptor["role"],
+            producer=descriptor["producer"],
+            source_kind=descriptor["source_kind"],
+            media_type=descriptor["media_type"],
+            storage_class=descriptor["storage_class"],
+            descriptor_sha256=descriptor_sha256,
+            descriptor_size_bytes=len(canonical_json_bytes(descriptor)),
+            descriptor_relative_path=relative,
+            redaction_status="NOT_REDACTED",
+            payload_sha256=descriptor.get("payload_sha256"),
+            payload_size_bytes=descriptor.get("payload_size_bytes"),
+            payload_relative_path=descriptor.get("payload_relative_path"),
+            projection_class=descriptor.get("projection_class")
+            if descriptor.get("role") == "kubernetes_object_projection"
+            else None,
+        )
+        validate_evidence_ref(
+            self._binding.policy,
+            reference,
+            expected_run_id=self._binding.run_id,
+            expected_attempt_id=self._binding.attempt_id,
+        )
+        return reference
+
+
+def _retained_descriptors(store: EvidenceStore) -> list[tuple[str, Mapping[str, Any]]]:
+    """Every retained descriptor under the attempt root, digest and content."""
+    rows: list[tuple[str, Mapping[str, Any]]] = []
+    for relative in store.fs.list_all_regular_files():
+        if not relative.startswith("descriptors/"):
+            continue
+        descriptor = parse_canonical_json(store.fs.read_bytes(relative))
+        digest = descriptor_content_sha256(descriptor)
+        if f"descriptors/sha256/{digest[:2]}/{digest}.json" != relative:
+            _reject("RUNTIME_RETAINED_EVIDENCE_INVALID")
+        rows.append((digest, descriptor))
+    return rows
 
 
 def _service_identity(source: Mapping[str, Any]) -> tuple[str, str]:
@@ -1120,21 +1250,28 @@ class BoundWorkload:
         )
         if not isinstance(snapshot, WorkloadSnapshot):
             _reject("RUNTIME_WORKLOAD_SNAPSHOT_INVALID")
-        plan = prepare_workload_window(
-            self._binding.policy,
-            before=snapshot.before,
-            after=snapshot.after,
-            phase=phase,
-            ordinal=ordinal,
-            run_id=self._binding.run_id,
-            attempt_id=self._binding.attempt_id,
-            mutant_id=MUTANT_ID,
-            repetition=self._binding.identity.repetition,
-            workload_pod_projection_reference=snapshot.pod_projection_reference,
-            pod_name=snapshot.pod_name,
-            pod_uid=snapshot.pod_uid,
-            container_restart_count=snapshot.container_restart_count,
-        )
+        self._require_pod_binding(snapshot)
+        try:
+            plan = prepare_workload_window(
+                self._binding.policy,
+                before=snapshot.before,
+                after=snapshot.after,
+                phase=phase,
+                ordinal=ordinal,
+                run_id=self._binding.run_id,
+                attempt_id=self._binding.attempt_id,
+                mutant_id=MUTANT_ID,
+                repetition=self._binding.identity.repetition,
+                workload_pod_projection_reference=snapshot.pod_projection_reference,
+                pod_name=snapshot.pod_name,
+                pod_uid=snapshot.pod_uid,
+                container_restart_count=snapshot.container_restart_count,
+            )
+        except WorkloadEvidenceError:
+            # A workload adapter that hands back a window which does not bind to
+            # the evidence it names is a protocol violation, not a crash: the
+            # attempt must still restore and terminalize.
+            raise MsM01AttemptError("WORKLOAD_WINDOW_SUBSTITUTION") from None
         references, window = self._publish_plan(
             plan, snapshot.pod_projection_reference
         )
@@ -1149,6 +1286,39 @@ class BoundWorkload:
             evidence_references=references,
             window=window,
         )
+
+    def _require_pod_binding(self, snapshot: WorkloadSnapshot) -> None:
+        """The snapshot must describe the Pod projection it hands back.
+
+        The sealed workload hook re-derives pod name, uid and restart count from
+        the projection's own bytes.  Checking the same binding at capture time
+        turns a substituting workload adapter into a protocol violation the
+        attempt can restore from, instead of evidence that only fails much later
+        at terminal resolution.
+        """
+        resolved = self._store.resolve(snapshot.pod_projection_reference)
+        if resolved is None or resolved[2] is None:
+            raise MsM01AttemptError("WORKLOAD_WINDOW_SUBSTITUTION")
+        try:
+            projected = parse_canonical_json(resolved[2])
+        except Exception:
+            raise MsM01AttemptError("WORKLOAD_WINDOW_SUBSTITUTION") from None
+        metadata = projected.get("metadata") if isinstance(projected, dict) else None
+        if not isinstance(metadata, Mapping):
+            raise MsM01AttemptError("WORKLOAD_WINDOW_SUBSTITUTION")
+        status = projected.get("status")
+        rows = status.get("containerStatuses", ()) if isinstance(status, Mapping) else ()
+        restarts = sum(
+            row.get("restartCount", 0)
+            for row in rows
+            if isinstance(row, Mapping) and type(row.get("restartCount", 0)) is int
+        )
+        if (
+            metadata.get("name") != snapshot.pod_name
+            or metadata.get("uid") != snapshot.pod_uid
+            or restarts != snapshot.container_restart_count
+        ):
+            raise MsM01AttemptError("WORKLOAD_WINDOW_SUBSTITUTION")
 
     def _publish_plan(
         self, plan: Any, pod_reference: Any
@@ -1463,6 +1633,63 @@ class SealingTerminalizer:
             _safe_root=self._root,
         )
 
+    def publish_retained_coverage(self) -> tuple[str, ...]:
+        """Publish every retained descriptor and payload no journal record cites.
+
+        Resolution requires an authenticated publication record for each piece of
+        retained evidence.  Most of it is cited as it is produced -- the workload
+        windows, the adjudications, the run identities -- but the guarded mutation
+        session's request, status and receipt evidence, the prestate captures and
+        the oracle streams are published into the store without a journal citation
+        of their own.  This records them once, before the terminal transition, so
+        nothing is created after terminalization.
+
+        The per-predicate carriers already published the workload evidence, and
+        `_publication_for` returns the FIRST citing record, so this late record
+        cannot disturb `marker < raw < adjudication` for any predicate.
+        """
+        with Journal(
+            self._root.root,
+            self._binding.policy,
+            self._binding.run_id,
+            self._binding.attempt_id,
+            _safe_root=self._root,
+        ) as journal:
+            state = journal.reconstruct()
+        cited_descriptors: set[str] = set()
+        cited_payloads: set[str] = set()
+        for record in state.records:
+            cited_descriptors |= set(record.get("referenced_descriptor_sha256", ()))
+            cited_descriptors |= set(
+                record.get("referenced_intent_receipt_and_adjudication_sha256", ())
+            )
+            cited_payloads |= set(record.get("referenced_payload_sha256", ()))
+        pending: list[dict[str, Any]] = []
+        for relative in self._root.list_all_regular_files():
+            if not relative.startswith("descriptors/"):
+                continue
+            descriptor = parse_canonical_json(self._root.read_bytes(relative))
+            digest = descriptor_content_sha256(descriptor)
+            if f"descriptors/sha256/{digest[:2]}/{digest}.json" != relative:
+                _reject("RUNTIME_RETAINED_EVIDENCE_INVALID")
+            payload = descriptor.get("payload_sha256")
+            if digest in cited_descriptors and (
+                payload is None or payload in cited_payloads
+            ):
+                continue
+            pending.append(
+                {
+                    "descriptor_sha256": digest,
+                    "payload_sha256": payload,
+                    "role": descriptor.get("role"),
+                }
+            )
+        if pending:
+            self._state.publish_evidence(
+                "terminal:retained-coverage", tuple(pending)
+            )
+        return tuple(sorted(item["descriptor_sha256"] for item in pending))
+
     def publish_terminal_identity(self, outcome: TerminalOutcome) -> Any:
         """Publish the TERMINAL run identity through the public evidence store.
 
@@ -1628,9 +1855,15 @@ class SealingTerminalizer:
         self._binding.policy.structural_validate(envelope)
         result = self._binding.policy.full_admissibility(envelope, context)
         hooks = tuple(row.hook_id for row in result.hook_outcomes)
-        if not result.valid:
-            _reject("RUNTIME_TERMINAL_EVIDENCE_INADMISSIBLE")
-        return True, hooks
+        if result.valid:
+            return True, hooks
+        if result.failure_code == "ADJUDICATION_CLOSURE_INCOMPLETE":
+            # The attempt did not produce the closure its terminal outcome
+            # requires -- an incomplete lifecycle, not corrupt evidence.  A
+            # degraded attempt still seals and anchors; it simply does not get
+            # to claim admissibility it never earned.
+            return False, hooks
+        _reject("RUNTIME_TERMINAL_EVIDENCE_INADMISSIBLE")
 
     def _envelope(self, context: Any, seal: Any, draft: Any) -> dict[str, Any]:
         identities = [
@@ -1915,27 +2148,8 @@ def reconstruct_pending_initial_deletion(
     root = _safe_root if _safe_root is not None else SafeRoot(Path(attempt_root))
     if not root.exists(MUTATION_LEDGER):
         return None
-    data = root.read_bytes(MUTATION_LEDGER)
-    if data and not data.endswith(b"\n"):
-        _reject("RUNTIME_MUTATION_LEDGER_INVALID")
-    rows: list[Mapping[str, Any]] = []
-    previous = ZERO_SHA256
-    for sequence, line in enumerate(data.splitlines(keepends=True)):
-        try:
-            row = parse_canonical_json(line, line=True)
-        except Exception:
-            _reject("RUNTIME_MUTATION_LEDGER_INVALID")
-        material = dict(row)
-        digest = material.pop("record_sha256", None)
-        if (
-            not isinstance(row, dict)
-            or row.get("sequence") != sequence
-            or row.get("previous_sha256") != previous
-            or digest != sha256_hex(canonical_json_bytes(material))
-        ):
-            _reject("RUNTIME_MUTATION_LEDGER_INVALID")
-        previous = digest
-        rows.append(row)
+    # One strict reader, shared with the live session and sealed resolution.
+    rows = validate_mutation_ledger_bytes(root.read_bytes(MUTATION_LEDGER))
     events: dict[str, list[Mapping[str, Any]]] = {}
     for row in rows:
         events.setdefault(row["operation_id"], []).append(row)
@@ -2091,7 +2305,10 @@ def compose_ms_m01_attempt(
     authority = DurableRunAuthority(binding, index_safe_root)
     capabilities = AttemptCapabilities(
         authority=authority,
-        prestate=AuthenticatedPrestate(binding, reader, store, clock, publisher),
+        prestate=AuthenticatedPrestate(
+            binding, reader, store, clock, publisher,
+            resume=pending_initial_deletion is not None,
+        ),
         state=state,
         mutations=session,
         observations=ClusterObservations(binding, reader, store, publisher),
