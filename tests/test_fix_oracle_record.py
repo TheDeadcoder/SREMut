@@ -304,6 +304,115 @@ def test_all_twelve_cells_present_when_a_run_completes():
 
 
 # --------------------------------------------------------------------------
+# the barrier's blocking path, exercised directly
+# --------------------------------------------------------------------------
+
+def _load_driver():
+    """Import fix_oracle_run with the SREGym imports stubbed.
+
+    The driver imports `sregym.*` for the oracle classes, which live in a sibling
+    checkout under its own venv. None of that is needed to exercise
+    `_probe_pod_barrier`, which touches only the module-level `k` and `_kjson`, so the
+    import surface is stubbed and the test stays hermetic: no cluster, no subprocess,
+    no venv.
+    """
+    import sys
+    import types
+
+    made = []
+    for name, attrs in (
+        ("sregym", ()), ("sregym.conductor", ()),
+        ("sregym.conductor.conductor", ("Conductor", "ConductorConfig")),
+        ("sregym.conductor.oracles", ()),
+        ("sregym.conductor.oracles.compound", ("CompoundedOracle",)),
+        ("sregym.conductor.oracles.mitigation", ("MitigationOracle",)),
+        ("sregym.conductor.oracles.service_endpoint_mitigation",
+         ("ServiceEndpointMitigationOracle",)),
+    ):
+        if name not in sys.modules:
+            mod = types.ModuleType(name)
+            for a in attrs:
+                setattr(mod, a, type(a, (), {}))
+            sys.modules[name] = mod
+            made.append(name)
+    exp = str(EXP)
+    added = exp not in sys.path
+    if added:
+        sys.path.insert(0, exp)
+    import importlib
+    return importlib.import_module("fix_oracle_run")
+
+
+class _Proc:
+    """Minimal stand-in for subprocess.CompletedProcess."""
+
+    def __init__(self, stdout="", returncode=0, stderr=""):
+        self.stdout, self.returncode, self.stderr = stdout, returncode, stderr
+
+
+def _run_barrier(pods_json, recheck_stdout, recheck_rc=0, **kw):
+    """Drive `_probe_pod_barrier` with both cluster reads stubbed.
+
+    Returns (record, calls) where `calls` is every argv the barrier passed to `k`.
+    """
+    mod = _load_driver()
+    real_k, real_kjson = mod.k, mod._kjson
+    calls = []
+
+    def fake_k(*args):
+        calls.append(args)
+        if args and args[0] == "wait":
+            return _Proc(returncode=1, stderr="timed out waiting for the condition")
+        return _Proc(stdout=recheck_stdout, returncode=recheck_rc)
+
+    def fake_kjson(*args):
+        return pods_json, {"argv": list(args), "exit": 0}
+
+    mod.k, mod._kjson = fake_k, fake_kjson
+    try:
+        return mod._probe_pod_barrier(**kw), calls
+    finally:
+        mod.k, mod._kjson = real_k, real_kjson
+
+
+def test_barrier_blocks_while_a_probe_pod_is_present():
+    present = {"items": [{"metadata": {"name": "stub-probe"},
+                          "status": {"phase": "Succeeded"}}]}
+    rec, calls = _run_barrier(present, "stub-probe\n",
+                              deadline_seconds=2, poll_seconds=1)
+    assert rec["cleared"] is False, "barrier cleared while a pod was present"
+    assert "stub-probe" in rec["pods_seen"], rec["pods_seen"]
+    assert rec["waited_seconds"] >= 2, rec["waited_seconds"]
+    assert len(rec["attempts"]) > 1, f"only {len(rec['attempts'])} attempt(s)"
+    assert not any(a and a[0] == "delete" for a in calls), calls
+
+
+def test_barrier_clears_on_an_empty_namespace_via_the_independent_recheck():
+    rec, calls = _run_barrier({"items": []}, "", deadline_seconds=2, poll_seconds=1)
+    assert rec["cleared"] is True
+    assert rec["pods_seen"] == []
+    assert len(rec["attempts"]) == 1, f"{len(rec['attempts'])} attempts"
+    only = rec["attempts"][0]
+    assert only["recheck"] == {"exit": 0, "names": [], "stderr": ""}, only["recheck"]
+    assert "wait" not in only, "clearance must come from the re-check, not from wait"
+    assert not any(a and a[0] == "delete" for a in calls), calls
+
+
+def test_barrier_does_not_treat_a_failed_read_as_clearance():
+    """`_kjson` returns None both for genuine absence and for a failed read.
+
+    The independent re-check is what distinguishes them. If the listing fails while a
+    pod is in fact present, the barrier must not clear.
+    """
+    rec, calls = _run_barrier(None, "stub-probe\n",
+                              deadline_seconds=2, poll_seconds=1)
+    assert rec["cleared"] is False, (
+        "barrier treated a failed listing as clearance while the re-check reported a "
+        "pod present")
+    assert not any(a and a[0] == "delete" for a in calls), calls
+
+
+# --------------------------------------------------------------------------
 def _main() -> int:
     tests = [(n, o) for n, o in sorted(globals().items())
              if n.startswith("test_") and callable(o)]
