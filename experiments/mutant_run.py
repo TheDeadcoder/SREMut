@@ -46,6 +46,7 @@ from three_state_run import (
     wait_for_rounds,
 )
 
+import contract_check
 from contract_check import (
     _controller_ref,
     _eligible_endpoints,
@@ -193,6 +194,17 @@ def preflight() -> dict:
            _sha256_file(SREGYM_ROOT / "sregym" / "conductor" / "oracles" / "mitigation.py"),
            PINNED_ORACLE_SHA256)
 
+    # Stale probe pods from an earlier aborted run must not poison a fresh one.
+    rec["stale_probe_pods_deleted"] = []
+    for selector in PROBE_LABEL_SELECTORS:
+        doc, _ = _kjson("get", "pods", "-n", NAMESPACE, "-l", selector, "-o", "json")
+        for pod in (doc or {}).get("items") or []:
+            name = (pod.get("metadata") or {}).get("name")
+            say(f"  deleting stale probe pod {name} [selector {selector}]")
+            gone = contract_check.delete_probe_pod(name)
+            rec["stale_probe_pods_deleted"].append(
+                {"name": name, "selector": selector, "gone": gone.get("gone")})
+
     # The one mandated mutation.
     failed, _ = _kjson("get", "pods", "-n", NAMESPACE,
                        "--field-selector=status.phase=Failed", "-o", "json")
@@ -206,22 +218,35 @@ def preflight() -> dict:
         rec["failed_pods_deleted"].append(
             {"name": name, "exit": d.returncode, "stderr": d.stderr[-500:]})
 
-    say(f"  preflight passed={rec['passed']}  failed_pods_deleted={len(names)}")
+    say(f"  preflight passed={rec['passed']}  failed_pods_deleted={len(names)}  "
+        f"stale_probe_pods_deleted={len(rec['stale_probe_pods_deleted'])}")
     return rec
 
 
 # --------------------------------------------- the ordering constraint (2.4)
 def assert_no_probe_pods(label: str) -> dict:
-    """Assert the namespace is clean enough for a faithful oracle reading.
+    """Observe the namespace immediately before an oracle invocation.
 
-    The stock oracle sweeps EVERY pod in the namespace (mitigation.py:86,95) and
-    returns false if any is not Running with all containers ready. A Pending or
-    Succeeded probe pod silently converts a true verdict into a false one, which
-    would look exactly like a refutation of the central hypothesis. So this is
-    asserted, not merely observed, immediately before every oracle invocation.
+    Two conditions are separated here, because conflating them biases the study.
+
+    (1) A PROBE POD PRESENT IS A PROTOCOL VIOLATION BY US. Our own instrument
+        would be contaminating the reading: the stock oracle sweeps every pod in
+        the namespace (mitigation.py:86,95), and a Pending or Succeeded probe pod
+        silently turns a true verdict into false. `ok` means exactly this and
+        nothing else, and it is the only condition that aborts the run.
+
+    (2) ANY OTHER POD OUTSIDE `Running` IS AN OBSERVATION, NOT A VIOLATION. It is
+        recorded and the oracle is invoked anyway. Aborting here would discard
+        precisely the runs in which the oracle would have returned false -- a
+        filter that can only ever suppress an outcome unfavourable to the
+        project's hypothesis, never produce a favourable one. If a mutant did
+        perturb a pod, that false is a real falsification and must be recorded.
+        PREREGISTRATION_MS_MUTANTS.md section 8 classifies it as a
+        HARNESS_TIMING_FAILURE *after* the verdict exists, with one retry.
     """
     rec: dict = {"label": label, "checked_utc": utc_now(),
-                 "selectors": {}, "non_running_pods": [], "ok": True}
+                 "selectors": {}, "non_running_pods": [],
+                 "namespace_fully_running": True, "ok": True}
 
     for selector in PROBE_LABEL_SELECTORS:
         doc, raw = _kjson("get", "pods", "-n", NAMESPACE, "-l", selector, "-o", "json")
@@ -230,42 +255,58 @@ def assert_no_probe_pods(label: str) -> dict:
         rec["selectors"][selector] = {"count": len(names), "names": names,
                                       "kubectl": raw}
         if names:
-            rec["ok"] = False
+            rec["ok"] = False   # (1) protocol violation -- aborts
 
     pods, raw = _kjson("get", "pods", "-n", NAMESPACE, "-o", "json")
     rec["all_pods_kubectl"] = raw
     if pods is None:
-        rec["ok"] = False
+        rec["namespace_fully_running"] = False
         rec["error"] = "could not list pods"
     else:
         items = pods.get("items") or []
         rec["pod_count"] = len(items)
         for pod in items:
-            phase = (pod.get("status") or {}).get("phase")
+            status = pod.get("status") or {}
+            phase = status.get("phase")
             if phase != "Running":
-                rec["non_running_pods"].append(
-                    {"name": (pod.get("metadata") or {}).get("name"), "phase": phase})
-        if rec["non_running_pods"]:
-            rec["ok"] = False
+                # (2) observation only -- recorded in full, does not abort
+                rec["non_running_pods"].append({
+                    "name": (pod.get("metadata") or {}).get("name"),
+                    "phase": phase,
+                    "reason": status.get("reason"),
+                    "message": status.get("message"),
+                    "start_time": status.get("startTime"),
+                    "container_statuses": status.get("containerStatuses"),
+                    "conditions": status.get("conditions"),
+                })
+        rec["namespace_fully_running"] = not rec["non_running_pods"]
 
-    say(f"  pre-oracle assertion [{label}]: ok={rec['ok']} "
-        f"pods={rec.get('pod_count')} non_running={len(rec['non_running_pods'])}")
+    say(f"  pre-oracle assertion [{label}]: no_probe_pod={rec['ok']} "
+        f"pods={rec.get('pod_count')} "
+        f"fully_running={rec['namespace_fully_running']} "
+        f"non_running={len(rec['non_running_pods'])}")
+    if rec["non_running_pods"]:
+        names = [d["name"] for d in rec["non_running_pods"]]
+        say(f"  NOTE: {len(names)} pod(s) outside Running at {label}: {names} "
+            f"-- recorded, proceeding to the oracle; classify under section 8")
     return rec
 
 
 class ProbePodPresent(RuntimeError):
-    """Raised when the pre-oracle assertion fails; aborts without a verdict."""
+    """Raised only when OUR probe pod is present; aborts without a verdict."""
 
 
 def guarded_oracle(R: dict, label: str):
-    """Run the pre-oracle assertion and refuse to proceed if it fails."""
+    """Run the pre-oracle observation and refuse to proceed only on (1)."""
     rec = assert_no_probe_pods(label)
     R.setdefault("pre_oracle_assertions", []).append(rec)
+    if rec["non_running_pods"]:
+        R["any_non_running_pod_at_an_oracle_call"] = True
     if not rec["ok"]:
         found = {sel: info["names"] for sel, info in rec["selectors"].items()}
         raise ProbePodPresent(
             f"pre-oracle assertion failed before {label}: "
-            f"non_running={rec['non_running_pods']} probe_pods_found={found}")
+            f"probe_pods_found={found}")
     return rec
 
 
@@ -407,6 +448,130 @@ def verify_activation(mutant_id: str) -> dict:
     return rec
 
 
+def attempt_restoration(R: dict, problem, reason: str) -> dict:
+    """Return the cluster to a healthy interface after an aborted run.
+
+    Called only when a mutation may have occurred. An abort between
+    inject_fault() and recover_fault() otherwise leaves the Service deleted or a
+    mutant Service in place; the next run's healthy gate would catch it, but only
+    after spending twelve minutes to fail.
+    """
+    say(f"RESTORATION: attempting after {reason}  [MUTATING]")
+    rec: dict = {"reason": reason, "started_utc": utc_now(),
+                 "probe_pods_deleted": [], "recover_fault": None,
+                 "verification": None, "outcome": None}
+
+    # 1. Remove any leaked probe pod first, so it cannot trip the next run.
+    for selector in PROBE_LABEL_SELECTORS:
+        doc, _ = _kjson("get", "pods", "-n", NAMESPACE, "-l", selector, "-o", "json")
+        for pod in (doc or {}).get("items") or []:
+            name = (pod.get("metadata") or {}).get("name")
+            say(f"  deleting leaked probe pod {name}")
+            gone = contract_check.delete_probe_pod(name)
+            rec["probe_pods_deleted"].append({"name": name, "gone": gone.get("gone")})
+
+    # 2. SREGym's own recovery path, in its own try.
+    t0 = time.monotonic()
+    rc: dict = {"started_utc": utc_now()}
+    try:
+        problem.recover_fault()
+        rc["raised"] = None
+    except Exception as exc:  # noqa: BLE001
+        rc["raised"] = {"type": type(exc).__name__, "message": str(exc),
+                        "traceback": traceback.format_exc()}
+        say(f"  !! recover_fault() raised: {type(exc).__name__}: {exc}")
+    rc["finished_utc"] = utc_now()
+    rc["seconds"] = round(time.monotonic() - t0, 3)
+    rec["recover_fault"] = rc
+
+    # 3. Re-read the interface and judge whether it is genuinely back.
+    svc, svc_raw = _kjson("get", "service", "user-service", "-n", NAMESPACE,
+                          "--ignore-not-found", "-o", "json")
+    slices_doc, sl_raw = _kjson(
+        "get", "endpointslices.discovery.k8s.io", "-n", NAMESPACE,
+        "-l", "kubernetes.io/service-name=user-service", "-o", "json")
+    eligible, _ = _eligible_endpoints((slices_doc or {}).get("items") or [])
+    spec = (svc or {}).get("spec") or {}
+    ports = spec.get("ports") or []
+    port0 = ports[0] if ports else {}
+    verification = {
+        "service_present": svc is not None,
+        "selector": spec.get("selector"),
+        "selector_correct": spec.get("selector") == {"service": "user-service"},
+        "port": port0.get("port"),
+        "target_port": port0.get("targetPort"),
+        "target_port_correct": port0.get("targetPort") == 9090,
+        "eligible_endpoints": len(eligible),
+        "service_kubectl": svc_raw,
+        "endpointslices_kubectl": sl_raw,
+    }
+    verification["interface_restored"] = bool(
+        verification["service_present"] and verification["selector_correct"]
+        and verification["target_port_correct"] and verification["eligible_endpoints"] >= 1
+    )
+    rec["verification"] = verification
+    rec["finished_utc"] = utc_now()
+
+    # 4. Adjudicate.
+    if rc["raised"] is not None or not verification["interface_restored"]:
+        rec["outcome"] = "RESTORATION_FAILURE"
+        R["status"] = "RESTORATION_FAILURE"
+        say("!!! RESTORATION FAILURE -- the cluster was NOT returned to a healthy "
+            "interface.")
+        say("!!! Per PREREGISTRATION_MS_MUTANTS.md section 7 this is NOT retryable "
+            "and STOPS THE SCHEDULE.")
+        say(f"!!! Manual attention required: service_present="
+            f"{verification['service_present']} "
+            f"selector_correct={verification['selector_correct']} "
+            f"target_port_correct={verification['target_port_correct']} "
+            f"eligible_endpoints={verification['eligible_endpoints']}")
+    else:
+        rec["outcome"] = "RESTORED"
+        say(f"  restoration OK: Service present, selector correct, targetPort 9090, "
+            f"{verification['eligible_endpoints']} eligible endpoint(s)")
+
+    R["restoration_attempted"] = True
+    R["restoration_outcome"] = rec["outcome"]
+    R["restoration"] = rec
+    return rec
+
+
+def verify_activation_polled(mutant_id: str, deadline_seconds: int = 30,
+                             poll_seconds: int = 2) -> dict:
+    """Poll the section 2 activation criteria to a deadline.
+
+    A single un-polled read races the endpoint controller: for MS-M03,
+    `at_least_one_backed_endpoint` needs the EndpointSlice populated for a
+    Service created moments earlier. An early read would classify the run
+    MUTANT_ACTIVATION_FAILURE, which section 7 declares NOT retryable -- a
+    transient would permanently cost a repetition. The deadline matches the
+    contract's own structural-predicate deadline, so an activation that is
+    genuinely never going to happen still fails fast, in 30 s rather than 60.
+    """
+    t0 = time.monotonic()
+    attempts = 0
+    checks: list[dict] = []
+    rec: dict | None = None
+    while True:
+        attempts += 1
+        rec = verify_activation(mutant_id)
+        checks.append({"attempt": attempts, "checked_utc": rec["checked_utc"],
+                       "activated": rec["activated"],
+                       "criteria": {kk: vv["ok"] for kk, vv in rec["criteria"].items()}})
+        if rec["activated"]:
+            break
+        if time.monotonic() - t0 >= deadline_seconds:
+            break
+        time.sleep(poll_seconds)
+    rec["attempts"] = attempts
+    rec["elapsed_seconds"] = round(time.monotonic() - t0, 3)
+    rec["poll_history"] = checks
+    rec["deadline_seconds"] = deadline_seconds
+    say(f"  activation [{mutant_id}] activated={rec['activated']} "
+        f"after {attempts} attempt(s), {rec['elapsed_seconds']}s")
+    return rec
+
+
 # ------------------------------------------------------------------------ main
 def main() -> int:
     ap = argparse.ArgumentParser(
@@ -439,9 +604,14 @@ def main() -> int:
         "started_at": utc_now(),
         "status": "RUNNING",
     }
+    R["restoration_attempted"] = False
+    R["restoration_outcome"] = None
+    R["any_non_running_pod_at_an_oracle_call"] = False
+    R["mutation_may_have_occurred"] = False
     overall = time.monotonic()
     sampler = None
     problem = None
+    recovery_completed = False
 
     try:
         R["preflight"] = preflight()
@@ -533,11 +703,23 @@ def main() -> int:
         R["contract_healthy"] = evaluate_contract(
             run_id=args.run_id, mutant_id=mutant_id, state="healthy",
             replica_baseline=baseline, workload_window=R["workload_healthy"])
+        if R["contract_healthy"]["verdict"] == "INFRASTRUCTURE_FAILURE":
+            # Nothing has been injected yet, so no restoration is owed.
+            R["status"] = "INFRASTRUCTURE_FAILURE"
+            R["infrastructure_failure"] = {
+                "phase": "healthy_contract",
+                "reason": R["contract_healthy"].get("reason"),
+            }
+            say("!!! INFRASTRUCTURE_FAILURE before injection "
+                "(retryable once, section 7). NOT INJECTING. STOP.")
+            return 4
         R["dump_healthy"] = dump_state(out / "healthy", "healthy")
 
         # 8. inject -------------------------------------------------------------
         say("STEP 8: inject_fault()   [conductor.py:229]  [MUTATING]")
         t_inject = time.monotonic(); R["injection_started_utc"] = utc_now()
+        # From here on the cluster is mutated; every abort path owes a restoration.
+        R["mutation_may_have_occurred"] = True
         problem.inject_fault()
         t_inject_done = time.monotonic()
         R["injection_finished_utc"] = utc_now()
@@ -553,24 +735,42 @@ def main() -> int:
         R["mutant"] = mut
         R["mutant_applied_utc"] = mut["applied_utc"]
 
-        # 10/11. wait to exactly R1, verifying activation inside the window -----
-        say("STEP 11: verifying mutant activation structurally  [section 2]")
-        R["activation"] = verify_activation(mutant_id)
-        if not R["activation"]["activated"]:
+        # 11a. early activation check, POLLED. This one gates the run. ---------
+        say("STEP 11a: verifying mutant activation structurally  [section 2, polled]")
+        R["activation_after_apply"] = verify_activation_polled(mutant_id)
+        if not R["activation_after_apply"]["activated"]:
             R["status"] = "MUTANT_ACTIVATION_FAILURE"
-            say(f"!!! ACTIVATION FAILED: {json.dumps(R['activation']['criteria'], default=str)}")
-            say("  recovering without invoking the oracle")
-            R["recovery_started_utc"] = utc_now()
-            problem.recover_fault()
-            R["recovery_finished_utc"] = utc_now()
+            say(f"!!! ACTIVATION FAILED after "
+                f"{R['activation_after_apply']['attempts']} attempts: "
+                f"{json.dumps({kk: vv['ok'] for kk, vv in R['activation_after_apply']['criteria'].items()})}")
+            say("  restoring without invoking the oracle")
+            attempt_restoration(R, problem, "MUTANT_ACTIVATION_FAILURE")
+            if R["status"] == "RESTORATION_FAILURE":
+                return 5
+            R["status"] = "MUTANT_ACTIVATION_FAILURE"
             return 3
 
+        # 10. hold to exactly R1 -----------------------------------------------
         say(f"STEP 10: holding to R1 = {R1_SECONDS}s from injection")
         target = t_inject_done + R1_SECONDS
         gap = target - time.monotonic() - ASSERTION_BUDGET_SECONDS
         if gap > 0:
             time.sleep(gap)
+
+        # 11b. binding activation check, single read, next to the assertion. ----
+        # This is the load-bearing observation: the claim the study needs is that
+        # the mutant was active WHEN THE ORACLE RAN, which a reading from ~58 s
+        # earlier does not establish.
         guarded_oracle(R, "FAULTED/in_process")
+        R["activation_before_oracle"] = verify_activation(mutant_id)
+        R["activation_drift"] = bool(
+            not R["activation_before_oracle"]["activated"])
+        if R["activation_drift"]:
+            # Do NOT abort. Silently discarding a run because the cluster changed
+            # state is the same error as filtering on non-Running pods.
+            say("!!! ACTIVATION DRIFT: the binding check disagrees with the early "
+                "check. Recorded; proceeding to the oracle for adjudication from "
+                "the evidence.")
         remaining = target - time.monotonic()
         if remaining > 0:
             time.sleep(remaining)
@@ -593,6 +793,16 @@ def main() -> int:
         R["contract_faulted"] = evaluate_contract(
             run_id=args.run_id, mutant_id=mutant_id, state="faulted",
             replica_baseline=baseline, workload_window=R["workload_faulted"])
+        if R["contract_faulted"]["verdict"] == "INFRASTRUCTURE_FAILURE":
+            R["infrastructure_failure"] = {
+                "phase": "faulted_contract",
+                "reason": R["contract_faulted"].get("reason"),
+            }
+            R["status"] = "INFRASTRUCTURE_FAILURE"
+            say("!!! INFRASTRUCTURE_FAILURE during the faulted contract "
+                "(retryable once after verified restoration, section 7)")
+            attempt_restoration(R, problem, "INFRASTRUCTURE_FAILURE")
+            return 4
 
         # 15. faulted dump ------------------------------------------------------
         R["dump_faulted"] = dump_state(out / "faulted", "faulted")
@@ -606,6 +816,7 @@ def main() -> int:
         R["recovery_finished_utc"] = utc_now()
         R["recovery_seconds"] = round(time.monotonic() - t0, 3)
         R["fault_injected_flag_after_recovery"] = problem.fault_injected
+        recovery_completed = True
         say(f"  recovery complete in {R['recovery_seconds']}s")
 
         # 17. restored ----------------------------------------------------------
@@ -633,12 +844,16 @@ def main() -> int:
         R["status"] = "PROTOCOL_VIOLATION_PROBE_POD_PRESENT"
         R["error"] = {"type": "ProbePodPresent", "message": str(violation)}
         say(f"!!! {R['status']}: {violation}")
-    except Exception as error:  # noqa: BLE001
+        if R["mutation_may_have_occurred"] and not recovery_completed:
+            attempt_restoration(R, problem, R["status"])
+    except BaseException as error:  # noqa: BLE001 - includes KeyboardInterrupt
         R["status"] = "DRIVER_ABORTED"
         R["error"] = {"type": type(error).__name__, "message": str(error),
                       "traceback": traceback.format_exc()}
         say(f"!!! FAILED: {type(error).__name__}: {error}")
         traceback.print_exc()
+        if R["mutation_may_have_occurred"] and not recovery_completed:
+            attempt_restoration(R, problem, "DRIVER_ABORTED")
     finally:
         # 18. stop the sampler, write the record -------------------------------
         if sampler is not None:

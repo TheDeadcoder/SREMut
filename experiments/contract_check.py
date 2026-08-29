@@ -488,14 +488,70 @@ def _observe_identity_and_routing(pod_name: str, tcp_timeout_seconds: int) -> di
     return obs
 
 
+def _probe_pod_diagnostics(pod_name: str) -> dict:
+    """Pod status and Events for a probe pod that failed to reach Running.
+
+    Attached to an INFRASTRUCTURE_FAILURE result so the cause -- unschedulable,
+    image pull, resource pressure -- is recoverable from the record alone.
+    """
+    pod, pod_raw = _kjson("get", "pod", pod_name, "-n", NAMESPACE,
+                          "--ignore-not-found", "-o", "json")
+    events, ev_raw = _kjson("get", "events", "-n", NAMESPACE,
+                            "--field-selector", f"involvedObject.name={pod_name}",
+                            "-o", "json")
+    return {
+        "pod_status": (pod or {}).get("status"),
+        "pod_conditions": ((pod or {}).get("status") or {}).get("conditions"),
+        "pod_kubectl": pod_raw,
+        "events": [
+            {"type": e.get("type"), "reason": e.get("reason"),
+             "message": e.get("message"), "count": e.get("count"),
+             "last_timestamp": e.get("lastTimestamp")}
+            for e in (events or {}).get("items") or []
+        ],
+        "events_kubectl": ev_raw,
+    }
+
+
+def _not_evaluated(reason: str) -> dict:
+    return {
+        "result": "NOT_EVALUATED",
+        "observations": {"reason": reason},
+        "first_observation_utc": None,
+        "last_observation_utc": None,
+        "attempts": 0,
+        "elapsed_seconds": 0.0,
+    }
+
+
+def _ms_i6_record() -> dict:
+    return _not_evaluated(
+        "deferred: not discriminating for MS-M01..M03; "
+        "see PREREGISTRATION_MS_MUTANTS.md section 6")
+
+
 def evaluate_contract(*, run_id: str, mutant_id: str, state: str,
                       replica_baseline: dict, workload_window: dict | None,
                       deadline_seconds: int = 30, poll_seconds: int = 2,
                       tcp_timeout_seconds: int = 3) -> dict:
     """Evaluate MS-I1..MS-I5 for one state. Creates and deletes its own probe pod.
 
-    A predicate that reaches its deadline without passing is FAIL. There is no
-    inconclusive outcome and no infrastructure-error escape hatch.
+    A target predicate that reaches its deadline WITH a healthy probe pod is
+    FAIL: `adjudication.target_predicate_timeout_outcome: REJECT` and
+    `never_infer_infrastructure_failure_from: target_invariant_timeout`. There is
+    no inconclusive outcome for the system under test.
+
+    A probe pod that never reaches Running is a different thing entirely: the
+    contract lists `challenge pod unschedulable because of unrelated cluster
+    failure` under `infrastructure_failure_examples`, scoped to
+    `conditions_independent_of_the_tested_mutant`. That is a statement about the
+    cluster, not about the mutant, so MS-I1/I2/I3 are NOT scored and the verdict
+    is INFRASTRUCTURE_FAILURE. Scoring them FAIL would manufacture a REJECT that
+    happens to agree with the prediction, which is the direction of error to be
+    strictest about.
+
+    The probe pod is deleted in a `finally`, so it cannot leak into the next
+    oracle call even on KeyboardInterrupt or SystemExit.
     """
     say(f"  contract evaluation [{state}] starting (deadline {deadline_seconds}s)")
     evaluated_utc = utc_now()
@@ -504,23 +560,45 @@ def evaluate_contract(*, run_id: str, mutant_id: str, state: str,
     # Deadline-free predicates first; neither needs the probe pod.
     invariants["MS-I4"] = _eval_ms_i4(workload_window)
     invariants["MS-I5"] = _eval_ms_i5(replica_baseline)
+    invariants["MS-I6"] = _ms_i6_record()
 
     probe_rec = create_probe_pod(run_id, mutant_id, state)
     pod_name = probe_rec["name"]
 
-    t0 = time.monotonic()
-    started = utc_now()
-    attempts = 0
-    observations: list[dict] = []
-    passed = {"MS-I1": False, "MS-I2": False, "MS-I3": False}
-    first_pass_obs: dict[str, dict] = {}
-    last_obs: dict | None = None
+    try:
+        if not probe_rec.get("running"):
+            probe_rec["diagnostics"] = _probe_pod_diagnostics(pod_name)
+            reason = "probe_pod_unschedulable"
+            for inv in ("MS-I1", "MS-I2", "MS-I3"):
+                invariants[inv] = _not_evaluated(
+                    f"not scored: {reason} -- the probe pod never reached phase "
+                    f"Running, which the contract scopes as an infrastructure "
+                    f"failure independent of the tested mutant")
+            say(f"  !! probe pod not Running: {probe_rec.get('error')}")
+            say(f"  contract [{state}] verdict = INFRASTRUCTURE_FAILURE ({reason})")
+            return {
+                "verdict": "INFRASTRUCTURE_FAILURE",
+                "reason": reason,
+                "violated": [],
+                "invariants": invariants,
+                "probe_pod": probe_rec,
+                "evaluated_utc": evaluated_utc,
+                "finished_utc": utc_now(),
+                "parameters": {
+                    "deadline_seconds": deadline_seconds,
+                    "poll_seconds": poll_seconds,
+                    "tcp_timeout_seconds": tcp_timeout_seconds,
+                },
+            }
 
-    if not probe_rec.get("running"):
-        # The probe pod never came up. Per the adjudication rule this is still a
-        # FAIL of the predicates that depend on it, recorded with the reason.
-        say(f"  !! probe pod not Running: {probe_rec.get('error')}")
-    else:
+        t0 = time.monotonic()
+        started = utc_now()
+        attempts = 0
+        observations: list[dict] = []
+        passed = {"MS-I1": False, "MS-I2": False, "MS-I3": False}
+        first_pass_obs: dict[str, dict] = {}
+        last_obs: dict | None = None
+
         while True:
             attempts += 1
             try:
@@ -544,61 +622,49 @@ def evaluate_contract(*, run_id: str, mutant_id: str, state: str,
                 break
             time.sleep(poll_seconds)
 
-    elapsed = round(time.monotonic() - t0, 3)
-    for inv in ("MS-I1", "MS-I2", "MS-I3"):
-        chosen = first_pass_obs.get(inv, last_obs)
-        record: dict = {
-            "result": "PASS" if passed[inv] else "FAIL",
-            "observations": {
-                "deciding_observation": chosen,
-                "probe_pod_running": bool(probe_rec.get("running")),
-                "total_observations": len(observations),
+        elapsed = round(time.monotonic() - t0, 3)
+        for inv in ("MS-I1", "MS-I2", "MS-I3"):
+            chosen = first_pass_obs.get(inv, last_obs)
+            record: dict = {
+                "result": "PASS" if passed[inv] else "FAIL",
+                "observations": {
+                    "deciding_observation": chosen,
+                    "probe_pod_running": True,
+                    "total_observations": len(observations),
+                },
+                "first_observation_utc": started,
+                "last_observation_utc": (last_obs or {}).get("observed_utc", started),
+                "attempts": attempts,
+                "elapsed_seconds": elapsed,
+            }
+            if not passed[inv]:
+                record["observations"]["timed_out"] = elapsed >= deadline_seconds
+            invariants[inv] = record
+
+        # All raw observations are kept so the verdict can be recomputed offline.
+        invariants["MS-I1"]["observations"]["all_observations"] = observations
+
+        scored = ("MS-I1", "MS-I2", "MS-I3", "MS-I4", "MS-I5")
+        violated = [i for i in scored if invariants[i]["result"] != "PASS"]
+        verdict = "PASS" if not violated else "REJECT"
+        say(f"  contract [{state}] verdict = {verdict}"
+            + (f"  violated={violated}" if violated else ""))
+
+        return {
+            "verdict": verdict,
+            "violated": violated,
+            "invariants": invariants,
+            "probe_pod": probe_rec,
+            "evaluated_utc": evaluated_utc,
+            "finished_utc": utc_now(),
+            "parameters": {
+                "deadline_seconds": deadline_seconds,
+                "poll_seconds": poll_seconds,
+                "tcp_timeout_seconds": tcp_timeout_seconds,
             },
-            "first_observation_utc": started,
-            "last_observation_utc": (last_obs or {}).get("observed_utc", started),
-            "attempts": attempts,
-            "elapsed_seconds": elapsed,
         }
-        if not passed[inv]:
-            record["observations"]["timed_out"] = elapsed >= deadline_seconds
-            if not probe_rec.get("running"):
-                record["observations"]["probe_pod_error"] = probe_rec.get("error")
-        invariants[inv] = record
-
-    # All raw observations are kept so the verdict can be recomputed offline.
-    invariants["MS-I1"]["observations"]["all_observations"] = observations
-
-    invariants["MS-I6"] = {
-        "result": "NOT_EVALUATED",
-        "observations": {
-            "reason": ("deferred: not discriminating for MS-M01..M03; "
-                       "see PREREGISTRATION_MS_MUTANTS.md section 6"),
-        },
-        "first_observation_utc": None,
-        "last_observation_utc": None,
-        "attempts": 0,
-        "elapsed_seconds": 0.0,
-    }
-
-    probe_delete = delete_probe_pod(pod_name) if probe_rec.get("create") else None
-    probe_rec["delete"] = probe_delete
-
-    scored = ("MS-I1", "MS-I2", "MS-I3", "MS-I4", "MS-I5")
-    violated = [i for i in scored if invariants[i]["result"] != "PASS"]
-    verdict = "PASS" if not violated else "REJECT"
-    say(f"  contract [{state}] verdict = {verdict}"
-        + (f"  violated={violated}" if violated else ""))
-
-    return {
-        "verdict": verdict,
-        "violated": violated,
-        "invariants": invariants,
-        "probe_pod": probe_rec,
-        "evaluated_utc": evaluated_utc,
-        "finished_utc": utc_now(),
-        "parameters": {
-            "deadline_seconds": deadline_seconds,
-            "poll_seconds": poll_seconds,
-            "tcp_timeout_seconds": tcp_timeout_seconds,
-        },
-    }
+    finally:
+        # Exception-safe: a leaked probe pod cascades into an aborted run at the
+        # next oracle call, so deletion must survive any exit path.
+        if probe_rec.get("create"):
+            probe_rec["delete"] = delete_probe_pod(pod_name)
