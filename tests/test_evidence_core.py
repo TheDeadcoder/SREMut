@@ -1349,5 +1349,231 @@ class EvidenceTests(TemporaryRootCase):
         self.assertEqual(first, second)
 
 
+IDENTITY_HEX = "b" * 64
+IDENTITY_ALIAS = {
+    key: IDENTITY_HEX
+    for key in (
+        "SREMUT_REPOSITORY", "SREGYM_REPOSITORY", "SREGYM_APPLICATIONS_REPOSITORY",
+        "EXECUTION_PROFILE", "CONTRACT", "EXECUTION_PROFILE_SCHEMA",
+        "EVIDENCE_POLICY_SCHEMA", "PYPROJECT", "UV_LOCK", "ORIGINAL_ORACLE_EXECUTABLE",
+        "ATTEMPT_ROOT", "WORKLOAD_HISTORY", "BOOT_ID_SOURCE", "KUBECONFIG_HASH_SOURCE",
+        "KUBECTL_CACHE_SNAPSHOT",
+    )
+}
+IDENTITY_RELEASE = {
+    "binding_mode": "SEPARATELY_FROZEN_EXECUTION_RELEASE",
+    "release_artifact": "RUNNER_BUNDLE_SHA256SUMS",
+    "manifest_sha256": IDENTITY_HEX, "bundle_sha256": IDENTITY_HEX,
+    "git_commit": "c" * 40, "git_tree": "d" * 40,
+    "annotated_tag_name": "sremut-runner-release-v1", "annotated_tag_object": "e" * 40,
+    "pyproject_sha256": IDENTITY_HEX, "uv_lock_sha256": IDENTITY_HEX,
+}
+
+
+class RunIdentityPublicationTests(unittest.TestCase):
+    """`EvidenceStore.publish_descriptor("run_identity", ...)` under v1.2.
+
+    v1.1 left the role's publication contract admitting only six caller fields
+    while the closed START and TERMINAL descriptor schemas required the full
+    records, so no run identity could be published at all.  v1.2 admits exactly
+    the phase-specific fields those schemas already require -- and nothing more.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        from sremut import policy_runtime as runtime
+
+        cls.runtime = runtime
+        cls.v1_1 = load_frozen_policy()
+        cls.policy = runtime.load_v1_2_policy_bundle(
+            REPOSITORY / "policies/missing_service_social_network/evidence-capture-v1.2.yaml",
+            REPOSITORY / "schemas/evidence-capture-policy-v1.2.schema.json",
+            REPOSITORY / "EVIDENCE_CAPTURE_POLICY_V1_2_SHA256SUMS",
+            expected_manifest_sha256=runtime.POLICY_V1_2_MANIFEST_SHA256,
+        )
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="sremut-run-identity-test-")
+        self.root = Path(self.temporary.name)
+        self.addCleanup(self.temporary.cleanup)
+        self.store = EvidenceStore(self.root, self.policy, RUN_ID, ATTEMPT_ID)
+        self.addCleanup(self.store.close)
+
+    # -- fixtures ---------------------------------------------------------
+
+    def start_metadata(self, **extra):
+        value = {
+            "run_id": RUN_ID, "attempt_id": ATTEMPT_ID, "created_utc": CREATED_UTC,
+            "boot_identity": BOOT_IDENTITY, "monotonic_ns": 1, "phase": "START",
+            "runtime_identity": {
+                "python_version": "3.12.3", "pyyaml_version": "6.0.2",
+                "kubernetes_version": "32.0.1", "jsonschema_version": "4.23.0",
+                "uv_version": "0.12.5", "kubectl_version": "v1.32.0"},
+            "contract_binding": {
+                "tag_object": "378e9e9180438910611e7642402220e76bb302ca",
+                "commit": "abed58d67e3f91e61f3ad666a47f0101cc680b93",
+                "tree": "2648659b56a7d472bcedb38b8ffb6bc085aea650",
+                "sha256": "bda78e1b07b5eb0628954bcafd8fae3fc1bb2f3b22770046584bd873b72a2488"},
+            "execution_profile_binding": {
+                "tag_object": "7c6493eb7dce68370fd0d5be572edd968654a1d6",
+                "commit": "35fcaeecd6cca02aaec6ebed63455f662bc28176",
+                "tree": "c55ac0748275b9b3ea1ec133700cb7eeec54325b",
+                "sha256": "79cb2d45298e6221d78fcc3aea82df52c71f60f0ab4ba872e1f0579a908703c7"},
+            "runner_release_binding": dict(IDENTITY_RELEASE),
+            "pyproject_sha256":
+                "93e3c59d74450ab9df1e09128a929fd50804ddbf693a2bc4d005e5620579e0f7",
+            "uv_lock_sha256":
+                "700c432b80e151da281f8052451be13ef28b8bf61cfdff21c8c215367db79f01",
+            "source_alias_sha256": dict(IDENTITY_ALIAS),
+            "kubeconfig_content_sha256": IDENTITY_HEX,
+            "kubectl_default_cache_before_sha256": IDENTITY_HEX,
+        }
+        value.update(extra)
+        return value
+
+    def terminal_metadata(self, start_reference, **extra):
+        value = {
+            "run_id": RUN_ID, "attempt_id": ATTEMPT_ID, "created_utc": CREATED_UTC,
+            "boot_identity": BOOT_IDENTITY, "monotonic_ns": 2, "phase": "TERMINAL",
+            "start_identity_reference": start_reference.as_dict(),
+            "terminal_release_identity": dict(IDENTITY_RELEASE),
+            "terminal_source_alias_sha256": dict(IDENTITY_ALIAS),
+            "kubectl_default_cache_before_sha256": IDENTITY_HEX,
+            "kubectl_default_cache_after_sha256": IDENTITY_HEX,
+            "terminal_outcome": "FINALIZED",
+        }
+        value.update(extra)
+        return value
+
+    def publish(self, metadata):
+        return self.store.publish_descriptor("run_identity", metadata)
+
+    def assert_rejects(self, metadata, code="EVIDENCE_METADATA_INVALID"):
+        with self.assertRaises(Exception) as caught:
+            self.publish(metadata)
+        self.assertEqual(str(caught.exception), code)
+
+    # -- the contract itself ----------------------------------------------
+
+    def test_conditional_metadata_is_exactly_the_two_phase_field_sets(self):
+        start = json.loads(self.policy.schema_bytes)["$defs"]["run_identity_start"]
+        terminal = json.loads(self.policy.schema_bytes)["$defs"]["run_identity_terminal"]
+        automatic = {
+            "document_type", "schema_version", "evidence_id", "role", "producer",
+            "source_kind", "media_type", "storage_class", "redaction_status"}
+        common = {"run_id", "attempt_id", "created_utc", "monotonic_ns",
+                  "boot_identity", "phase"}
+        expected = sorted(
+            (set(start["required"]) | set(terminal["required"])) - automatic - common)
+        self.assertEqual(
+            list(self.policy.roles["run_identity"].conditional_required_metadata), expected)
+        self.assertEqual(self.v1_1.roles["run_identity"].conditional_required_metadata, ())
+
+    def test_v1_1_still_cannot_publish_a_run_identity(self):
+        """The v1.1 contract is untouched: its behaviour is exactly as frozen."""
+        other = self.root / "v11"
+        other.mkdir(mode=0o700)
+        with EvidenceStore(other, self.v1_1, RUN_ID, ATTEMPT_ID) as store:
+            with self.assertRaises(Exception) as caught:
+                store.publish_descriptor("run_identity", self.start_metadata())
+            self.assertEqual(str(caught.exception), "EVIDENCE_METADATA_INVALID")
+
+    # -- positives ---------------------------------------------------------
+
+    def test_public_start_and_terminal_publication(self):
+        start = self.publish(self.start_metadata())
+        self.assertEqual(start.role, "run_identity")
+        self.assertEqual(start.storage_class, "DESCRIPTOR_ONLY")
+        terminal = self.publish(self.terminal_metadata(start))
+        self.assertNotEqual(start.evidence_id, terminal.evidence_id)
+        for reference, phase in ((start, "START"), (terminal, "TERMINAL")):
+            descriptor = parse_canonical_json(self.store.resolve(reference)[1])
+            self.assertEqual(descriptor["phase"], phase)
+            self.assertEqual(descriptor["producer"], "RUNNER_IDENTITY_RECORDER")
+            # Published through the public API, and schema valid as published.
+            self.policy.structural_validate(descriptor)
+        cited = parse_canonical_json(
+            self.store.resolve(terminal)[1])["start_identity_reference"]
+        self.assertEqual(cited["evidence_id"], start.evidence_id)
+
+    def test_every_terminal_outcome_is_publishable(self):
+        start = self.publish(self.start_metadata())
+        seen = set()
+        for index, outcome in enumerate(
+            ("FINALIZED", "ABORTED_SAFE", "RESTORATION_BLOCKED")
+        ):
+            reference = self.publish(self.terminal_metadata(
+                start, terminal_outcome=outcome, monotonic_ns=10 + index))
+            seen.add(parse_canonical_json(
+                self.store.resolve(reference)[1])["terminal_outcome"])
+        self.assertEqual(seen, {"FINALIZED", "ABORTED_SAFE", "RESTORATION_BLOCKED"})
+
+    # -- negatives ---------------------------------------------------------
+
+    def test_missing_phase_specific_field_rejects(self):
+        for field_name in (
+            "runtime_identity", "contract_binding", "execution_profile_binding",
+            "runner_release_binding", "pyproject_sha256", "uv_lock_sha256",
+            "source_alias_sha256", "kubeconfig_content_sha256",
+            "kubectl_default_cache_before_sha256",
+        ):
+            metadata = self.start_metadata()
+            metadata.pop(field_name)
+            self.assert_rejects(metadata)
+        start = self.publish(self.start_metadata())
+        for field_name in (
+            "start_identity_reference", "terminal_release_identity",
+            "terminal_source_alias_sha256", "kubectl_default_cache_after_sha256",
+            "terminal_outcome",
+        ):
+            metadata = self.terminal_metadata(start)
+            metadata.pop(field_name)
+            self.assert_rejects(metadata)
+
+    def test_start_only_fields_on_terminal_reject(self):
+        start = self.publish(self.start_metadata())
+        for field_name in (
+            "runtime_identity", "contract_binding", "execution_profile_binding",
+            "runner_release_binding", "pyproject_sha256", "uv_lock_sha256",
+            "source_alias_sha256", "kubeconfig_content_sha256",
+        ):
+            metadata = self.terminal_metadata(start)
+            metadata[field_name] = self.start_metadata()[field_name]
+            self.assert_rejects(metadata)
+
+    def test_terminal_only_fields_on_start_reject(self):
+        start = self.publish(self.start_metadata())
+        for field_name, value in (
+            ("start_identity_reference", start.as_dict()),
+            ("terminal_release_identity", dict(IDENTITY_RELEASE)),
+            ("terminal_source_alias_sha256", dict(IDENTITY_ALIAS)),
+            ("kubectl_default_cache_after_sha256", IDENTITY_HEX),
+            ("terminal_outcome", "FINALIZED"),
+        ):
+            metadata = self.start_metadata(monotonic_ns=7)
+            metadata[field_name] = value
+            self.assert_rejects(metadata)
+
+    def test_unrelated_metadata_rejects(self):
+        self.assert_rejects(self.start_metadata(unrelated_field=1))
+        self.assert_rejects(self.start_metadata(payload_sha256=IDENTITY_HEX))
+
+    def test_invalid_run_attempt_phase_hash_or_reference_rejects(self):
+        self.assert_rejects(
+            self.start_metadata(run_id="sremut-ms-m01-r01-a02-abcdef123456"),
+            "RUN_ATTEMPT_MISMATCH")
+        self.assert_rejects(self.start_metadata(attempt_id="a02"), "RUN_ATTEMPT_MISMATCH")
+        self.assert_rejects(self.start_metadata(phase="MIDDLE"))
+        self.assert_rejects(self.start_metadata(phase="TERMINAL"))
+        self.assert_rejects(self.start_metadata(kubeconfig_content_sha256="zz"))
+        self.assert_rejects(self.start_metadata(created_utc="2026-08-20T10:00:00Z"))
+        self.assert_rejects(self.start_metadata(boot_identity="not-a-uuid"))
+        self.assert_rejects(
+            self.start_metadata(pyproject_sha256=IDENTITY_HEX))  # not the pinned const
+        start = self.publish(self.start_metadata())
+        self.assert_rejects(self.terminal_metadata(start, start_identity_reference={"n": 1}))
+        self.assert_rejects(self.terminal_metadata(start, terminal_outcome="NOPE"))
+
+
 if __name__ == "__main__":
     unittest.main()

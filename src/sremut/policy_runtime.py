@@ -42,13 +42,16 @@ EXPECTED_MANIFEST_PATHS = (
 # beside the v1.1 pins, never in place of them: the historical v1 and v1.1
 # artifact bytes stay authoritative for everything already built against them,
 # and the v1.2 generator is pinned only by hash -- it is never imported as
-# mutable production policy logic.  The twelve-hook order and the frozen role,
-# hook, matrix, state and sensitive sections are byte-identical across v1.1 and
-# v1.2, so both bindings share exactly the same section pins below.
-POLICY_V1_2_MANIFEST_SHA256 = "c6e5228d0edb5d2f2bd8e95e62b7d72410e768b8a3dfa99c323971571b7b8e50"
-POLICY_V1_2_POLICY_SHA256 = "bdf30f2f0ad54ad63aa618315e51408323b4b5fa7b80bdf475b39068081c265e"
-POLICY_V1_2_SCHEMA_SHA256 = "b4155992d3d3317c2852593e4d9aad335d3158db37fa61ce5e0b92269ae0af26"
-POLICY_V1_2_GENERATOR_SHA256 = "80cfe996abf8375f4b04ef6a5f6db0beb5142a32e37f8d2e80aa75545b214878"
+# mutable production policy logic.  The twelve-hook order and the frozen hook,
+# matrix, state and sensitive sections stay byte-identical across v1.1 and v1.2,
+# so both bindings share those pins.  The ROLE section is the one exception: the
+# v1.2 correction widens `roles.run_identity.conditional_required_metadata` so a
+# run identity can be published at all, so each version pins its own role
+# digest and the two are never interchangeable.
+POLICY_V1_2_MANIFEST_SHA256 = "3805e62314dac25a4c160e73745a278c6b796d59fa3ea67595d1a69604ce350f"
+POLICY_V1_2_POLICY_SHA256 = "763ad8a4d074f3bf9656038d5c726b173045ee19a8f4470be918ce2634a6a343"
+POLICY_V1_2_SCHEMA_SHA256 = "be09ea0b2ae15eaa15038badc49c62518867696c785973979eefeb21d0712e49"
+POLICY_V1_2_GENERATOR_SHA256 = "9638b6da9ab4643c8150bbda3119e2ff10e1306b72bd6ffc15ea707af4b3c00f"
 POLICY_V1_2_RELATIVE_PATH = "policies/missing_service_social_network/evidence-capture-v1.2.yaml"
 SCHEMA_V1_2_RELATIVE_PATH = "schemas/evidence-capture-policy-v1.2.schema.json"
 GENERATOR_V1_2_RELATIVE_PATH = "tools/freeze_missing_service_evidence_policy_v1_2.py"
@@ -75,6 +78,9 @@ EXPECTED_HOOK_ORDER = (
     "VALIDATE_SENSITIVE_CAPTURE_V1",
 )
 EXPECTED_ROLE_SECTION_SHA256 = "42bb026b40beff10fc0e63836f67a10549d92ba2e6f48ee3127a1bbd9ef20d60"
+EXPECTED_V1_2_ROLE_SECTION_SHA256 = (
+    "cebcefb1f7900e1d95190733a7ddf8fc41cb5f8eb821a911ff35eafd815fba4a"
+)
 EXPECTED_HOOK_SECTION_SHA256 = "f15497e201db7245eed67d748598658793fe410c4ac28ccaa01ad9b8768bc1bc"
 EXPECTED_MATRIX_SECTION_SHA256 = "1bb914a14a3d6fd2b63aa54d4ee429e368b23737d03caf7533920b0e3bacf014"
 EXPECTED_STATE_SECTION_SHA256 = "c5d01548d46d416167a3adaff5cdd19a5e33e325464fd3597bf61d934b8e7487"
@@ -400,6 +406,7 @@ class _VersionBinding:
     policy_id: str
     semantic_version: str
     status: str
+    role_section_sha256: str
 
     @property
     def manifest_paths(self) -> tuple[str, str, str]:
@@ -426,6 +433,7 @@ _V1_1_BINDING = _VersionBinding(
     policy_id=POLICY_ID,
     semantic_version=POLICY_SEMANTIC_VERSION,
     status="FROZEN_BEFORE_MUTANT_EXECUTION",
+    role_section_sha256=EXPECTED_ROLE_SECTION_SHA256,
 )
 
 _V1_2_BINDING = _VersionBinding(
@@ -439,6 +447,7 @@ _V1_2_BINDING = _VersionBinding(
     policy_id=POLICY_V1_2_ID,
     semantic_version=POLICY_V1_2_SEMANTIC_VERSION,
     status=POLICY_V1_2_STATUS,
+    role_section_sha256=EXPECTED_V1_2_ROLE_SECTION_SHA256,
 )
 
 # The closed set.  There is no third binding and no way to add one at runtime:
@@ -536,7 +545,8 @@ def _load_bundle(
     sensitive_raw = policy.get("sensitive_capture_policy")
     if not isinstance(roles_raw, dict) or len(roles_raw) != 21:
         _reject("EVIDENCE_ROLE_INVALID")
-    if _section_sha256(roles_raw) != EXPECTED_ROLE_SECTION_SHA256:
+    # Pinned per version: v1.1 and v1.2 differ in exactly one role key.
+    if _section_sha256(roles_raw) != binding.role_section_sha256:
         _reject("EVIDENCE_ROLE_INVALID")
     if _section_sha256(hooks_raw) != EXPECTED_HOOK_SECTION_SHA256:
         _reject("HOOK_MATRIX_MISMATCH")

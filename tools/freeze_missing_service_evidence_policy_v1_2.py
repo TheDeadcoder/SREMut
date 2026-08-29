@@ -152,6 +152,13 @@ POLICY_ALLOWED_PREFIXES = (
     "full_admissibility_validation.failure_codes",
     "full_admissibility_validation.runner_conformance_requirement",
     "workload_stream_identity_protocol.evidence_policy_id",
+    # Correction A: the run-identity publication contract.  Only this one role
+    # key changes, and only to admit the phase-specific fields the closed START
+    # and TERMINAL descriptor schemas already require.
+    "roles.run_identity.conditional_required_metadata",
+    "full_admissibility_validation.run_identity_publication_contract",
+    # Correction B: an ABORTED_SAFE attempt that authorized nothing.
+    "full_admissibility_validation.attempt_envelope_zero_closure",
 )
 
 #: Every schema path v1.2 is permitted to change relative to v1.1.
@@ -162,6 +169,7 @@ SCHEMA_ALLOWED_PREFIXES = (
     "$defs.resolved_evidence_context",
     "$defs.authenticated_policy_input",
     "$defs.offline_seal_input",
+    "$defs.attempt_validation_envelope",
     "x-evidence-policy-semantic-version",
 )
 
@@ -1233,7 +1241,33 @@ def _build_envelope(
 # ---------------------------------------------------------------------------
 
 
-def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
+def run_identity_phase_metadata(base_schema: dict[str, Any]) -> dict[str, list[str]]:
+    """The phase-specific caller metadata each run-identity descriptor requires.
+
+    Read straight out of the closed `run_identity_start` and
+    `run_identity_terminal` schemas rather than restated, so the publication
+    contract cannot drift from the descriptor contract it exists to serve.
+    Fields the store fills in itself, and the common fields already carried by
+    `required_metadata`, are excluded.
+    """
+    defs = base_schema["$defs"]
+    automatic = {
+        "document_type", "schema_version", "evidence_id", "role", "producer",
+        "source_kind", "media_type", "storage_class", "redaction_status",
+    }
+    common = {"run_id", "attempt_id", "created_utc", "monotonic_ns",
+              "boot_identity", "phase"}
+    result = {}
+    for phase, name in (("START", "run_identity_start"),
+                        ("TERMINAL", "run_identity_terminal")):
+        required = list(defs[name]["required"])
+        result[phase] = [
+            field for field in required if field not in automatic and field not in common
+        ]
+    return result
+
+
+def build_policy(base_policy: dict[str, Any], base_schema: dict[str, Any]) -> dict[str, Any]:
     policy = deepcopy(base_policy)
     policy["document_type"] = "EVIDENCE_POLICY_DOCUMENT_V1_2"
     policy["semantic_version"] = SEMANTIC_VERSION
@@ -1336,6 +1370,65 @@ def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
         "omitted_or_extra_raw_reference": "ADJUDICATION_CLOSURE_INCOMPLETE",
         "fail_closed": True,
     }
+    # ---- correction A: public run-identity publication --------------------
+    #
+    # v1.1 left `roles.run_identity` with eleven required metadata names and no
+    # conditional names, so a caller could supply only six fields -- while the
+    # closed `run_identity_start` and `run_identity_terminal` schemas require
+    # the full START and TERMINAL records.  The two frozen artifacts disagreed,
+    # and `EvidenceStore.publish_descriptor("run_identity", ...)` could not
+    # publish any run identity at all.  v1.2 admits exactly the phase-specific
+    # fields those closed schemas already require, and nothing else: the
+    # descriptor schemas are unchanged, so each phase still has to present its
+    # own exact field set.
+    phase_metadata = run_identity_phase_metadata(base_schema)
+    conditional = sorted(set(phase_metadata["START"]) | set(phase_metadata["TERMINAL"]))
+    policy["roles"]["run_identity"]["conditional_required_metadata"] = conditional
+    full["run_identity_publication_contract"] = {
+        "publisher": "EvidenceStore.publish_descriptor",
+        "role": "run_identity",
+        "common_required_caller_metadata": [
+            "run_id", "attempt_id", "created_utc", "monotonic_ns",
+            "boot_identity", "phase",
+        ],
+        "phase_specific_required_caller_metadata": {
+            "START": list(phase_metadata["START"]),
+            "TERMINAL": list(phase_metadata["TERMINAL"]),
+        },
+        "conditional_caller_metadata_is_union_of_phases": True,
+        "unrelated_caller_metadata": "EVIDENCE_METADATA_INVALID",
+        "phase_enforcement": "CLOSED_DESCRIPTOR_SCHEMA_PER_PHASE",
+        "descriptor_schemas_weakened": False,
+        "start_only_field_on_terminal": "EVIDENCE_METADATA_INVALID",
+        "terminal_only_field_on_start": "EVIDENCE_METADATA_INVALID",
+        "missing_phase_specific_field": "EVIDENCE_METADATA_INVALID",
+        "direct_descriptor_file_write_supported": False,
+    }
+
+    # ---- correction B: zero-closure for an ABORTED_SAFE attempt ------------
+    #
+    # ABORTED_SAFE is reachable only from CREATED, PREFLIGHT_PASS or
+    # HEALTHY_STATE_CAPTURED, so such an attempt never reaches
+    # ORIGINAL_ORACLE_EVALUATED and can legally authorize no predicate at all.
+    # v1.1 still required at least one adjudication reference and one raw
+    # reference in every envelope, so that attempt had no representable
+    # closure.  v1.2 permits -- and only permits -- the empty closure when the
+    # journal authorized nothing.
+    full["attempt_envelope_zero_closure"] = {
+        "permitted_terminal_outcome": "ABORTED_SAFE",
+        "requires_zero_evaluation_authorization_contexts": True,
+        "requires_empty_adjudication_references": True,
+        "requires_empty_raw_evidence_references": True,
+        "authority": "authoritative_journal_derivation.evaluation_authorization_derivation",
+        "caller_asserted_emptiness_accepted": False,
+        "finalized_zero_references": "ADJUDICATION_CLOSURE_INCOMPLETE",
+        "restoration_blocked_zero_references_after_authorization":
+            "ADJUDICATION_CLOSURE_INCOMPLETE",
+        "partial_emptiness": "ADJUDICATION_CLOSURE_INCOMPLETE",
+        "payload_backed_raw_evidence_rule_unchanged": True,
+        "fail_closed": True,
+    }
+
     full["runner_conformance_requirement"] = [
         "Validation semantics unchanged by v1.2 remain governed by the authenticated "
         "v1.1 base reference implementation and its stable failure-code semantics.",
@@ -1378,7 +1471,7 @@ def build_policy(base_policy: dict[str, Any]) -> dict[str, Any]:
             "adjudication_predicate_raw_role_context_deadline_matrix",
             "workload_evidence_protocol.window_identity",
             "verified_attempt_state_machine",
-            "roles",
+            "roles_except_run_identity_conditional_required_metadata",
             "adjudication_vocabularies",
             "kubernetes_evidence_surface",
             "service_restoration_projection",
@@ -1416,6 +1509,39 @@ def _authorization_context_schema(predicate: str, row: dict[str, Any]) -> dict[s
             "marker_sequence_number",
         ],
     }
+
+
+def _correct_attempt_validation_envelope(schema: dict[str, Any]) -> None:
+    """Correction B: let a zero-authorization ABORTED_SAFE attempt close empty.
+
+    The two reference arrays drop to `minItems: 0`, and a conditional guard
+    restores `minItems: 1` for every terminal outcome except ABORTED_SAFE.  So
+    FINALIZED and RESTORATION_BLOCKED are structurally no weaker than they were
+    under v1.1, while an ABORTED_SAFE attempt -- which the frozen state machine
+    forbids from ever reaching ORIGINAL_ORACLE_EVALUATED, and which therefore
+    can authorize no predicate -- finally has a representable closure.
+
+    Whether an ABORTED_SAFE attempt is ALLOWED to close empty is not a
+    structural question: it depends on the authoritative journal, which no
+    schema can see.  That remains fail-closed in the semantic layer.
+    """
+    envelope = schema["$defs"]["attempt_validation_envelope"]
+    for name in ("adjudication_references", "raw_evidence_references"):
+        envelope["properties"][name]["minItems"] = 0
+    envelope["allOf"] = [
+        {
+            "if": {
+                "properties": {"terminal_outcome": {"not": {"const": "ABORTED_SAFE"}}},
+                "required": ["terminal_outcome"],
+            },
+            "then": {
+                "properties": {
+                    "adjudication_references": {"minItems": 1},
+                    "raw_evidence_references": {"minItems": 1},
+                }
+            },
+        }
+    ]
 
 
 def _correct_resolved_context(schema: dict[str, Any]) -> None:
@@ -1486,6 +1612,7 @@ def build_schema(v11: Any, v1: Any, policy: dict[str, Any], base_schema: dict[st
     auth["expected_generator_relative_path"] = {"type": "string", "const": GENERATOR_REL}
     release = schema["$defs"]["offline_seal_input"]["properties"]["runner_release_binding"]["properties"]
     release["evidence_policy_annotated_tag"] = {"type": "string", "const": TAG_NAME}
+    _correct_attempt_validation_envelope(schema)
     _correct_resolved_context(schema)
     schema["x-evidence-policy-semantic-version"] = SEMANTIC_VERSION
     v1.assert_closed_object_schemas(schema)
@@ -1834,7 +1961,7 @@ def expected_artifacts() -> tuple[dict[str, Any], dict[str, Any], dict[Path, byt
     verify_repository_state()
     verify_base_artifacts()
     v11, v1, _v1_policy, base_policy, base_schema = reconstruct_v1_1()
-    policy = build_policy(base_policy)
+    policy = build_policy(base_policy, base_schema)
     schema = build_schema(v11, v1, policy, base_schema)
     counts = run_delta_tests(policy, schema)
     policy_bytes = render_policy(policy)

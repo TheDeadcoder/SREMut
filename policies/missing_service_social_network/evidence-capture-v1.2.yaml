@@ -284,6 +284,21 @@ roles:
     retention: IMMUTABLE_UNTIL_EXTERNAL_AGGREGATION_AND_ARCHIVAL
     canonical_json_required: true
     strict_utf8_required: false
+    conditional_required_metadata:
+    - contract_binding
+    - execution_profile_binding
+    - kubeconfig_content_sha256
+    - kubectl_default_cache_after_sha256
+    - kubectl_default_cache_before_sha256
+    - pyproject_sha256
+    - runner_release_binding
+    - runtime_identity
+    - source_alias_sha256
+    - start_identity_reference
+    - terminal_outcome
+    - terminal_release_identity
+    - terminal_source_alias_sha256
+    - uv_lock_sha256
   healthy_prestate:
     ordinal: 2
     storage_class: PAYLOAD_WITH_DESCRIPTOR
@@ -3660,6 +3675,54 @@ full_admissibility_validation:
     omitted_adjudication: ADJUDICATION_CLOSURE_INCOMPLETE
     omitted_or_extra_raw_reference: ADJUDICATION_CLOSURE_INCOMPLETE
     fail_closed: true
+  run_identity_publication_contract:
+    publisher: EvidenceStore.publish_descriptor
+    role: run_identity
+    common_required_caller_metadata:
+    - run_id
+    - attempt_id
+    - created_utc
+    - monotonic_ns
+    - boot_identity
+    - phase
+    phase_specific_required_caller_metadata:
+      START:
+      - runtime_identity
+      - contract_binding
+      - execution_profile_binding
+      - runner_release_binding
+      - pyproject_sha256
+      - uv_lock_sha256
+      - source_alias_sha256
+      - kubeconfig_content_sha256
+      - kubectl_default_cache_before_sha256
+      TERMINAL:
+      - start_identity_reference
+      - terminal_release_identity
+      - terminal_source_alias_sha256
+      - kubectl_default_cache_before_sha256
+      - kubectl_default_cache_after_sha256
+      - terminal_outcome
+    conditional_caller_metadata_is_union_of_phases: true
+    unrelated_caller_metadata: EVIDENCE_METADATA_INVALID
+    phase_enforcement: CLOSED_DESCRIPTOR_SCHEMA_PER_PHASE
+    descriptor_schemas_weakened: false
+    start_only_field_on_terminal: EVIDENCE_METADATA_INVALID
+    terminal_only_field_on_start: EVIDENCE_METADATA_INVALID
+    missing_phase_specific_field: EVIDENCE_METADATA_INVALID
+    direct_descriptor_file_write_supported: false
+  attempt_envelope_zero_closure:
+    permitted_terminal_outcome: ABORTED_SAFE
+    requires_zero_evaluation_authorization_contexts: true
+    requires_empty_adjudication_references: true
+    requires_empty_raw_evidence_references: true
+    authority: authoritative_journal_derivation.evaluation_authorization_derivation
+    caller_asserted_emptiness_accepted: false
+    finalized_zero_references: ADJUDICATION_CLOSURE_INCOMPLETE
+    restoration_blocked_zero_references_after_authorization: ADJUDICATION_CLOSURE_INCOMPLETE
+    partial_emptiness: ADJUDICATION_CLOSURE_INCOMPLETE
+    payload_backed_raw_evidence_rule_unchanged: true
+    fail_closed: true
 threat_and_trust_model:
   model_id: SREMUT_EVIDENCE_TRUST_MODEL_V1
   provided_guarantees:
@@ -3965,6 +4028,9 @@ semantic_diff_report:
   - full_admissibility_validation.failure_codes
   - full_admissibility_validation.runner_conformance_requirement
   - workload_stream_identity_protocol.evidence_policy_id
+  - roles.run_identity.conditional_required_metadata
+  - full_admissibility_validation.run_identity_publication_contract
+  - full_admissibility_validation.attempt_envelope_zero_closure
   allowlisted_schema_prefixes:
   - $id
   - title
@@ -3972,6 +4038,7 @@ semantic_diff_report:
   - $defs.resolved_evidence_context
   - $defs.authenticated_policy_input
   - $defs.offline_seal_input
+  - $defs.attempt_validation_envelope
   - x-evidence-policy-semantic-version
   observed_policy_leaf_paths_before_report:
   - authenticated_policy_input.expected_entry_paths[0]
@@ -3997,6 +4064,7 @@ semantic_diff_report:
   - frozen_at
   - full_admissibility_validation.adjudication_context_selection
   - full_admissibility_validation.attempt_envelope_adjudication_closure
+  - full_admissibility_validation.attempt_envelope_zero_closure
   - full_admissibility_validation.evaluation_authorization_contexts
   - full_admissibility_validation.failure_codes[93]
   - full_admissibility_validation.failure_codes[94]
@@ -4004,10 +4072,12 @@ semantic_diff_report:
   - full_admissibility_validation.failure_codes[96]
   - full_admissibility_validation.failure_codes[97]
   - full_admissibility_validation.resolved_context_document
+  - full_admissibility_validation.run_identity_publication_contract
   - full_admissibility_validation.runner_conformance_requirement
   - full_admissibility_validation.workload_window_context_selection
   - future_annotated_tag
   - policy_id
+  - roles.run_identity.conditional_required_metadata
   - runner_release_binding.evidence_policy_annotated_tag
   - semantic_version
   - status
@@ -4026,7 +4096,7 @@ semantic_diff_report:
   - adjudication_predicate_raw_role_context_deadline_matrix
   - workload_evidence_protocol.window_identity
   - verified_attempt_state_machine
-  - roles
+  - roles_except_run_identity_conditional_required_metadata
   - adjudication_vocabularies
   - kubernetes_evidence_surface
   - service_restoration_projection

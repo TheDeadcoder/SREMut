@@ -393,34 +393,69 @@ class ResolvedEvidenceContext:
         if not self.journal_state.terminal or self.journal_state.state != self.terminal_outcome:
             _reject("ATTEMPT_FINALITY_INVALID")
 
+    def _retained_run_identities(self) -> tuple[Any, Any]:
+        """The one retained START and the one retained TERMINAL run identity.
+
+        Authority is the sealed attempt root, never the candidate: these rows
+        were rebuilt from retained descriptor bytes whose content identity,
+        hashes and run/attempt binding this context already authenticated.
+        """
+        rows = [
+            row for row in self.evidence.values()
+            if row.reference.role == "run_identity"
+        ]
+        by_phase: dict[str, list[Any]] = {"START": [], "TERMINAL": []}
+        for row in rows:
+            phase = row.descriptor.get("phase")
+            if phase not in by_phase:
+                _reject("ATTEMPT_FINALITY_INVALID")
+            by_phase[phase].append(row)
+        if len(rows) != 2 or len(by_phase["START"]) != 1 or len(by_phase["TERMINAL"]) != 1:
+            _reject("ATTEMPT_FINALITY_INVALID")
+        start, terminal = by_phase["START"][0], by_phase["TERMINAL"][0]
+        for row in (start, terminal):
+            if (
+                row.descriptor.get("run_id") != self.run_id
+                or row.descriptor.get("attempt_id") != self.attempt_id
+            ):
+                _reject("ATTEMPT_FINALITY_INVALID")
+        start_time = start.descriptor.get("monotonic_ns")
+        terminal_time = terminal.descriptor.get("monotonic_ns")
+        if (
+            not isinstance(start_time, int) or isinstance(start_time, bool)
+            or not isinstance(terminal_time, int) or isinstance(terminal_time, bool)
+            or not start_time < terminal_time
+        ):
+            _reject("ATTEMPT_FINALITY_INVALID")
+        # The terminal record must cite the START this attempt actually retained.
+        if _thaw(terminal.descriptor.get("start_identity_reference")) != start.reference.as_dict():
+            _reject("ATTEMPT_FINALITY_INVALID")
+        if terminal.descriptor.get("terminal_outcome") != self.terminal_outcome:
+            _reject("ATTEMPT_FINALITY_INVALID")
+        return start, terminal
+
     def _validate_terminal_run_identities(self) -> None:
-        identities = sorted(
-            (
-                row.descriptor
-                for row in self.evidence.values()
-                if row.reference.role == "run_identity"
-            ),
-            key=lambda item: item.get("monotonic_ns", -1),
-        )
-        if len(identities) != 2 or tuple(item.get("phase") for item in identities) != (
-            "START",
-            "TERMINAL",
-        ):
-            _reject("ATTEMPT_FINALITY_INVALID")
-        if any(
-            item.get("run_id") != self.run_id or item.get("attempt_id") != self.attempt_id
-            for item in identities
-        ):
-            _reject("ATTEMPT_FINALITY_INVALID")
-        if identities[1].get("terminal_outcome") != self.terminal_outcome:
-            _reject("ATTEMPT_FINALITY_INVALID")
+        self._retained_run_identities()
 
     def _validate_attempt_envelope(self, candidate: Mapping[str, Any]) -> None:
         identities = candidate.get("run_identities")
         if not isinstance(identities, (list, tuple)) or len(identities) != 2:
             _reject("ATTEMPT_FINALITY_INVALID")
         start, terminal = identities
+        if not isinstance(start, Mapping) or not isinstance(terminal, Mapping):
+            _reject("ATTEMPT_FINALITY_INVALID")
         if start.get("phase") != "START" or terminal.get("phase") != "TERMINAL":
+            _reject("ATTEMPT_FINALITY_INVALID")
+        # The envelope does not get to describe its own run identities.  Both
+        # embedded documents must equal, field for field, the canonical
+        # descriptors this sealed attempt retained -- so a changed monotonic
+        # time, release hash, contract or profile binding, start-identity
+        # reference, or an identity lifted from another attempt, all fail here
+        # rather than being taken at face value.
+        retained_start, retained_terminal = self._retained_run_identities()
+        if _thaw(start) != _thaw(retained_start.descriptor):
+            _reject("ATTEMPT_FINALITY_INVALID")
+        if _thaw(terminal) != _thaw(retained_terminal.descriptor):
             _reject("ATTEMPT_FINALITY_INVALID")
         if candidate.get("terminal_outcome") != self.terminal_outcome:
             _reject("ATTEMPT_FINALITY_INVALID")
@@ -507,9 +542,46 @@ class ResolvedEvidenceContext:
         except WorkloadEvidenceError as error:
             _reject(error.code)
 
+    def _zero_closure_admissible(self, candidate: Mapping[str, Any]) -> bool:
+        """Whether this envelope legally closes with no adjudication at all.
+
+        ABORTED_SAFE is reachable only from CREATED, PREFLIGHT_PASS or
+        HEALTHY_STATE_CAPTURED, so such an attempt never reaches
+        ORIGINAL_ORACLE_EVALUATED and can authorize no predicate.  It therefore
+        has no adjudication to cite and no raw evidence to back one.
+
+        Emptiness is granted by the JOURNAL, never asserted by the caller: the
+        required-predicate set is recomputed by the same production rule every
+        other outcome uses, and it must come out empty.  A FINALIZED attempt
+        always requires all three predicates, so it can never take this path;
+        a RESTORATION_BLOCKED attempt keeps the ordinary closure, including its
+        global-stop citation.  Anything partially empty falls through and is
+        rejected by the ordinary closure below.
+        """
+        from sremut.adjudication import _required_predicates
+
+        if candidate.get("terminal_outcome") != self.terminal_outcome:
+            return False
+        if self.terminal_outcome != "ABORTED_SAFE":
+            return False
+        if candidate.get("adjudication_references") != [] or candidate.get(
+            "raw_evidence_references"
+        ) != []:
+            return False
+        if dict(self.evaluation_authorization_contexts):
+            return False
+        try:
+            return not _required_predicates(self)
+        except Exception:
+            return False
+
     def _validate_adjudication(self, candidate: Mapping[str, Any]) -> None:
         from sremut.adjudication import AdjudicationError, validate_resolved_adjudication
 
+        if candidate.get(
+            "document_type"
+        ) == "ATTEMPT_VALIDATION_ENVELOPE_V1" and self._zero_closure_admissible(candidate):
+            return
         try:
             validate_resolved_adjudication(self, candidate)
         except AdjudicationError as error:

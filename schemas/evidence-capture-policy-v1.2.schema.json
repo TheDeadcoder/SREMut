@@ -2,13 +2,39 @@
   "$defs": {
     "attempt_validation_envelope": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "terminal_outcome": {
+                "not": {
+                  "const": "ABORTED_SAFE"
+                }
+              }
+            },
+            "required": [
+              "terminal_outcome"
+            ]
+          },
+          "then": {
+            "properties": {
+              "adjudication_references": {
+                "minItems": 1
+              },
+              "raw_evidence_references": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
       "properties": {
         "adjudication_references": {
           "items": {
             "$ref": "#/$defs/descriptor_ref_adjudication"
           },
           "maxItems": 4096,
-          "minItems": 1,
+          "minItems": 0,
           "type": "array"
         },
         "attempt_id": {
@@ -63,7 +89,7 @@
             "$ref": "#/$defs/payload_evidence_ref"
           },
           "maxItems": 4096,
-          "minItems": 1,
+          "minItems": 0,
           "type": "array"
         },
         "run_id": {
@@ -4359,6 +4385,69 @@
                 "duplicate_adjudication_reference",
                 "omitted_adjudication",
                 "omitted_or_extra_raw_reference",
+                "fail_closed"
+              ],
+              "type": "object"
+            },
+            "attempt_envelope_zero_closure": {
+              "additionalProperties": false,
+              "properties": {
+                "authority": {
+                  "const": "authoritative_journal_derivation.evaluation_authorization_derivation",
+                  "type": "string"
+                },
+                "caller_asserted_emptiness_accepted": {
+                  "const": false,
+                  "type": "boolean"
+                },
+                "fail_closed": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "finalized_zero_references": {
+                  "const": "ADJUDICATION_CLOSURE_INCOMPLETE",
+                  "type": "string"
+                },
+                "partial_emptiness": {
+                  "const": "ADJUDICATION_CLOSURE_INCOMPLETE",
+                  "type": "string"
+                },
+                "payload_backed_raw_evidence_rule_unchanged": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "permitted_terminal_outcome": {
+                  "const": "ABORTED_SAFE",
+                  "type": "string"
+                },
+                "requires_empty_adjudication_references": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "requires_empty_raw_evidence_references": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "requires_zero_evaluation_authorization_contexts": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "restoration_blocked_zero_references_after_authorization": {
+                  "const": "ADJUDICATION_CLOSURE_INCOMPLETE",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "permitted_terminal_outcome",
+                "requires_zero_evaluation_authorization_contexts",
+                "requires_empty_adjudication_references",
+                "requires_empty_raw_evidence_references",
+                "authority",
+                "caller_asserted_emptiness_accepted",
+                "finalized_zero_references",
+                "restoration_blocked_zero_references_after_authorization",
+                "partial_emptiness",
+                "payload_backed_raw_evidence_rule_unchanged",
                 "fail_closed"
               ],
               "type": "object"
@@ -9598,6 +9687,184 @@
               "const": "FULL_ADMISSIBILITY_VALIDATION_RESULT_V1",
               "type": "string"
             },
+            "run_identity_publication_contract": {
+              "additionalProperties": false,
+              "properties": {
+                "common_required_caller_metadata": {
+                  "items": false,
+                  "maxItems": 6,
+                  "minItems": 6,
+                  "prefixItems": [
+                    {
+                      "const": "run_id",
+                      "type": "string"
+                    },
+                    {
+                      "const": "attempt_id",
+                      "type": "string"
+                    },
+                    {
+                      "const": "created_utc",
+                      "type": "string"
+                    },
+                    {
+                      "const": "monotonic_ns",
+                      "type": "string"
+                    },
+                    {
+                      "const": "boot_identity",
+                      "type": "string"
+                    },
+                    {
+                      "const": "phase",
+                      "type": "string"
+                    }
+                  ],
+                  "type": "array"
+                },
+                "conditional_caller_metadata_is_union_of_phases": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "descriptor_schemas_weakened": {
+                  "const": false,
+                  "type": "boolean"
+                },
+                "direct_descriptor_file_write_supported": {
+                  "const": false,
+                  "type": "boolean"
+                },
+                "missing_phase_specific_field": {
+                  "const": "EVIDENCE_METADATA_INVALID",
+                  "type": "string"
+                },
+                "phase_enforcement": {
+                  "const": "CLOSED_DESCRIPTOR_SCHEMA_PER_PHASE",
+                  "type": "string"
+                },
+                "phase_specific_required_caller_metadata": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "START": {
+                      "items": false,
+                      "maxItems": 9,
+                      "minItems": 9,
+                      "prefixItems": [
+                        {
+                          "const": "runtime_identity",
+                          "type": "string"
+                        },
+                        {
+                          "const": "contract_binding",
+                          "type": "string"
+                        },
+                        {
+                          "const": "execution_profile_binding",
+                          "type": "string"
+                        },
+                        {
+                          "const": "runner_release_binding",
+                          "type": "string"
+                        },
+                        {
+                          "const": "pyproject_sha256",
+                          "type": "string"
+                        },
+                        {
+                          "const": "uv_lock_sha256",
+                          "type": "string"
+                        },
+                        {
+                          "const": "source_alias_sha256",
+                          "type": "string"
+                        },
+                        {
+                          "const": "kubeconfig_content_sha256",
+                          "type": "string"
+                        },
+                        {
+                          "const": "kubectl_default_cache_before_sha256",
+                          "type": "string"
+                        }
+                      ],
+                      "type": "array"
+                    },
+                    "TERMINAL": {
+                      "items": false,
+                      "maxItems": 6,
+                      "minItems": 6,
+                      "prefixItems": [
+                        {
+                          "const": "start_identity_reference",
+                          "type": "string"
+                        },
+                        {
+                          "const": "terminal_release_identity",
+                          "type": "string"
+                        },
+                        {
+                          "const": "terminal_source_alias_sha256",
+                          "type": "string"
+                        },
+                        {
+                          "const": "kubectl_default_cache_before_sha256",
+                          "type": "string"
+                        },
+                        {
+                          "const": "kubectl_default_cache_after_sha256",
+                          "type": "string"
+                        },
+                        {
+                          "const": "terminal_outcome",
+                          "type": "string"
+                        }
+                      ],
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "START",
+                    "TERMINAL"
+                  ],
+                  "type": "object"
+                },
+                "publisher": {
+                  "const": "EvidenceStore.publish_descriptor",
+                  "type": "string"
+                },
+                "role": {
+                  "const": "run_identity",
+                  "type": "string"
+                },
+                "start_only_field_on_terminal": {
+                  "const": "EVIDENCE_METADATA_INVALID",
+                  "type": "string"
+                },
+                "terminal_only_field_on_start": {
+                  "const": "EVIDENCE_METADATA_INVALID",
+                  "type": "string"
+                },
+                "unrelated_caller_metadata": {
+                  "const": "EVIDENCE_METADATA_INVALID",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "publisher",
+                "role",
+                "common_required_caller_metadata",
+                "phase_specific_required_caller_metadata",
+                "conditional_caller_metadata_is_union_of_phases",
+                "unrelated_caller_metadata",
+                "phase_enforcement",
+                "descriptor_schemas_weakened",
+                "start_only_field_on_terminal",
+                "terminal_only_field_on_start",
+                "missing_phase_specific_field",
+                "direct_descriptor_file_write_supported"
+              ],
+              "type": "object"
+            },
             "runner_conformance_requirement": {
               "items": false,
               "maxItems": 5,
@@ -9749,7 +10016,9 @@
             "evaluation_authorization_contexts",
             "adjudication_context_selection",
             "workload_window_context_selection",
-            "attempt_envelope_adjudication_closure"
+            "attempt_envelope_adjudication_closure",
+            "run_identity_publication_contract",
+            "attempt_envelope_zero_closure"
           ],
           "type": "object"
         },
@@ -21072,6 +21341,70 @@
                   "const": true,
                   "type": "boolean"
                 },
+                "conditional_required_metadata": {
+                  "items": false,
+                  "maxItems": 14,
+                  "minItems": 14,
+                  "prefixItems": [
+                    {
+                      "const": "contract_binding",
+                      "type": "string"
+                    },
+                    {
+                      "const": "execution_profile_binding",
+                      "type": "string"
+                    },
+                    {
+                      "const": "kubeconfig_content_sha256",
+                      "type": "string"
+                    },
+                    {
+                      "const": "kubectl_default_cache_after_sha256",
+                      "type": "string"
+                    },
+                    {
+                      "const": "kubectl_default_cache_before_sha256",
+                      "type": "string"
+                    },
+                    {
+                      "const": "pyproject_sha256",
+                      "type": "string"
+                    },
+                    {
+                      "const": "runner_release_binding",
+                      "type": "string"
+                    },
+                    {
+                      "const": "runtime_identity",
+                      "type": "string"
+                    },
+                    {
+                      "const": "source_alias_sha256",
+                      "type": "string"
+                    },
+                    {
+                      "const": "start_identity_reference",
+                      "type": "string"
+                    },
+                    {
+                      "const": "terminal_outcome",
+                      "type": "string"
+                    },
+                    {
+                      "const": "terminal_release_identity",
+                      "type": "string"
+                    },
+                    {
+                      "const": "terminal_source_alias_sha256",
+                      "type": "string"
+                    },
+                    {
+                      "const": "uv_lock_sha256",
+                      "type": "string"
+                    }
+                  ],
+                  "type": "array"
+                },
                 "consumers": {
                   "items": false,
                   "maxItems": 4,
@@ -21228,7 +21561,8 @@
                 "terminal_outcomes_allowed",
                 "retention",
                 "canonical_json_required",
-                "strict_utf8_required"
+                "strict_utf8_required",
+                "conditional_required_metadata"
               ],
               "type": "object"
             },
@@ -22357,8 +22691,8 @@
             },
             "allowlisted_policy_prefixes": {
               "items": false,
-              "maxItems": 24,
-              "minItems": 24,
+              "maxItems": 27,
+              "minItems": 27,
               "prefixItems": [
                 {
                   "const": "document_type",
@@ -22455,14 +22789,26 @@
                 {
                   "const": "workload_stream_identity_protocol.evidence_policy_id",
                   "type": "string"
+                },
+                {
+                  "const": "roles.run_identity.conditional_required_metadata",
+                  "type": "string"
+                },
+                {
+                  "const": "full_admissibility_validation.run_identity_publication_contract",
+                  "type": "string"
+                },
+                {
+                  "const": "full_admissibility_validation.attempt_envelope_zero_closure",
+                  "type": "string"
                 }
               ],
               "type": "array"
             },
             "allowlisted_schema_prefixes": {
               "items": false,
-              "maxItems": 7,
-              "minItems": 7,
+              "maxItems": 8,
+              "minItems": 8,
               "prefixItems": [
                 {
                   "const": "$id",
@@ -22489,6 +22835,10 @@
                   "type": "string"
                 },
                 {
+                  "const": "$defs.attempt_validation_envelope",
+                  "type": "string"
+                },
+                {
                   "const": "x-evidence-policy-semantic-version",
                   "type": "string"
                 }
@@ -22501,8 +22851,8 @@
             },
             "observed_policy_leaf_paths_before_report": {
               "items": false,
-              "maxItems": 48,
-              "minItems": 48,
+              "maxItems": 51,
+              "minItems": 51,
               "prefixItems": [
                 {
                   "const": "authenticated_policy_input.expected_entry_paths[0]",
@@ -22597,6 +22947,10 @@
                   "type": "string"
                 },
                 {
+                  "const": "full_admissibility_validation.attempt_envelope_zero_closure",
+                  "type": "string"
+                },
+                {
                   "const": "full_admissibility_validation.evaluation_authorization_contexts",
                   "type": "string"
                 },
@@ -22625,6 +22979,10 @@
                   "type": "string"
                 },
                 {
+                  "const": "full_admissibility_validation.run_identity_publication_contract",
+                  "type": "string"
+                },
+                {
                   "const": "full_admissibility_validation.runner_conformance_requirement",
                   "type": "string"
                 },
@@ -22638,6 +22996,10 @@
                 },
                 {
                   "const": "policy_id",
+                  "type": "string"
+                },
+                {
+                  "const": "roles.run_identity.conditional_required_metadata",
                   "type": "string"
                 },
                 {
@@ -22721,7 +23083,7 @@
                   "type": "string"
                 },
                 {
-                  "const": "roles",
+                  "const": "roles_except_run_identity_conditional_required_metadata",
                   "type": "string"
                 },
                 {

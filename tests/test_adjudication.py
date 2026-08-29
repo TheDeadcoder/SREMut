@@ -304,44 +304,6 @@ def load_v1_2_policy():
     )
 
 
-def write_identity_descriptor(store, document):
-    """Retain one run-identity descriptor by writing its exact canonical bytes.
-
-    `EvidenceStore.publish_descriptor` cannot produce this document.  The frozen
-    policy's `roles.run_identity.required_metadata` is a publication-time caller
-    whitelist of eleven names -- six of which a caller may actually supply --
-    while the frozen schema's `descriptor_descriptor_run_identity` requires the
-    full START (24 fields) or TERMINAL (21 fields) record.  The two frozen
-    artifacts therefore disagree, identically in v1.1 and v1.2, and no run
-    identity can be published through the store under either.
-
-    That is reported, not repaired: nothing frozen is edited here.  The bytes
-    written below are the ones the schema defines, their evidence id and
-    descriptor digest are computed exactly as `EvidenceStore._descriptor`
-    computes them, and everything downstream -- the journal chain, the terminal
-    manifest, the seal and `resolve_evidence_context` -- is production code
-    operating on them unmodified.
-    """
-    from sremut.evidence import EvidenceRef, descriptor_content_sha256
-
-    body = {key: value for key, value in document.items() if key != "evidence_id"}
-    digest = descriptor_content_sha256(body)
-    body["evidence_id"] = "ev-" + digest[:32]
-    data = canonical_json_bytes(body)
-    reference = EvidenceRef(
-        document_type="DESCRIPTOR_EVIDENCE_REF_V1", schema_version=1,
-        evidence_id=body["evidence_id"], role="run_identity",
-        producer="RUNNER_IDENTITY_RECORDER", source_kind="LOCAL_IDENTITY",
-        media_type="application/json", storage_class="DESCRIPTOR_ONLY",
-        descriptor_sha256=digest, descriptor_size_bytes=len(data),
-        descriptor_relative_path=f"descriptors/sha256/{digest[:2]}/{digest}.json",
-        redaction_status="NOT_REDACTED", payload_sha256=None,
-        payload_size_bytes=None, payload_relative_path=None, projection_class=None,
-    )
-    store.fs.write_atomic(reference.descriptor_relative_path, data)
-    return reference, body
-
-
 class ThreePredicateConformanceTests(unittest.TestCase):
     """Dispatcher conformance under the AUTHENTICATED evidence-policy v1.2.
 
@@ -349,7 +311,14 @@ class ThreePredicateConformanceTests(unittest.TestCase):
     the production `resolve_evidence_context` rebuilt from a really sealed
     attempt on disk, under the v1.2 bundle loaded by `load_v1_2_policy_bundle`.
     Nothing here uses the v1.2 generator's delta validator, and nothing calls
-    `context.validate_hook` as a substitute for the dispatcher.
+    `context.validate_hook` as a substitute for the dispatcher.  Every piece of
+    evidence is published through the public `EvidenceStore` API; no descriptor
+    file is written directly.
+
+    These are evidence-layer conformance fixtures, NOT complete MS-M01 attempts:
+    they exercise terminal evidence consistency and closure.  They run no
+    mutation, no restoration and no oracle, and `operations` is deliberately
+    empty -- operation closure is out of scope here.
 
     Two document kinds are exercised, and neither runs all twelve hooks: the
     frozen applicability matrix gives an adjudication descriptor six hooks and an
@@ -415,11 +384,13 @@ class ThreePredicateConformanceTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory(prefix="sremut-v1-2-conformance-")
         self.addCleanup(temporary.cleanup)
         root = Path(temporary.name)
-        # Every outcome captures and retains all three windows.  What differs is
-        # how many the attempt legally AUTHORIZED: an unreached phase leaves
-        # well-formed, published, publication-recorded evidence behind with no
-        # EVALUATION_AUTHORIZED marker in front of it.
-        publishable = self.ORDER
+        # An outcome that can authorize predicates captures and retains all
+        # three windows; what differs is how many it legally AUTHORIZED, so an
+        # unreached phase leaves well-formed, publication-recorded evidence with
+        # no EVALUATION_AUTHORIZED marker in front of it.  ABORTED_SAFE is
+        # different in kind: it never reaches the challenge at all, so it
+        # synthesizes no pod, workload or adjudication evidence whatsoever.
+        publishable = () if outcome == "ABORTED_SAFE" else self.ORDER
 
         published = {}
         monotonic = 0
@@ -548,20 +519,30 @@ class ThreePredicateConformanceTests(unittest.TestCase):
             self.policy, root, W.RUN_ID, W.ATTEMPT_ID, anchor,
             expected_terminal_manifest_identity=seal.manifest_sha256,
         )
+        # The envelope embeds the RETAINED canonical descriptors, read back out
+        # of the authenticated context rather than reconstructed here.
+        start_reference, terminal_reference = identities["references"]
+        identities["documents"] = (
+            parse_canonical_json(
+                context.evidence[start_reference.evidence_id].descriptor_bytes),
+            parse_canonical_json(
+                context.evidence[terminal_reference.evidence_id].descriptor_bytes),
+        )
         return context, published, root, seal, identities
 
     def _identities(self, store, outcome):
-        """The START and TERMINAL run identities this attempt retains."""
+        """Publish the START and TERMINAL run identities through the public API.
+
+        v1.2 widened `roles.run_identity.conditional_required_metadata` to the
+        exact union of the fields the closed START and TERMINAL descriptor
+        schemas already require, so `EvidenceStore.publish_descriptor` is now
+        the only thing this fixture needs.  Nothing is written to a descriptor
+        file directly.
+        """
         W = workload_tests
-        common = dict(
-            document_type="DESCRIPTOR_EVIDENCE_DESCRIPTOR_V1", schema_version=1,
-            role="run_identity", producer="RUNNER_IDENTITY_RECORDER",
-            source_kind="LOCAL_IDENTITY", media_type="application/json",
-            storage_class="DESCRIPTOR_ONLY", redaction_status="NOT_REDACTED",
-            run_id=W.RUN_ID, attempt_id=W.ATTEMPT_ID, boot_identity=W.BOOT,
-            created_utc=W.CREATED,
-        )
-        start_reference, start = write_identity_descriptor(store, dict(
+        common = dict(run_id=W.RUN_ID, attempt_id=W.ATTEMPT_ID,
+                      created_utc=W.CREATED, boot_identity=W.BOOT)
+        start_reference = store.publish_descriptor("run_identity", dict(
             common, monotonic_ns=1, phase="START",
             runtime_identity={
                 "python_version": "3.12.3", "pyyaml_version": "6.0.2",
@@ -584,7 +565,7 @@ class ThreePredicateConformanceTests(unittest.TestCase):
             kubeconfig_content_sha256=IDENTITY_HEX,
             kubectl_default_cache_before_sha256=IDENTITY_HEX,
         ))
-        terminal_reference, terminal = write_identity_descriptor(store, dict(
+        terminal_reference = store.publish_descriptor("run_identity", dict(
             common, monotonic_ns=2, phase="TERMINAL",
             start_identity_reference=start_reference.as_dict(),
             terminal_release_identity=IDENTITY_RELEASE,
@@ -594,15 +575,20 @@ class ThreePredicateConformanceTests(unittest.TestCase):
             terminal_outcome=outcome,
         ))
         return {
-            "start": start, "terminal": terminal,
             "references": (start_reference, terminal_reference),
+            "documents": None,
         }
 
     def _journal_plan(self, outcome, published, identities):
-        """The exact frozen-transition walk this outcome requires."""
+        """The exact frozen-transition walk this outcome requires.
+
+        START is cited in the initial publication record; TERMINAL is cited only
+        on the transition into the terminal state, which is the first moment the
+        terminal outcome it records is true.
+        """
         start_reference, terminal_reference = identities["references"]
         reached = self.REACHED[outcome]
-        records = [(self.PREFIX[0], (start_reference, terminal_reference))]
+        records = [(self.PREFIX[0], (start_reference,))]
         if outcome == "ABORTED_SAFE":
             records.append((self.PREFIX[1], ()))
         else:
@@ -615,7 +601,7 @@ class ThreePredicateConformanceTests(unittest.TestCase):
             records.append(
                 (_operation_marker(f"{predicate}:twin"), (published[predicate]["twin"],)))
         for predicate in self.ORDER:
-            if predicate in reached:
+            if predicate in reached or predicate not in published:
                 continue
             records.extend(self._publication_records(predicate, published))
             records.append((
@@ -623,11 +609,12 @@ class ThreePredicateConformanceTests(unittest.TestCase):
                 (published[predicate]["adjudication"], published[predicate]["twin"]),
             ))
         if outcome == "ABORTED_SAFE":
-            records.append(("HEALTHY_STATE_CAPTURED->ABORTED_SAFE", ()))
+            terminal = "HEALTHY_STATE_CAPTURED->ABORTED_SAFE"
         elif outcome == "RESTORATION_BLOCKED":
-            records.append(("RESTORE_STARTED->RESTORATION_BLOCKED", ()))
+            terminal = "RESTORE_STARTED->RESTORATION_BLOCKED"
         else:
-            records.append(("RESTORE_VERIFIED->FINALIZED", ()))
+            terminal = "RESTORE_VERIFIED->FINALIZED"
+        records.append((terminal, (terminal_reference,)))
         return records
 
     def _publication_records(self, predicate, published):
@@ -660,8 +647,14 @@ class ThreePredicateConformanceTests(unittest.TestCase):
     # ---- envelope ----------------------------------------------------------
 
     def envelope(self, context, published, identities, *, predicates=None):
-        """A complete, schema-valid `ATTEMPT_VALIDATION_ENVELOPE_V1`."""
+        """A complete, schema-valid `ATTEMPT_VALIDATION_ENVELOPE_V1`.
+
+        `operations` is empty on purpose: these fixtures assert terminal
+        evidence consistency, and operation closure is a separate protocol that
+        this correction deliberately does not invent.
+        """
         rows = list(self.REACHED[context.terminal_outcome] if predicates is None else predicates)
+        rows = [predicate for predicate in rows if predicate in published]
         raw = []
         for predicate in rows:
             raw.extend(reference.as_dict() for reference in published[predicate]["cited"])
@@ -671,7 +664,8 @@ class ThreePredicateConformanceTests(unittest.TestCase):
             "run_id": context.run_id,
             "attempt_id": context.attempt_id,
             "terminal_outcome": context.terminal_outcome,
-            "run_identities": [identities["start"], identities["terminal"]],
+            # The exact retained canonical descriptors, not a reconstruction.
+            "run_identities": [_plain(document) for document in identities["documents"]],
             "operations": [],
             "journal_records": [_plain(record) for record in context.journal_records],
             "adjudication_references": [
@@ -816,13 +810,15 @@ class ThreePredicateConformanceTests(unittest.TestCase):
                 context, published["RESTORATION_POSITIVE_CONTROL"]["adjudication"]),
             context, "JOURNAL_EVALUATION_MARKER_MISSING")
 
-    def test_aborted_safe_authorizes_nothing_and_admits_no_adjudication(self):
+    def test_aborted_safe_authorizes_nothing_and_retains_no_adjudication(self):
+        """The frozen state machine forbids ABORTED_SAFE from reaching a predicate."""
         context, published, _root, _seal, _identities = self.build("ABORTED_SAFE")
         self.assertEqual(context.terminal_outcome, "ABORTED_SAFE")
         self.assertEqual(dict(context.evaluation_authorization_contexts), {})
-        candidate = self.descriptor_of(
-            context, published["INITIAL_INVARIANT_EVALUATION"]["adjudication"])
-        self.assert_rejects(candidate, context, "JOURNAL_EVALUATION_MARKER_MISSING")
+        self.assertEqual(published, {})
+        # No challenge, workload or adjudication evidence was synthesized at all.
+        roles = {row.reference.role for row in context.evidence.values()}
+        self.assertEqual(roles, {"run_identity"})
 
     # ---- the envelope through the dispatcher -------------------------------
 
@@ -908,21 +904,189 @@ class ThreePredicateConformanceTests(unittest.TestCase):
             context, published, identities, predicates=self.ORDER[:1])
         self.closure_reject(context, thin)
 
-    def test_aborted_safe_admits_no_envelope_at_all(self):
-        """Zero predicates were legally reached, so no closure exists to satisfy.
+    def test_aborted_safe_closes_with_zero_references(self):
+        """Correction B: an attempt that authorized nothing closes empty.
 
-        The frozen envelope schema requires at least one adjudication reference,
-        so an ABORTED_SAFE attempt cannot present a schema-valid envelope that is
-        also admissible: the minimum schema-valid envelope already cites one
-        adjudication too many.
+        Under v1.1 the envelope schema required at least one adjudication and
+        one raw reference, so this attempt had no representable closure at all.
         """
         context, published, _root, _seal, identities = self.build("ABORTED_SAFE")
-        envelope = self.envelope(
-            context, published, identities, predicates=["INITIAL_INVARIANT_EVALUATION"])
+        envelope = self.envelope(context, published, identities, predicates=[])
+        self.assertEqual(envelope["adjudication_references"], [])
+        self.assertEqual(envelope["raw_evidence_references"], [])
+        _result, executed = self.assert_passes(envelope, context)
+        self.assertIn("VALIDATE_ADJUDICATION_RAW_BACKING_V1", executed)
+
+    def test_zero_references_reject_for_finalized(self):
+        """FINALIZED still requires all three authorized predicates."""
+        context, published, _root, _seal, identities = self.build()
+        envelope = self.envelope(context, published, identities, predicates=[])
+        # The frozen schema keeps minItems 1 for every outcome but ABORTED_SAFE,
+        # so an empty FINALIZED envelope is refused before the dispatcher runs.
+        with self.assertRaises(Exception) as caught:
+            self.policy.structural_validate(envelope)
+        self.assertEqual(str(caught.exception), "STRUCTURAL_SCHEMA_INVALID")
+        result = self.policy.full_admissibility(envelope, context)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.failure_code, "STRUCTURAL_SCHEMA_INVALID")
+
+    def test_zero_references_reject_for_restoration_blocked_that_authorized(self):
+        context, published, _root, _seal, identities = self.build("RESTORATION_BLOCKED")
+        self.assertTrue(dict(context.evaluation_authorization_contexts))
+        envelope = self.envelope(context, published, identities, predicates=[])
+        with self.assertRaises(Exception) as caught:
+            self.policy.structural_validate(envelope)
+        self.assertEqual(str(caught.exception), "STRUCTURAL_SCHEMA_INVALID")
+
+    def test_partially_empty_closure_rejects(self):
+        """Emptying only one of the two arrays is never a closure."""
+        context, published, _root, _seal, identities = self.build()
+        thin = self.envelope(context, published, identities)
+        thin["adjudication_references"] = []
+        with self.assertRaises(Exception):
+            self.policy.structural_validate(thin)
+        aborted_context, aborted_published, _r, _s, aborted_identities = self.build(
+            "ABORTED_SAFE")
+        half = self.envelope(
+            aborted_context, aborted_published, aborted_identities, predicates=[])
+        # A raw reference with no adjudication behind it: schema-valid for
+        # ABORTED_SAFE, and still refused by the closure.
+        # An ABORTED_SAFE attempt retained no raw evidence at all, so any raw
+        # reference it could cite is necessarily foreign and unresolvable.
+        donor_context, donor_published, _r2, _s2, _i2 = self.build()
+        half["raw_evidence_references"] = [
+            donor_published["INITIAL_INVARIANT_EVALUATION"]["cited"][0].as_dict()]
+        self.policy.structural_validate(half)
+        result = self.policy.full_admissibility(half, aborted_context)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.hook_id, "VALIDATE_EVIDENCE_REF_HASH_PATH_ID_V1")
+        self.assertEqual(result.failure_code, "EVIDENCE_REFERENCE_UNRESOLVED")
+
+    # ---- retained run-identity binding (correction C) ----------------------
+
+    def identity_mutation(self, mutate, *, outcome="FINALIZED"):
+        """Mutate the envelope's embedded identities and dispatch it."""
+        context, published, _root, _seal, identities = self.build(outcome)
+        envelope = self.envelope(context, published, identities)
+        mutate(envelope["run_identities"], context, identities)
+        return envelope, context
+
+    def assert_identity_rejects(self, mutate, *, structural=True, outcome="FINALIZED"):
+        envelope, context = self.identity_mutation(mutate, outcome=outcome)
+        if structural:
+            self.policy.structural_validate(envelope)
+        result = self.policy.full_admissibility(envelope, context)
+        self.assertFalse(result.valid)
+        self.assertIn(
+            result.failure_code,
+            set(self.policy.policy["full_admissibility_validation"]["failure_codes"]),
+            "the failure code must be in this policy's own vocabulary",
+        )
+        return result
+
+    def test_changed_start_monotonic_time_rejects(self):
+        result = self.assert_identity_rejects(
+            lambda rows, ctx, ids: rows[0].__setitem__("monotonic_ns", 987654321))
+        self.assertEqual(result.hook_id, "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1")
+        self.assertEqual(result.failure_code, "ATTEMPT_FINALITY_INVALID")
+
+    def test_changed_terminal_monotonic_time_rejects(self):
+        result = self.assert_identity_rejects(
+            lambda rows, ctx, ids: rows[1].__setitem__("monotonic_ns", 0))
+        self.assertEqual(result.failure_code, "ATTEMPT_FINALITY_INVALID")
+
+    def test_changed_runner_release_hash_rejects(self):
+        def mutate(rows, ctx, ids):
+            rows[0]["runner_release_binding"] = dict(
+                rows[0]["runner_release_binding"], bundle_sha256="9" * 64)
+
+        result = self.assert_identity_rejects(mutate)
+        self.assertEqual(result.failure_code, "ATTEMPT_FINALITY_INVALID")
+
+    def test_changed_contract_or_profile_binding_rejects(self):
+        def contract(rows, ctx, ids):
+            rows[0]["contract_binding"] = dict(rows[0]["contract_binding"], tree="0" * 40)
+
+        def profile(rows, ctx, ids):
+            rows[0]["execution_profile_binding"] = dict(
+                rows[0]["execution_profile_binding"], commit="1" * 40)
+
+        for mutate in (contract, profile):
+            # These break the closed START schema's consts, so they never even
+            # reach the dispatcher -- which is a stronger refusal, not a weaker.
+            envelope, context = self.identity_mutation(mutate)
+            with self.assertRaises(Exception) as caught:
+                self.policy.structural_validate(envelope)
+            self.assertEqual(str(caught.exception), "STRUCTURAL_SCHEMA_INVALID")
+            result = self.policy.full_admissibility(envelope, context)
+            self.assertFalse(result.valid)
+
+    def test_changed_start_identity_reference_rejects(self):
+        def mutate(rows, ctx, ids):
+            reference = dict(rows[1]["start_identity_reference"])
+            digest = "a" * 64
+            reference.update({
+                "evidence_id": "ev-" + digest[:32], "descriptor_sha256": digest,
+                "descriptor_relative_path":
+                    f"descriptors/sha256/{digest[:2]}/{digest}.json"})
+            rows[1]["start_identity_reference"] = reference
+
+        result = self.assert_identity_rejects(mutate)
+        # An unresolvable reference is caught at the reference hook, which runs
+        # before finality; either way the envelope is refused.
+        self.assertIn(result.failure_code,
+                      {"ATTEMPT_FINALITY_INVALID", "EVIDENCE_REFERENCE_UNRESOLVED"})
+
+    def test_identity_substituted_from_another_attempt_rejects(self):
+        """A schema-valid identity that this attempt never retained.
+
+        The START record is content addressed and identical across attempts with
+        the same run and attempt, so the substitutable one is TERMINAL: the donor
+        attempt ended RESTORATION_BLOCKED and cites its own START.
+        """
+        _dc, _dp, _dr, _ds, donor_identities = self.build("RESTORATION_BLOCKED")
+        donor_terminal = _plain(donor_identities["documents"][1])
+        context, published, _root, _seal, identities = self.build()
+        envelope = self.envelope(context, published, identities)
+        self.assertNotEqual(donor_terminal, envelope["run_identities"][1])
+        envelope["run_identities"][1] = donor_terminal
         self.policy.structural_validate(envelope)
-        self.assert_rejects(
-            envelope, context, "JOURNAL_EVALUATION_MARKER_MISSING",
-            hook="VALIDATE_ADJUDICATION_RAW_BACKING_V1")
+        result = self.policy.full_admissibility(envelope, context)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.hook_id, "VALIDATE_ATTEMPT_PHASES_AND_FINALITY_V1")
+        self.assertEqual(result.failure_code, "ATTEMPT_FINALITY_INVALID")
+
+    def test_swapped_start_and_terminal_rejects(self):
+        envelope, context = self.identity_mutation(
+            lambda rows, ctx, ids: rows.reverse())
+        with self.assertRaises(Exception) as caught:
+            self.policy.structural_validate(envelope)
+        self.assertEqual(str(caught.exception), "STRUCTURAL_SCHEMA_INVALID")
+        self.assertFalse(self.policy.full_admissibility(envelope, context).valid)
+
+    def test_duplicate_start_or_terminal_identity_rejects(self):
+        for index, other in ((0, 1), (1, 0)):
+            envelope, context = self.identity_mutation(
+                lambda rows, ctx, ids, i=index, o=other: rows.__setitem__(o, rows[i]))
+            with self.assertRaises(Exception) as caught:
+                self.policy.structural_validate(envelope)
+            self.assertEqual(str(caught.exception), "STRUCTURAL_SCHEMA_INVALID")
+            self.assertFalse(self.policy.full_admissibility(envelope, context).valid)
+
+    def test_retained_identities_are_exactly_one_start_and_one_terminal(self):
+        context, _published, _root, _seal, _identities = self.build()
+        rows = [row for row in context.evidence.values()
+                if row.reference.role == "run_identity"]
+        self.assertEqual(len(rows), 2)
+        phases = sorted(row.descriptor["phase"] for row in rows)
+        self.assertEqual(phases, ["START", "TERMINAL"])
+        start = next(r for r in rows if r.descriptor["phase"] == "START")
+        terminal = next(r for r in rows if r.descriptor["phase"] == "TERMINAL")
+        self.assertLess(start.descriptor["monotonic_ns"], terminal.descriptor["monotonic_ns"])
+        self.assertEqual(
+            _plain(terminal.descriptor["start_identity_reference"]),
+            start.reference.as_dict())
+        self.assertEqual(terminal.descriptor["terminal_outcome"], context.terminal_outcome)
 
     # ---- authenticated resolution adversaries ------------------------------
 
