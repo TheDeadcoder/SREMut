@@ -228,6 +228,57 @@ def test_retained_volume_per_mutant_lists_and_means_agree():
             round(sum(per_run) / len(per_run), 4), m
 
 
+def test_retained_volume_excluding_first_round_recomputed_independently():
+    """The figure the write-up actually reports, recomputed from the records.
+
+    Per-round normalisation matters: dropping the straddling first faulted round leaves
+    nine faulted rounds against ten healthy ones, so a bare sum ratio would understate
+    retention by a tenth for reasons unrelated to the mutant.
+    """
+    led = json.loads(LEDGER.read_text())
+    by_id = {r["run_id"]: r for r in led["runs"]}
+    for rid, d in _records().items():
+        f, h = d["workload_faulted"], d["workload_healthy"]
+        post = f["detail"][1:]
+        assert len(post) == 9, f"{rid}: expected 9 post-mutation rounds, got {len(post)}"
+        post_ok = sum((r["requests"] or 0) - r["non2xx"] for r in post)
+        healthy_ok = h["total_requests"] - h["total_non2xx"]
+        expect = round(100.0 * (post_ok / len(post)) / (healthy_ok / h["rounds"]), 4)
+        got = by_id[rid][
+            "successful_response_volume_retained_excluding_first_round_percent"]
+        assert got == expect, f"{rid}: ledger {got} != recomputed {expect}"
+        counts = by_id[rid]["successful_responses"]
+        assert counts["faulted_excluding_first_round"] == post_ok, rid
+        assert counts["faulted_rounds_excluding_first"] == len(post), rid
+        assert counts["healthy_rounds"] == h["rounds"], rid
+
+
+def test_retained_volume_excluding_first_round_lists_and_means_agree():
+    led = json.loads(LEDGER.read_text())
+    by_id = {r["run_id"]: r for r in led["runs"]}
+    key = "successful_response_volume_retained_excluding_first_round_percent"
+    for m, info in led["per_mutant"].items():
+        per_run = [by_id[rid][key] for rid in info["run_ids"]]
+        assert info[key] == per_run, m
+        assert info[key.replace("_percent", "_mean_percent")] == \
+            round(sum(per_run) / len(per_run), 4), m
+
+
+def test_retained_volume_excluding_first_round_has_the_expected_shape():
+    """Shape, not pinned figures: see the sibling full-window test for why."""
+    led = json.loads(LEDGER.read_text())
+    key = "successful_response_volume_retained_excluding_first_round_mean_percent"
+    means = {m: info[key] for m, info in led["per_mutant"].items()}
+    assert means["MS-M02"] < 12.0, f"MS-M02 mean {means['MS-M02']} is not below 12%"
+    for m in ("MS-M01", "MS-M03"):
+        assert means[m] > 85.0, f"{m} mean {means[m]} is not above 85%"
+    values = [r["successful_response_volume_retained_excluding_first_round_percent"]
+              for r in led["runs"]]
+    assert len(values) == 9, len(values)
+    for v in values:
+        assert isinstance(v, float) and 0.0 < v < 100.0, f"out of range: {v}"
+
+
 def test_retained_volume_has_the_expected_shape():
     """Shape, not pinned figures.
 

@@ -316,25 +316,38 @@ by the gate at `harness/capture_healthy_baseline.sh:194-208`:
 
 ### Successful-response volume retained (mutant study)
 
-The write-up's headline metric for the MS-M01/M02/M03 study. Defined as
+The write-up's headline metric for the MS-M01/M02/M03 study. Two forms are emitted, and
+**the write-up reports the fully post-mutation one.**
+
+*Full window*, all ten faulted rounds against all ten healthy rounds:
 
     (faulted.total_requests - faulted.total_non2xx)
     ----------------------------------------------  x 100
     (healthy.total_requests - healthy.total_non2xx)
 
-that is, successful HTTP responses in the faulted window over successful HTTP responses
-in the **same run's** healthy window, both ten-round windows of about 99 s.
+*Fully post-mutation*, the reported figure. Every run's first faulted round began before
+the mutant was applied (`DEVIATIONS_AND_LIMITS.md` item 4), so it is dropped, which leaves
+nine faulted rounds against ten healthy ones and forces a per-round comparison:
 
-| Mutant | mean retained |
-|---|---:|
-| MS-M01 | **90.0651 %** |
-| MS-M02 | **13.2943 %** |
-| MS-M03 | **90.1432 %** |
+    mean successful responses per faulted round, first round dropped
+    ---------------------------------------------------------------  x 100
+    mean successful responses per healthy round
+
+| Mutant | mean retained, post-mutation (**reported**) | mean retained, full window (sensitivity) |
+|---|---:|---:|
+| MS-M01 | **90.0210 %** | 90.0651 % |
+| MS-M02 | **9.1942 %** | 13.2943 % |
+| MS-M03 | **90.1078 %** | 90.1432 % |
+
+The choice moves MS-M01 and MS-M03 by about a twentieth of a percentage point and MS-M02
+by about four, because MS-M02's straddling first round carries a disproportionate share of
+its surviving traffic.
 
 Source: `SREMut/experiments/MUTANT_LEDGER.json`, which is generated from the nine run
-records by `experiments/build_mutant_ledger.py` and carries both the per-run values
-(`runs[].successful_response_volume_retained_percent`) and these means
-(`per_mutant[].successful_response_volume_retained_mean_percent`). The per-run values are
+records by `experiments/build_mutant_ledger.py` and carries both forms, per run
+(`runs[].successful_response_volume_retained_percent` and
+`..._retained_excluding_first_round_percent`) and per mutant (the same two names with
+`_mean_percent`). The per-run values are
 deliberately not restated here; the ledger holds them, and
 `tests/test_mutant_ledger.py` recomputes every one from the run records. Verify with
 `python3 experiments/build_mutant_ledger.py --check`.

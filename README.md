@@ -20,15 +20,17 @@ Three Service-level mutants, three repetitions each, executed 2026-08-29 on a li
 
 | Mutant | What it does | Faulted non-2xx | Successful-response volume retained | Stock oracle | Contract |
 |---|---|---:|---:|---|---|
-| MS-M01 | delete `Service/user-service` | 9.88 to 9.97% | 90.1% | success 6/6 faulted | REJECT 3/3 (I1 I2 I3 I4) |
-| MS-M02 | selector matches no pods | 6.81 to 9.84% | **13.3%** | success 6/6 faulted | REJECT 3/3 (I2 I3 I4) |
-| MS-M03 | `targetPort` set to 65535 | 9.75 to 10.05% | 90.1% | success 6/6 faulted | REJECT 3/3 (I2 I4) |
+| MS-M01 | delete `Service/user-service` | 9.88 to 9.97% | 90.02% | success 6/6 faulted | REJECT 3/3 (I1 I2 I3 I4) |
+| MS-M02 | selector matches no pods | 6.81 to 9.84% | **9.19%** | success 6/6 faulted | REJECT 3/3 (I2 I3 I4) |
+| MS-M03 | `targetPort` set to 65535 | 9.75 to 10.05% | 90.11% | success 6/6 faulted | REJECT 3/3 (I2 I4) |
 
 **54 of 54 stock oracle readings returned `{"success": true}`. The contract rejected 9 of 9 faulted states and passed all 18 healthy and restored controls on the five invariants evaluated. Mutation score: contract 3/3, stock oracle 0/3.** Violated invariant sets were identical across all three repetitions of each mutant. Nine completed records, with no recorded exclusions or retries, 93.3 minutes of driver wall clock. See [`DEVIATIONS_AND_LIMITS.md`](DEVIATIONS_AND_LIMITS.md).
 
 This study evaluated **MS-I1 through MS-I5**; MS-I6 (repair persistence) was declared out of scope in advance by §6 of the pre-registration. A REJECT is unaffected by that, since a sixth invariant can only add violations, so "REJECT 9 of 9" and the 3/3 mutation score hold for the full contract. The control results do not carry over: the six-invariant contract has never been shown to pass a genuine repair.
 
-Every categorical prediction in the pre-registration matched, including the per-mutant invariant sets. The one quantitative miss: about 10% non-2xx was predicted for all three mutants, but MS-M02 collapsed throughput to roughly 12 to 16% of healthy request volume, so its error rate sat on a much smaller denominator. Successful-response volume retained (successful requests versus healthy, window-matched 99 s) tells that story honestly: about 13% for M02 versus about 90% for the others.
+Retained volume above is the **fully post-mutation** figure: every run's first faulted round began before the mutant was applied and may contain pre-mutation traffic, so it is dropped and the remaining nine rounds are compared per round against the healthy window's ten. The full-window sensitivity values, first round included, are 90.07%, 13.29% and 90.14%; the difference is material only for MS-M02, whose straddling first round carries a disproportionate share of its surviving traffic. Both are emitted per run and per mutant by [`experiments/MUTANT_LEDGER.json`](experiments/MUTANT_LEDGER.json).
+
+Every categorical prediction in the pre-registration matched, including the per-mutant invariant sets. The one quantitative miss: about 10% non-2xx was predicted for all three mutants, but MS-M02 collapsed throughput to a small fraction of healthy request volume, so its error rate sat on a much smaller denominator. Successful-response volume retained tells that story honestly: about 9% for M02 versus about 90% for the others. It is a count of successful HTTP responses, not a measure of application work.
 
 Attestation chain, all on 2026-08-29, tokens from Free TSA, verifiable offline with `openssl ts`: pre-registration document hashed and timestamped at **09:08:34 UTC**, pre-execution commit SHA timestamped at **10:15:38 UTC**, first mutant applied at **10:22:09 UTC**. See [`PREREGISTRATION_MS_MUTANTS.md`](PREREGISTRATION_MS_MUTANTS.md) and [`attestation/`](attestation/).
 
@@ -85,18 +87,18 @@ self.mitigation_oracle = CompoundedOracle(
 )
 ```
 
-**This patch has now been executed.** Three runs on 2026-08-29 evaluated four oracle configurations in all three states of each mutant, against a prediction table frozen and RFC 3161 timestamped before the driver was written. All 20 predicted cells matched.
+**This composition has now been evaluated as an in-process prototype.** Three runs on 2026-08-29 evaluated four oracle configurations in all three states of each mutant, against a prediction table frozen and RFC 3161 timestamped before the driver was written. All 20 predicted cells matched.
 
 | Configuration | healthy | M01 | M02 | M03 | restored |
 |---|---|---|---|---|---|
 | stock `MitigationOracle` | success | success | success | success | success |
 | `ServiceEndpointMitigationOracle` alone, unpatched | **reject** | reject | reject | reject | **reject** |
 | the same, with `expected_service_port` set | success | reject | reject | reject | success |
-| the composed patch | success | reject | reject | reject | success |
+| the composed prototype | success | reject | reject | reject | success |
 
 The unpatched oracle **rejects correct repairs**. Attaching it without setting `expected_service_port` makes it reject the healthy and restored systems too, by `AttributeError` at `service_endpoint_mitigation.py:65`, captured verbatim in all nine diagnostic calls. Substituting it would trade a false accept for a false reject.
 
-The composed patch, with the port set, accepted every healthy and restored state and rejected every mutant. It was executed, not predicted.
+The composed prototype, with the port set, accepted every healthy and restored state and rejected every mutant. That is an evaluated result rather than a prediction, and it is **not** the same as having applied the patch upstream. The benchmark source was never modified: the composition was constructed inside our own driver, `expected_service_port` was set on the problem object at runtime, and SREGym's conductor path was never exercised. What is evidenced is the behaviour of the composed oracle against these cluster states, not the behaviour of a patched SREGym.
 
 `SREGym/` was **not modified**. `expected_service_port` is set on the problem object in our own process and deleted afterwards, reproducing the patch's object state at evaluate time; `git -C SREGym status` is clean in every run and the four pinned SREGym module hashes are recorded in every record.
 
@@ -141,9 +143,13 @@ experiments/    protocols, drivers, and all run evidence
 2. Two studies are confirmatory: the nine-repetition mutant matrix and the three-run fix-oracle study, each with its predictions frozen and RFC 3161 timestamped before the driver that measured them was written, and each adjudicated once against its frozen table. The 13 historical runs are exploratory: their protocols lack independent pre-execution corroboration, and [`analysis/PREREGISTRATION_TIMELINE.md`](analysis/PREREGISTRATION_TIMELINE.md) documents exactly what git does and does not attest.
 3. Two applications measured, one cluster. `missing_service_astronomy_shop` and the other BLIND rows outside `missing_service` are structural predictions, never executed. Hotel-reservation is n=1, single instrument.
 4. The census was verified to unequal depth (28 of 123 rows hand-checked), and ADEQUATE is structural: the oracle reads the perturbed kind, which is not proof it rejects non-repairs.
-5. The proposed fix has now been executed against the live cluster (three runs, 2026-08-29) but **not** submitted upstream, and it has not been validated inside SREGym's own conductor. `SREGym/` was never modified; the attribute was set on the problem object in our process.
+5. The proposed fix has been evaluated as an **in-process prototype** against the live cluster (three runs, 2026-08-29). It has **not** been applied to SREGym, submitted upstream, or validated through SREGym's own conductor: `SREGym/` was never modified, the composition was built in our driver, and the attribute was set on the problem object at runtime.
 6. Every deviation from the frozen pre-registration and every limit on the nine records, including the first faulted workload round straddling the mutation, the unretained wrk2 logs and the shared Kubernetes client, is recorded in [`DEVIATIONS_AND_LIMITS.md`](DEVIATIONS_AND_LIMITS.md).
 7. The fix study is **single-provenance** (in-process only, no isolated-worker leg) with **one repetition per mutant**, and it evaluates oracle behaviour rather than establishing cluster state; the frozen contract and the workload window do that independently in every state of every run.
 8. Three distinct studies exist and should not be conflated. The pre-registered nine-repetition MS-I1..MS-I5 mutant study is **complete (9/9)**. The pre-registered fix-oracle study is **complete (3/3)**, adjudicated in [`ADJUDICATION_FIX_ORACLE.md`](ADJUDICATION_FIX_ORACLE.md). The sealed v1.2 six-invariant matrix, with authenticated run identities, a hash-chained journal and an external anchor, remains **0/9 and unexecuted**; the word "official" and the status `OFFICIAL_FROZEN_ATTEMPT` stay reserved for it.
+
+## Licence
+
+The measurement code and the evidence records in this repository are MIT-licensed; see [`LICENSE`](LICENSE). No third-party asset is redistributed here: the audited benchmark (SREGym) and its applications are third-party work, cited and pinned by commit rather than vendored, and are obtained separately.
 
 A write-up is under review at a NeurIPS 2026 workshop. Errors found along the way, including our own, are disclosed rather than silently fixed: see the census corrections and the disclosed-errors table in [`analysis/census/CENSUS.md`](analysis/census/CENSUS.md).
