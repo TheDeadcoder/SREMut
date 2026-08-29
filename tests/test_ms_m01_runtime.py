@@ -882,20 +882,178 @@ class LifecycleTests(RuntimeCase):
             "the Service deletion must be dispatched exactly once across processes",
         )
 
-        # A durable recovery receipt now exists for that operation.
+        # The SAME operation is now a complete intent/receipt pair.
         recovered = validate_mutation_ledger_bytes(
             (self.attempt / "journal/mutation-events.jsonl").read_bytes()
         )
         events = [
             row["event"] for row in recovered if row["operation_id"] == pending.operation_id
         ]
-        self.assertEqual(events, ["INTENT_DURABLE"])
-        self.assertIn("RECEIPT_DURABLE", {row["event"] for row in recovered})
+        self.assertEqual(events, ["INTENT_DURABLE", "RECEIPT_DURABLE"])
+        receipt_digest = [
+            row["descriptor_sha256"]
+            for row in recovered
+            if row["operation_id"] == pending.operation_id
+            and row["event"] == "RECEIPT_DURABLE"
+        ][0]
+        receipt = json.loads(
+            (
+                self.attempt
+                / f"descriptors/sha256/{receipt_digest[:2]}/{receipt_digest}.json"
+            ).read_bytes()
+        )
+        self.assertEqual(receipt["role"], "mutation_receipt")
+        self.assertEqual(receipt["operation_id"], pending.operation_id)
+        self.assertEqual(receipt["status"], "RECEIPT_DURABLE")
+        self.assertEqual(
+            receipt["observed_effect_classification"],
+            "OBSERVED_APPLIED_AFTER_RECOVERY",
+        )
+        self.assertIs(
+            receipt["effect_directly_acknowledged_or_recovered_from_observation"], True
+        )
+        self.assertTrue(receipt["post_operation_get_or_list_evidence_paths"])
+        self.assertNotEqual(
+            receipt["post_operation_get_or_list_evidence_sha256"], "0" * 64
+        )
+        # Every operation the attempt performed is a complete pair, and the
+        # recovered initial deletion is one of them.
+        by_operation = {}
+        for row in recovered:
+            by_operation.setdefault(row["operation_id"], []).append(row["event"])
+        self.assertEqual(
+            {
+                operation: events
+                for operation, events in sorted(by_operation.items())
+            },
+            {
+                "INITIAL_USER_SERVICE_DELETION:01": ["INTENT_DURABLE", "RECEIPT_DURABLE"],
+                "CHALLENGE_POD_CREATION:02": ["INTENT_DURABLE", "RECEIPT_DURABLE"],
+                "REPLACEMENT_POD_DELETION:03": ["INTENT_DURABLE", "RECEIPT_DURABLE"],
+                "CHALLENGE_POD_DELETION:04": ["INTENT_DURABLE", "RECEIPT_DURABLE"],
+                "RESTORED_SERVICE_CREATION:05": ["INTENT_DURABLE", "RECEIPT_DURABLE"],
+            },
+        )
+        # Five complete operations reach the terminal envelope.
+        anchor_document = json.loads(
+            (self.index / f"anchors/{RUN_ID}.{ATTEMPT_ID}.json").read_bytes()
+        )
+        anchor = ExternalAnchor(
+            anchor_document["attempt_root_identifier"],
+            anchor_document["manifest_relative_path"],
+            anchor_document["terminal_manifest_sha256"],
+        )
+        context = resolve_evidence_context(
+            self.policy, self.attempt, RUN_ID, ATTEMPT_ID, anchor,
+            expected_terminal_manifest_identity=anchor.terminal_manifest_sha256,
+        )
+        intents = {
+            row.descriptor["operation_id"]
+            for row in context.evidence.values()
+            if row.reference.role == "mutation_intent"
+        }
+        receipts = {
+            row.descriptor["operation_id"]
+            for row in context.evidence.values()
+            if row.reference.role == "mutation_receipt"
+        }
+        self.assertEqual(intents, receipts)
+        self.assertEqual(len(intents), 5)
 
         # And the attempt reached a valid terminal result.
         self.assertEqual(result.terminal_outcome, TerminalOutcome.FINALIZED)
         self.assertIs(result.terminalization.anchor_authenticated, True)
         self.assertIs(result.terminalization.full_admissibility, True)
+
+    def test_early_ambiguous_outcome_cannot_seal_under_the_frozen_artifacts(self):
+        """An early RESTORATION_BLOCKED cannot be sealed, and the reason is frozen.
+
+        Timeout after a possible effect, then an unavailable observation: no
+        frozen predicate has been authorized or adjudicated.  The attempt must
+        seal partially with a global stop, but the authenticated policy and
+        schema make that impossible, so it fails closed instead.
+
+        This records the contradiction mechanically rather than working around
+        it: nothing here fabricates a workload window, and nothing weakens the
+        RESTORATION_BLOCKED path that has reached a genuine predicate.
+        """
+        import yaml
+
+        class AmbiguousTransport(ScenarioMutationTransport):
+            """Applies the deletion, then reports a timeout to the caller."""
+
+            def delete_namespaced_service(self, name, namespace, body, timeout_seconds):
+                super().delete_namespaced_service(name, namespace, body, timeout_seconds)
+                raise TimeoutError("dispatch timed out after the effect")
+
+        class UnavailableReads(ScenarioReadTransport):
+            """The Service read is unavailable, so absence cannot be observed."""
+
+            def read_namespaced_service(self, name, namespace, timeout_seconds):
+                self.calls.append("read_namespaced_service")
+                if not self.service_present:
+                    raise RuntimeError("api unavailable")
+                return super().read_namespaced_service(name, namespace, timeout_seconds)
+
+        self.reads.__class__ = UnavailableReads
+        transport = AmbiguousTransport(self.attempt, self.reads)
+        with self.compose(mutation_transport=transport) as composition:
+            with self.assertRaises(Exception) as caught:
+                composition.attempt.run()
+        # The global stop has no adjudication it is allowed to cite.
+        self.assertEqual(str(caught.exception), "TERMINAL_GLOBAL_STOP_INVALID")
+        self.assertEqual(
+            [call for call in transport.calls if call == "delete_namespaced_service"],
+            ["delete_namespaced_service"],
+        )
+
+        # The four authenticated facts that make this unreachable.
+        parsed = yaml.safe_load(self.policy.policy_bytes)
+        defs = json.loads(self.policy.schema_bytes)["$defs"]
+        self.assertEqual(
+            parsed["terminalization"]["outcomes"]["RESTORATION_BLOCKED"],
+            "SEALED_PARTIAL_WITH_GLOBAL_STOP",
+        )
+        legal = set(parsed["verified_attempt_state_machine"]["legal_transitions"])
+        self.assertIn("HEALTHY_STATE_CAPTURED->RESTORE_STARTED", legal)
+        self.assertIn("RESTORE_STARTED->RESTORATION_BLOCKED", legal)
+        self.assertIn(
+            "adjudication_reference", defs["terminal_global_stop"]["required"]
+        )
+        self.assertIn(
+            "workload_window_adjudication_identity",
+            defs["descriptor_descriptor_adjudication"]["required"],
+        )
+        window = defs["workload_window_identity"]
+        for field_name in ("boundary_reference", "raw_log_reference"):
+            self.assertIn(field_name, window["required"])
+            self.assertNotIn(
+                "oneOf", window["properties"][field_name], f"{field_name} is not nullable"
+            )
+        # And a workload window cannot exist this early: every challenge and
+        # workload phase begins at ORIGINAL_ORACLE_EVALUATED.
+        from sremut.kubernetes_mutation import OPERATION_TABLE
+
+        self.assertEqual(
+            tuple(OPERATION_TABLE["CHALLENGE_POD_CREATION"]["states"]),
+            ("ORIGINAL_ORACLE_EVALUATED",),
+        )
+
+    def test_restoration_blocked_after_a_genuine_predicate_still_seals(self):
+        """The existing RESTORATION_BLOCKED path is untouched by the above."""
+        class NeverRestores(ScenarioMutationTransport):
+            def create_namespaced_service(self, namespace, body, timeout_seconds):
+                return self._guard("create_namespaced_service")
+
+        transport = NeverRestores(self.attempt, self.reads)
+        with self.compose(mutation_transport=transport) as composition:
+            result = composition.attempt.run()
+        self.assertEqual(result.terminal_outcome, TerminalOutcome.RESTORATION_BLOCKED)
+        self.assertIs(result.terminalization.global_stop_created, True)
+        self.assertEqual(result.terminalization.seal_count, 1)
+        self.assertEqual(result.terminalization.anchor_count, 1)
+        self.assertIs(result.terminalization.anchor_authenticated, True)
+        self.assertTrue((self.index / "terminal/global-stop.json").exists())
 
     def test_post_terminal_operations_all_reject(self):
         with self.compose() as composition:

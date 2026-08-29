@@ -676,19 +676,70 @@ class ReconciliationTests(MutationCase):
         self.assertIn(b"INTENT_DURABLE", ledger)
         self.assertNotIn(b"RECEIPT_DURABLE", ledger)
         self.transport.failure = None
+        # A Boolean-only observation is no longer enough to close a durable
+        # intent: the recovery receipt has to name the evidence it was drawn
+        # from, so the observation carries authenticated retained references.
+        observed = self.read_client.get_user_service(
+            consumer=KubernetesConsumer.MUTATION_CONTROLLER
+        )
+        request_ref, response_ref, _descriptor = self.publish_capture(
+            observed, capture_state="MUTANT_INJECTED"
+        )
         with self.open_session() as session:
-            recovered = session.reconcile_pending(
+            self.assert_code(
+                "RECONCILIATION_OBSERVATION_EVIDENCE_MISSING",
+                session.reconcile_pending,
                 "INITIAL_USER_SERVICE_DELETION:01",
                 "INITIAL_USER_SERVICE_DELETION",
                 "service-uid",
                 MutationObservation(True, False, None),
+            )
+            recovered = session.reconcile_pending(
+                "INITIAL_USER_SERVICE_DELETION:01",
+                "INITIAL_USER_SERVICE_DELETION",
+                "service-uid",
+                MutationObservation(
+                    True, False, None,
+                    request_reference=request_ref,
+                    projection_reference=response_ref,
+                ),
             )
         self.assertEqual(
             recovered.classification,
             ObservedEffect.OBSERVED_APPLIED_AFTER_RECOVERY,
         )
         self.assertFalse(recovered.retry_permitted)
+        # The transport was never touched again.
         self.assertEqual(len(self.transport.calls), 1)
+        # And the same operation is now a complete intent/receipt pair.
+        rows = validate_mutation_ledger_bytes(
+            (self.attempt / MUTATION_LEDGER).read_bytes()
+        )
+        events = [
+            row["event"]
+            for row in rows
+            if row["operation_id"] == "INITIAL_USER_SERVICE_DELETION:01"
+        ]
+        self.assertEqual(events, ["INTENT_DURABLE", "RECEIPT_DURABLE"])
+        digest = [
+            row["descriptor_sha256"]
+            for row in rows
+            if row["event"] == "RECEIPT_DURABLE"
+        ][0]
+        receipt = parse_canonical_json(
+            (
+                self.attempt / f"descriptors/sha256/{digest[:2]}/{digest}.json"
+            ).read_bytes()
+        )
+        self.assertEqual(receipt["operation_id"], "INITIAL_USER_SERVICE_DELETION:01")
+        self.assertEqual(receipt["status"], "RECEIPT_DURABLE")
+        self.assertEqual(
+            receipt["observed_effect_classification"],
+            "OBSERVED_APPLIED_AFTER_RECOVERY",
+        )
+        self.assertIs(
+            receipt["effect_directly_acknowledged_or_recovered_from_observation"], True
+        )
 
 
     def test_delete_reconciliation_matrix(self):

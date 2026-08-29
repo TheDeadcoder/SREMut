@@ -525,10 +525,23 @@ class ObservedEffect(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class MutationObservation:
+    """What an authenticated post-operation read actually saw.
+
+    The Booleans alone are never enough to make a durable recovery receipt: a
+    recovered receipt has to name the evidence the observation was drawn from,
+    so the references below carry the retained request identity, the retained
+    API status (when the read failed) and the retained object projection (when
+    the object was still present).  A recovery that cannot name its evidence is
+    refused rather than trusted.
+    """
+
     available: bool
     present: bool
     uid: str | None
     semantic_match: bool | None = None
+    request_reference: EvidenceRef | Mapping[str, Any] | None = None
+    status_reference: EvidenceRef | Mapping[str, Any] | None = None
+    projection_reference: EvidenceRef | Mapping[str, Any] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1350,6 +1363,14 @@ class GuardedMutationSession:
         self, operation_id: str, operation_kind: str,
         captured_uid: str | None, observation: MutationObservation,
     ) -> ReconciliationResult:
+        """Close a durable intent whose receipt never became durable.
+
+        The transport is never touched.  When the authenticated observation
+        shows the effect actually occurred, the operation is completed here by
+        publishing exactly one `mutation_receipt` for the SAME operation id and
+        appending its `RECEIPT_DURABLE` row, so the recovered operation is a
+        complete intent/receipt pair like every other one.
+        """
         self._ensure_open()
         rows = [row for row in self._ledger_rows() if row["operation_id"] == operation_id]
         events = tuple(row["event"] for row in rows)
@@ -1357,7 +1378,106 @@ class GuardedMutationSession:
             _reject("RECONCILIATION_PENDING_INTENT_INVALID")
         if not operation_id.startswith(operation_kind + ":"):
             _reject("RECONCILIATION_INPUT_INVALID")
-        return self.reconcile(operation_kind, captured_uid, observation)
+        result = self.reconcile(operation_kind, captured_uid, observation)
+        if result.classification is ObservedEffect.OBSERVED_APPLIED_AFTER_RECOVERY:
+            self._publish_recovered_receipt(
+                operation_id=operation_id,
+                operation_kind=operation_kind,
+                intent_descriptor_sha256=rows[0]["descriptor_sha256"],
+                observation=observation,
+                classification=result.classification,
+            )
+        return result
+
+    def _publish_recovered_receipt(
+        self,
+        *,
+        operation_id: str,
+        operation_kind: str,
+        intent_descriptor_sha256: str,
+        observation: MutationObservation,
+        classification: ObservedEffect,
+    ) -> EvidenceRef:
+        """One durable receipt reconstructed from authenticated evidence only.
+
+        Every input is re-resolved out of the store before it is believed: the
+        retained intent this receipt closes, the request identity the intent
+        named, and the observation evidence the recovery was drawn from.  A
+        Boolean-only observation cannot produce a receipt.
+        """
+        intent_relative = (
+            f"descriptors/sha256/{intent_descriptor_sha256[:2]}/"
+            f"{intent_descriptor_sha256}.json"
+        )
+        if not self._root.exists(intent_relative):
+            _reject("RECONCILIATION_PENDING_INTENT_INVALID")
+        try:
+            intent = parse_canonical_json(self._root.read_bytes(intent_relative))
+        except Exception:
+            _reject("RECONCILIATION_PENDING_INTENT_INVALID")
+        if (
+            intent.get("role") != "mutation_intent"
+            or intent.get("operation_id") != operation_id
+            or intent.get("operation_kind") != operation_kind
+            or intent.get("run_id") != self._run_id
+            or intent.get("attempt_id") != self._attempt_id
+            or intent.get("status") != "INTENT_DURABLE"
+        ):
+            _reject("RECONCILIATION_PENDING_INTENT_INVALID")
+
+        request_ref = self._resolved_reference(observation.request_reference)
+        if request_ref is None or request_ref.role != "kubernetes_request_identity":
+            _reject("RECONCILIATION_OBSERVATION_EVIDENCE_MISSING")
+        status_ref = self._resolved_reference(observation.status_reference)
+        projection_ref = self._resolved_reference(observation.projection_reference)
+        evidence = status_ref if status_ref is not None else projection_ref
+        if evidence is None or evidence.payload_sha256 is None:
+            _reject("RECONCILIATION_OBSERVATION_EVIDENCE_MISSING")
+
+        utc, monotonic = self._metadata_time()
+        metadata: dict[str, Any] = {
+            "run_id": self._run_id, "attempt_id": self._attempt_id,
+            "created_utc": utc, "monotonic_ns": monotonic,
+            "boot_identity": self._boot_identity, "operation_id": operation_id,
+            "dispatch_start_utc": intent["created_utc"],
+            "dispatch_finish_utc": utc,
+            "api_method": OPERATION_TABLE[operation_kind]["method"],
+            "fixed_target": (
+                f"{OPERATION_TABLE[operation_kind]['kind']}/{NAMESPACE}/"
+                f"{intent['object_name']}"
+            ),
+            "http_status_or_typed_client_exception": "RECOVERED_FROM_OBSERVATION",
+            "returned_uid_when_present": None,
+            "returned_resource_version_when_present": None,
+            "raw_response_evidence_path": evidence.payload_relative_path,
+            "raw_response_evidence_sha256": evidence.payload_sha256,
+            "post_operation_get_or_list_evidence_paths": [
+                evidence.payload_relative_path
+            ],
+            "post_operation_get_or_list_evidence_sha256": evidence.payload_sha256,
+            "observed_effect_classification": classification.value,
+            "effect_directly_acknowledged_or_recovered_from_observation": True,
+            "status": "RECEIPT_DURABLE",
+            "operation_request_reference": request_ref.as_dict(),
+        }
+        receipt = self._store.publish_descriptor("mutation_receipt", metadata)
+        resolved = self._store.resolve(receipt)
+        if resolved is None or resolved[0].descriptor_sha256 != receipt.descriptor_sha256:
+            _reject("MUTATION_RECEIPT_NOT_DURABLE")
+        self._append_ledger("RECEIPT_DURABLE", operation_id, receipt.descriptor_sha256)
+        return receipt
+
+    def _resolved_reference(self, value: Any) -> EvidenceRef | None:
+        """Re-resolve one observation reference out of the store, or refuse it."""
+        if value is None:
+            return None
+        try:
+            resolved = self._store.resolve(value)
+        except Exception:
+            _reject("RECONCILIATION_OBSERVATION_EVIDENCE_MISSING")
+        if resolved is None:
+            _reject("RECONCILIATION_OBSERVATION_EVIDENCE_MISSING")
+        return resolved[0]
 
     def reconcile(
         self,

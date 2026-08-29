@@ -839,6 +839,30 @@ class _CapturePublisher:
         descriptor_bytes = resolved_response[1] if resolved_response else None
         return request_reference, response_reference, descriptor_bytes
 
+    def publish_status(
+        self, capture: KubernetesCapture, request_reference: EvidenceRef
+    ) -> EvidenceRef | None:
+        """Retain the API status a capture returned, when it carries a payload.
+
+        A failed read is still an observation, and an observation that has to be
+        reasoned about later must be retained rather than reduced to a Boolean.
+        """
+        candidate = capture.status_evidence
+        if candidate is None or candidate.payload_bytes is None:
+            return None
+        resolved_request = self._store.resolve(request_reference)
+        if resolved_request is None:
+            _reject("RUNTIME_CAPTURE_REQUEST_MISSING")
+        return self._store.publish_payload(
+            candidate.role,
+            candidate.payload_bytes,
+            candidate.publication_metadata(
+                **self._common(),
+                request_identity_reference=request_reference,
+                request_identity_descriptor_bytes=resolved_request[1],
+            ),
+        )
+
     def payload(self, capture: KubernetesCapture) -> Mapping[str, Any]:
         if (
             capture.response_evidence is None
@@ -872,45 +896,63 @@ class ClusterObservations:
 
     def _service_state(
         self, consumer: KubernetesConsumer, *, capture_state: str
-    ) -> tuple[bool, bool, str | None, EvidenceRef | None]:
-        """(available, present, uid, reference) for the target Service.
+    ) -> MutationObservation:
+        """One authenticated observation of the target Service.
 
         A deleted Service is not a classification on a successful capture: the
         read client raises `KUBERNETES_API_FAILURE` and attaches the failure
         capture, whose status payload carries the HTTP code.  A 404 is therefore
         an *observation of absence*, and anything else is an unavailable read.
+
+        Every branch retains what it saw.  An unavailable read is still evidence
+        -- it is exactly the evidence an ambiguous outcome has to be sealed with
+        -- so its request identity and API status are published too.
         """
         self._binding.require_consumer(consumer)
         try:
             capture = self._reader.get_user_service(consumer=consumer)
         except KubernetesReadOnlyError as error:
             failure = getattr(error, "capture", None)
-            if failure is None or not _http_status_is(failure, 404):
-                return False, False, None, None
+            if failure is None:
+                return MutationObservation(available=False, present=False, uid=None)
             request, _response, _bytes = self._publisher.publish(
                 failure, capture_state=capture_state
             )
-            return True, False, None, request
-        _request, reference, _bytes = self._publisher.publish(
+            status = self._publisher.publish_status(failure, request)
+            if not _http_status_is(failure, 404):
+                return MutationObservation(
+                    available=False, present=False, uid=None,
+                    request_reference=request, status_reference=status,
+                )
+            return MutationObservation(
+                available=True, present=False, uid=None,
+                request_reference=request, status_reference=status,
+            )
+        request, reference, _bytes = self._publisher.publish(
             capture, capture_state=capture_state
         )
         payload = self._publisher.payload(capture)
         metadata = payload.get("metadata")
         uid = metadata.get("uid") if isinstance(metadata, Mapping) else None
-        return True, True, uid if isinstance(uid, str) else None, reference
+        return MutationObservation(
+            available=True,
+            present=True,
+            uid=uid if isinstance(uid, str) else None,
+            request_reference=request,
+            projection_reference=reference,
+        )
 
     def observe_initial_service_deletion(self, dispatch: Any) -> MutationObservation:
         del dispatch
-        available, present, uid, _reference = self._service_state(
+        return self._service_state(
             self._binding.consumers.mutation, capture_state="MUTANT_INJECTED"
         )
-        return MutationObservation(available=available, present=present, uid=uid)
 
     def service_structurally_absent(self) -> bool:
-        available, present, _uid, _reference = self._service_state(
+        observation = self._service_state(
             self._binding.consumers.contract, capture_state="MUTANT_STATE_VERIFIED"
         )
-        if not available or present:
+        if not observation.available or observation.present:
             return False
         consumer = self._binding.consumers.contract
         slices = self._reader.list_user_service_endpoint_slices(consumer=consumer)
@@ -987,9 +1029,11 @@ class ClusterObservations:
 
     def verify_restoration(self, prestate: HealthyPrestate) -> RestorationVerification:
         self._binding.require(run_id=prestate.run_id, attempt_id=prestate.attempt_id)
-        available, present, _uid, service_reference = self._service_state(
+        observed = self._service_state(
             self._binding.consumers.restoration, capture_state="RESTORE_VERIFIED"
         )
+        available, present = observed.available, observed.present
+        service_reference = observed.projection_reference
         contract_consumer = self._binding.consumers.contract
         self._binding.require_consumer(contract_consumer)
         slices = self._reader.list_user_service_endpoint_slices(
@@ -1911,9 +1955,11 @@ class SealingTerminalizer:
     def _operations(self, context: Any, installed: int) -> list[dict[str, Any]]:
         """The attempt's mutation operations, read out of retained evidence.
 
-        Intent and receipt are paired by the operation id each carries.  An
-        intent with no durable receipt -- a crash between dispatch and receipt --
-        contributes no operation, because there is no receipt to cite.
+        Intent and receipt are paired by the operation id each carries.  Receipt
+        completeness is enforced HERE, where terminal operations are built, and
+        nowhere earlier: a live attempt may legitimately hold a pending intent
+        mid-recovery, but a sealed attempt may not.  An intent that reaches
+        terminalization without its receipt is refused, never silently dropped.
         """
         intents: dict[str, Any] = {}
         receipts: dict[str, Any] = {}
@@ -1926,11 +1972,13 @@ class SealingTerminalizer:
                 intents[operation_id] = row
             elif role == "mutation_receipt":
                 receipts[operation_id] = row
+        if set(receipts) - set(intents):
+            _reject("RUNTIME_OPERATION_EVIDENCE_INCOMPLETE")
         operations: list[dict[str, Any]] = []
         for operation_id in sorted(intents):
             receipt = receipts.get(operation_id)
             if receipt is None:
-                continue
+                _reject("RUNTIME_OPERATION_EVIDENCE_INCOMPLETE")
             created = intents[operation_id].descriptor.get("monotonic_time")
             if not isinstance(created, int) or isinstance(created, bool):
                 _reject("RUNTIME_OPERATION_EVIDENCE_INVALID")
