@@ -94,3 +94,73 @@ stronger in one respect and different in another: the timestamp is over the
 **document's content digest** rather than a commit SHA, and it was taken **before**
 the commit existed, so it does not depend on the commit at all. The file is named
 `prereg.tsr`. Recorded here rather than corrected in the frozen text.
+
+---
+
+# Second token — the pre-execution tree
+
+## What was timestamped
+
+The **SHA-256 of `attestation/preexec-commit.txt`**, a file whose entire content is the
+commit SHA of the pre-execution tree plus a newline:
+
+```
+0094d98a0dba781ecc8b304f9980ab0752498deb
+```
+
+```
+939977c3195e6ac3fcb09a4cdb379a7804ba5d1533766596e9e21901edd51e4a  attestation/preexec-commit.txt
+```
+
+That digest is the `Message data` field inside `preexec-commit.tsr`.
+
+## Which authority answered, and when
+
+| | |
+|---|---|
+| Authority | Free TSA (`https://freetsa.org/tsr`) |
+| Status | `Granted` |
+| Policy OID | `tsa_policy1` |
+| Serial number | `0x07590D55` |
+| **Stated time** | **`Aug 29 10:15:38 2026 GMT`** |
+| Host clock at the time (`date -u`) | `Sat Aug 29 10:15:46 UTC 2026` |
+
+`openssl ts -verify` against Free TSA's root returned `Verification: OK`.
+
+## Why this is broader than Section 9.2 asked for
+
+`PREREGISTRATION_MS_MUTANTS.md` §9.2 describes a timestamp "over the commit SHA of this
+document". This token does that, and because a git commit SHA is a hash over the whole
+tree, it attests to more than the document: at `0094d98a` the tree contained the
+pre-registration, the frozen contract, the mutant registry, the frozen execution profile
+and evidence policies, **and** the two driver files
+(`experiments/mutant_run.py`, `experiments/contract_check.py`) in exactly the form used
+for the runs. So the deviation recorded in the first token's section is now closed, in a
+stronger form than the document anticipated.
+
+The first token binds the document's bytes; this one binds the tree those bytes sit in.
+Neither replaces the other.
+
+## What this establishes, and what it does not
+
+**It establishes that this tree existed at the stated time. It establishes nothing about
+the cluster** — not that it was healthy, not that it was untouched, not that no mutant had
+been applied. It says nothing about the historical runs in
+`experiments/RESULT_LEDGER.json`, whose status is unchanged.
+
+One exclusion worth stating: `experiments/smoke-00/healthy/probe-pod.json` was untracked
+at `0094d98a` and is therefore **not** covered by this token. Every file that the mutant
+runs depend on is covered.
+
+## How to re-verify
+
+```bash
+sha256sum attestation/preexec-commit.txt
+git rev-parse 0094d98a0dba781ecc8b304f9980ab0752498deb
+openssl ts -reply -in attestation/preexec-commit.tsr -text
+openssl ts -verify -in attestation/preexec-commit.tsr \
+                   -queryfile attestation/preexec-commit.tsq \
+                   -CAfile root_ca.pem
+```
+
+The root certificate and its expected fingerprint are given in the first token's section.
