@@ -85,7 +85,12 @@ def cluster_problem():
     return None
 
 
-def run_attempt(pid, attempt, server, inject_timeout, timeout, sregym, runs=RUNS):
+def validator_command(pid, run_dir, inject_timeout):
+    return [VALIDATOR, "--problem", pid, "--summary", str(run_dir / "summary.md"),
+            "--json-summary", str(run_dir / "summary.json"), "--inject-timeout", str(inject_timeout)]
+
+
+def run_attempt(pid, attempt, server, inject_timeout, timeout, sregym, runs=RUNS, command=None):
     run_dir = runs / pid / f"attempt-{attempt}"
     run_dir.mkdir(parents=True)
     record = {"problem_id": pid, "attempt": attempt, "server": server,
@@ -94,9 +99,8 @@ def run_attempt(pid, attempt, server, inject_timeout, timeout, sregym, runs=RUNS
 
     agent_logs = run_dir / "agent_logs"
     env = {**os.environ, "COLUMNS": "4000", "AGENT_LOGS_DIR": str(agent_logs)}
-    cmd = [str(sregym / ".venv" / "bin" / "python"), VALIDATOR, "--problem", pid,
-           "--summary", str(run_dir / "summary.md"), "--json-summary", str(run_dir / "summary.json"),
-           "--inject-timeout", str(inject_timeout)]
+    args = command(run_dir) if command else validator_command(pid, run_dir, inject_timeout)
+    cmd = [str(sregym / ".venv" / "bin" / "python"), *args]
     start = time.monotonic()
     with open(run_dir / "stdout.log", "w") as log:
         proc = subprocess.Popen(cmd, cwd=sregym, env=env, stdout=log, stderr=subprocess.STDOUT,
@@ -132,7 +136,7 @@ def run_attempt(pid, attempt, server, inject_timeout, timeout, sregym, runs=RUNS
         record["stages"] = {key: stage["status"] for key, stage in summary["stages"].items()}
     try:
         record["namespaces_after"] = sorted(n["metadata"]["name"] for n in kubectl_json("get", "namespaces"))
-    except (subprocess.CalledProcessError, json.JSONDecodeError):
+    except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):
         record["namespaces_after"] = None
     write_json(run_dir / "record.json", record)
     return record

@@ -48,11 +48,19 @@ the attempts disagree, and `NOT_RUNNABLE` after two deployment or injection fail
 - If the pilot changes a runner parameter, the pilot problems are run again under the final
   parameters, and both sets of attempts are kept.
 
-## Triage of non-passing problems
+## Triage
 
-A `NULL_ACCEPT` does not by itself show a blind oracle, and a pass does not show an adequate one.
-Each non-passing problem, and each pass whose first failing oracle check names a resource
-unrelated to the fault, is assigned one mechanism:
+A `NULL_ACCEPT` does not by itself show a blind oracle, and a pass does not show an adequate one:
+the validator stops at the first failing check, so a transient state during injection (a rollout,
+a restarting pod) counts as detection. `triage_probe.py` runs the same lifecycle without stopping.
+It records the stock oracle every 15 s over the full 300 s window, upstream's `WorkloadOracle` in
+each state, and object-level differences between the healthy, faulted and recovered states.
+
+Triage runs on every problem whose outcome is not `LIFECYCLE_PASS`, and on every `LIFECYCLE_PASS`
+whose first failing check reports a generic readiness reason (`deployment_replicas_unready`,
+`pods_not_ready`, `no_pods_found`); priority 1 first. The faulted window is `never` (no failing
+check), `transient` (failing checks, but the oracle accepts the unrepaired system at the end of
+the window) or `persistent`. Each triaged problem is assigned one mechanism:
 
 | Mechanism | Meaning |
 |---|---|
@@ -85,8 +93,15 @@ and stops after any attempt that did not finish or did not clean up. Each attemp
 - `summary.json`: the validator's own stage summary
 - `stdout.log.gz`, `debug.log.gz`: the validator's logs with timestamps removed
 
-Results are self-contained, so `runs/` can be copied between servers or to a laptop at any time.
-Then build the ledger:
+Triage attempts use the same layout under `triage/<problem_id>/attempt-<n>/`, with `triage.json`
+in place of `summary.json`:
+
+```bash
+python3 studies/registry_sweep/run_triage.py --server A --ids <problem_id> ...
+```
+
+Results are self-contained, so `runs/` and `triage/` can be copied between servers or to a laptop
+at any time. Then build the ledger:
 
 ```bash
 python3 studies/registry_sweep/build_ledger.py
