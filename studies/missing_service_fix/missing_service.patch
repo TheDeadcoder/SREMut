@@ -1,0 +1,44 @@
+--- a/sregym/conductor/problems/missing_service.py
++++ b/sregym/conductor/problems/missing_service.py
+@@ -1,5 +1,7 @@
++from sregym.conductor.oracles.compound import CompoundedOracle
+ from sregym.conductor.oracles.llm_as_a_judge.llm_as_a_judge_oracle import LLMAsAJudgeOracle
+ from sregym.conductor.oracles.mitigation import MitigationOracle
++from sregym.conductor.oracles.service_endpoint_mitigation import ServiceEndpointMitigationOracle
+ from sregym.conductor.problems.base import Problem
+ from sregym.generators.fault.inject_virtual import VirtualizationFaultInjector
+ from sregym.service.apps.astronomy_shop import AstronomyShop
+@@ -8,11 +10,19 @@
+ from sregym.service.kubectl import KubeCtl
+ from sregym.utils.decorators import mark_fault_injected
+ 
++SERVICE_PORTS = {
++    ("astronomy_shop", "ad"): 8080,
++    ("hotel_reservation", "frontend"): 5000,
++    ("hotel_reservation", "mongodb-rate"): 27017,
++    ("social_network", "user-service"): 9090,
++}
+ 
++
+ class MissingService(Problem):
+     def __init__(self, app_name: str = "hotel_reservation", faulty_service: str = "frontend"):
+         self.app_name = app_name
+         self.faulty_service = faulty_service
++        self.expected_service_port = SERVICE_PORTS[(app_name, faulty_service)]
+ 
+         if self.app_name == "hotel_reservation":
+             app = HotelReservation()
+@@ -37,7 +47,12 @@
+         )
+         self.diagnosis_oracle = LLMAsAJudgeOracle(problem=self, expected=self.root_cause)
+         self.app.create_workload()
+-        self.mitigation_oracle = MitigationOracle(problem=self)
++        # Pods stay Ready after the Service is deleted, so the generic check alone cannot see the fault.
++        self.mitigation_oracle = CompoundedOracle(
++            self,
++            MitigationOracle(problem=self),
++            ServiceEndpointMitigationOracle(problem=self),
++        )
+ 
+     @mark_fault_injected
+     def inject_fault(self):
