@@ -17,8 +17,10 @@ After SREGym's injector deletes `Service/user-service`, one repair state is appl
 | M4 | selector-less Service with a manual Endpoints object pinned to the current pod; clients restarted |
 | C1 | Service recreated exactly as captured; clients restarted |
 
-Every run also measures the healthy state before injection and the restored state after SREGym's
-own `recover_fault()`.
+A client restart (M4, C1) deletes every pod in the namespace except the `user-service` pod, and
+their controllers recreate them; the load generator's Job pod is left running. Every run also
+measures the healthy state before injection and the restored state after SREGym's own
+`recover_fault()`.
 
 ## Graders
 
@@ -39,18 +41,24 @@ endpoint, routing and workload checks. It runs on M5, M4, C1 and the restored st
 
 `ladder.py` drives the Conductor with only the mitigation stage:
 
-1. The Conductor deploys the application. Just before it injects the fault, the run measures the
-   healthy state: the patched oracle in-process, the workload oracle, and the contract.
+1. The Conductor deploys the application and starts the load generator. Just before it injects the
+   fault, the run waits until a full workload round succeeds, then measures the healthy state: the
+   patched oracle in-process, the workload oracle, and the contract.
 2. The Conductor injects the fault. The run applies the repair and verifies it structurally.
-3. At least 60 s after injection the run submits. The Conductor's own mitigation evaluation is the
-   graded verdict.
+3. At least 60 s after injection, once the load generator runs again and has completed a round, the
+   run submits. The Conductor's own mitigation evaluation is the graded verdict.
 4. The workload oracle and the contract are measured on the graded state.
-5. `recover_fault()` restores the system and the restored state is measured.
+5. `recover_fault()` restores the system. Once a full workload round succeeds again, the restored
+   state is measured.
 6. The Conductor's own teardown runs. It is deferred only until step 5 finishes.
+
+SREGym's injection and `recover_fault()` delete every pod in the namespace, the load generator's
+included, and its Job recreates that pod only after a back-off. The waits in steps 1, 3 and 5 keep
+every grader from judging the load generator's restart instead of the system.
 
 ## Schedule
 
-- Pilot, not counted: M4, M5 and C1 once each, to confirm the Kubernetes behaviour and that MS-I6
+- Pilot, not counted: M4, M5 and C1, to confirm the Kubernetes behaviour, the driver, and that MS-I6
   passes a correct repair. Pilot runs are kept under `pilot/`.
 - Counted: three attempts per state. State `i` (order M1, M2, M3, M5, M4, C1) of attempt `a` runs
   on server A when `i + a` is odd, otherwise on server B, so every state runs on both servers.
