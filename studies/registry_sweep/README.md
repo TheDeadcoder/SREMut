@@ -85,11 +85,20 @@ python3 studies/registry_sweep/run_sweep.py --server A
 python3 studies/registry_sweep/run_sweep.py --server B --attempt 2 --ids <problem_id> ...
 ```
 
-The runner skips attempts that already exist, stops if the cluster is unhealthy before an attempt,
-and stops after any attempt that did not finish or did not clean up. Each attempt is written to
-`runs/<problem_id>/attempt-<n>/`:
+Before every attempt the runner returns the cluster to SREGym's recorded baseline, as SREGym's
+Conductor does between problems: `reset_cluster.py` runs SREGym's own `reconcile_to_baseline()`,
+removes the Deployments, DaemonSets, StatefulSets and Services that problems add to `kube-system`,
+which that reconciliation leaves alone, and deletes Failed pods. The validator itself removes only
+the application namespace, so namespaces, admission webhooks and other objects left by one problem
+would otherwise carry into the next.
 
-- `record.json`: status, server, window, duration, stage results, namespaces left afterwards
+The runner skips attempts that already exist. It stops if the reset leaves a namespace, webhook
+configuration or `kube-system` addition behind, if the cluster is unhealthy, if an attempt did not
+finish, or if fault recovery failed during the validator's cleanup; any other cleanup failure is
+undone by the next reset. Each attempt is written to `runs/<problem_id>/attempt-<n>/`:
+
+- `record.json`: status, server, window, duration, stage results, what the reset removed before the
+  attempt, namespaces left afterwards
 - `summary.json`: the validator's own stage summary
 - `stdout.log.gz`, `debug.log.gz`: the validator's logs with dates and times removed
 

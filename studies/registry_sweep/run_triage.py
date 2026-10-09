@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-from run_sweep import HERE, cluster_problem, load_plan, mark_interrupted, run_attempt, select
+from run_sweep import HERE, load_plan, mark_interrupted, reset_cluster, run_attempt, select
 
 TRIAGE = HERE / "triage"
 PROBE = HERE / "triage_probe.py"
@@ -30,13 +30,13 @@ def main():
         if run_dir.exists():
             print(f"skip {pid}: triage attempt {args.attempt} already exists", flush=True)
             continue
-        problem = cluster_problem()
+        reset, problem = reset_cluster(args.sregym)
         if problem:
             print(f"stop: {problem}", flush=True)
             return 2
         print(f"start {pid} triage attempt {args.attempt}", flush=True)
         record = run_attempt(pid, args.attempt, args.server, 300, args.timeout, args.sregym,
-                             runs=TRIAGE, command=probe_command(pid))
+                             runs=TRIAGE, command=probe_command(pid), reset=reset)
         result_path = run_dir / "triage.json"
         result = json.loads(result_path.read_text()) if result_path.exists() else {}
         print(f"done {pid}: {record['status']} {result.get('status')} "

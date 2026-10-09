@@ -42,5 +42,5 @@ python3 studies/missing_service_fix/fix_ledger.py
 python3 studies/missing_service_fix/fix_ledger.py --check
 ```
 
-`run_fix.py` refuses a checkout without the patch and writes attempts to `runs/` in the same layout
-as the registry sweep.
+`run_fix.py` refuses a checkout without the patch and writes attempts to `runs/` in the same layout,
+with the same reset and stop rules, as the registry sweep.

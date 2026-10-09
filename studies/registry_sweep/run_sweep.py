@@ -16,6 +16,7 @@ HERE = Path(__file__).resolve().parent
 PLAN = HERE / "plan.csv"
 RUNS = HERE / "runs"
 VALIDATOR = "tests/integration/validate_problem.py"
+RESET = HERE / "reset_cluster.py"
 
 LINE_TIME = (
     re.compile(r"^\[\d{2}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\] ?"),
@@ -117,16 +118,37 @@ def cluster_problem():
     return None
 
 
+def reset_cluster(sregym):
+    proc = subprocess.run([str(sregym / ".venv" / "bin" / "python"), str(RESET)], cwd=sregym,
+                          capture_output=True, text=True)
+    lines = proc.stdout.strip().splitlines()
+    if proc.returncode != 0 or not lines:
+        return None, f"cluster reset failed: {(proc.stderr or proc.stdout).strip()[-300:]}"
+    return json.loads(lines[-1]), cluster_problem()
+
+
+def must_stop(record, run_dir):
+    if record["status"] != "COMPLETED":
+        return True
+    summary_path = run_dir / "summary.json"
+    if not summary_path.exists():
+        return True
+    cleanup = json.loads(summary_path.read_text())["stages"]["cleanup"]
+    return cleanup["status"] == "fail" and "recover fault:" in cleanup["detail"]
+
+
 def validator_command(pid, run_dir, inject_timeout):
     return [VALIDATOR, "--problem", pid, "--summary", str(run_dir / "summary.md"),
             "--json-summary", str(run_dir / "summary.json"), "--inject-timeout", str(inject_timeout)]
 
 
-def run_attempt(pid, attempt, server, inject_timeout, timeout, sregym, runs=RUNS, command=None):
+def run_attempt(pid, attempt, server, inject_timeout, timeout, sregym, runs=RUNS, command=None, reset=None):
     run_dir = runs / pid / f"attempt-{attempt}"
     run_dir.mkdir(parents=True)
     record = {"problem_id": pid, "attempt": attempt, "server": server,
               "inject_timeout": inject_timeout, "status": "RUNNING"}
+    if reset is not None:
+        record["reset"] = reset
     write_json(run_dir / "record.json", record)
 
     agent_logs = run_dir / "agent_logs"
@@ -190,14 +212,15 @@ def main():
         if (RUNS / pid / f"attempt-{args.attempt}").exists():
             print(f"skip {pid}: attempt {args.attempt} already exists", flush=True)
             continue
-        problem = cluster_problem()
+        reset, problem = reset_cluster(args.sregym)
         if problem:
             print(f"stop: {problem}", flush=True)
             return 2
         print(f"start {pid} attempt {args.attempt}", flush=True)
-        record = run_attempt(pid, args.attempt, args.server, args.inject_timeout, args.timeout, args.sregym)
+        record = run_attempt(pid, args.attempt, args.server, args.inject_timeout, args.timeout, args.sregym,
+                             reset=reset)
         print(f"done {pid}: {record['status']} {record.get('stages')}", flush=True)
-        if record["status"] != "COMPLETED" or record.get("stages", {}).get("cleanup") != "pass":
+        if must_stop(record, RUNS / pid / f"attempt-{args.attempt}"):
             print("stop: inspect the cluster before continuing", flush=True)
             return 3
     return 0

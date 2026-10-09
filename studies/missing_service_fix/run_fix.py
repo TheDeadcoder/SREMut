@@ -6,7 +6,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "registry_sweep"))
 
-from run_sweep import cluster_problem, mark_interrupted, run_attempt  # noqa: E402
+from run_sweep import mark_interrupted, must_stop, reset_cluster, run_attempt  # noqa: E402
 
 RUNS = HERE / "runs"
 PROBLEMS = (
@@ -37,14 +37,14 @@ def main():
         if (RUNS / pid / f"attempt-{args.attempt}").exists():
             print(f"skip {pid}: attempt {args.attempt} already exists", flush=True)
             continue
-        problem = cluster_problem()
+        reset, problem = reset_cluster(args.sregym)
         if problem:
             print(f"stop: {problem}", flush=True)
             return 2
         print(f"start {pid} attempt {args.attempt}", flush=True)
-        record = run_attempt(pid, args.attempt, args.server, 300, args.timeout, args.sregym, runs=RUNS)
+        record = run_attempt(pid, args.attempt, args.server, 300, args.timeout, args.sregym, runs=RUNS, reset=reset)
         print(f"done {pid}: {record['status']} {record.get('stages')}", flush=True)
-        if record["status"] != "COMPLETED" or record.get("stages", {}).get("cleanup") != "pass":
+        if must_stop(record, RUNS / pid / f"attempt-{args.attempt}"):
             print("stop: inspect the cluster before continuing", flush=True)
             return 3
     return 0
