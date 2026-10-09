@@ -8,7 +8,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "registry_sweep"))
 
 from mutants import STATES  # noqa: E402
-from run_sweep import cluster_problem, mark_interrupted, run_attempt  # noqa: E402
+from run_sweep import mark_interrupted, reset_cluster, run_attempt  # noqa: E402
 
 PILOT_STATES = ("M4", "M5", "C1")
 ATTEMPTS = (1, 2, 3)
@@ -46,13 +46,13 @@ def main():
         if run_dir.exists():
             print(f"skip {state}: attempt {args.attempt} already exists", flush=True)
             continue
-        problem = cluster_problem()
+        reset, problem = reset_cluster(args.sregym)
         if problem:
             print(f"stop: {problem}", flush=True)
             return 2
         print(f"start {state} attempt {args.attempt}", flush=True)
         record = run_attempt(state, args.attempt, args.server, 300, args.timeout, args.sregym,
-                             runs=runs, command=driver_command(state))
+                             runs=runs, command=driver_command(state), reset=reset)
         result_path = run_dir / "result.json"
         result = json.loads(result_path.read_text()) if result_path.exists() else {}
         print(f"done {state}: {record['status']} {result.get('status')} teardown={result.get('teardown')}",

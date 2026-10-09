@@ -113,6 +113,32 @@ class RunnerTest(unittest.TestCase):
             self.assertEqual(data[4:8], b"\x00\x00\x00\x00")
             self.assertEqual(gzip.decompress(data), b"hello\n")
 
+    def test_reset_cluster_reads_the_last_line(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            python = Path(tmp) / ".venv" / "bin" / "python"
+            python.parent.mkdir(parents=True)
+            python.write_text('#!/bin/sh\necho "INFO reconciling"\necho \'{"namespaces_deleted": ["observe"]}\'\n')
+            python.chmod(0o755)
+            with unittest.mock.patch.object(run_sweep, "cluster_problem", return_value=None):
+                self.assertEqual(run_sweep.reset_cluster(Path(tmp)), ({"namespaces_deleted": ["observe"]}, None))
+            python.write_text("#!/bin/sh\necho 'still present after the reset: [x]' >&2\nexit 1\n")
+            reset, problem = run_sweep.reset_cluster(Path(tmp))
+            self.assertIsNone(reset)
+            self.assertIn("still present after the reset", problem)
+
+    def test_must_stop_only_when_unfinished_or_recovery_failed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            run_dir = Path(tmp)
+            done = {"status": "COMPLETED"}
+            self.assertTrue(run_sweep.must_stop(done, run_dir))
+            self.assertTrue(run_sweep.must_stop({"status": "TIMED_OUT"}, run_dir))
+            for detail, stop in (("wait for namespace deletion: timed out", False),
+                                 ("recover fault: boom; remove application: gone", True)):
+                run_sweep.write_json(run_dir / "summary.json", summary(cleanup="fail", details={"cleanup": detail}))
+                self.assertEqual(run_sweep.must_stop(done, run_dir), stop)
+            run_sweep.write_json(run_dir / "summary.json", summary(cleanup="pass"))
+            self.assertFalse(run_sweep.must_stop(done, run_dir))
+
     def test_select(self):
         plan = [{"problem_id": "p1", "server": "A", "pilot": "yes"},
                 {"problem_id": "p2", "server": "B", "pilot": "yes"},
