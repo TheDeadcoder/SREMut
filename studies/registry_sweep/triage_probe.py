@@ -5,7 +5,6 @@ Runs under the SREGym virtual environment with the SREGym checkout as working di
 import argparse
 import hashlib
 import json
-import re
 import subprocess
 import time
 from pathlib import Path
@@ -16,7 +15,6 @@ POLL = 15
 KINDS = ("deployments", "statefulsets", "daemonsets", "services", "endpointslices", "configmaps",
          "persistentvolumeclaims", "networkpolicies", "ingresses", "jobs", "cronjobs")
 NOISE = ("uid", "resourceVersion", "generation", "managedFields", "creationTimestamp", "selfLink")
-INLINE_TIME = re.compile(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?")
 
 
 def evaluate(oracle):
@@ -154,7 +152,9 @@ def main():
 
     init_logger()
     result = run(args.problem)
-    args.out.write_text(INLINE_TIME.sub("<time>", json.dumps(result, indent=2, sort_keys=True, default=str)) + "\n")
+    from run_sweep import scrub_inline
+
+    args.out.write_text(scrub_inline(json.dumps(result, indent=2, sort_keys=True, default=str)) + "\n")
 
 
 if __name__ == "__main__":

@@ -61,6 +61,11 @@ class RunnerTest(unittest.TestCase):
         self.assertIn("INFO - all - message - x.py:f:1", out)
         self.assertIn("created at <time> here", out)
 
+    def test_scrub_removes_epoch_times(self):
+        text = "{'entry_time': '1791527325.132899', 'ts': 1791527325132, 'requests': 1024, 'id': 123456789}"
+        self.assertEqual(run_sweep.scrub_inline(text),
+                         "{'entry_time': '<time>', 'ts': <time>, 'requests': 1024, 'id': 123456789}")
+
     def test_write_gz_has_no_timestamp(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "x.gz"

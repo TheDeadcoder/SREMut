@@ -5,7 +5,7 @@ Runs under the patched SREGym checkout's virtual environment, with that checkout
 import argparse
 import asyncio
 import json
-import re
+import sys
 import time
 from pathlib import Path
 
@@ -15,7 +15,6 @@ import mutants
 PROBLEM_ID = "missing_service_social_network"
 EPISODE_SECONDS = 60
 REPLACEMENT_STATES = {"M5", "M4", "C1"}
-INLINE_TIME = re.compile(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?")
 
 
 class NotActive(RuntimeError):
@@ -112,7 +111,10 @@ def main():
 
     init_logger()
     record = asyncio.run(run(args.state))
-    args.out.write_text(INLINE_TIME.sub("<time>", json.dumps(record, indent=2, sort_keys=True, default=str)) + "\n")
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "registry_sweep"))
+    from run_sweep import scrub_inline
+
+    args.out.write_text(scrub_inline(json.dumps(record, indent=2, sort_keys=True, default=str)) + "\n")
 
 
 if __name__ == "__main__":

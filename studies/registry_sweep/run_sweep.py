@@ -23,7 +23,12 @@ LINE_TIME = (
     re.compile(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:,\d+)? - "),
 )
 INLINE_TIME = re.compile(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?")
+EPOCH_TIME = re.compile(r"\b1[6-9]\d{8}(?:\d{3})?(?:\.\d+)?\b")
 DEPLOYED = re.compile(r"(LAST DEPLOYED:).*")
+
+
+def scrub_inline(text):
+    return EPOCH_TIME.sub("<time>", INLINE_TIME.sub("<time>", text))
 
 
 def scrub(text):
@@ -31,7 +36,7 @@ def scrub(text):
     for line in text.splitlines():
         for pattern in LINE_TIME:
             line = pattern.sub("", line)
-        line = DEPLOYED.sub(r"\1", INLINE_TIME.sub("<time>", line))
+        line = DEPLOYED.sub(r"\1", scrub_inline(line))
         out.append(line.rstrip())
     return "\n".join(out) + "\n"
 
@@ -131,7 +136,7 @@ def run_attempt(pid, attempt, server, inject_timeout, timeout, sregym, runs=RUNS
         summary = json.loads(summary_path.read_text())
         summary.pop("elapsed_seconds", None)
         for stage in summary["stages"].values():
-            stage["detail"] = INLINE_TIME.sub("<time>", stage["detail"])
+            stage["detail"] = scrub_inline(stage["detail"])
         write_json(summary_path, summary)
         record["stages"] = {key: stage["status"] for key, stage in summary["stages"].items()}
     try:
