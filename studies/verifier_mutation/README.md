@@ -50,7 +50,8 @@ changed that still differ from the healthy state.
 | `killed` | rejects | unhealthy |
 | `survived` | accepts | unhealthy |
 | `equivalent` | accepts | healthy: the generic action repaired the system |
-| `false_reject` | rejects | healthy |
+| `false_reject` | rejects | healthy, and nothing the injection changed is left |
+| `rejected_fault_present` | rejects | healthy, but an object the injection changed is still in place |
 | `unknown` | changes its verdict within the 90 s | - |
 
 The mutation score of a problem or operator is killed / (killed + survived).
@@ -73,8 +74,8 @@ The prediction for each episode is in `schedule.csv`.
 
 ## Schedule
 
-`make_schedule.py` lists every problem whose oracle rejected the null agent in the registry sweep,
-crossed with the four operators, and assigns servers A, B and C in turn. The pilot runs every operator
+`make_schedule.py` lists every problem whose oracle rejected the null agent in the registry sweep
+under each operator in turn, `RESTART` first, and assigns servers A, B and C in turn. The pilot runs every operator
 once on five problems and is kept under `pilot/`.
 
 ## Running
