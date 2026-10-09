@@ -4,6 +4,7 @@ changes as one JSON line. Runs in a SREGym checkout's environment."""
 import json
 import subprocess
 import sys
+import time
 
 from sregym.paths import CLUSTER_BASELINE_STATE_FILE
 from sregym.service.cluster_state import PROTECTED_NAMESPACES, ClusterStateManager, _is_chaos_mesh_resource
@@ -15,6 +16,7 @@ KUBE_SYSTEM = {
     "statefulsets": set(),
     "services": {"kube-dns", "metrics-server"},
 }
+SETTLE_SECONDS = 300
 
 
 def kubectl(*args):
@@ -46,7 +48,9 @@ def main():
     failed = kubectl("delete", "pods", "--all-namespaces", "--field-selector=status.phase=Failed", "-o", "name")
     if failed:
         changes["failed_pods_deleted"] = len(failed)
-    left = leftovers(manager)
+    deadline = time.monotonic() + SETTLE_SECONDS
+    while (left := leftovers(manager)) and time.monotonic() < deadline:
+        time.sleep(5)
     if left:
         sys.exit(f"still present after the reset: {left}")
     print(json.dumps(changes, sort_keys=True))
