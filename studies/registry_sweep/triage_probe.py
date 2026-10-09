@@ -152,9 +152,9 @@ def main():
 
     init_logger()
     result = run(args.problem)
-    from run_sweep import scrub_inline
+    from run_sweep import scrub_value, write_json
 
-    args.out.write_text(scrub_inline(json.dumps(result, indent=2, sort_keys=True, default=str)) + "\n")
+    write_json(args.out, scrub_value(json.loads(json.dumps(result, default=str))))
 
 
 if __name__ == "__main__":

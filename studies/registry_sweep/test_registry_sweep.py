@@ -12,6 +12,7 @@ import build_ledger  # noqa: E402
 import make_plan  # noqa: E402
 import run_sweep  # noqa: E402
 import run_triage  # noqa: E402
+import scrub_results  # noqa: E402
 import triage_probe  # noqa: E402
 
 STAGES = ("resolve", "deploy", "inject", "oracle_fail", "recover", "oracle_pass", "cleanup")
@@ -65,6 +66,44 @@ class RunnerTest(unittest.TestCase):
         text = "{'entry_time': '1791527325.132899', 'ts': 1791527325132, 'requests': 1024, 'id': 123456789}"
         self.assertEqual(run_sweep.scrub_inline(text),
                          "{'entry_time': '<time>', 'ts': <time>, 'requests': 1024, 'id': 123456789}")
+
+    def test_scrub_removes_other_time_formats(self):
+        text = ("{'Date': 'Fri, 09 Oct 2026 06:55:58 GMT', 'Content-Length': '182'}\n"
+                "now Fri Oct  9 06:55:58 UTC 2026 end\n"
+                "E1009 06:55:58.123456   12 memcache.go:265] failed\n"
+                '10.244.1.15 - - [09/Oct/2026:06:55:58 +0000] "GET / HTTP/1.1" 200\n'
+                "at 2026-10-09 06:55:58,123 and 2026/10/09, 10/09/26 or 07:01:02.5 on 10.244.1.15:80\n")
+        out = run_sweep.scrub(text)
+        self.assertNotRegex(out, r"\d{2}:\d{2}:\d{2}|2026|Oct|1009|/26")
+        self.assertIn("'Content-Length': '182'}", out)
+        self.assertIn("memcache.go:265] failed", out)
+        self.assertIn("10.244.1.15:80", out)
+
+    def test_scrub_value_keeps_json_valid(self):
+        value = {"t": 1791527325.5, "ms": 1791527325132, "n": 3, "ok": True, "s": "at 2026-10-09",
+                 "l": [1791527325, None], "06:55:58": 1}
+        self.assertEqual(run_sweep.scrub_value(value),
+                         {"t": "<time>", "ms": "<time>", "n": 3, "ok": True, "s": "at <time>",
+                          "l": ["<time>", None], "<time>": 1})
+
+    def test_rescrub_lists_then_fixes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            log, stamped, summary, record = (Path(tmp) / n for n in
+                                             ("debug.log.gz", "stdout.log.gz", "summary.json", "record.json"))
+            run_sweep.write_gz(log, "'Date': 'Fri, 09 Oct 2026 06:55:58 GMT'\n")
+            with open(stamped, "wb") as raw, gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=1) as gz:
+                gz.write(b"clean\n")
+            run_sweep.write_json(summary, {"stages": {"t": 1791527325.5}})
+            run_sweep.write_json(record, {"status": "COMPLETED", "duration_seconds": 600})
+            files = (log, stamped, summary, record)
+            self.assertEqual([p.name for p in files if scrub_results.rescrub(p, check=True)],
+                             ["debug.log.gz", "stdout.log.gz", "summary.json"])
+            self.assertIn(b"06:55:58", gzip.decompress(log.read_bytes()))
+            for p in files:
+                scrub_results.rescrub(p, check=False)
+            self.assertFalse(any(scrub_results.rescrub(p, check=True) for p in files))
+            self.assertEqual(json.loads(summary.read_text()), {"stages": {"t": "<time>"}})
+            self.assertEqual(gzip.decompress(stamped.read_bytes()), b"clean\n")
 
     def test_write_gz_has_no_timestamp(self):
         with tempfile.TemporaryDirectory() as tmp:
