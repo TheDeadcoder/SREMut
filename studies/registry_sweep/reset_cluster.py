@@ -39,7 +39,7 @@ def leftovers(manager):
 def main():
     manager = ClusterStateManager(KubeCtl())
     if not manager.load_baseline_state(CLUSTER_BASELINE_STATE_FILE):
-        sys.exit(f"no cluster baseline at {CLUSTER_BASELINE_STATE_FILE}")
+        manager.save_baseline_state(CLUSTER_BASELINE_STATE_FILE)
     changes = {key: value for key, value in manager.reconcile_to_baseline().items() if value}
     extras = kube_system_extras()
     if extras:

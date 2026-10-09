@@ -13,6 +13,7 @@ Ubuntu 24.04 x86_64 host (run as root); re-running it is safe.
 | kubectl | v1.32.1 |
 | Helm | v4.3.0 |
 | Docker Engine | 29.9.0 |
+| containerd | 2.4.1 |
 | uv | 0.12.24 |
 | Python | 3.12.3 |
 | Host | x86_64, 8 vCPU, 32 GB RAM, Ubuntu 24.04 LTS |

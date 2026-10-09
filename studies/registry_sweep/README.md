@@ -88,9 +88,10 @@ python3 studies/registry_sweep/run_sweep.py --server B --attempt 2 --ids <proble
 Before every attempt the runner returns the cluster to SREGym's recorded baseline, as SREGym's
 Conductor does between problems: `reset_cluster.py` runs SREGym's own `reconcile_to_baseline()`,
 removes the Deployments, DaemonSets, StatefulSets and Services that problems add to `kube-system`,
-which that reconciliation leaves alone, and deletes Failed pods. The validator itself removes only
-the application namespace, so namespaces, admission webhooks and other objects left by one problem
-would otherwise carry into the next.
+which that reconciliation leaves alone, and deletes Failed pods. On a fresh cluster the first reset
+records the baseline, as the Conductor does on its first deployment. The validator itself removes
+only the application namespace, so namespaces, admission webhooks and other objects left by one
+problem would otherwise carry into the next.
 
 The runner skips attempts that already exist. It stops if the reset leaves a namespace, webhook
 configuration or `kube-system` addition behind, if the cluster is unhealthy, if an attempt did not
