@@ -12,6 +12,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 PLAN = HERE / "plan.csv"
 RUNS = HERE / "runs"
+TRIAGE = HERE / "triage"
 LEDGER = HERE / "ledger.json"
 DEFAULT_INJECT_TIMEOUT = 300
 
@@ -108,7 +109,38 @@ def problem_outcome(attempts):
     return classes[0] if len(classes) == 1 else "UNSTABLE"
 
 
-def build(plan, runs):
+def window_class(profile):
+    if not profile:
+        return None
+    if "-" not in profile:
+        return "never"
+    return "transient" if profile.endswith("+") else "persistent"
+
+
+def verdict(result):
+    return None if result is None else result.get("success")
+
+
+def triage_entry(run_dir):
+    record = json.loads((run_dir / "record.json").read_text())
+    data = json.loads((run_dir / "triage.json").read_text())
+    states = {state: data.get(state) or {} for state in ("healthy", "faulted", "recovered")}
+    return {
+        "problem_id": record["problem_id"],
+        "attempt": record["attempt"],
+        "server": record["server"],
+        "status": data.get("status"),
+        "cleanup": data.get("cleanup"),
+        "healthy_oracle": verdict(states["healthy"].get("oracle")),
+        "workload": {state: verdict(block.get("workload")) for state, block in states.items()},
+        "faulted_profile": states["faulted"].get("profile"),
+        "faulted_window": window_class(states["faulted"].get("profile")),
+        "recovered_profile": states["recovered"].get("profile"),
+        "diff": data.get("diff"),
+    }
+
+
+def build(plan, runs, triage=None):
     attempts = [attempt_entry(d) for d in sorted(runs.glob("*/attempt-*"))
                 if (d / "record.json").exists()]
     problems = []
@@ -139,7 +171,14 @@ def build(plan, runs):
         "attempts": len(attempts),
         "attempt_classes": dict(sorted(Counter(a["class"] for a in attempts).items())),
     }
-    return {"summary": summary, "problems": problems, "attempts": attempts}
+    ledger = {"summary": summary, "problems": problems, "attempts": attempts}
+    if triage is not None:
+        entries = [triage_entry(d) for d in sorted(triage.glob("*/attempt-*"))
+                   if (d / "triage.json").exists()]
+        ledger["triage"] = entries
+        summary["triage_window_vs_faulted_workload"] = dict(sorted(Counter(
+            f"{e['faulted_window']}/workload={e['workload']['faulted']}" for e in entries).items()))
+    return ledger
 
 
 def main():
@@ -148,7 +187,7 @@ def main():
     args = ap.parse_args()
     with open(PLAN, newline="") as f:
         plan = list(csv.DictReader(f))
-    text = json.dumps(build(plan, RUNS), indent=2, sort_keys=True) + "\n"
+    text = json.dumps(build(plan, RUNS, TRIAGE), indent=2, sort_keys=True) + "\n"
     if args.check:
         if not LEDGER.exists() or LEDGER.read_text() != text:
             print("ledger.json is out of date; rebuild it")

@@ -3,6 +3,7 @@ import json
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -10,6 +11,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_ledger  # noqa: E402
 import make_plan  # noqa: E402
 import run_sweep  # noqa: E402
+import run_triage  # noqa: E402
+import triage_probe  # noqa: E402
 
 STAGES = ("resolve", "deploy", "inject", "oracle_fail", "recover", "oracle_pass", "cleanup")
 
@@ -160,6 +163,87 @@ class LedgerTest(unittest.TestCase):
             self.assertEqual(ledger["summary"]["census_vs_observed"], {"ADEQUATE->yes": 1})
             self.assertEqual(ledger["attempts"][0]["first_detection"]["reason"], "pods_not_ready")
             self.assertIsNone(ledger["problems"][1]["outcome"])
+
+
+class FakeOracle:
+    def __init__(self, results):
+        self.results = list(results)
+
+    def evaluate(self):
+        result = self.results.pop(0)
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+
+class TriageTest(unittest.TestCase):
+    def test_poll_full_window_does_not_stop_on_errors(self):
+        oracle = FakeOracle([{"success": True}, RuntimeError("boom"), {"success": False}])
+        with unittest.mock.patch.object(triage_probe, "POLL", 0), \
+                unittest.mock.patch.object(triage_probe.time, "monotonic", side_effect=[0, 1, 2, 999]):
+            results = triage_probe.poll(oracle, 10)
+        self.assertEqual(triage_probe.profile(results), "+?-")
+
+    def test_poll_stops_on_requested_verdict(self):
+        oracle = FakeOracle([{"success": False}, {"success": True}, {"success": True}])
+        with unittest.mock.patch.object(triage_probe, "POLL", 0):
+            results = triage_probe.poll(oracle, 600, stop_on=True)
+        self.assertEqual(triage_probe.profile(results), "-+")
+
+    def test_diff(self):
+        before = {"services/a": "1", "deployments/b": "2", "pods/ReplicaSet/b": "3"}
+        after = {"deployments/b": "9", "pods/ReplicaSet/b": "3", "configmaps/c": "4"}
+        self.assertEqual(triage_probe.diff(before, after),
+                         {"added": ["configmaps/c"], "removed": ["services/a"], "changed": ["deployments/b"]})
+
+    def test_window_class(self):
+        self.assertEqual(build_ledger.window_class("+++"), "never")
+        self.assertEqual(build_ledger.window_class("+--+"), "transient")
+        self.assertEqual(build_ledger.window_class("+---"), "persistent")
+        self.assertIsNone(build_ledger.window_class(None))
+
+    def test_triage_in_ledger(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            triage = Path(tmp) / "triage"
+            d = triage / "p1" / "attempt-1"
+            d.mkdir(parents=True)
+            run_sweep.write_json(d / "record.json", {"problem_id": "p1", "attempt": 1, "server": "B",
+                                                     "inject_timeout": 300, "status": "COMPLETED"})
+            run_sweep.write_json(d / "triage.json", {
+                "status": "COMPLETED", "cleanup": "pass",
+                "healthy": {"oracle": {"success": True}, "workload": {"success": True}},
+                "faulted": {"profile": "-++", "workload": {"success": False}},
+                "recovered": {"profile": "+", "workload": {"success": True}},
+                "diff": {"healthy_to_faulted": {"added": [], "removed": ["services/x"], "changed": []}}})
+            plan = [{"problem_id": "p1", "census_verdict": "BLIND", "predicted_detection": "no", "retired": "no"}]
+            ledger = build_ledger.build(plan, Path(tmp) / "runs", triage)
+            entry = ledger["triage"][0]
+            self.assertEqual(entry["faulted_window"], "transient")
+            self.assertEqual(entry["workload"], {"healthy": True, "faulted": False, "recovered": True})
+            self.assertEqual(ledger["summary"]["triage_window_vs_faulted_workload"],
+                             {"transient/workload=False": 1})
+            self.assertNotIn("triage", build_ledger.build(plan, Path(tmp) / "runs"))
+
+    def test_run_attempt_with_command_scrubs_logs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            sregym = Path(tmp) / "sregym"
+            (sregym / ".venv" / "bin").mkdir(parents=True)
+            (sregym / ".venv" / "bin" / "python").symlink_to(sys.executable)
+            runs = Path(tmp) / "runs"
+            script = "print('2026-10-09 05:29:52 - INFO - all - hello - x.py:f:1')"
+            record = run_sweep.run_attempt("p1", 1, "A", 300, 60, sregym, runs=runs,
+                                           command=lambda run_dir: ["-c", script])
+            self.assertEqual(record["status"], "COMPLETED")
+            self.assertEqual(record["exit_code"], 0)
+            log = gzip.decompress((runs / "p1" / "attempt-1" / "stdout.log.gz").read_bytes()).decode()
+            self.assertEqual(log.strip(), "INFO - all - hello - x.py:f:1")
+            self.assertEqual(sorted(p.name for p in (runs / "p1" / "attempt-1").iterdir()),
+                             ["debug.log.gz", "record.json", "stdout.log.gz"])
+
+    def test_probe_command(self):
+        args = run_triage.probe_command("p1")(Path("/r/p1/attempt-1"))
+        self.assertEqual(args[1:], ["--problem", "p1", "--out", "/r/p1/attempt-1/triage.json"])
+        self.assertTrue(args[0].endswith("triage_probe.py"))
 
 
 if __name__ == "__main__":
