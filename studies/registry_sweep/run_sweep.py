@@ -22,13 +22,40 @@ LINE_TIME = (
     re.compile(r"^\[\d{2}:\d{2}:\d{2}\] ?"),
     re.compile(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:,\d+)? - "),
 )
-INLINE_TIME = re.compile(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?")
-EPOCH_TIME = re.compile(r"\b1[6-9]\d{8}(?:\d{3})?(?:\.\d+)?\b")
+DAY = "(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)"
+MONTH = "(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"
+CLOCK = r"\d{2}:\d{2}:\d{2}(?:[.,]\d+)?"
+TIME_PATTERNS = [re.compile(p) for p in (
+    r"\d{4}-\d{2}-\d{2}[T ]" + CLOCK + r"(?:Z|[+-]\d{2}:?\d{2})?",
+    DAY + r", \d{1,2} " + MONTH + r" \d{4} " + CLOCK + r"(?: [A-Z]{3}| [+-]\d{4})?",
+    DAY + " " + MONTH + r" +\d{1,2} " + CLOCK + r"(?: [A-Z]{3})? \d{4}",
+    r"\d{1,2}/" + MONTH + r"/\d{4}:" + CLOCK + r"(?: [+-]\d{4})?",
+    r"\b[IWEF]\d{4} " + CLOCK,
+    r"\b1[6-9]\d{8}(?:\d{3})?(?:\.\d+)?\b",
+    r"\b" + CLOCK + r"\b",
+    r"\b(?:\d{4}[-/]\d{2}[-/]\d{2}|\d{2}/\d{2}/\d{2,4})\b",
+)]
+EPOCH_RANGES = ((1.6e9, 2e9), (1.6e12, 2e12))
 DEPLOYED = re.compile(r"(LAST DEPLOYED:).*")
 
 
 def scrub_inline(text):
-    return EPOCH_TIME.sub("<time>", INLINE_TIME.sub("<time>", text))
+    for pattern in TIME_PATTERNS:
+        text = pattern.sub("<time>", text)
+    return text
+
+
+def scrub_value(value):
+    if isinstance(value, str):
+        return scrub_inline(value)
+    if isinstance(value, dict):
+        return {scrub_inline(k): scrub_value(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [scrub_value(v) for v in value]
+    if isinstance(value, (int, float)) and not isinstance(value, bool) \
+            and any(lo <= value < hi for lo, hi in EPOCH_RANGES):
+        return "<time>"
+    return value
 
 
 def scrub(text):
@@ -135,8 +162,7 @@ def run_attempt(pid, attempt, server, inject_timeout, timeout, sregym, runs=RUNS
     if summary_path.exists():
         summary = json.loads(summary_path.read_text())
         summary.pop("elapsed_seconds", None)
-        for stage in summary["stages"].values():
-            stage["detail"] = scrub_inline(stage["detail"])
+        summary = scrub_value(summary)
         write_json(summary_path, summary)
         record["stages"] = {key: stage["status"] for key, stage in summary["stages"].items()}
     try:

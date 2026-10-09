@@ -112,9 +112,9 @@ def main():
     init_logger()
     record = asyncio.run(run(args.state))
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "registry_sweep"))
-    from run_sweep import scrub_inline
+    from run_sweep import scrub_value, write_json
 
-    args.out.write_text(scrub_inline(json.dumps(record, indent=2, sort_keys=True, default=str)) + "\n")
+    write_json(args.out, scrub_value(json.loads(json.dumps(record, default=str))))
 
 
 if __name__ == "__main__":

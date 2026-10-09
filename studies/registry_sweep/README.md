@@ -91,7 +91,7 @@ and stops after any attempt that did not finish or did not clean up. Each attemp
 
 - `record.json`: status, server, window, duration, stage results, namespaces left afterwards
 - `summary.json`: the validator's own stage summary
-- `stdout.log.gz`, `debug.log.gz`: the validator's logs with timestamps removed
+- `stdout.log.gz`, `debug.log.gz`: the validator's logs with dates and times removed
 
 Triage attempts use the same layout under `triage/<problem_id>/attempt-<n>/`, with `triage.json`
 in place of `summary.json`:
@@ -101,7 +101,15 @@ python3 studies/registry_sweep/run_triage.py --server A --ids <problem_id> ...
 ```
 
 Results are self-contained, so `runs/` and `triage/` can be copied between servers or to a laptop
-at any time. Then build the ledger:
+at any time. `scrub_results.py` applies the same date and time removal to stored results; with
+`--check` it changes nothing and lists any file that still has date or time information:
+
+```bash
+python3 studies/registry_sweep/scrub_results.py studies/registry_sweep/runs studies/registry_sweep/triage
+python3 studies/registry_sweep/scrub_results.py --check studies
+```
+
+Then build the ledger:
 
 ```bash
 python3 studies/registry_sweep/build_ledger.py
