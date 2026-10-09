@@ -9,6 +9,9 @@ KIND_VERSION="v0.27.0"
 KUBECTL_VERSION="v1.32.1"
 HELM_VERSION="v4.3.0"
 UV_VERSION="0.12.24"
+DOCKER_VERSION="5:29.9.0-1~ubuntu.24.04~noble"
+CONTAINERD_VERSION="2.4.1-2~ubuntu.24.04~noble"
+BUILDX_VERSION="0.38.0-1~ubuntu.24.04~noble"
 
 [[ $EUID -eq 0 ]] || { echo "run as root" >&2; exit 1; }
 
@@ -28,9 +31,10 @@ if ! command -v docker >/dev/null; then
   echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu ${VERSION_CODENAME} stable" \
     > /etc/apt/sources.list.d/docker.list
   "${APT[@]}" update
-  "${APT[@]}" install docker-ce docker-ce-cli containerd.io docker-buildx-plugin
+  "${APT[@]}" install "docker-ce=$DOCKER_VERSION" "docker-ce-cli=$DOCKER_VERSION" \
+    "containerd.io=$CONTAINERD_VERSION" "docker-buildx-plugin=$BUILDX_VERSION"
 fi
-apt-mark hold docker-ce docker-ce-cli containerd.io >/dev/null
+apt-mark hold docker-ce docker-ce-cli containerd.io docker-buildx-plugin >/dev/null
 
 cat > /etc/sysctl.d/99-sregym-kind.conf <<'EOF'
 fs.inotify.max_user_instances=1024
