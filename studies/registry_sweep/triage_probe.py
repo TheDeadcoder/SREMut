@@ -15,6 +15,8 @@ POLL = 15
 KINDS = ("deployments", "statefulsets", "daemonsets", "services", "endpointslices", "configmaps",
          "persistentvolumeclaims", "networkpolicies", "ingresses", "jobs", "cronjobs")
 NOISE = ("uid", "resourceVersion", "generation", "managedFields", "creationTimestamp", "selfLink")
+VOLATILE = ("deployment.kubernetes.io/revision", "kubectl.kubernetes.io/last-applied-configuration",
+            "kubectl.kubernetes.io/restartedAt")
 
 
 def evaluate(oracle):
@@ -55,8 +57,11 @@ def snapshot(namespace):
     for kind in KINDS:
         for obj in items("get", kind, "-n", namespace):
             meta = {k: v for k, v in obj["metadata"].items() if k not in NOISE}
-            meta.get("annotations", {}).pop("deployment.kubernetes.io/revision", None)
             body = {k: v for k, v in obj.items() if k not in ("metadata", "status")}
+            template = ((body.get("spec") or {}).get("template") or {}).get("metadata") or {}
+            for annotations in (meta.get("annotations") or {}, template.get("annotations") or {}):
+                for key in VOLATILE:
+                    annotations.pop(key, None)
             state[f"{kind}/{obj['metadata']['name']}"] = digest([meta, body])
     pods = {}
     for pod in items("get", "pods", "-n", namespace):
