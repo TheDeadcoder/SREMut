@@ -102,7 +102,8 @@ class ScheduleTest(unittest.TestCase):
         self.assertEqual(by[("p2", "COLLAT")], "killed")
         self.assertEqual(by[("p1", "RESTART")], "survived")
         self.assertEqual(by[("p2", "RESTART")], "killed")
-        self.assertEqual([r["server"] for r in rows[:4]], ["A", "B", "C", "A"])
+        self.assertEqual([(r["operator"], r["server"]) for r in rows[:3]],
+                         [("RESTART", "A"), ("RESTART", "B"), ("SCALE0", "C")])
 
 
 class LedgerTest(unittest.TestCase):

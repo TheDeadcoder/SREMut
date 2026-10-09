@@ -73,8 +73,8 @@ The prediction for each episode is in `schedule.csv`.
 
 ## Schedule
 
-`make_schedule.py` lists every problem whose oracle rejected the null agent in the registry sweep,
-crossed with the four operators, and assigns servers A, B and C in turn. The pilot runs every operator
+`make_schedule.py` lists every problem whose oracle rejected the null agent in the registry sweep
+under each operator in turn, `RESTART` first, and assigns servers A, B and C in turn. The pilot runs every operator
 once on five problems and is kept under `pilot/`.
 
 ## Running
