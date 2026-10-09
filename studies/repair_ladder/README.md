@@ -65,7 +65,19 @@ every grader from judging the load generator's restart instead of the system.
 
 ## Predictions
 
-Committed after the pilot and before the first counted run.
+Committed after the pilot and before the first counted run. A grader accepts a state when it
+reports success.
+
+| State | `stock` | `service_aware` | `patched` | `workload` | `contract` |
+|---|---|---|---|---|---|
+| M1 | accept | reject | reject | reject | reject: MS-I1, MS-I2, MS-I3, MS-I4 |
+| M2 | accept | reject | reject | reject | reject: MS-I2, MS-I3, MS-I4 |
+| M3 | accept | reject | reject | reject | reject: MS-I2, MS-I4 |
+| M5 | accept | accept | accept | accept | accept |
+| M4 | accept | accept | accept | accept | reject: MS-I6 |
+| C1 | accept | accept | accept | accept | accept |
+
+Every grader accepts the healthy and the restored state of every run.
 
 ## Running
 
