@@ -19,6 +19,8 @@ TCP_TIMEOUT = 3
 REPLACEMENT_DEADLINE = 120
 WINDOW_SECONDS = 66
 MIN_REQUESTS = 50
+WORKLOAD_SELECTOR = "job-name=wrk2-job"
+WORKLOAD_DEADLINE = 300
 NON2XX = re.compile(r"Non-2xx or 3xx responses:\s*(\d+)")
 SOCKET = re.compile(r"Socket errors: connect (\d+), read (\d+), write (\d+), timeout (\d+)")
 PROBE_POD = {
@@ -160,6 +162,28 @@ def wait_no_probe_pods(timeout=60):
     while probe_pods():
         if time.monotonic() >= deadline:
             raise InfrastructureError(f"probe pods still present: {probe_pods()}")
+        time.sleep(POLL)
+
+
+def generator_running():
+    pods = items("pods", WORKLOAD_SELECTOR)
+    return bool(pods) and all(p["status"].get("phase") == "Running" and pod_ready(p)
+                              and not p["metadata"].get("deletionTimestamp") for p in pods)
+
+
+def wait_workload(wrk, serving, timeout=WORKLOAD_DEADLINE):
+    deadline = time.monotonic() + timeout
+    while True:
+        if generator_running():
+            try:
+                entries = wrk.collect(number=1)
+            except Exception:  # noqa: BLE001
+                entries = []
+            if entries and (not serving or all(e.ok for e in entries)):
+                return
+        if time.monotonic() >= deadline:
+            raise InfrastructureError("application not serving the workload" if serving
+                                      else "workload generator not running")
         time.sleep(POLL)
 
 

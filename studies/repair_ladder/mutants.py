@@ -77,7 +77,7 @@ def user_service_pod():
 def restart_clients(keep_pod):
     for pod in items("pods"):
         name = pod["metadata"]["name"]
-        if name != keep_pod and name != contract.PROBE:
+        if name not in (keep_pod, contract.PROBE) and controller_kind(pod) != "Job":
             kubectl("delete", "pod", name, "-n", NAMESPACE, "--wait=false")
 
 

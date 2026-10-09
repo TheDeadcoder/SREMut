@@ -35,6 +35,7 @@ def workload_oracle(problem):
 
 
 def measure(problem, floors, replacement):
+    contract.wait_workload(problem.app.wrk, serving=True)
     contract.wait_no_probe_pods()
     oracle = evaluate(problem.mitigation_oracle)
     contract.wait_no_probe_pods()
@@ -70,10 +71,11 @@ async def run(state):
         if not record["activation"]["active"]:
             raise NotActive(state)
         hold = captured["injected"] + EPISODE_SECONDS - time.monotonic()
-        record["episode_seconds"] = round(max(hold, 0) + time.monotonic() - captured["injected"])
         if hold > 0:
             time.sleep(hold)
+        contract.wait_workload(problem.app.wrk, serving=False)
         contract.wait_no_probe_pods()
+        record["episode_seconds"] = round(time.monotonic() - captured["injected"])
         await conductor.submit("")
         if conductor._submit_future is not None:
             await asyncio.wrap_future(conductor._submit_future)

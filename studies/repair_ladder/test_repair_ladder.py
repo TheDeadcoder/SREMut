@@ -3,6 +3,8 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -80,6 +82,20 @@ class ContractTest(unittest.TestCase):
                        {"metadata": {"name": "b"}, "spec": {"replicas": 0}, "status": {}}]
         self.assertEqual(contract.below_floor(deployments, {"a": 1, "b": 1, "c": 1}),
                          ["b: desired 0 < 1", "b: ready 0 < 1", "b: available 0 < 1", "c: missing"])
+
+    def test_wait_workload_needs_a_running_generator_and_a_clean_round(self):
+        ready = {"type": "Ready", "status": "True"}
+        pending = {"metadata": {}, "status": {"phase": "Pending"}}
+        running = {"metadata": {}, "status": {"phase": "Running", "conditions": [ready]}}
+        rounds = iter([[SimpleNamespace(ok=False)], [SimpleNamespace(ok=True)]])
+        wrk = SimpleNamespace(collect=lambda number: next(rounds))
+        with mock.patch.object(contract, "items", side_effect=[[], [pending, running], [running], [running]]), \
+                mock.patch.object(contract.time, "sleep"):
+            contract.wait_workload(wrk, serving=True)
+        self.assertIsNone(next(rounds, None))
+        with mock.patch.object(contract, "items", return_value=[pending]), \
+                mock.patch.object(contract.time, "sleep"), self.assertRaises(contract.InfrastructureError):
+            contract.wait_workload(wrk, serving=False, timeout=0)
 
     def test_round_stats(self):
         log = ("  1024 requests in 10.00s, 205.43KB read\n  Socket errors: connect 0, read 2, write 0, timeout 7\n"
