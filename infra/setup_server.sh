@@ -3,6 +3,7 @@
 set -euo pipefail
 
 RUN_USER="${RUN_USER:-runner}"
+BENCHMARK="${BENCHMARK:-sregym}"
 SREGYM_REPO="https://github.com/SREGym/SREGym.git"
 SREGYM_COMMIT="c44b1e54c1436989d47ac6d59785426f8fb9151a"
 KIND_VERSION="v0.27.0"
@@ -82,7 +83,7 @@ chmod 0440 "/etc/sudoers.d/90-$RUN_USER"
 install -d -m 0700 -o "$RUN_USER" -g "$RUN_USER" "/home/$RUN_USER/.ssh"
 install -m 0600 -o "$RUN_USER" -g "$RUN_USER" /root/.ssh/authorized_keys "/home/$RUN_USER/.ssh/authorized_keys"
 
-sudo -u "$RUN_USER" -H bash -s -- "$SREGYM_REPO" "$SREGYM_COMMIT" <<'EOF'
+[[ "$BENCHMARK" == sregym ]] && sudo -u "$RUN_USER" -H bash -s -- "$SREGYM_REPO" "$SREGYM_COMMIT" <<'EOF'
 set -euo pipefail
 cd ~
 [[ -d SREGym/.git ]] || git clone --quiet "$1" SREGym
@@ -103,5 +104,7 @@ echo "kubectl $(kubectl version --client -o json | jq -r .clientVersion.gitVersi
 echo "helm $(helm version --template '{{.Version}}')"
 echo "uv $(uv --version | awk '{print $2}')"
 echo "python $(/usr/bin/python3.12 --version | awk '{print $2}')"
-echo "sregym $(sudo -u "$RUN_USER" git -C "/home/$RUN_USER/SREGym" rev-parse HEAD)"
-echo "applications $(sudo -u "$RUN_USER" git -C "/home/$RUN_USER/SREGym/SREGym-applications" rev-parse HEAD)"
+if [[ "$BENCHMARK" == sregym ]]; then
+  echo "sregym $(sudo -u "$RUN_USER" git -C "/home/$RUN_USER/SREGym" rev-parse HEAD)"
+  echo "applications $(sudo -u "$RUN_USER" git -C "/home/$RUN_USER/SREGym/SREGym-applications" rev-parse HEAD)"
+fi
