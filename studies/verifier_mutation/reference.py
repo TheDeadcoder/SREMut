@@ -49,6 +49,10 @@ def traffic(wrk, seconds=WINDOW):
             "failed_rounds": sum(not e.ok for e in entries)}
 
 
+def per_round(sample):
+    return sample["requests"] / sample["rounds"] if sample.get("rounds") else 0
+
+
 def capture(namespace, wrk):
     return {"workloads": {name: operators.ready(item) for name, item in operators.workloads(namespace).items()},
             "services": services(namespace), "traffic": traffic(wrk)}
@@ -66,6 +70,6 @@ def judge(healthy, current):
     function = None
     if base and "error" not in base and base["requests"]:
         function = (bool(now) and "error" not in now and now["failed_rounds"] == 0
-                    and now["requests"] >= THROUGHPUT_FLOOR * base["requests"])
-    return {"capacity": capacity, "routing": routing, "function": function,
+                    and per_round(now) >= THROUGHPUT_FLOOR * per_round(base))
+    return {"capacity": capacity, "routing": routing, "function": function, "traffic": now,
             "healthy": not capacity and not routing and function is not False}
