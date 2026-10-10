@@ -23,3 +23,16 @@ The SREGym commit is the last one that registers all 125 problems. The August re
 
 Host settings applied by the script: `fs.inotify.max_user_instances=1024`,
 `fs.inotify.max_user_watches=1048576`, automatic package upgrades disabled, Docker packages held.
+
+## AIOpsLab
+
+`setup_aiopslab.sh` installs the same toolchain (without SREGym), then AIOpsLab with its own kind
+cluster, on a separate host.
+
+| Component | Version |
+|---|---|
+| AIOpsLab | `ccf08d0d1d5fa5b30f120e2e8549662d44411b35` |
+| aiopslab-applications | `8038be6b4989c647126f27715acc591c47133c2d` |
+| Kubernetes nodes | `jacksonarthurclark/aiopslab-kind-x86@sha256:d631857278d3f8ce5c36364c75ec25695ceb22e311ec6621a4ebf5506b86774d` (1 control plane, 1 worker, from AIOpsLab `kind/kind-config-x86.yaml`) |
+| Poetry | 2.4.1 (dependencies without the `clients` group) |
+
