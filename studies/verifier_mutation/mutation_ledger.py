@@ -24,7 +24,9 @@ def label(result):
     if "+" in mutant["profile"] and "-" in mutant["profile"]:
         return "unknown"
     if mutant["reference"]["healthy"]:
-        return "equivalent" if mutant["verdict"] else "false_reject"
+        if mutant["verdict"]:
+            return "equivalent"
+        return "rejected_fault_present" if mutant.get("footprint_left") else "false_reject"
     return "survived" if mutant["verdict"] else "killed"
 
 

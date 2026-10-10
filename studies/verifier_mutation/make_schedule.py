@@ -1,5 +1,5 @@
-"""Writes schedule.csv: every problem whose oracle detected the null fault in the registry sweep, each operator,
-a server, the static oracle features and the outcome they predict."""
+"""Writes schedule.csv: every problem whose oracle detected the null fault in the registry sweep, under each
+operator in turn, with a server, the static oracle features and the outcome they predict."""
 import csv
 import json
 import sys
@@ -40,8 +40,8 @@ def build_schedule(plan, outcomes, timeline):
     census = {row["problem_id"]: row["census_verdict"] for row in plan}
     eligible = [row["problem_id"] for row in plan if outcomes.get(row["problem_id"]) == "yes"]
     rows = []
-    for pid in eligible:
-        for operator in OPERATORS:
+    for operator in OPERATORS:
+        for pid in eligible:
             row = {"problem_id": pid, "operator": operator, "server": SERVERS[len(rows) % len(SERVERS)],
                    "census_verdict": census[pid], **features(timeline[pid])}
             row["predicted"] = predict(operator, row)

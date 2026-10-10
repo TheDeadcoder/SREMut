@@ -102,7 +102,8 @@ class ScheduleTest(unittest.TestCase):
         self.assertEqual(by[("p2", "COLLAT")], "killed")
         self.assertEqual(by[("p1", "RESTART")], "survived")
         self.assertEqual(by[("p2", "RESTART")], "killed")
-        self.assertEqual([r["server"] for r in rows[:4]], ["A", "B", "C", "A"])
+        self.assertEqual([(r["operator"], r["server"]) for r in rows[:3]],
+                         [("RESTART", "A"), ("RESTART", "B"), ("SCALE0", "C")])
 
 
 class LedgerTest(unittest.TestCase):
@@ -115,6 +116,9 @@ class LedgerTest(unittest.TestCase):
         self.assertEqual(mutation_ledger.label(self.result(False, "---", False)), "killed")
         self.assertEqual(mutation_ledger.label(self.result(True, "+++", True)), "equivalent")
         self.assertEqual(mutation_ledger.label(self.result(False, "---", True)), "false_reject")
+        fault_left = self.result(False, "---", True)
+        fault_left["mutant"]["footprint_left"] = ["configmaps/x"]
+        self.assertEqual(mutation_ledger.label(fault_left), "rejected_fault_present")
         self.assertEqual(mutation_ledger.label(self.result(True, "+-+", False)), "unknown")
         self.assertEqual(mutation_ledger.label(self.result(None, "?", False)), "oracle_error")
         self.assertEqual(mutation_ledger.label({"status": "COMPLETED", "applied": None}), "not_applicable")
