@@ -1,0 +1,374 @@
+{
+  "activation": {
+    "active": true
+  },
+  "description": "no repair: the Service stays absent",
+  "episode_seconds": 71,
+  "faulted": {
+    "conductor": {
+      "accuracy": 50.0,
+      "failure_class": "ambiguous",
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "detail": {
+            "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'c8b7a82f-90cb-404a-93d8-c389554edb7e', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'b863f8a7-06d5-4d3f-9f66-49873ab4b20c', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'caed766a-4a97-473c-97fd-11e27cd18f82', 'Date': '<time>', 'Content-Length': '202'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"endpoints \\\"user-service\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"user-service\",\"kind\":\"endpoints\"},\"code\":404}\n\n",
+            "service": "user-service",
+            "status": 404
+          },
+          "failure_class": "ambiguous",
+          "name": "1-ServiceEndpointMitigationOracle",
+          "reason": "kubernetes_resource_missing",
+          "success": false
+        }
+      ],
+      "reason": "kubernetes_resource_missing",
+      "success": false
+    },
+    "contract": {
+      "capacity_failures": [],
+      "invariants": {
+        "MS-I1": false,
+        "MS-I2": false,
+        "MS-I3": false,
+        "MS-I4": false,
+        "MS-I5": true
+      },
+      "observation": {
+        "cluster_ip_usable": false,
+        "dns_matches": false,
+        "eligible_endpoints": 0,
+        "observations": 8,
+        "service_present": false,
+        "tcp_ok": false,
+        "unmapped_endpoints": 0
+      },
+      "replacement": null,
+      "verdict": "REJECT",
+      "violated": [
+        "MS-I1",
+        "MS-I2",
+        "MS-I3",
+        "MS-I4"
+      ],
+      "window": {
+        "non2xx": 622,
+        "pass": false,
+        "requests": 6144,
+        "rounds": [
+          {
+            "non2xx": 114,
+            "ok": false,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 100,
+            "ok": false,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 108,
+            "ok": false,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 102,
+            "ok": false,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 107,
+            "ok": false,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 91,
+            "ok": false,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          }
+        ],
+        "timeouts": 0
+      }
+    },
+    "workload_oracle": {
+      "detail": {
+        "entry_time": "<time>",
+        "log": "Running wrk2 on round #10\\nRunning 10s test @ http://10.96.64.86:8080/wrk2-api/post/compose\\n  3 threa..."
+      },
+      "failure_class": "ambiguous",
+      "reason": "workload_requests_failing",
+      "success": false
+    }
+  },
+  "healthy": {
+    "contract": {
+      "capacity_failures": [],
+      "invariants": {
+        "MS-I1": true,
+        "MS-I2": true,
+        "MS-I3": true,
+        "MS-I4": true,
+        "MS-I5": true
+      },
+      "observation": {
+        "cluster_ip_usable": true,
+        "dns_matches": true,
+        "eligible_endpoints": 1,
+        "observations": 1,
+        "service_present": true,
+        "tcp_ok": true,
+        "unmapped_endpoints": 0
+      },
+      "replacement": null,
+      "verdict": "PASS",
+      "violated": [],
+      "window": {
+        "non2xx": 0,
+        "pass": true,
+        "requests": 6143,
+        "rounds": [
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1023,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          }
+        ],
+        "timeouts": 0
+      }
+    },
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-ServiceEndpointMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "workload_oracle": {
+      "success": true
+    }
+  },
+  "mutant": {
+    "pinned_pod": null
+  },
+  "problem_id": "missing_service_social_network",
+  "restored": {
+    "contract": {
+      "capacity_failures": [],
+      "invariants": {
+        "MS-I1": true,
+        "MS-I2": true,
+        "MS-I3": true,
+        "MS-I4": true,
+        "MS-I5": true,
+        "MS-I6": true
+      },
+      "observation": {
+        "cluster_ip_usable": true,
+        "dns_matches": true,
+        "eligible_endpoints": 1,
+        "observations": 1,
+        "service_present": true,
+        "tcp_ok": true,
+        "unmapped_endpoints": 0
+      },
+      "replacement": {
+        "observation": {
+          "cluster_ip_usable": true,
+          "dns_matches": true,
+          "eligible_endpoints": 1,
+          "observations": 1,
+          "service_present": true,
+          "tcp_ok": true,
+          "unmapped_endpoints": 0
+        },
+        "pass": true,
+        "routing": {
+          "MS-I1": true,
+          "MS-I2": true,
+          "MS-I3": true
+        },
+        "window": {
+          "non2xx": 0,
+          "pass": true,
+          "requests": 6143,
+          "rounds": [
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1023,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            }
+          ],
+          "timeouts": 0
+        }
+      },
+      "verdict": "PASS",
+      "violated": [],
+      "window": {
+        "non2xx": 0,
+        "pass": true,
+        "requests": 6144,
+        "rounds": [
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          }
+        ],
+        "timeouts": 0
+      }
+    },
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-ServiceEndpointMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "workload_oracle": {
+      "success": true
+    }
+  },
+  "state": "M1",
+  "status": "COMPLETED",
+  "teardown": "pass"
+}

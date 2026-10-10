@@ -1,0 +1,4515 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "recommendation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "no_ready_endpoints"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "admission_webhook_outage_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "admission_webhook_tls_mismatch_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "assign_to_non_existent_node",
+      "recovery_checks": 2,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_ad_service_failure",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_ad_service_failure",
+      "recovery_checks": 14,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_ad_service_failure",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_ad_service_high_cpu",
+      "recovery_checks": 9,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_ad_service_image_slow_load",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_ad_service_image_slow_load",
+      "recovery_checks": 7,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_ad_service_image_slow_load",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_ad_service_manual_gc",
+      "recovery_checks": 4,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "ServiceEndpointDown"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_cart_service_failure",
+      "recovery_checks": 13,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_cart_service_failure",
+      "recovery_checks": 13,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_cart_service_failure",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "KubePodNotReady"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_failed_readiness_probe",
+      "recovery_checks": 14,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "KubePodNotReady"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_failed_readiness_probe",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_failed_readiness_probe",
+      "recovery_checks": 6,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_payment_service_failure",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_payment_service_failure",
+      "recovery_checks": 13,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_payment_service_failure",
+      "recovery_checks": 13,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_payment_service_unreachable",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_payment_service_unreachable",
+      "recovery_checks": 4,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_payment_service_unreachable",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "astronomy_shop_product_catalog_service_failure",
+      "recovery_checks": 3,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "auth_miss_mongodb",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "calico_route_reflector_label_drift_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "TIMED_OUT",
+      "cleanup": null,
+      "first_detection": null,
+      "inject_checks": 0,
+      "inject_timeout": 300,
+      "problem_id": "capacity_decrease_rpc_retry_storm",
+      "recovery_checks": 0,
+      "server": "B",
+      "status": "TIMED_OUT"
+    },
+    {
+      "attempt": 2,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "capacity_decrease_rpc_retry_storm",
+      "recovery_checks": 3,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "capacity_decrease_rpc_retry_storm",
+      "recovery_checks": 3,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "container": "hotel-reserv-geo",
+          "cpu_limit": "70m",
+          "injected_limit": "70m"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "cfs_cpu_throttling_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "missing_keys": [
+            "GeoMongoAddress"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "configmap_drift_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "cronjob": "audit-log-archiver"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "cronjob_sidecar_blocks_completion_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "cumulative_admission_webhook_timeout_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "media-processor",
+          "mount_path": "/dev/shm"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "dev_shm_exhaustion_hotel_reservation",
+      "recovery_checks": 41,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "media-processor",
+          "mount_path": "/dev/shm"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "dev_shm_exhaustion_hotel_reservation",
+      "recovery_checks": 41,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "media-processor",
+          "mount_path": "/dev/shm"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "dev_shm_exhaustion_hotel_reservation",
+      "recovery_checks": 41,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "duplicate_pvc_mounts_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "duplicate_pvc_mounts_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "jaeger"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "duplicate_pvc_mounts_social_network",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "rule": "^([a-zA-Z]+)*$"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "edge_request_filter_cpu_saturation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "env": "FRONTEND_HOST",
+          "values": [
+            "frontend",
+            "localhost"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "duplicate_env_definitions"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "env_variable_shadowing_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #1\\nRunning 30s test @ http://10.96.226.96:5000\\n  3 threads and 100 connections..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "ephemeral_port_range_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "expired_on": "<time>",
+          "secret": "hotel-frontend-tls"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "expired_tls_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployments": {
+            "frontend": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "geo": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "profile": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "rate": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "recommendation": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "reservation": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "search": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "user": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "faulty_image_correlated",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": "agent_error",
+        "reason": "pods_not_ready+endpoint_error_rate_high"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "feature_flag_latent_bug_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "service": "frontend"
+        },
+        "failure_class": "ambiguous",
+        "reason": "log_watch_timed_out"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "file_descriptor_exhaustion",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "finalizer_deadlock_controller_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "gc_capacity_degradation",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "gc_capacity_degradation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "gc_capacity_degradation",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "hpa_missing_effective_cpu_request_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployments": {
+            "product-catalog": "app-image:latest"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "incorrect_image",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "address": "product-catalog:8082",
+          "env": "PRODUCT_CATALOG_ADDR"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "incorrect_port_assignment",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "path": "/api",
+          "routed_to": "recommendation-service"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "ingress_misroute",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend",
+          "desired": 1,
+          "namespace": "astronomy-shop",
+          "ready": 1
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "init_container_dependency_hang_astronomy_shop",
+      "recovery_checks": 3,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 1
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "init_container_dependency_hang_hotel_reservation",
+      "recovery_checks": 3,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "user-service",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 1
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "init_container_dependency_hang_social_network",
+      "recovery_checks": 3,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "message": "A review write did not succeed: the id sequence is still exhausted"
+        },
+        "failure_class": "agent_error",
+        "reason": "review_sequence_exhausted"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "integer_overflow_primary_key_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "policy": "Local",
+          "uncovered_nodes": [
+            "kind-worker2",
+            "kind-worker3"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "internal_traffic_policy_local_astronomy_shop",
+      "recovery_checks": 2,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "k8s_target_port-misconfig",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "blocked_offset": 20,
+          "detail": null
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "kafka_poison_pill_hol_block",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "detail": "Kafka has a new memory failure"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "kafka_producer_leak",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "kafka_queue_problems",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "kafka_queue_problems",
+      "recovery_checks": 14,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "kafka_queue_problems",
+      "recovery_checks": 13,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "KubePodNotReady"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "kubelet_crash",
+      "recovery_checks": 13,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "kubelet_crash",
+      "recovery_checks": 2,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "KubePodNotReady",
+            "PendingPodsDetected",
+            "PodSchedulingFailure"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "kubelet_crash",
+      "recovery_checks": 12,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "namespace": "astronomy-shop",
+          "node": "kind-worker"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "kubelet_eviction_threshold_misconfig",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "KubePodNotReady"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "latent_sector_error",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 2,
+        "detail": {
+          "container": "opentelemetry-collector",
+          "namespace": "astronomy-shop",
+          "pod": "otel-collector-agent-kcf72"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready"
+      },
+      "inject_checks": 2,
+      "inject_timeout": 300,
+      "problem_id": "liveness_probe_misconfiguration_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 6,
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 6,
+      "inject_timeout": 300,
+      "problem_id": "liveness_probe_misconfiguration_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 9,
+        "detail": {
+          "deployment": "user-service",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 9,
+      "inject_timeout": 300,
+      "problem_id": "liveness_probe_misconfiguration_social_network",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "held_for_seconds": 5.9,
+          "namespace": "astronomy-shop",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "liveness_probe_too_aggressive_astronomy_shop",
+      "recovery_checks": 2,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "held_for_seconds": 2.4,
+          "namespace": "hotel-reservation",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "liveness_probe_too_aggressive_hotel_reservation",
+      "recovery_checks": 2,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "held_for_seconds": 9.0,
+          "namespace": "social-network",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "liveness_probe_too_aggressive_social_network",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "load_spike_rpc_retry_storm",
+      "recovery_checks": 5,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "loadgenerator_flood_homepage",
+      "recovery_checks": 8,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployments": {
+            "geo": "ghcr.io/sregym/hotel-reservation:20260912.1@sha256:8bc558a555f65f7522d1404ca47d70d95fc0cb58449bc039b741bd3074817838"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "misconfig_app_hotel_res",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "mongodb-geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "missing_configmap_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "media-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "missing_configmap_social_network",
+      "recovery_checks": 2,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "missing_env_variable_astronomy_shop",
+      "recovery_checks": 2,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "NULL_ACCEPT",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "missing_service_astronomy_shop",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "NULL_ACCEPT",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "missing_service_astronomy_shop",
+      "recovery_checks": 0,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "NULL_ACCEPT",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "missing_service_astronomy_shop",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 4,
+      "class": "NULL_ACCEPT",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 119,
+      "inject_timeout": 1800,
+      "problem_id": "missing_service_astronomy_shop",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 4,
+        "detail": {
+          "deployment": "rate",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 4,
+      "inject_timeout": 300,
+      "problem_id": "missing_service_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "NULL_ACCEPT",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "missing_service_social_network",
+      "recovery_checks": 0,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "NULL_ACCEPT",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "missing_service_social_network",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "NULL_ACCEPT",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "missing_service_social_network",
+      "recovery_checks": 0,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 4,
+      "class": "NULL_ACCEPT",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 119,
+      "inject_timeout": 1800,
+      "problem_id": "missing_service_social_network",
+      "recovery_checks": 0,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "nginx-thrift"
+        },
+        "failure_class": "ambiguous",
+        "reason": "no_ready_endpoints"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "mutating_webhook_resource_limits_social_network",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "quotas": [
+            "memory-limit-quota"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "namespace_memory_limit",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "network_policy_block",
+      "recovery_checks": 2,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "nightly_rebalance_oom_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "NOT_REGISTERED",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 0,
+      "inject_timeout": 300,
+      "problem_id": "node_clock_drift_hotel_reservation",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "NOT_REGISTERED",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 0,
+      "inject_timeout": 300,
+      "problem_id": "node_clock_drift_hotel_reservation",
+      "recovery_checks": 0,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "NOT_REGISTERED",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 0,
+      "inject_timeout": 300,
+      "problem_id": "node_clock_drift_hotel_reservation",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "node_conntrack_exhaustion_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "fail",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "operator_invalid_affinity_toleration",
+      "recovery_checks": 2,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "fail",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "operator_non_existent_storage",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "fail",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "operator_overload_replicas",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "fail",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "operator_security_context_fault",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "NULL_ACCEPT",
+      "cleanup": "fail",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "operator_wrong_operator_image",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "NULL_ACCEPT",
+      "cleanup": "fail",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "operator_wrong_operator_image",
+      "recovery_checks": 0,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "NULL_ACCEPT",
+      "cleanup": "fail",
+      "first_detection": null,
+      "inject_checks": 21,
+      "inject_timeout": 300,
+      "problem_id": "operator_wrong_operator_image",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 4,
+      "class": "NULL_ACCEPT",
+      "cleanup": "fail",
+      "first_detection": null,
+      "inject_checks": 121,
+      "inject_timeout": 1800,
+      "problem_id": "operator_wrong_operator_image",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "fail",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "operator_wrong_update_strategy_fault",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "user-service",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "persistent_volume_affinity_violation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "user-service",
+          "desired": 5,
+          "namespace": "social-network",
+          "ready": 3
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "pod_anti_affinity_deadlock",
+      "recovery_checks": 5,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "consul",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "pod_cidr_exhaustion_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "read_status": "locked"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "postgres_lock_contention_product_catalog",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "reservation",
+          "desired": 1,
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "priority_preemption_cascade_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "psa_restricted_blocks_recreation_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "mongodb-geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "pvc_claim_mismatch",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend",
+          "desired": 1,
+          "namespace": "astronomy-shop",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "rbac_misconfiguration",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "readiness_probe_misconfiguration_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "readiness_probe_misconfiguration_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "user-service"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "readiness_probe_misconfiguration_social_network",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "mongodb-rate",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "resource_request_too_large",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "mongodb-rate",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "resource_request_too_small",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "revoke_auth_mongodb-1",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "rate",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "revoke_auth_mongodb-2",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "custom-service"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "rolling_update_misconfigured_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "custom-service"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "rolling_update_misconfigured_social_network",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": null,
+        "reason": null
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "scale_pod_zero_social_net",
+      "recovery_checks": 2,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "attempts_per_request": 3.02,
+          "queue_depth": 255.0,
+          "rate": 8.0,
+          "success_rate": 0.0
+        },
+        "failure_class": "agent_error",
+        "reason": "traffic_did_not_recover"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "search_rate_retry_collapse_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "43b13a97-5715-4df6-a0cf-e2dd69f3bc2d"
+        },
+        "failure_class": "agent_error",
+        "reason": "stale_pod_still_serving"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "secret_rotation_stale_env_credentials_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "dns_name": "frontend.astronomy-shop.svc.cluster.local",
+          "port": 8080
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "service_dns_resolution_failure_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "dns_name": "user-service.social-network.svc.cluster.local",
+          "port": 9090
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "service_dns_resolution_failure_social_network",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "ad",
+          "desired": 1,
+          "namespace": "astronomy-shop",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "service_port_conflict_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "service_port_conflict_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "media-service",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "service_port_conflict_social_network",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "pods": [
+            "search-698fd87cf5-bgf8q"
+          ],
+          "service": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "wrong_pods_selected"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "service_wrong_pod_selection_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend",
+          "desired": 1,
+          "namespace": "astronomy-shop",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "sidecar_port_conflict_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "frontend",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "sidecar_port_conflict_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "user-service",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "sidecar_port_conflict_social_network",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "KubePodNotReady"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "silent_data_corruption",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "dns_name": "ad.astronomy-shop.svc.cluster.local",
+          "port": 8080
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "stale_coredns_config_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "dns_name": "compose-post-service.social-network.svc.cluster.local",
+          "port": 9090
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "stale_coredns_config_social_network",
+      "recovery_checks": 2,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": "agent_error",
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "stale_hostaliases_dns_poisoning_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "storage_user_unregistered-1",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "rate",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "storage_user_unregistered-2",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployment": "user-service",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "taint_no_toleration_social_network",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "trainticket_f17_nested_sql_select_clause_error",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "DEPLOY_FAILED",
+      "cleanup": "pass",
+      "first_detection": null,
+      "inject_checks": 0,
+      "inject_timeout": 300,
+      "problem_id": "trainticket_f22_sql_column_name_mismatch_error",
+      "recovery_checks": 0,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "trainticket_f22_sql_column_name_mismatch_error",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "trainticket_f22_sql_column_name_mismatch_error",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": null,
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "unschedulable_incorrect_port_assignment",
+      "recovery_checks": 2,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "deployments": {
+            "mongodb-geo": "mongo:8.0.14-rc0",
+            "mongodb-profile": "mongo:8.0.14-rc0",
+            "mongodb-rate": "mongo:8.0.14-rc0",
+            "mongodb-recommendation": "mongo:8.0.14-rc0",
+            "mongodb-reservation": "mongo:8.0.14-rc0",
+            "mongodb-user": "mongo:8.0.14-rc0"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "update_incompatible_correlated",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "pod": "valkey-cart-cbcc554f6-ptbd2"
+        },
+        "failure_class": "agent_error",
+        "reason": "valkey_still_requires_auth"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "valkey_auth_disruption",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "KubePodNotReady"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "valkey_memory_disruption",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 2,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "valkey_memory_disruption",
+      "recovery_checks": 5,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 3,
+      "class": "RECOVERY_REJECT",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "valkey_memory_disruption",
+      "recovery_checks": 14,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "average_others": 104.75,
+          "deployment": "frontend",
+          "max_usage": 964
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "workload_imbalance",
+      "recovery_checks": 2,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "command": [
+            "geo"
+          ],
+          "container": "hotel-reserv-profile",
+          "expected": "profile"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "wrong_bin_usage",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "dns_name": "frontend.astronomy-shop.svc.cluster.local",
+          "port": 8080
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "wrong_dns_policy_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "wrong_dns_policy_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "dns_name": "user-service.social-network.svc.cluster.local",
+          "port": 9090
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "wrong_dns_policy_social_network",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "service": "frontend"
+        },
+        "failure_class": "ambiguous",
+        "reason": "no_ready_endpoints"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "wrong_service_selector_astronomy_shop",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "service": "frontend"
+        },
+        "failure_class": "ambiguous",
+        "reason": "no_ready_endpoints"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "wrong_service_selector_hotel_reservation",
+      "recovery_checks": 1,
+      "server": "B",
+      "status": "COMPLETED"
+    },
+    {
+      "attempt": 1,
+      "class": "LIFECYCLE_PASS",
+      "cleanup": "pass",
+      "first_detection": {
+        "check": 1,
+        "detail": {
+          "service": "user-service"
+        },
+        "failure_class": "ambiguous",
+        "reason": "no_ready_endpoints"
+      },
+      "inject_checks": 1,
+      "inject_timeout": 300,
+      "problem_id": "wrong_service_selector_social_network",
+      "recovery_checks": 1,
+      "server": "A",
+      "status": "COMPLETED"
+    }
+  ],
+  "problems": [
+    {
+      "attempts": 1,
+      "census_verdict": "BLIND",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "no",
+      "problem_id": "auth_miss_mongodb",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "BLIND",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "no",
+      "problem_id": "missing_service_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 4,
+      "census_verdict": "BLIND",
+      "long_window_classes": [
+        "NULL_ACCEPT"
+      ],
+      "observed_detection": "no",
+      "outcome": "NULL_ACCEPT",
+      "predicted_detection": "no",
+      "problem_id": "missing_service_astronomy_shop",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "trainticket_f17_nested_sql_select_clause_error",
+      "retired": "no"
+    },
+    {
+      "attempts": 4,
+      "census_verdict": "BLIND",
+      "long_window_classes": [
+        "NULL_ACCEPT"
+      ],
+      "observed_detection": "no",
+      "outcome": "NULL_ACCEPT",
+      "predicted_detection": "no",
+      "problem_id": "operator_wrong_operator_image",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "UNSTABLE",
+      "predicted_detection": "",
+      "problem_id": "kubelet_crash",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "latent_sector_error",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "kafka_producer_leak",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "BLIND",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "no",
+      "problem_id": "workload_imbalance",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "BLIND",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "no",
+      "problem_id": "pvc_claim_mismatch",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "admission_webhook_outage_hotel_reservation",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "BLIND",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "no",
+      "problem_id": "assign_to_non_existent_node",
+      "retired": "yes"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "UNSTABLE",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_payment_service_unreachable",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "cfs_cpu_throttling_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "configmap_drift_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "RECOVERY_REJECT",
+      "predicted_detection": "yes",
+      "problem_id": "dev_shm_exhaustion_hotel_reservation",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "duplicate_pvc_mounts_astronomy_shop",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "ephemeral_port_range_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "expired_tls_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "faulty_image_correlated",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "file_descriptor_exhaustion",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "hpa_missing_effective_cpu_request_hotel_reservation",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "incorrect_port_assignment",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "ingress_misroute",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "init_container_dependency_hang_astronomy_shop",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "init_container_dependency_hang_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "init_container_dependency_hang_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "k8s_target_port-misconfig",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "kafka_poison_pill_hol_block",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "liveness_probe_misconfiguration_astronomy_shop",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "liveness_probe_misconfiguration_hotel_reservation",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "liveness_probe_misconfiguration_social_network",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "liveness_probe_too_aggressive_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "liveness_probe_too_aggressive_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "liveness_probe_too_aggressive_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "missing_configmap_social_network",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "missing_env_variable_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 4,
+      "census_verdict": "BLIND",
+      "long_window_classes": [
+        "NULL_ACCEPT"
+      ],
+      "observed_detection": "no",
+      "outcome": "NULL_ACCEPT",
+      "predicted_detection": "no",
+      "problem_id": "missing_service_social_network",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "operator_wrong_update_strategy_fault",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "pod_anti_affinity_deadlock",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "postgres_lock_contention_product_catalog",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "rbac_misconfiguration",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "readiness_probe_misconfiguration_astronomy_shop",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "readiness_probe_misconfiguration_social_network",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "resource_request_too_large",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "resource_request_too_small",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "service_port_conflict_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "service_port_conflict_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "service_port_conflict_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "service_wrong_pod_selection_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "UNSTABLE",
+      "predicted_detection": "",
+      "problem_id": "trainticket_f22_sql_column_name_mismatch_error",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "valkey_auth_disruption",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "UNSTABLE",
+      "predicted_detection": "",
+      "problem_id": "valkey_memory_disruption",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "wrong_dns_policy_astronomy_shop",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "wrong_service_selector_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "wrong_service_selector_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "UNCERTAIN",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "wrong_service_selector_social_network",
+      "retired": "yes"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "admission_webhook_tls_mismatch_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "UNSTABLE",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_ad_service_failure",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_ad_service_high_cpu",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "UNSTABLE",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_ad_service_image_slow_load",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_ad_service_manual_gc",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "RECOVERY_REJECT",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_cart_service_failure",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "UNSTABLE",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_failed_readiness_probe",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "RECOVERY_REJECT",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_payment_service_failure",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "astronomy_shop_product_catalog_service_failure",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "calico_route_reflector_label_drift_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "capacity_decrease_rpc_retry_storm",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "cronjob_sidecar_blocks_completion_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "cumulative_admission_webhook_timeout_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "duplicate_pvc_mounts_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "duplicate_pvc_mounts_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "edge_request_filter_cpu_saturation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "env_variable_shadowing_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "feature_flag_latent_bug_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "finalizer_deadlock_controller_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "UNSTABLE",
+      "predicted_detection": "yes",
+      "problem_id": "gc_capacity_degradation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "incorrect_image",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "integer_overflow_primary_key_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "internal_traffic_policy_local_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "RECOVERY_REJECT",
+      "predicted_detection": "yes",
+      "problem_id": "kafka_queue_problems",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "kubelet_eviction_threshold_misconfig",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "load_spike_rpc_retry_storm",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "loadgenerator_flood_homepage",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "misconfig_app_hotel_res",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "missing_configmap_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "mutating_webhook_resource_limits_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "namespace_memory_limit",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "network_policy_block",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "nightly_rebalance_oom_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 3,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": null,
+      "outcome": "NOT_REGISTERED",
+      "predicted_detection": "yes",
+      "problem_id": "node_clock_drift_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "node_conntrack_exhaustion_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "operator_invalid_affinity_toleration",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "operator_non_existent_storage",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "operator_overload_replicas",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "operator_security_context_fault",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "persistent_volume_affinity_violation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "pod_cidr_exhaustion_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "priority_preemption_cascade_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "psa_restricted_blocks_recreation_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "readiness_probe_misconfiguration_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "revoke_auth_mongodb-1",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "revoke_auth_mongodb-2",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "rolling_update_misconfigured_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "rolling_update_misconfigured_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "scale_pod_zero_social_net",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "search_rate_retry_collapse_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "secret_rotation_stale_env_credentials_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "service_dns_resolution_failure_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "service_dns_resolution_failure_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "sidecar_port_conflict_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "sidecar_port_conflict_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "sidecar_port_conflict_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "silent_data_corruption",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "stale_coredns_config_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "stale_coredns_config_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "",
+      "problem_id": "stale_hostaliases_dns_poisoning_astronomy_shop",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "storage_user_unregistered-1",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "storage_user_unregistered-2",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "taint_no_toleration_social_network",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "unschedulable_incorrect_port_assignment",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "update_incompatible_correlated",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "wrong_bin_usage",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "wrong_dns_policy_hotel_reservation",
+      "retired": "no"
+    },
+    {
+      "attempts": 1,
+      "census_verdict": "ADEQUATE",
+      "long_window_classes": [],
+      "observed_detection": "yes",
+      "outcome": "LIFECYCLE_PASS",
+      "predicted_detection": "yes",
+      "problem_id": "wrong_dns_policy_social_network",
+      "retired": "no"
+    }
+  ],
+  "summary": {
+    "attempt_classes": {
+      "DEPLOY_FAILED": 1,
+      "LIFECYCLE_PASS": 119,
+      "NOT_REGISTERED": 3,
+      "NULL_ACCEPT": 12,
+      "RECOVERY_REJECT": 26,
+      "TIMED_OUT": 1
+    },
+    "attempts": 162,
+    "census_vs_observed": {
+      "ADEQUATE->None": 6,
+      "ADEQUATE->yes": 77,
+      "BLIND->no": 3,
+      "BLIND->yes": 5,
+      "NONE->yes": 2,
+      "UNCERTAIN->None": 3,
+      "UNCERTAIN->yes": 29
+    },
+    "outcomes": {
+      "LIFECYCLE_PASS": 109,
+      "NOT_REGISTERED": 1,
+      "NULL_ACCEPT": 3,
+      "RECOVERY_REJECT": 4,
+      "UNSTABLE": 8
+    },
+    "outcomes_retired": {
+      "LIFECYCLE_PASS": 20,
+      "NULL_ACCEPT": 2,
+      "RECOVERY_REJECT": 1,
+      "UNSTABLE": 1
+    },
+    "problems_planned": 125,
+    "problems_with_outcome": 125,
+    "triage_window_vs_faulted_workload": {}
+  },
+  "triage": []
+}

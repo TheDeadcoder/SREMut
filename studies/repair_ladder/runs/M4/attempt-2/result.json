@@ -1,0 +1,425 @@
+{
+  "activation": {
+    "active": true,
+    "backed_endpoints": 1,
+    "eligible_endpoints": 1
+  },
+  "description": "selector-less Service with a manual Endpoints object pinned to the current pod; clients restarted",
+  "episode_seconds": 66,
+  "faulted": {
+    "conductor": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-ServiceEndpointMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "contract": {
+      "capacity_failures": [],
+      "invariants": {
+        "MS-I1": true,
+        "MS-I2": true,
+        "MS-I3": true,
+        "MS-I4": true,
+        "MS-I5": true,
+        "MS-I6": false
+      },
+      "observation": {
+        "cluster_ip_usable": true,
+        "dns_matches": true,
+        "eligible_endpoints": 1,
+        "observations": 1,
+        "service_present": true,
+        "tcp_ok": true,
+        "unmapped_endpoints": 0
+      },
+      "replacement": {
+        "observation": {
+          "cluster_ip_usable": true,
+          "dns_matches": true,
+          "eligible_endpoints": 1,
+          "observations": 5,
+          "service_present": true,
+          "tcp_ok": false,
+          "unmapped_endpoints": 1
+        },
+        "pass": false,
+        "routing": {
+          "MS-I1": true,
+          "MS-I2": false,
+          "MS-I3": true
+        },
+        "window": {
+          "non2xx": 0,
+          "pass": true,
+          "requests": 128,
+          "rounds": [
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 43,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 16,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 22,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 15,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 11,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 21,
+              "socket_errors": 0,
+              "timeouts": 0
+            }
+          ],
+          "timeouts": 0
+        }
+      },
+      "verdict": "REJECT",
+      "violated": [
+        "MS-I6"
+      ],
+      "window": {
+        "non2xx": 0,
+        "pass": true,
+        "requests": 6144,
+        "rounds": [
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          }
+        ],
+        "timeouts": 0
+      }
+    },
+    "workload_oracle": {
+      "success": true
+    }
+  },
+  "healthy": {
+    "contract": {
+      "capacity_failures": [],
+      "invariants": {
+        "MS-I1": true,
+        "MS-I2": true,
+        "MS-I3": true,
+        "MS-I4": true,
+        "MS-I5": true
+      },
+      "observation": {
+        "cluster_ip_usable": true,
+        "dns_matches": true,
+        "eligible_endpoints": 1,
+        "observations": 1,
+        "service_present": true,
+        "tcp_ok": true,
+        "unmapped_endpoints": 0
+      },
+      "replacement": null,
+      "verdict": "PASS",
+      "violated": [],
+      "window": {
+        "non2xx": 0,
+        "pass": true,
+        "requests": 6144,
+        "rounds": [
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          }
+        ],
+        "timeouts": 0
+      }
+    },
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-ServiceEndpointMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "workload_oracle": {
+      "success": true
+    }
+  },
+  "mutant": {
+    "pinned_pod": "user-service-5fb4b9bccd-xmkdq"
+  },
+  "problem_id": "missing_service_social_network",
+  "restored": {
+    "contract": {
+      "capacity_failures": [],
+      "invariants": {
+        "MS-I1": true,
+        "MS-I2": true,
+        "MS-I3": true,
+        "MS-I4": true,
+        "MS-I5": true,
+        "MS-I6": true
+      },
+      "observation": {
+        "cluster_ip_usable": true,
+        "dns_matches": true,
+        "eligible_endpoints": 1,
+        "observations": 1,
+        "service_present": true,
+        "tcp_ok": true,
+        "unmapped_endpoints": 0
+      },
+      "replacement": {
+        "observation": {
+          "cluster_ip_usable": true,
+          "dns_matches": true,
+          "eligible_endpoints": 1,
+          "observations": 1,
+          "service_present": true,
+          "tcp_ok": true,
+          "unmapped_endpoints": 0
+        },
+        "pass": true,
+        "routing": {
+          "MS-I1": true,
+          "MS-I2": true,
+          "MS-I3": true
+        },
+        "window": {
+          "non2xx": 0,
+          "pass": true,
+          "requests": 6144,
+          "rounds": [
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            },
+            {
+              "non2xx": 0,
+              "ok": true,
+              "requests": 1024,
+              "socket_errors": 0,
+              "timeouts": 0
+            }
+          ],
+          "timeouts": 0
+        }
+      },
+      "verdict": "PASS",
+      "violated": [],
+      "window": {
+        "non2xx": 0,
+        "pass": true,
+        "requests": 6144,
+        "rounds": [
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          },
+          {
+            "non2xx": 0,
+            "ok": true,
+            "requests": 1024,
+            "socket_errors": 0,
+            "timeouts": 0
+          }
+        ],
+        "timeouts": 0
+      }
+    },
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-ServiceEndpointMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "workload_oracle": {
+      "success": true
+    }
+  },
+  "state": "M4",
+  "status": "COMPLETED",
+  "teardown": "pass"
+}

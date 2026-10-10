@@ -1,0 +1,68 @@
+{
+  "attempt": 3,
+  "duration_seconds": 8,
+  "exit_code": 1,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "node_clock_drift_hotel_reservation",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "flagd-reader-binding",
+      "train-ticket-deploy-rolebinding",
+      "prometheus-kube-state-metrics",
+      "prometheus-server",
+      "mcp-server",
+      "prometheus",
+      "kube-state-metrics"
+    ],
+    "cluster_roles_deleted": [
+      "train-ticket-deploy-role",
+      "prometheus-kube-state-metrics",
+      "flagd-reader",
+      "prometheus-server",
+      "mcp-server",
+      "prometheus",
+      "kube-state-metrics"
+    ],
+    "failed_pods_deleted": 3,
+    "kube_system_deleted": [
+      "deployment.apps/alertmanager",
+      "deployment.apps/alertsnitch",
+      "deployment.apps/alertsnitch-mysql",
+      "deployment.apps/grafana-core",
+      "deployment.apps/kube-state-metrics",
+      "deployment.apps/prometheus",
+      "daemonset.apps/node-exporter",
+      "service/alertmanager",
+      "service/alertsnitch",
+      "service/alertsnitch-mysql",
+      "service/grafana",
+      "service/kube-state-metrics",
+      "service/node-exporter",
+      "service/prometheus"
+    ],
+    "namespaces_deleted": [
+      "observe"
+    ]
+  },
+  "server": "A",
+  "stages": {
+    "cleanup": "pass",
+    "deploy": "skip",
+    "inject": "skip",
+    "oracle_fail": "skip",
+    "oracle_pass": "skip",
+    "recover": "skip",
+    "resolve": "fail"
+  },
+  "status": "COMPLETED"
+}

@@ -1,0 +1,43 @@
+{
+  "passed": false,
+  "problem": "dev_shm_exhaustion_hotel_reservation",
+  "profile": "full",
+  "stages": {
+    "cleanup": {
+      "detail": "application namespace and local port forwards removed",
+      "name": "Clean up application and local port forwards",
+      "status": "pass"
+    },
+    "deploy": {
+      "detail": "`Hotel Reservation` deployed to namespace `hotel-reservation`",
+      "name": "Deploy application",
+      "status": "pass"
+    },
+    "inject": {
+      "detail": "inject_fault() completed without error",
+      "name": "Inject fault",
+      "status": "pass"
+    },
+    "oracle_fail": {
+      "detail": "oracle reported failure after 1 check(s)",
+      "name": "Oracle fails after fault injection",
+      "status": "pass"
+    },
+    "oracle_pass": {
+      "detail": "the mitigation oracle still reports failure 600s after recovery (41 check(s)). recover_fault() did not restore the application to a healthy state. Last result: {'success': False, 'reason': 'required_deployment_missing', 'failure_class': 'ambiguous', 'detail': {'deployment': 'media-processor', 'namespace': 'hotel-reservation'}}",
+      "name": "Oracle passes after recovery",
+      "status": "fail"
+    },
+    "recover": {
+      "detail": "recover_fault() completed without error",
+      "name": "Recover fault",
+      "status": "pass"
+    },
+    "resolve": {
+      "detail": "DevShmExhaustionHotelReservation \u00b7 app `Hotel Reservation`",
+      "name": "Resolve problem in registry",
+      "status": "pass"
+    }
+  },
+  "with_loki": false
+}

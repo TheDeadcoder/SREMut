@@ -1,0 +1,50 @@
+{
+  "attempt": 1,
+  "duration_seconds": 144,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "ingress-nginx",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "ingress_misroute",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "prometheus-kube-state-metrics",
+      "prometheus-server",
+      "mcp-server"
+    ],
+    "cluster_roles_deleted": [
+      "prometheus-kube-state-metrics",
+      "prometheus-server",
+      "mcp-server"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "observe"
+    ],
+    "persistent_volumes_deleted": [
+      "pvc-94532803-9efd-4e01-94d1-90a60bdd3a03",
+      "pvc-c2f88f23-a20b-497d-aaaa-b14b36a4162d"
+    ]
+  },
+  "server": "B",
+  "stages": {
+    "cleanup": "pass",
+    "deploy": "pass",
+    "inject": "pass",
+    "oracle_fail": "pass",
+    "oracle_pass": "pass",
+    "recover": "pass",
+    "resolve": "pass"
+  },
+  "status": "COMPLETED"
+}

@@ -1,0 +1,43 @@
+{
+  "passed": false,
+  "problem": "kafka_queue_problems",
+  "profile": "full",
+  "stages": {
+    "cleanup": {
+      "detail": "application namespace and local port forwards removed",
+      "name": "Clean up application and local port forwards",
+      "status": "pass"
+    },
+    "deploy": {
+      "detail": "`OpenTelemetry Demo Astronomy Shop` deployed to namespace `astronomy-shop`",
+      "name": "Deploy application",
+      "status": "pass"
+    },
+    "inject": {
+      "detail": "inject_fault() completed without error",
+      "name": "Inject fault",
+      "status": "pass"
+    },
+    "oracle_fail": {
+      "detail": "oracle reported failure after 1 check(s)",
+      "name": "Oracle fails after fault injection",
+      "status": "pass"
+    },
+    "oracle_pass": {
+      "detail": "the mitigation oracle still reports failure 600s after recovery (13 check(s)). recover_fault() did not restore the application to a healthy state. Last result: {'success': False, 'reason': 'alerts_still_firing', 'failure_class': 'agent_error', 'detail': {'namespace': 'astronomy-shop', 'alerts': ['ContainerCPUThrottling']}}",
+      "name": "Oracle passes after recovery",
+      "status": "fail"
+    },
+    "recover": {
+      "detail": "recover_fault() completed without error",
+      "name": "Recover fault",
+      "status": "pass"
+    },
+    "resolve": {
+      "detail": "KafkaQueueProblems \u00b7 app `OpenTelemetry Demo Astronomy Shop`",
+      "name": "Resolve problem in registry",
+      "status": "pass"
+    }
+  },
+  "with_loki": false
+}
