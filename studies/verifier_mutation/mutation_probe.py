@@ -70,6 +70,7 @@ def run(problem_id, operator):
             problem.recover_fault()
             until_pass = poll(oracle, RECOVER_TIMEOUT, stop_on=True)
             recovered = until_pass[-1].get("success") is True
+            operators.settle(namespace)
             out["recovered"] = {"oracle_until_pass": until_pass, "profile": profile(until_pass),
                                 "reference": reference.judge(healthy, reference.capture(namespace, wrk))}
         applied = None

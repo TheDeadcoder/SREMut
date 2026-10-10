@@ -53,8 +53,8 @@ def apply(operator, namespace, touched=frozenset()):
     found = workloads(namespace)
     if operator == "RESTART":
         targets = sorted(found)
-        for name in targets:
-            kubectl("rollout", "restart", name, "-n", namespace)
+        if targets:
+            kubectl("delete", "pods", "--all", "-n", namespace, "--wait=false")
         return {"targets": targets} if targets else None
     if operator in ("SCALE0", "DELETE"):
         targets = unhealthy(found)

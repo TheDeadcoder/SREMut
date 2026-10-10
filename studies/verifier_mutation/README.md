@@ -11,7 +11,7 @@ Each operator acts on the application namespace without knowing the fault.
 
 | Operator | Action | What a verifier needs to reject it |
 |---|---|---|
-| `RESTART` | rollout-restart every Deployment and StatefulSet | observe the fault, not pod health |
+| `RESTART` | delete every pod in the namespace, so its controllers recreate them | observe the fault, not pod health |
 | `SCALE0` | scale every workload that is not fully ready after injection to 0 | check capacity against the baseline |
 | `DELETE` | delete every workload that is not fully ready after injection | check that workloads still exist |
 | `COLLAT` | SREGym's own `recover_fault()`, then scale to 0 the first healthy workload, by name, that injection did not change | check the whole application, not only the faulted part |
@@ -27,8 +27,9 @@ the healthy state and workload traffic, inject. In `RESTART` episodes the oracle
 rejects, for at most 300 s. The operator is applied, the application is given up to 120 s to roll
 out, and the oracle is polled for 90 s. The first of those verdicts is the graded verdict. The
 reference verifier then runs, SREGym's `recover_fault()` restores the fault and the application is
-removed. In `COLLAT` episodes the recovery comes before the operator, and the oracle is polled until
-it accepts, for at most 600 s.
+removed. In `COLLAT` episodes the recovery comes before the operator: the oracle is polled until it
+accepts, for at most 600 s, and the recovered system is given the same roll-out time before the
+reference verifier judges it.
 
 ## Reference verifier
 
@@ -37,8 +38,9 @@ it accepts, for at most 600 s.
 - capacity: every workload is present with at least as many ready replicas as when healthy;
 - routing: every Service that had ready endpoints still exists with the same selector and ports and
   has ready endpoints;
-- user requests: over 45 s of SREGym's own load generator, no round reports a failed request and at
-  least half of the healthy request volume completes (not judged when the problem runs no workload).
+- user requests: over 45 s of SREGym's own load generator, no round reports a failed request and each
+  round completes at least half as many requests as a healthy round (not judged when the problem runs
+  no workload).
 
 The system is healthy when all three hold. Separately, `footprint_left` lists objects the injection
 changed that still differ from the healthy state.

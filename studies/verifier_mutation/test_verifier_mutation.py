@@ -47,7 +47,7 @@ class OperatorTest(unittest.TestCase):
             self.assertEqual(len(operators.apply("RESTART", "ns")["targets"]), 4)
         self.assertEqual(calls[0], ("scale", "deployments/geo", "--replicas=0", "-n", "ns"))
         self.assertEqual(calls[1], ("scale", "deployments/rate", "--replicas=0", "-n", "ns"))
-        self.assertEqual(calls[2][:2], ("rollout", "restart"))
+        self.assertEqual(calls[2], ("delete", "pods", "--all", "-n", "ns", "--wait=false"))
         healthy_only = {"deployments/frontend": FOUND["deployments/frontend"]}
         with unittest.mock.patch.object(operators, "workloads", return_value=healthy_only):
             self.assertIsNone(operators.apply("DELETE", "ns"))
@@ -68,6 +68,8 @@ class ReferenceTest(unittest.TestCase):
         self.assertEqual(reference.judge(HEALTHY, unrouted)["routing"], ["frontend"])
         slow = {**HEALTHY, "traffic": {"rounds": 6, "requests": 1000, "failed_rounds": 0}}
         self.assertIs(reference.judge(HEALTHY, slow)["function"], False)
+        fewer_rounds = {**HEALTHY, "traffic": {"rounds": 3, "requests": 3000, "failed_rounds": 0}}
+        self.assertIs(reference.judge(HEALTHY, fewer_rounds)["function"], True)
         failing = {**HEALTHY, "traffic": {"rounds": 6, "requests": 6000, "failed_rounds": 1}}
         self.assertFalse(reference.judge(HEALTHY, failing)["healthy"])
         no_traffic = {**HEALTHY, "traffic": None}
