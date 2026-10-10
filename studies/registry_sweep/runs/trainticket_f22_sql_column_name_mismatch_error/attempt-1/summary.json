@@ -1,0 +1,43 @@
+{
+  "passed": false,
+  "problem": "trainticket_f22_sql_column_name_mismatch_error",
+  "profile": "full",
+  "stages": {
+    "cleanup": {
+      "detail": "application namespace and local port forwards removed",
+      "name": "Clean up application and local port forwards",
+      "status": "pass"
+    },
+    "deploy": {
+      "detail": "unexpected error: TimeoutError: Timeout: Job 'train-ticket-deploy' did not complete within 1800 seconds.",
+      "name": "Deploy application",
+      "status": "fail"
+    },
+    "inject": {
+      "detail": "not run",
+      "name": "Inject fault",
+      "status": "skip"
+    },
+    "oracle_fail": {
+      "detail": "not run",
+      "name": "Oracle fails after fault injection",
+      "status": "skip"
+    },
+    "oracle_pass": {
+      "detail": "not run",
+      "name": "Oracle passes after recovery",
+      "status": "skip"
+    },
+    "recover": {
+      "detail": "not run",
+      "name": "Recover fault",
+      "status": "skip"
+    },
+    "resolve": {
+      "detail": "TrainTicketF22 \u00b7 app `Train Ticket`",
+      "name": "Resolve problem in registry",
+      "status": "pass"
+    }
+  },
+  "with_loki": false
+}

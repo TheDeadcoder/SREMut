@@ -1,0 +1,43 @@
+{
+  "passed": false,
+  "problem": "missing_service_social_network",
+  "profile": "full",
+  "stages": {
+    "cleanup": {
+      "detail": "application namespace and local port forwards removed",
+      "name": "Clean up application and local port forwards",
+      "status": "pass"
+    },
+    "deploy": {
+      "detail": "`Social Network` deployed to namespace `social-network`",
+      "name": "Deploy application",
+      "status": "pass"
+    },
+    "inject": {
+      "detail": "inject_fault() completed without error",
+      "name": "Inject fault",
+      "status": "pass"
+    },
+    "oracle_fail": {
+      "detail": "the mitigation oracle still reports success 1800s after injection (119 check(s)). The injected fault did not break the application, or the attached oracle cannot detect it. Last result: {'success': True}",
+      "name": "Oracle fails after fault injection",
+      "status": "fail"
+    },
+    "oracle_pass": {
+      "detail": "not run",
+      "name": "Oracle passes after recovery",
+      "status": "skip"
+    },
+    "recover": {
+      "detail": "not run",
+      "name": "Recover fault",
+      "status": "skip"
+    },
+    "resolve": {
+      "detail": "MissingService \u00b7 app `Social Network`",
+      "name": "Resolve problem in registry",
+      "status": "pass"
+    }
+  },
+  "with_loki": false
+}

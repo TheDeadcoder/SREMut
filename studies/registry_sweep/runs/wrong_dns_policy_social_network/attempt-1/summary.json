@@ -1,0 +1,43 @@
+{
+  "passed": true,
+  "problem": "wrong_dns_policy_social_network",
+  "profile": "full",
+  "stages": {
+    "cleanup": {
+      "detail": "application namespace and local port forwards removed",
+      "name": "Clean up application and local port forwards",
+      "status": "pass"
+    },
+    "deploy": {
+      "detail": "`Social Network` deployed to namespace `social-network`",
+      "name": "Deploy application",
+      "status": "pass"
+    },
+    "inject": {
+      "detail": "inject_fault() completed without error",
+      "name": "Inject fault",
+      "status": "pass"
+    },
+    "oracle_fail": {
+      "detail": "oracle reported failure after 1 check(s)",
+      "name": "Oracle fails after fault injection",
+      "status": "pass"
+    },
+    "oracle_pass": {
+      "detail": "oracle reported success after 1 check(s)",
+      "name": "Oracle passes after recovery",
+      "status": "pass"
+    },
+    "recover": {
+      "detail": "recover_fault() completed without error",
+      "name": "Recover fault",
+      "status": "pass"
+    },
+    "resolve": {
+      "detail": "WrongDNSPolicy \u00b7 app `Social Network`",
+      "name": "Resolve problem in registry",
+      "status": "pass"
+    }
+  },
+  "with_loki": false
+}

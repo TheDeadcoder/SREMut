@@ -1,0 +1,37 @@
+{
+  "attempt": 1,
+  "duration_seconds": 5400,
+  "exit_code": -15,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "blueprint-hotel-reservation",
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "capacity_decrease_rpc_retry_storm",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "prometheus-kube-state-metrics",
+      "mcp-server",
+      "prometheus-server"
+    ],
+    "cluster_roles_deleted": [
+      "prometheus-kube-state-metrics",
+      "mcp-server",
+      "prometheus-server"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "observe"
+    ]
+  },
+  "server": "B",
+  "status": "TIMED_OUT"
+}

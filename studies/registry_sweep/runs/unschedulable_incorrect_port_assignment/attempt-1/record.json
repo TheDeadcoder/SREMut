@@ -1,0 +1,49 @@
+{
+  "attempt": 1,
+  "duration_seconds": 226,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "unschedulable_incorrect_port_assignment",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "mcp-server",
+      "prometheus-server",
+      "prometheus-kube-state-metrics"
+    ],
+    "cluster_roles_deleted": [
+      "mcp-server",
+      "prometheus-server",
+      "prometheus-kube-state-metrics"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "observe"
+    ],
+    "persistent_volumes_deleted": [
+      "pvc-628ad459-1b68-4805-b36b-8fe973d6f5ad",
+      "pvc-ff1479db-d084-40d0-b1c6-25f9daea284d"
+    ]
+  },
+  "server": "A",
+  "stages": {
+    "cleanup": "pass",
+    "deploy": "pass",
+    "inject": "pass",
+    "oracle_fail": "pass",
+    "oracle_pass": "pass",
+    "recover": "pass",
+    "resolve": "pass"
+  },
+  "status": "COMPLETED"
+}

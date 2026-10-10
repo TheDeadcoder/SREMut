@@ -1,0 +1,44 @@
+{
+  "attempt": 1,
+  "duration_seconds": 8,
+  "exit_code": 1,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "node_clock_drift_hotel_reservation",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "prometheus-kube-state-metrics",
+      "prometheus-server",
+      "mcp-server"
+    ],
+    "cluster_roles_deleted": [
+      "prometheus-kube-state-metrics",
+      "prometheus-server",
+      "mcp-server"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "observe"
+    ]
+  },
+  "server": "A",
+  "stages": {
+    "cleanup": "pass",
+    "deploy": "skip",
+    "inject": "skip",
+    "oracle_fail": "skip",
+    "oracle_pass": "skip",
+    "recover": "skip",
+    "resolve": "fail"
+  },
+  "status": "COMPLETED"
+}

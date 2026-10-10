@@ -1,0 +1,43 @@
+{
+  "passed": false,
+  "problem": "operator_wrong_operator_image",
+  "profile": "full",
+  "stages": {
+    "cleanup": {
+      "detail": "wait for namespace deletion: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds.",
+      "name": "Clean up application and local port forwards",
+      "status": "fail"
+    },
+    "deploy": {
+      "detail": "`Fleet Cast` deployed to namespace `tidb-cluster`",
+      "name": "Deploy application",
+      "status": "pass"
+    },
+    "inject": {
+      "detail": "inject_fault() completed without error",
+      "name": "Inject fault",
+      "status": "pass"
+    },
+    "oracle_fail": {
+      "detail": "the mitigation oracle still reports success 1800s after injection (121 check(s)). The injected fault did not break the application, or the attached oracle cannot detect it. Last result: {'success': True}",
+      "name": "Oracle fails after fault injection",
+      "status": "fail"
+    },
+    "oracle_pass": {
+      "detail": "not run",
+      "name": "Oracle passes after recovery",
+      "status": "skip"
+    },
+    "recover": {
+      "detail": "not run",
+      "name": "Recover fault",
+      "status": "skip"
+    },
+    "resolve": {
+      "detail": "K8SOperatorWrongOperatorImage \u00b7 app `Fleet Cast`",
+      "name": "Resolve problem in registry",
+      "status": "pass"
+    }
+  },
+  "with_loki": false
+}

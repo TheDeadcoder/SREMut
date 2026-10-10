@@ -1,0 +1,68 @@
+{
+  "attempt": 1,
+  "duration_seconds": 906,
+  "exit_code": 1,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "valkey_memory_disruption",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "mcp-server",
+      "prometheus-kube-state-metrics",
+      "prometheus-server",
+      "kube-state-metrics",
+      "prometheus",
+      "train-ticket-deploy-rolebinding",
+      "flagd-reader-binding"
+    ],
+    "cluster_roles_deleted": [
+      "mcp-server",
+      "prometheus-kube-state-metrics",
+      "flagd-reader",
+      "prometheus-server",
+      "train-ticket-deploy-role",
+      "kube-state-metrics",
+      "prometheus"
+    ],
+    "failed_pods_deleted": 3,
+    "kube_system_deleted": [
+      "deployment.apps/alertmanager",
+      "deployment.apps/alertsnitch",
+      "deployment.apps/alertsnitch-mysql",
+      "deployment.apps/grafana-core",
+      "deployment.apps/kube-state-metrics",
+      "deployment.apps/prometheus",
+      "daemonset.apps/node-exporter",
+      "service/alertmanager",
+      "service/alertsnitch",
+      "service/alertsnitch-mysql",
+      "service/grafana",
+      "service/kube-state-metrics",
+      "service/node-exporter",
+      "service/prometheus"
+    ],
+    "namespaces_deleted": [
+      "observe"
+    ]
+  },
+  "server": "A",
+  "stages": {
+    "cleanup": "pass",
+    "deploy": "pass",
+    "inject": "pass",
+    "oracle_fail": "pass",
+    "oracle_pass": "fail",
+    "recover": "pass",
+    "resolve": "pass"
+  },
+  "status": "COMPLETED"
+}

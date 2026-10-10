@@ -1,0 +1,70 @@
+{
+  "attempt": 1,
+  "duration_seconds": 589,
+  "exit_code": 1,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "ingress-nginx",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym",
+    "tidb-cluster",
+    "tidb-operator"
+  ],
+  "problem_id": "operator_overload_replicas",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "ingress-nginx",
+      "tidb-operator:tidb-controller-manager",
+      "prometheus-server",
+      "prometheus-kube-state-metrics",
+      "mcp-server"
+    ],
+    "cluster_roles_deleted": [
+      "ingress-nginx",
+      "prometheus-server",
+      "tidb-operator:tidb-controller-manager",
+      "prometheus-kube-state-metrics",
+      "mcp-server"
+    ],
+    "crds_deleted": [
+      "tidbdashboards.pingcap.com",
+      "backupschedules.pingcap.com",
+      "tidbinitializers.pingcap.com",
+      "tidbclusters.pingcap.com",
+      "restores.pingcap.com",
+      "dmclusters.pingcap.com",
+      "backups.pingcap.com",
+      "compactbackups.pingcap.com",
+      "tidbmonitors.pingcap.com",
+      "tidbngmonitorings.pingcap.com"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "tidb-operator",
+      "observe",
+      "ingress-nginx",
+      "tidb-cluster"
+    ],
+    "validating_webhook_configs_deleted": [
+      "ingress-nginx-admission"
+    ]
+  },
+  "server": "A",
+  "stages": {
+    "cleanup": "fail",
+    "deploy": "pass",
+    "inject": "pass",
+    "oracle_fail": "pass",
+    "oracle_pass": "pass",
+    "recover": "pass",
+    "resolve": "pass"
+  },
+  "status": "COMPLETED"
+}
