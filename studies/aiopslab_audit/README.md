@@ -46,6 +46,7 @@ On a host provisioned with `infra/setup_aiopslab.sh`, from the repository root:
 ```bash
 python3 studies/aiopslab_audit/run_audit.py --server D --pilot
 python3 studies/aiopslab_audit/run_audit.py --server D
+python3 studies/aiopslab_audit/run_audit.py --server D --attempt 2 --episodes <problem_id>:<operator> ...
 python3 studies/aiopslab_audit/ledger.py
 python3 studies/aiopslab_audit/ledger.py --check
 ```
