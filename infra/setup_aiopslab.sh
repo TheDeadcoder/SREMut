@@ -12,7 +12,7 @@ NODE_IMAGE="jacksonarthurclark/aiopslab-kind-x86@sha256:d631857278d3f8ce5c36364c
 BENCHMARK=none RUN_USER="$RUN_USER" bash "$(dirname "$(readlink -f "$0")")/setup_server.sh"
 
 apt-get -o DPkg::Lock::Timeout=600 -y -q install python3.12-venv
-if [[ "$(/opt/poetry/bin/poetry --version 2>/dev/null | grep -o '[0-9.]*$')" != "$POETRY_VERSION" ]]; then
+if [[ "$(/opt/poetry/bin/poetry --version 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)+')" != "$POETRY_VERSION" ]]; then
   python3.12 -m venv /opt/poetry
   /opt/poetry/bin/pip install --quiet "poetry==$POETRY_VERSION"
   ln -sf /opt/poetry/bin/poetry /usr/local/bin/poetry
@@ -38,6 +38,6 @@ fi
 kubectl wait --for=condition=Ready nodes --all --timeout=180s
 EOF
 
-echo "poetry $(poetry --version | grep -o '[0-9.]*$')"
+echo "poetry $(poetry --version | grep -oE '[0-9]+(\.[0-9]+)+')"
 echo "aiopslab $(sudo -u "$RUN_USER" git -C "/home/$RUN_USER/AIOpsLab" rev-parse HEAD)"
 echo "applications $(sudo -u "$RUN_USER" git -C "/home/$RUN_USER/AIOpsLab/aiopslab-applications" rev-parse HEAD)"
