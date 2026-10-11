@@ -131,9 +131,9 @@ class LedgerTest(unittest.TestCase):
         self.assertEqual(mutation_ledger.window_class("+--?-"), "persistent")
         self.assertEqual(mutation_ledger.window_class("-+++"), "transient")
         rec = mutation_ledger.recovery({"profile": "--+", "reference": {"healthy": True}})
-        self.assertEqual(rec["seconds_to_accept"], 30)
+        self.assertEqual(rec["polls_before_accept"], 2)
         self.assertIsNone(mutation_ledger.recovery({"profile": "---", "reference": {"healthy": False}})
-                          ["seconds_to_accept"])
+                          ["polls_before_accept"])
 
     def test_build_scores_operators(self):
         with tempfile.TemporaryDirectory() as tmp:

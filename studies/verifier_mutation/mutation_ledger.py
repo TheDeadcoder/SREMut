@@ -10,7 +10,6 @@ HERE = Path(__file__).resolve().parent
 RUNS = HERE / "runs"
 SCHEDULE = HERE / "schedule.csv"
 LEDGER = HERE / "ledger.json"
-POLL_SECONDS = 15
 
 
 def label(result):
@@ -40,7 +39,7 @@ def window_class(profile):
 def recovery(recovered):
     profile = recovered["profile"]
     return {"profile": profile, "reference_healthy": recovered["reference"]["healthy"],
-            "seconds_to_accept": (len(profile) - 1) * POLL_SECONDS if profile.endswith("+") else None}
+            "polls_before_accept": len(profile) - 1 if profile.endswith("+") else None}
 
 
 def episodes(runs):
@@ -89,7 +88,7 @@ def build(runs=RUNS, schedule=SCHEDULE):
                                  "agree": sum(r["predicted"] == r["label"] for r in judged)},
         "noop_window_classes": dict(Counter(r["noop_window"]["class"] for r in rows if "noop_window" in r)),
         "recovery": {"measured": sum("recovery" in r for r in rows),
-                     "not_accepted": sum(r["recovery"]["seconds_to_accept"] is None
+                     "not_accepted": sum(r["recovery"]["polls_before_accept"] is None
                                          for r in rows if "recovery" in r),
                      "reference_rejects": sum(not r["recovery"]["reference_healthy"]
                                               for r in rows if "recovery" in r)},

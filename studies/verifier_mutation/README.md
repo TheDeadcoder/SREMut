@@ -21,15 +21,15 @@ apply when the oracle never accepts the recovered system.
 
 ## Episode
 
-`mutation_probe.py` follows SREGym's validator lifecycle: deploy, capture the oracle baseline, record
-the healthy state and workload traffic, inject. In `RESTART` episodes the oracle is then polled every
-15 s for 300 s with no action (the verdict over time of a no-op); in the others until it first
-rejects, for at most 300 s. The operator is applied, the application is given up to 120 s to roll
-out, and the oracle is polled for 90 s. The first of those verdicts is the graded verdict. The
-reference verifier then runs, SREGym's `recover_fault()` restores the fault and the application is
-removed. In `COLLAT` episodes the recovery comes before the operator: the oracle is polled until it
-accepts, for at most 600 s, and the recovered system is given the same roll-out time before the
-reference verifier judges it.
+`mutation_probe.py` follows SREGym's validator lifecycle: deploy, capture the oracle baseline,
+record the healthy state and workload traffic, inject. In `RESTART` episodes the oracle is then
+polled, with 15 s between evaluations, for 300 s with no action (the verdict over time of a no-op);
+in the others until it first rejects, for at most 300 s. The operator is applied, the application is
+given up to 120 s to roll out, and the oracle is polled for 90 s. The first of those verdicts is the
+graded verdict. The reference verifier then runs, SREGym's `recover_fault()` restores the fault and
+the application is removed. In `COLLAT` episodes the recovery comes before the operator: the oracle
+is polled until it accepts, for at most 600 s, and the recovered system is given the same roll-out
+time before the reference verifier judges it.
 
 ## Reference verifier
 
