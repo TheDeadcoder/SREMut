@@ -81,7 +81,8 @@ usermod -aG docker "$RUN_USER"
 echo "$RUN_USER ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/90-$RUN_USER"
 chmod 0440 "/etc/sudoers.d/90-$RUN_USER"
 install -d -m 0700 -o "$RUN_USER" -g "$RUN_USER" "/home/$RUN_USER/.ssh"
-install -m 0600 -o "$RUN_USER" -g "$RUN_USER" /root/.ssh/authorized_keys "/home/$RUN_USER/.ssh/authorized_keys"
+[[ -s "/home/$RUN_USER/.ssh/authorized_keys" ]] ||
+  install -m 0600 -o "$RUN_USER" -g "$RUN_USER" /root/.ssh/authorized_keys "/home/$RUN_USER/.ssh/authorized_keys"
 
 [[ "$BENCHMARK" == sregym ]] && sudo -u "$RUN_USER" -H bash -s -- "$SREGYM_REPO" "$SREGYM_COMMIT" <<'EOF'
 set -euo pipefail
