@@ -148,10 +148,13 @@ class LedgerTest(unittest.TestCase):
         self.assertEqual(ledger["summary"]["by_operator"]["SCALE0"]["mutation_score"], 0.5)
         self.assertEqual(ledger["summary"]["problems_with_survivor"], ["p2"])
         self.assertEqual(ledger["summary"]["noop_window_classes"], {"transient": 1})
+        self.assertEqual(ledger["summary"]["confirmed_survivors"], [])
 
 
 class RunnerTest(unittest.TestCase):
     def test_pilot_and_stop_rule(self):
+        self.assertEqual(run_mutation.episodes("B", False, chosen=["p1:COLLAT", "p2:RESTART"]),
+                         [("p1", "COLLAT"), ("p2", "RESTART")])
         pilot = run_mutation.episodes("A", pilot=True)
         self.assertEqual(len(pilot), len(run_mutation.PILOT) * 4)
         done = {"status": "COMPLETED"}

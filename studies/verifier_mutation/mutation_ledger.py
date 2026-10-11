@@ -77,12 +77,14 @@ def build(runs=RUNS, schedule=SCHEDULE):
     by_problem = {}
     for row in rows:
         by_problem.setdefault(row["problem_id"], Counter())[row["label"]] += 1
+    survived = Counter((r["problem_id"], r["operator"]) for r in rows if r["label"] == "survived")
     judged = [r for r in rows if r["predicted"] in ("killed", "survived") and r["label"] in ("killed", "survived")]
     summary = {
         "episodes": len(rows),
         "labels": dict(Counter(r["label"] for r in rows)),
         "by_operator": {op: {"labels": dict(c), "mutation_score": score(c)} for op, c in by_operator.items()},
         "problems_with_survivor": sorted(p for p, c in by_problem.items() if c.get("survived")),
+        "confirmed_survivors": sorted(f"{p}:{op}" for (p, op), n in survived.items() if n >= 2),
         "prediction_agreement": {"judged": len(judged),
                                  "agree": sum(r["predicted"] == r["label"] for r in judged)},
         "noop_window_classes": dict(Counter(r["noop_window"]["class"] for r in rows if "noop_window" in r)),
