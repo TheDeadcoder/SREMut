@@ -7,6 +7,7 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent / "verifier_mutation"), str(HERE.parent / "registry_sweep")]
 
 import cluster_reset  # noqa: E402
+import ledger  # noqa: E402
 import probe  # noqa: E402
 import run_audit  # noqa: E402
 from operators import OPERATORS  # noqa: E402
@@ -27,6 +28,23 @@ class ProbeTest(unittest.TestCase):
         clean = probe.parse_wrk(WRK.replace("timeout 3", "timeout 0").replace("  Non-2xx or 3xx responses: 7\n", ""))
         self.assertEqual((clean.number, clean.ok), (101, True))
         self.assertEqual((probe.parse_wrk("").number, probe.parse_wrk("").ok), (0, False))
+
+
+class LedgerTest(unittest.TestCase):
+    @staticmethod
+    def row(label, profile, healthy, footprint=()):
+        return {"label": label, "verdict_profile": profile, "reference": {"healthy": healthy},
+                "footprint_left": list(footprint)}
+
+    def test_default_label_accepts_any_healthy_poll(self):
+        self.assertEqual(ledger.default_label(self.row("unknown", "-++", False)), "survived")
+        self.assertEqual(ledger.default_label(self.row("unknown", "+--", False)), "survived")
+        self.assertEqual(ledger.default_label(self.row("killed", "---", False)), "killed")
+        self.assertEqual(ledger.default_label(self.row("unknown", "-+", True)), "equivalent")
+        self.assertEqual(ledger.default_label(self.row("false_reject", "--", True)), "false_reject")
+        self.assertEqual(ledger.default_label(self.row("rejected_fault_present", "--", True, ["services/x"])),
+                         "rejected_fault_present")
+        self.assertEqual(ledger.default_label({"label": "not_applicable"}), "not_applicable")
 
 
 class ResetTest(unittest.TestCase):

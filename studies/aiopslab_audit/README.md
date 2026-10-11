@@ -10,8 +10,9 @@ and reference verifier of `studies/verifier_mutation`. AIOpsLab and its environm
 Each problem's own `eval()`. Most require every pod in the application namespace to be healthy; some
 first check one setting (a Service's `targetPort`, a replica count, a container command). AIOpsLab
 waits up to `AIOPSLAB_MITIGATION_SETTLE_SECONDS` (120 s by default) and accepts the first healthy
-poll. The probe sets it to 0 and polls every 15 s itself, so both a single-poll verdict and the
-default first-healthy-poll verdict can be read from the same series.
+poll. The probe sets it to 0 and polls itself, with 15 s between evaluations, for 120 s after each
+operator. The ledger labels every episode twice: by the first poll, as in `studies/verifier_mutation`,
+and by AIOpsLab's default, which accepts when any poll in those 120 s accepts.
 
 ## Episode
 

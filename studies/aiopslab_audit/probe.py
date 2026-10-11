@@ -16,12 +16,15 @@ os.environ["AIOPSLAB_MITIGATION_SETTLE_SECONDS"] = "0"
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE.parent / "verifier_mutation"), str(HERE.parent / "registry_sweep")]
 
+import mutation_probe  # noqa: E402
 import operators  # noqa: E402
 import reference  # noqa: E402
 from mutation_probe import DETECT_TIMEOUT, NOOP_WINDOW, RECOVER_TIMEOUT, changed_keys, grade  # noqa: E402
 from triage_probe import evaluate, poll, profile, snapshot  # noqa: E402
 
 OPENEBS = "https://openebs.github.io/charts/openebs-operator.yaml"
+SETTLE_SECONDS = 120
+JOB_TIMEOUT = 300
 REQUESTS = re.compile(r"(\d+) requests in")
 NON2XX = re.compile(r"Non-2xx or 3xx responses:\s*(\d+)")
 SOCKET = re.compile(r"Socket errors: connect (\d+), read (\d+), write (\d+), timeout (\d+)")
@@ -58,6 +61,8 @@ class OneShotWorkload:
 
     def collect(self, number=1):
         self.problem.start_workload()
+        subprocess.run(["kubectl", "wait", "--for=condition=complete", "job/wrk2-job", "-n", "default",
+                        f"--timeout={JOB_TIMEOUT}s"], capture_output=True, text=True)
         log = subprocess.run(["kubectl", "logs", "job/wrk2-job", "-n", "default"],
                              capture_output=True, text=True).stdout
         self.rounds = [parse_wrk(log)] if log else []
@@ -82,6 +87,7 @@ def run(problem_id, operator):
 
     traffic = reference.traffic
     reference.traffic = lambda wrk: traffic(wrk, seconds=0)
+    mutation_probe.VERDICT_WINDOW = SETTLE_SECONDS
     out = {"problem_id": problem_id, "operator": operator}
     problem, injected, recovered = None, False, False
     try:
