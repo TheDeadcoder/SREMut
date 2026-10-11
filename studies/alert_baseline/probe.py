@@ -18,8 +18,8 @@ sys.path[:0] = [str(HERE.parent / "registry_sweep")]
 from triage_probe import evaluate, profile  # noqa: E402
 
 STEADY_SECONDS = 300
-DETECT_TIMEOUT = 300
-RECOVER_TIMEOUT = 600
+DETECT_TIMEOUT = 600
+RECOVER_WINDOW = 600
 POLL = 30
 ALERTS_URL = "http://localhost:9090/api/v1/alerts"
 
@@ -85,7 +85,7 @@ def poll_until(oracle, namespace, timeout, stop_on, start, baselines, excluded):
     while True:
         verdicts.append(evaluate(oracle))
         states.append(alert_state(namespace, start, baselines, excluded))
-        if verdicts[-1].get("success") is stop_on or time.monotonic() >= deadline:
+        if (stop_on is not None and verdicts[-1].get("success") is stop_on) or time.monotonic() >= deadline:
             return {"profile": profile(verdicts), "verdicts": verdicts, "alerts": states}
         time.sleep(POLL)
 
@@ -121,7 +121,7 @@ def run(problem_id):
         out["detect"] = poll_until(oracle, namespace, DETECT_TIMEOUT, False, start, baselines, excluded)
         problem.recover_fault()
         recovered = True
-        out["delayed"]["recovery"] = poll_until(oracle, namespace, RECOVER_TIMEOUT, True, start, baselines, excluded)
+        out["delayed"]["recovery"] = poll_until(oracle, namespace, RECOVER_WINDOW, None, start, baselines, excluded)
         out["immediate"]["recovery"] = judge_with(oracle, alerts, immediate, start)
         out["status"] = "COMPLETED"
     except Exception as exc:  # noqa: BLE001

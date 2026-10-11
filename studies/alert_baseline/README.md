@@ -18,9 +18,9 @@ and the oracle rejected the healthy system with `ContainerCPUThrottling` on the 
 `probe.py` deploys the application and captures the oracle baseline, as SREGym does by default. It
 records the alerts firing in the namespace every 30 s for 300 s, judges the healthy system with that
 baseline, then captures the baseline again and judges the healthy system with the new one. SREGym
-injects the fault and the oracle is polled until it rejects, for at most 300 s. After SREGym's
-`recover_fault()` the oracle is polled with the later baseline until it accepts, for at most 600 s,
-then judged once with the earlier one. Every poll records the firing alerts and which of them each
+injects the fault and the oracle is polled until it rejects, for at most 600 s. After SREGym's
+`recover_fault()` the oracle is polled with the later baseline for 600 s, then judged once with the
+earlier one. Every poll records the firing alerts and which of them each
 baseline would leave in. The application is then removed.
 
 ## Problems

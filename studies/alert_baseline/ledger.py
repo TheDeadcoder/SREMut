@@ -23,6 +23,10 @@ def first_seen(timeline, alertname):
                  if any(a.startswith(alertname + "/") for a in state.get("firing", []))), None)
 
 
+def stays_accepted(profile):
+    return "+" in profile and "-" not in profile[profile.index("+"):]
+
+
 def row(pid, attempt, record, result):
     out = {"problem_id": pid, "attempt": attempt, "server": record.get("server"),
            "status": result.get("status") or record.get("status")}
@@ -37,9 +41,11 @@ def row(pid, attempt, record, result):
         "healthy_accepted": {"immediate": immediate["healthy"]["verdict"].get("success"),
                              "delayed": delayed["healthy"]["verdict"].get("success")},
         "detect_profile": result["detect"]["profile"],
+        "detected": "-" in result["detect"]["profile"],
         "recovery_profile_delayed": delayed["recovery"]["profile"],
         "recovery_accepted": {"immediate": immediate["recovery"]["verdict"].get("success"),
-                              "delayed": delayed["recovery"]["profile"].endswith("+")},
+                              "delayed": "+" in delayed["recovery"]["profile"]},
+        "recovery_stays_accepted": stays_accepted(delayed["recovery"]["profile"]),
         "left_by_immediate_at_end": sorted({workload(a) for a in last.get("outside_immediate", [])}),
         "left_by_delayed_at_end": sorted({workload(a) for a in last.get("outside_delayed", [])}),
     })
@@ -58,7 +64,9 @@ def build(runs=RUNS):
         "completed": len(done),
         "immediate_baseline_empty": sum(not r["immediate_baseline"] for r in done),
         "healthy_accepted": {b: sum(r["healthy_accepted"][b] is True for r in done) for b in BASELINES},
+        "detected_with_delayed_baseline": sum(r["detected"] for r in done),
         "recovery_accepted": {b: sum(r["recovery_accepted"][b] is True for r in done) for b in BASELINES},
+        "recovery_stays_accepted_with_delayed_baseline": sum(r["recovery_stays_accepted"] for r in done),
         "in_delayed_baseline": dict(Counter(a for r in done for a in r["delayed_baseline"])),
     }
     return {"summary": summary, "episodes": rows}

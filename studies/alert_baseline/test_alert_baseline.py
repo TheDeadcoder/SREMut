@@ -63,12 +63,19 @@ class LedgerTest(unittest.TestCase):
         self.assertEqual((summary["episodes"], summary["completed"], summary["immediate_baseline_empty"]), (3, 2, 2))
         self.assertEqual(summary["healthy_accepted"], {"immediate": 0, "delayed": 1})
         self.assertEqual(summary["recovery_accepted"], {"immediate": 0, "delayed": 1})
+        self.assertEqual(summary["detected_with_delayed_baseline"], 2)
+        self.assertEqual(summary["recovery_stays_accepted_with_delayed_baseline"], 1)
         self.assertEqual(summary["in_delayed_baseline"], {"ContainerCPUThrottling/grafana": 2})
         first = built["episodes"][0]
         self.assertEqual(first["throttling_first_seen"], 90)
         self.assertEqual(first["left_by_immediate_at_end"], ["ContainerCPUThrottling/load-generator"])
         self.assertEqual(first["left_by_delayed_at_end"], [])
         self.assertEqual(built["episodes"][2]["status"], "TIMED_OUT")
+
+    def test_stays_accepted(self):
+        self.assertTrue(ledger.stays_accepted("--++"))
+        self.assertFalse(ledger.stays_accepted("-+-+"))
+        self.assertFalse(ledger.stays_accepted("---"))
 
     def test_workload_drops_pod_suffixes(self):
         self.assertEqual(ledger.workload(GRAFANA), "ContainerCPUThrottling/grafana")
