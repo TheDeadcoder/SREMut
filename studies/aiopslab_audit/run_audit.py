@@ -32,7 +32,9 @@ def reset_cluster():
     return json.loads(lines[-1]), cluster_problem()
 
 
-def episodes(server, pilot, schedule=SCHEDULE):
+def episodes(server, pilot, schedule=SCHEDULE, chosen=None):
+    if chosen:
+        return [tuple(episode.split(":")) for episode in chosen]
     if pilot:
         return [(pid, operator) for pid in PILOT for operator in OPERATORS]
     with open(schedule, newline="") as f:
@@ -44,6 +46,8 @@ def main():
     ap.add_argument("--server", required=True)
     ap.add_argument("--attempt", type=int, default=1)
     ap.add_argument("--pilot", action="store_true", help="every operator on the pilot problems, kept under pilot/")
+    ap.add_argument("--episodes", nargs="+", metavar="PROBLEM:OPERATOR",
+                    help="run these episodes instead of the server's schedule, e.g. to repeat survivors")
     ap.add_argument("--timeout", type=int, default=5400)
     ap.add_argument("--aiopslab", type=Path, default=Path.home() / "AIOpsLab")
     args = ap.parse_args()
@@ -52,7 +56,7 @@ def main():
     for operator in OPERATORS:
         (root / operator).mkdir(parents=True, exist_ok=True)
         mark_interrupted(root / operator, args.server)
-    for pid, operator in episodes(args.server, args.pilot):
+    for pid, operator in episodes(args.server, args.pilot, chosen=args.episodes):
         runs = root / operator
         if (runs / pid / f"attempt-{args.attempt}").exists():
             print(f"skip {operator} {pid}: attempt {args.attempt} already exists", flush=True)

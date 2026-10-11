@@ -72,6 +72,8 @@ class ScheduleTest(unittest.TestCase):
         self.assertEqual([r["operator"] for r in rows[:14]], ["RESTART"] * 14)
         self.assertEqual(len(run_audit.episodes("D", pilot=True)), len(run_audit.PILOT) * 4)
         self.assertEqual(len(run_audit.episodes("D", pilot=False)), 56)
+        self.assertEqual(run_audit.episodes("D", pilot=False, chosen=["wrong_bin_usage-mitigation-1:COLLAT"]),
+                         [("wrong_bin_usage-mitigation-1", "COLLAT")])
 
 
 if __name__ == "__main__":
