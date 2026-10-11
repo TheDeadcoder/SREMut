@@ -70,7 +70,8 @@ def main():
         print(f"done {operator} {pid}: {record['status']} {result.get('status')} "
               f"applied={bool(result.get('applied'))} verdict={mutant.get('verdict')} "
               f"healthy={(mutant.get('reference') or {}).get('healthy')}", flush=True)
-        if must_stop(record, result):
+        # AIOpsLab cannot recover a workload DELETE removed; the next reset deletes its namespace.
+        if must_stop(record, result) and not (operator == "DELETE" and record["status"] == "COMPLETED"):
             print("stop: inspect the cluster before continuing", flush=True)
             return 3
     return 0
