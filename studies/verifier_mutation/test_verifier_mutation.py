@@ -131,9 +131,9 @@ class LedgerTest(unittest.TestCase):
         self.assertEqual(mutation_ledger.window_class("+--?-"), "persistent")
         self.assertEqual(mutation_ledger.window_class("-+++"), "transient")
         rec = mutation_ledger.recovery({"profile": "--+", "reference": {"healthy": True}})
-        self.assertEqual(rec["seconds_to_accept"], 30)
+        self.assertEqual(rec["polls_before_accept"], 2)
         self.assertIsNone(mutation_ledger.recovery({"profile": "---", "reference": {"healthy": False}})
-                          ["seconds_to_accept"])
+                          ["polls_before_accept"])
 
     def test_build_scores_operators(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -148,10 +148,13 @@ class LedgerTest(unittest.TestCase):
         self.assertEqual(ledger["summary"]["by_operator"]["SCALE0"]["mutation_score"], 0.5)
         self.assertEqual(ledger["summary"]["problems_with_survivor"], ["p2"])
         self.assertEqual(ledger["summary"]["noop_window_classes"], {"transient": 1})
+        self.assertEqual(ledger["summary"]["confirmed_survivors"], [])
 
 
 class RunnerTest(unittest.TestCase):
     def test_pilot_and_stop_rule(self):
+        self.assertEqual(run_mutation.episodes("B", False, chosen=["p1:COLLAT", "p2:RESTART"]),
+                         [("p1", "COLLAT"), ("p2", "RESTART")])
         pilot = run_mutation.episodes("A", pilot=True)
         self.assertEqual(len(pilot), len(run_mutation.PILOT) * 4)
         done = {"status": "COMPLETED"}
