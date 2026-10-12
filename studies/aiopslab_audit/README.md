@@ -39,6 +39,25 @@ episode is in `schedule.csv`, blank where the source does not decide it.
 - `COLLAT` survives on all 14 problems: no verifier compares the system with its healthy state.
 - `SCALE0` and `DELETE` survive where the verifier checks pod health only.
 
+## Proposed fix
+
+`workload_check.patch` changes AIOpsLab's mitigation verifiers so that a pod without container statuses is
+unhealthy unless it has succeeded, and records the application's Deployments and StatefulSets after it is
+deployed and before the fault is injected; `eval()` then fails while a recorded workload no longer exists or is
+scaled to zero. The four problems with their own pod checks use the shared one, and
+`astronomy_shop_kafka_queue_problems-mitigation-1` also requires its feature flag to be off. The probe records the
+workloads where the problem supports it, as the patched `init_problem` does.
+
+Predictions for the full schedule on the patched checkout (`runs-patched/`), fixed before it runs:
+
+- `SCALE0`, `DELETE` and `COLLAT` are killed wherever they apply, including the 23 episodes they survive today.
+- The null agent is rejected on `assign_to_non_existent_node_social_net-mitigation-1` and
+  `astronomy_shop_kafka_queue_problems-mitigation-1`. It is still accepted on `redeploy_without_PV-mitigation-1`,
+  whose data loss leaves every pod healthy, and on the early polls of `misconfig_app_hotel_res-mitigation-1`.
+- `RESTART` no longer survives on `assign_to_non_existent_node_social_net-mitigation-1`; its other verdicts do not
+  change.
+- AIOpsLab's own recovery is still accepted on every problem.
+
 ## Running
 
 On a host provisioned with `infra/setup_aiopslab.sh`, from the repository root:
@@ -51,5 +70,14 @@ python3 studies/aiopslab_audit/ledger.py
 python3 studies/aiopslab_audit/ledger.py --check
 ```
 
-Each episode is written to `runs/<operator>/<problem_id>/attempt-<n>/` (or `pilot/`) in the layout of
-`studies/verifier_mutation`, and labelled by its ledger.
+With the proposed fix applied to the same checkout:
+
+```bash
+git -C ~/AIOpsLab apply "$PWD/studies/aiopslab_audit/workload_check.patch"
+python3 studies/aiopslab_audit/run_audit.py --server D --runs studies/aiopslab_audit/runs-patched
+git -C ~/AIOpsLab apply -R "$PWD/studies/aiopslab_audit/workload_check.patch"
+python3 studies/aiopslab_audit/ledger.py --runs studies/aiopslab_audit/runs-patched --ledger studies/aiopslab_audit/ledger-patched.json
+```
+
+Each episode is written to `runs/<operator>/<problem_id>/attempt-<n>/` (or `pilot/`, `runs-patched/`) in the
+layout of `studies/verifier_mutation`, and labelled by its ledger.

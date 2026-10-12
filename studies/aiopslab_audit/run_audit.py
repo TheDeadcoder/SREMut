@@ -50,9 +50,11 @@ def main():
                     help="run these episodes instead of the server's schedule, e.g. to repeat survivors")
     ap.add_argument("--timeout", type=int, default=5400)
     ap.add_argument("--aiopslab", type=Path, default=Path.home() / "AIOpsLab")
+    ap.add_argument("--runs", type=Path, default=HERE / "runs",
+                    help="where the episodes go, e.g. runs-patched for the checkout with workload_check.patch")
     args = ap.parse_args()
 
-    root = HERE / ("pilot" if args.pilot else "runs")
+    root = HERE / "pilot" if args.pilot else args.runs
     for operator in OPERATORS:
         (root / operator).mkdir(parents=True, exist_ok=True)
         mark_interrupted(root / operator, args.server)

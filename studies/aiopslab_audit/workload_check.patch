@@ -1,0 +1,488 @@
+diff --git a/aiopslab/generators/fault/inject_otel.py b/aiopslab/generators/fault/inject_otel.py
+index f42bfe0..1b6f876 100644
+--- a/aiopslab/generators/fault/inject_otel.py
++++ b/aiopslab/generators/fault/inject_otel.py
+@@ -86,6 +86,14 @@ class OtelFaultInjector(FaultInjector):
+         )
+         print(f"Fault recovered: Feature flag '{feature_flag}' set to 'off'.")
+ 
++    def get_flag_variant(self, feature_flag: str) -> str:
++        """Return the default variant the feature flag is currently set to."""
++        configmap = self.kubectl.core_v1_api.read_namespaced_config_map(
++            self.configmap_name, self.namespace
++        )
++        flagd_data = json.loads(configmap.data["demo.flagd.json"])
++        return flagd_data["flags"][feature_flag]["defaultVariant"]
++
+ 
+ # Example usage:
+ # if __name__ == "__main__":
+diff --git a/aiopslab/orchestrator/orchestrator.py b/aiopslab/orchestrator/orchestrator.py
+index 055ff8e..fab9b36 100644
+--- a/aiopslab/orchestrator/orchestrator.py
++++ b/aiopslab/orchestrator/orchestrator.py
+@@ -8,6 +8,7 @@ from aiopslab.service.kubectl import KubeCtl
+ from aiopslab.session import Session
+ from aiopslab.orchestrator.problems.registry import ProblemRegistry
+ from aiopslab.orchestrator.parser import ResponseParser
++from aiopslab.orchestrator.tasks.mitigation import MitigationTask
+ from aiopslab.utils.status import *
+ from aiopslab.utils.critical_section import CriticalSection
+ from aiopslab.service.telemetry.prometheus import Prometheus
+@@ -71,6 +72,11 @@ class Orchestrator:
+         prob.app.delete()
+         prob.app.deploy()
+ 
++        # record the deployed workloads before the fault changes them, so that
++        # mitigation eval can tell a removed workload from a recovered one
++        if isinstance(prob, MitigationTask):
++            prob.record_deployed_workloads()
++
+         # make sure is_fault_injected is correct to apply appropriate
+         # function with atexit to recover fault
+         with CriticalSection():
+diff --git a/aiopslab/orchestrator/problems/kafka_queue_problems/kafka_queue_problems.py b/aiopslab/orchestrator/problems/kafka_queue_problems/kafka_queue_problems.py
+index 57026a5..b29ea5d 100644
+--- a/aiopslab/orchestrator/problems/kafka_queue_problems/kafka_queue_problems.py
++++ b/aiopslab/orchestrator/problems/kafka_queue_problems/kafka_queue_problems.py
+@@ -107,6 +107,17 @@ class KafkaQueueProblemsMitigation(KafkaQueueProblemsBaseTask, MitigationTask):
+         print("== Evaluation ==")
+         super().eval(soln, trace, duration)
+ 
++        # custom: the fault is a feature flag that leaves every pod healthy, so
++        # check that the flag is off again
++        try:
++            variant = self.injector.get_flag_variant("kafkaQueueProblems")
++        except Exception as e:
++            variant = f"unreadable ({e})"
++        if variant != "off":
++            print(f"Feature flag kafkaQueueProblems is {variant}, not off")
++            self.results["success"] = False
++            return self.results
++
+         # Allow dependent workloads time to recover before judging instead of
+         # taking a single snapshot at submit() time (see
+         # MitigationTask.wait_until_pods_healthy).
+diff --git a/aiopslab/orchestrator/problems/misconfig_app/misconfig_app_hotel_res.py b/aiopslab/orchestrator/problems/misconfig_app/misconfig_app_hotel_res.py
+index 5808457..83a03c8 100644
+--- a/aiopslab/orchestrator/problems/misconfig_app/misconfig_app_hotel_res.py
++++ b/aiopslab/orchestrator/problems/misconfig_app/misconfig_app_hotel_res.py
+@@ -165,13 +165,8 @@ class MisconfigAppHotelResMitigation(MisconfigAppHotelResBaseTask, MitigationTas
+         print("== Evaluation ==")
+         super().eval(soln, trace, duration)
+ 
+-        # Check if all services (not only faulty service) is back to normal (Running)
+-        # Use wait_for_ready helper to poll for pod readiness
+-        try:
+-            self.kubectl.wait_for_ready(self.namespace, sleep=5, max_wait=60)
+-            self.results["success"] = True
+-        except Exception as e:
+-            print(f"Pods are not all ready: {e}")
+-            self.results["success"] = False
+-
++        # Check if all services (not only faulty service) is back to normal (Running),
++        # allowing dependent workloads time to recover (see
++        # MitigationTask.wait_until_pods_healthy).
++        self.results["success"] = self.wait_until_pods_healthy(self.namespace)
+         return self.results
+diff --git a/aiopslab/orchestrator/problems/redeploy_without_pv/redeploy_without_pv.py b/aiopslab/orchestrator/problems/redeploy_without_pv/redeploy_without_pv.py
+index a06bf07..6559dcc 100644
+--- a/aiopslab/orchestrator/problems/redeploy_without_pv/redeploy_without_pv.py
++++ b/aiopslab/orchestrator/problems/redeploy_without_pv/redeploy_without_pv.py
+@@ -164,33 +164,8 @@ class RedeployWithoutPVMitigation(RedeployWithoutPVBaseTask, MitigationTask):
+         print("== Evaluation ==")
+         super().eval(soln, trace, duration)
+ 
+-        # Check if all services (not only faulty service) is back to normal (Running)
+-        pod_list = self.kubectl.list_pods(self.namespace)
+-        all_normal = True
+-
+-        for pod in pod_list.items:
+-            # Check container statuses
+-            for container_status in pod.status.container_statuses:
+-                if (
+-                    container_status.state.waiting
+-                    and container_status.state.waiting.reason == "CrashLoopBackOff"
+-                ):
+-                    print(f"Container {container_status.name} is in CrashLoopBackOff")
+-                    all_normal = False
+-                elif (
+-                    container_status.state.terminated
+-                    and container_status.state.terminated.reason != "Completed"
+-                ):
+-                    print(
+-                        f"Container {container_status.name} is terminated with reason: {container_status.state.terminated.reason}"
+-                    )
+-                    all_normal = False
+-                elif not container_status.ready:
+-                    print(f"Container {container_status.name} is not ready")
+-                    all_normal = False
+-
+-            if not all_normal:
+-                break
+-
+-        self.results["success"] = all_normal
++        # Check if all services (not only faulty service) is back to normal (Running),
++        # allowing dependent workloads time to recover (see
++        # MitigationTask.wait_until_pods_healthy).
++        self.results["success"] = self.wait_until_pods_healthy(self.namespace)
+         return self.results
+diff --git a/aiopslab/orchestrator/problems/scale_pod/scale_pod_social_net.py b/aiopslab/orchestrator/problems/scale_pod/scale_pod_social_net.py
+index e9672e4..144f846 100644
+--- a/aiopslab/orchestrator/problems/scale_pod/scale_pod_social_net.py
++++ b/aiopslab/orchestrator/problems/scale_pod/scale_pod_social_net.py
+@@ -177,7 +177,10 @@ class ScalePodSocialNetMitigation(ScalePodSocialNetBaseTask, MitigationTask):
+         print("== Evaluation ==")
+         super().eval(soln, trace, duration)
+ 
+-        all_normal = True
++        # Check if all services are running normally, allowing dependent
++        # workloads time to recover (see MitigationTask.wait_until_pods_healthy),
++        # then that the faulty service is back to one available replica.
++        all_normal = self.wait_until_pods_healthy(self.namespace)
+ 
+         deployment = self.kubectl.get_deployment(self.faulty_service, self.namespace)
+ 
+@@ -194,30 +197,5 @@ class ScalePodSocialNetMitigation(ScalePodSocialNetBaseTask, MitigationTask):
+                 )
+                 all_normal = False
+ 
+-        # Check if all services are running normally
+-        pod_list = self.kubectl.list_pods(self.namespace)
+-        for pod in pod_list.items:
+-            for container_status in pod.status.container_statuses:
+-                if (
+-                    container_status.state.waiting
+-                    and container_status.state.waiting.reason == "CrashLoopBackOff"
+-                ):
+-                    print(f"Container {container_status.name} is in CrashLoopBackOff")
+-                    all_normal = False
+-                elif (
+-                    container_status.state.terminated
+-                    and container_status.state.terminated.reason != "Completed"
+-                ):
+-                    print(
+-                        f"Container {container_status.name} is terminated with reason: {container_status.state.terminated.reason}"
+-                    )
+-                    all_normal = False
+-                elif not container_status.ready:
+-                    print(f"Container {container_status.name} is not ready")
+-                    all_normal = False
+-
+-            if not all_normal:
+-                break
+-
+         self.results["success"] = all_normal
+         return self.results
+diff --git a/aiopslab/orchestrator/problems/wrong_bin_usage/wrong_bin_usage.py b/aiopslab/orchestrator/problems/wrong_bin_usage/wrong_bin_usage.py
+index 16084d5..6b0a615 100644
+--- a/aiopslab/orchestrator/problems/wrong_bin_usage/wrong_bin_usage.py
++++ b/aiopslab/orchestrator/problems/wrong_bin_usage/wrong_bin_usage.py
+@@ -163,29 +163,13 @@ class WrongBinUsageMitigation(WrongBinUsageBaseTask, MitigationTask):
+         print("== Evaluation ==")
+         super().eval(soln, trace, duration)
+ 
+-        # Check if all services (not only faulty service) is back to normal (Running)
+-        pod_list = self.kubectl.list_pods(self.namespace)
+-        all_normal = True
+-
+-        for pod in pod_list.items:
+-            # Check container statuses
+-            for container_status in pod.status.container_statuses:
+-                if container_status.state.waiting:
+-                    reason = container_status.state.waiting.reason
+-                    if reason in ["CrashLoopBackOff", "Error", "ImagePullBackOff", "ErrImagePull"]:
+-                        print(f"Container {container_status.name} is in error state: {reason}")
+-                        all_normal = False
+-                elif container_status.state.terminated and container_status.state.terminated.reason != "Completed":
+-                    print(f"Container {container_status.name} is terminated with reason: {container_status.state.terminated.reason}")
+-                    all_normal = False
+-                elif not container_status.ready:
+-                    print(f"Container {container_status.name} is not ready")
+-                    all_normal = False
+-
+-            if not all_normal:
+-                print("Pods are not all in a good state.")
+-                self.results["success"] = False
+-                return self.results
++        # Check if all services (not only faulty service) is back to normal (Running),
++        # allowing dependent workloads time to recover (see
++        # MitigationTask.wait_until_pods_healthy).
++        if not self.wait_until_pods_healthy(self.namespace):
++            print("Pods are not all in a good state.")
++            self.results["success"] = False
++            return self.results
+ 
+         # Check if the deployment was updated to use the right binary
+         expected_command = "profile" # Command dictates which binary will be ran, we want to run /go/bin/profile and not /go/bin/geo
+diff --git a/aiopslab/orchestrator/tasks/mitigation.py b/aiopslab/orchestrator/tasks/mitigation.py
+index d79b484..4fa9bbb 100644
+--- a/aiopslab/orchestrator/tasks/mitigation.py
++++ b/aiopslab/orchestrator/tasks/mitigation.py
+@@ -93,12 +93,20 @@ class MitigationTask(Task):
+         """Return human-readable reasons for any unhealthy container in `namespace`.
+ 
+         An empty list means every container is healthy (no CrashLoopBackOff,
+-        no abnormal termination, all ready).
++        no abnormal termination, all ready). A pod with no container statuses
++        has no running container (e.g. it is Pending because it cannot be
++        scheduled), so it is unhealthy unless it has already succeeded; this
++        matches ``KubeCtl._pod_is_ready_or_succeeded``.
+         """
+         pod_list = self.kubectl.list_pods(namespace)
+         reasons: list[str] = []
+         for pod in pod_list.items:
+             if not pod.status.container_statuses:
++                if pod.status.phase != "Succeeded":
++                    reasons.append(
++                        f"Pod {pod.metadata.name} has no running containers "
++                        f"(phase: {pod.status.phase})"
++                    )
+                 continue
+             for container_status in pod.status.container_statuses:
+                 waiting = container_status.state.waiting
+@@ -116,6 +124,44 @@ class MitigationTask(Task):
+                     reasons.append(f"Container {container_status.name} is not ready")
+         return reasons
+ 
++    def _workload_replicas(self, namespace: str) -> dict[str, int]:
++        workloads = {}
++        for kind, list_workloads in (
++            ("Deployment", self.kubectl.list_deployments),
++            ("StatefulSet", self.kubectl.list_stateful_sets),
++        ):
++            for workload in list_workloads(namespace).items:
++                workloads[f"{kind} {workload.metadata.name}"] = workload.spec.replicas or 0
++        return workloads
++
++    def record_deployed_workloads(self):
++        """Record the Deployments and StatefulSets the application deployed.
++
++        The orchestrator calls this after deploying the application and before
++        injecting the fault. Deleting a workload or scaling it to zero removes
++        all of its pods, which the pod checks cannot see, so eval also checks
++        that every recorded workload still exists with at least one replica.
++        """
++        self.deployed_workloads = {
++            name: replicas
++            for name, replicas in self._workload_replicas(self.app.namespace).items()
++            if replicas > 0
++        }
++
++    def workloads_unhealthy_reasons(self, namespace: str) -> list[str]:
++        """Return reasons for any recorded workload that was deleted or scaled to zero."""
++        deployed = getattr(self, "deployed_workloads", None)
++        if not deployed:
++            return []
++        current = self._workload_replicas(namespace)
++        reasons: list[str] = []
++        for name, replicas in sorted(deployed.items()):
++            if name not in current:
++                reasons.append(f"{name} (deployed with {replicas} replicas) no longer exists")
++            elif current[name] == 0:
++                reasons.append(f"{name} (deployed with {replicas} replicas) is scaled to zero")
++        return reasons
++
+     def wait_until_pods_healthy(
+         self,
+         namespace: str,
+@@ -124,6 +170,8 @@ class MitigationTask(Task):
+     ) -> bool:
+         """Poll until all pods in `namespace` are healthy, or `timeout` elapses.
+ 
++        Healthy also requires every workload recorded by
++        ``record_deployed_workloads`` to still exist with at least one replica.
+         Returns True as soon as the namespace is healthy. On timeout, prints the
+         outstanding reasons (preserving the previous eval's diagnostic output)
+         and returns False. The window is configurable via the
+@@ -134,7 +182,9 @@ class MitigationTask(Task):
+             timeout = float(os.getenv("AIOPSLAB_MITIGATION_SETTLE_SECONDS", "120"))
+         deadline = time.monotonic() + max(timeout, 0.0)
+         while True:
+-            reasons = self.pods_unhealthy_reasons(namespace)
++            reasons = self.pods_unhealthy_reasons(namespace) + self.workloads_unhealthy_reasons(
++                namespace
++            )
+             if not reasons:
+                 return True
+             if time.monotonic() >= deadline:
+diff --git a/aiopslab/service/kubectl.py b/aiopslab/service/kubectl.py
+index a80855f..1de22f1 100644
+--- a/aiopslab/service/kubectl.py
++++ b/aiopslab/service/kubectl.py
+@@ -49,6 +49,14 @@ class KubeCtl:
+         """Return a list of all services within a specified namespace."""
+         return self.core_v1_api.list_namespaced_service(namespace)
+ 
++    def list_deployments(self, namespace):
++        """Return a list of all deployments within a specified namespace."""
++        return self.apps_v1_api.list_namespaced_deployment(namespace)
++
++    def list_stateful_sets(self, namespace):
++        """Return a list of all stateful sets within a specified namespace."""
++        return self.apps_v1_api.list_namespaced_stateful_set(namespace)
++
+     def get_cluster_ip(self, service_name, namespace):
+         """Retrieve the cluster IP address of a specified service within a namespace."""
+         service_info = self.core_v1_api.read_namespaced_service(service_name, namespace)
+diff --git a/tests/orchestrator/test_mitigation_settle.py b/tests/orchestrator/test_mitigation_settle.py
+index 1666609..d999c35 100644
+--- a/tests/orchestrator/test_mitigation_settle.py
++++ b/tests/orchestrator/test_mitigation_settle.py
+@@ -17,30 +17,51 @@ def _container(name, ready=True, waiting=None, terminated=None):
+     return NS(name=name, ready=ready, state=state)
+ 
+ 
+-def _pod(*containers):
+-    return NS(status=NS(container_statuses=list(containers) or None))
++def _pod(*containers, name="pod", phase="Running"):
++    return NS(
++        metadata=NS(name=name),
++        status=NS(phase=phase, container_statuses=list(containers) or None),
++    )
+ 
+ 
+ def _pod_list(*pods):
+     return NS(items=list(pods))
+ 
+ 
++def _workloads(replicas):
++    return NS(
++        items=[
++            NS(metadata=NS(name=name), spec=NS(replicas=count))
++            for name, count in replicas.items()
++        ]
++    )
++
++
+ class FakeKubeCtl:
+     """Returns a queued sequence of pod-list snapshots (last one repeats)."""
+ 
+-    def __init__(self, snapshots):
++    def __init__(self, snapshots, deployments=None, stateful_sets=None):
+         self.snapshots = snapshots
+         self.calls = 0
++        self.deployments = dict(deployments or {})
++        self.stateful_sets = dict(stateful_sets or {})
+ 
+     def list_pods(self, namespace):
+         snap = self.snapshots[min(self.calls, len(self.snapshots) - 1)]
+         self.calls += 1
+         return snap
+ 
++    def list_deployments(self, namespace):
++        return _workloads(self.deployments)
++
++    def list_stateful_sets(self, namespace):
++        return _workloads(self.stateful_sets)
+ 
+-def _make_task(snapshots):
++
++def _make_task(snapshots, deployments=None, stateful_sets=None):
+     task = MitigationTask.__new__(MitigationTask)  # bypass Application-dependent __init__
+-    task.kubectl = FakeKubeCtl(snapshots)
++    task.kubectl = FakeKubeCtl(snapshots, deployments, stateful_sets)
++    task.app = NS(namespace="ns")
+     return task
+ 
+ 
+@@ -67,14 +88,29 @@ class TestMitigationSettle(unittest.TestCase):
+         self.assertTrue(any("terminated" in r for r in reasons))
+         self.assertTrue(any("not ready" in r for r in reasons))
+ 
+-    def test_completed_container_and_empty_statuses_are_not_abnormal(self):
++    def test_completed_container_is_not_abnormal(self):
+         # Preserves the original eval semantics: a "Completed" termination is not
+-        # an abnormal termination, and pods without container statuses are skipped.
++        # an abnormal termination.
+         task = _make_task(
+-            [_pod_list(_pod(_container("job", ready=True, terminated="Completed")), _pod())]
++            [_pod_list(_pod(_container("job", ready=True, terminated="Completed")))]
+         )
+         self.assertEqual(task.pods_unhealthy_reasons("ns"), [])
+ 
++    def test_pod_without_container_statuses_is_unhealthy_unless_succeeded(self):
++        # A pod that cannot be scheduled stays Pending with no container statuses.
++        task = _make_task(
++            [
++                _pod_list(
++                    _pod(name="user-service", phase="Pending"),
++                    _pod(name="job", phase="Succeeded"),
++                )
++            ]
++        )
++        reasons = task.pods_unhealthy_reasons("ns")
++        self.assertEqual(len(reasons), 1)
++        self.assertIn("user-service", reasons[0])
++        self.assertFalse(task.wait_until_pods_healthy("ns", timeout=0))
++
+     def test_waits_until_dependent_pod_recovers(self):
+         # First snapshot crash-looping, second healthy -> polling should succeed.
+         unhealthy = _pod_list(_pod(_container("rate", ready=False, waiting="CrashLoopBackOff")))
+@@ -88,5 +124,66 @@ class TestMitigationSettle(unittest.TestCase):
+         self.assertFalse(task.wait_until_pods_healthy("ns", timeout=0))
+ 
+ 
++class TestDeployedWorkloads(unittest.TestCase):
++    HEALTHY = _pod_list(_pod(_container("frontend")))
++
++    def test_deleted_and_scaled_to_zero_workloads_are_flagged(self):
++        # Removing the broken workload leaves no unhealthy pod behind.
++        task = _make_task(
++            [self.HEALTHY],
++            deployments={"frontend": 1, "geo": 1, "rate": 2},
++            stateful_sets={"mongodb": 1},
++        )
++        task.record_deployed_workloads()
++        del task.kubectl.deployments["geo"]
++        task.kubectl.deployments["rate"] = 0
++        reasons = task.workloads_unhealthy_reasons("ns")
++        self.assertEqual(len(reasons), 2)
++        self.assertTrue(any("geo" in r and "no longer exists" in r for r in reasons))
++        self.assertTrue(any("rate" in r and "scaled to zero" in r for r in reasons))
++        self.assertEqual(task.pods_unhealthy_reasons("ns"), [])
++        self.assertFalse(task.wait_until_pods_healthy("ns", timeout=0))
++
++    def test_restored_workload_passes(self):
++        task = _make_task([self.HEALTHY], deployments={"geo": 1})
++        task.record_deployed_workloads()
++        task.kubectl.deployments["geo"] = 0
++        self.assertFalse(task.wait_until_pods_healthy("ns", timeout=0))
++        task.kubectl.deployments["geo"] = 1
++        self.assertTrue(task.wait_until_pods_healthy("ns", timeout=0))
++
++    def test_workload_deployed_with_zero_replicas_is_not_required(self):
++        task = _make_task([self.HEALTHY], deployments={"standby": 0})
++        task.record_deployed_workloads()
++        self.assertEqual(task.workloads_unhealthy_reasons("ns"), [])
++
++    def test_without_a_record_only_pods_are_checked(self):
++        task = _make_task([self.HEALTHY])
++        self.assertEqual(task.workloads_unhealthy_reasons("ns"), [])
++        self.assertTrue(task.wait_until_pods_healthy("ns", timeout=0))
++
++
++class TestKafkaQueueProblemsMitigation(unittest.TestCase):
++    @staticmethod
++    def _task(variant):
++        from aiopslab.orchestrator.problems.kafka_queue_problems.kafka_queue_problems import (
++            KafkaQueueProblemsMitigation,
++        )
++
++        task = KafkaQueueProblemsMitigation.__new__(KafkaQueueProblemsMitigation)
++        task.results = {}
++        task.namespace = "astronomy-shop"
++        task.kubectl = FakeKubeCtl([_pod_list(_pod(_container("kafka")))])
++        task.injector = NS(get_flag_variant=lambda flag: variant)
++        return task
++
++    def test_flag_still_on_fails_with_healthy_pods(self):
++        # The fault is a feature flag that leaves every pod healthy.
++        self.assertFalse(self._task("on").eval(None, [], 1.0)["success"])
++
++    def test_flag_off_and_healthy_pods_passes(self):
++        self.assertTrue(self._task("off").eval(None, [], 1.0)["success"])
++
++
+ if __name__ == "__main__":
+     unittest.main()
