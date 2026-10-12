@@ -7,6 +7,10 @@ from collections import Counter
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path[:0] = [str(HERE), str(HERE.parent / "verifier_mutation"), str(HERE.parent / "registry_sweep")]
+
+from probe import passed_at  # noqa: E402
+
 RUNS = HERE / "runs"
 SCHEDULE = HERE / "schedule.csv"
 LEDGER = HERE / "ledger.json"
@@ -18,12 +22,14 @@ def label(record, result):
         return (status or "error").lower()
     if not result["action_result"]["applied"]:
         return "not_applicable"
-    passed, healthy = result["alert_absent"], result["reference"]["healthy"]
+    index = passed_at(result["evaluation"])
+    if index is None:
+        return "killed"
+    if any(state.get("ground_truth") for state in result["evaluation"][index + 1:]):
+        return "transient_pass"
     if result["action"] == "NULL":
-        return "null_pass" if passed else "killed"
-    if healthy:
-        return "equivalent" if passed else "false_reject"
-    return "survived" if passed else "killed"
+        return "null_pass"
+    return "equivalent" if result["reference"]["healthy"] else "survived"
 
 
 def build(runs=RUNS, schedule=SCHEDULE):

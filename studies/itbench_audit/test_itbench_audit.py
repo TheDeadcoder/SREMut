@@ -55,17 +55,19 @@ class ProbeTest(unittest.TestCase):
 
 class LedgerTest(unittest.TestCase):
     @staticmethod
-    def result(action, passed, healthy, applied=True):
+    def result(action, profile, healthy, applied=True):
+        evaluation = [state(30 * i, [] if c == "+" else ["X"]) for i, c in enumerate(profile)]
         return {"status": "COMPLETED", "action": action, "action_result": {"applied": applied},
-                "alert_absent": passed, "reference": {"healthy": healthy}, "detected": True,
-                "healthy_alerts": [state(0, [])], "evaluation": [state(0, ["X"]), state(30, []), state(60, [])]}
+                "alert_absent": probe.alert_absent(evaluation), "reference": {"healthy": healthy}, "detected": True,
+                "healthy_alerts": [state(0, [])], "evaluation": evaluation}
 
     def test_labels(self):
-        self.assertEqual(ledger.label({}, self.result("NULL", True, False)), "null_pass")
-        self.assertEqual(ledger.label({}, self.result("RESTART", True, False)), "survived")
-        self.assertEqual(ledger.label({}, self.result("SCALE0", False, False)), "killed")
-        self.assertEqual(ledger.label({}, self.result("RESTART", True, True)), "equivalent")
-        self.assertEqual(ledger.label({}, self.result("SCALE0", True, False, applied=False)), "not_applicable")
+        self.assertEqual(ledger.label({}, self.result("NULL", "-++", False)), "null_pass")
+        self.assertEqual(ledger.label({}, self.result("RESTART", "-++", False)), "survived")
+        self.assertEqual(ledger.label({}, self.result("RESTART", "-++++--", True)), "transient_pass")
+        self.assertEqual(ledger.label({}, self.result("SCALE0", "-+-", False)), "killed")
+        self.assertEqual(ledger.label({}, self.result("RESTART", "-++", True)), "equivalent")
+        self.assertEqual(ledger.label({}, self.result("SCALE0", "-++", False, applied=False)), "not_applicable")
         self.assertEqual(ledger.label({"status": "TIMED_OUT"}, {}), "timed_out")
 
     def test_build(self):
@@ -74,7 +76,7 @@ class LedgerTest(unittest.TestCase):
             run_dir = runs / "20" / "RESTART" / "attempt-1"
             run_dir.mkdir(parents=True)
             (run_dir / "record.json").write_text(json.dumps({"status": "COMPLETED"}))
-            (run_dir / "result.json").write_text(json.dumps(self.result("RESTART", True, False)))
+            (run_dir / "result.json").write_text(json.dumps(self.result("RESTART", "-++", False)))
             built = ledger.build(runs)
         self.assertEqual(built["summary"]["labels"], {"survived": 1})
         self.assertEqual(built["episodes"][0]["evaluation_profile"], "-++")

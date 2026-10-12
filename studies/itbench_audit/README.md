@@ -2,7 +2,8 @@
 
 Whether ITBench's mitigation criterion, that a scenario's ground-truth alerts are cleared, rejects the null agent and
 plausible wrong repairs, measured live on seven of its library scenarios on the OpenTelemetry demo. ITBench is pinned
-at `333afa05c421b4e02a47b6c1b51686d20ce40cdd` (`infra/setup_itbench.sh`).
+at `333afa05c421b4e02a47b6c1b51686d20ce40cdd` (`infra/setup_itbench.sh`), with `itbench.patch` applied: it gives
+ITBench's span-metrics connector the name the pinned demo chart uses, `span_metrics`.
 
 ## Verifier under test
 
@@ -16,7 +17,9 @@ OpenTelemetry demo PrometheusRule and the kube-prometheus-stack defaults with `f
 ## Environment
 
 `environment.py up` creates the kind cluster from ITBench's `clusters/kind/configs/simple.yaml` (one control plane, two
-workers, `kindest/node:v1.37.0`), starts cloud-provider-kind, runs `itbench prepare cluster` and `make deploy-tools`.
+workers, `kindest/node:v1.37.0`), starts cloud-provider-kind, runs `itbench prepare cluster` and `make deploy-tools`,
+and scales ITBench's OpenTelemetry collectors (namespace `opentelemetry-collectors`), which export traces for agents
+and are read by none of the alert rules, to zero replicas; their Services stay for the application playbook.
 ITBench needs Kubernetes 1.34 or later, so its kind, kubectl and cloud-provider-kind come from `/opt/itbench/bin`. At
 the pinned commit `make deploy-applications` no longer maps a scenario to its application, so the probe enables the
 OpenTelemetry demo with `applications_opentelemetry_demo_enabled`.
@@ -35,13 +38,13 @@ Actions: `NULL` (nothing), `RESTART`, `SCALE0` (the operators of `studies/verifi
 
 ## Labels
 
-| Action | Alert-absent check | Reference verifier | Label |
+| Alert-absent check | Ground-truth alert later in the 600 s | Reference verifier | Label |
 |---|---|---|---|
-| `NULL` | passes | - | `null_pass` |
-| any | fails | unhealthy | `killed` |
-| other | passes | unhealthy | `survived` |
-| other | passes | healthy | `equivalent` |
-| other | fails | healthy | `false_reject` |
+| fails | - | - | `killed` |
+| passes | fires again | - | `transient_pass` |
+| passes | stays absent | - (`NULL`) | `null_pass` |
+| passes | stays absent | unhealthy | `survived` |
+| passes | stays absent | healthy | `equivalent` |
 
 ## Predictions
 

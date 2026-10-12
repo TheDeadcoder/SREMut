@@ -82,15 +82,19 @@ def poll(names, seconds, until=None):
         time.sleep(POLL)
 
 
-def alert_absent(states):
+def passed_at(states):
     clean = 0
-    for state in states:
+    for index, state in enumerate(states):
         if state["after"] > WINDOW:
-            break
+            return None
         clean = clean + 1 if "error" not in state and not state["ground_truth"] else 0
         if clean >= PASS_MARK:
-            return True
-    return False
+            return index
+    return None
+
+
+def alert_absent(states):
+    return passed_at(states) is not None
 
 
 def act(action):
