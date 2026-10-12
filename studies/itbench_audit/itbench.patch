@@ -1,0 +1,22 @@
+diff --git a/scenarios/sre/project/roles/applications/tasks/install_opentelemetry_demo.yaml b/scenarios/sre/project/roles/applications/tasks/install_opentelemetry_demo.yaml
+index 69695202..fdc3c65e 100644
+--- a/scenarios/sre/project/roles/applications/tasks/install_opentelemetry_demo.yaml
++++ b/scenarios/sre/project/roles/applications/tasks/install_opentelemetry_demo.yaml
+@@ -141,7 +141,7 @@
+       opentelemetry-collector:
+         config:
+           connectors:
+-            spanmetrics:
++            span_metrics:
+               dimensions:
+                 - name: namespace
+                   default: "{{ applications_releases.opentelemetry_demo.namespace }}"
+@@ -169,7 +169,7 @@
+                 exporters:
+                   - debug
+                   - otlp/jaeger
+-                  - spanmetrics
++                  - span_metrics
+             telemetry:
+               metrics:
+                 level: detailed

@@ -1,5 +1,6 @@
 """Creates (up) or removes (down) the ITBench audit environment: the kind cluster from ITBench's simple configuration,
-the cloud-provider-kind load balancer, ITBench's cluster preparation and its SRE tools."""
+the cloud-provider-kind load balancer, ITBench's cluster preparation and its SRE tools, with its trace collectors at
+zero replicas."""
 import argparse
 import os
 import subprocess
@@ -10,6 +11,7 @@ NODE_IMAGE = "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a2659
 CLUSTER = "kind-dev"
 TOOLS = "/opt/itbench/bin"
 BALANCER_LOG = Path.home() / "cloud-provider-kind.log"
+COLLECTORS = ("istio", "jaeger", "kubernetes")
 
 
 def run(cmd, cwd=None):
@@ -28,6 +30,9 @@ def up(itbench):
         time.sleep(10)
     run(["uv", "run", "itbench", "prepare", "cluster", "--kubeconfig", str(Path.home() / ".kube/config")], cwd=itbench)
     run(["make", "-C", "scenarios/sre", "deploy-tools"], cwd=itbench)
+    for collector in COLLECTORS:
+        run(["kubectl", "patch", "opentelemetrycollector", collector, "-n", "opentelemetry-collectors",
+             "--type=merge", "-p", '{"spec": {"replicas": 0}}'])
 
 
 def down(itbench):
