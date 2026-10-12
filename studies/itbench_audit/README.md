@@ -1,7 +1,8 @@
 # ITBench audit
 
 Whether ITBench's mitigation criterion, that a scenario's ground-truth alerts are cleared, rejects the null agent and
-plausible wrong repairs, measured live on seven of its library scenarios on the OpenTelemetry demo. ITBench is pinned
+plausible wrong repairs, measured live on the 25 active OpenTelemetry demo scenarios of its library (16 and 24 use
+a retired fault and have no ground-truth alerts; 37 injects no fault). ITBench is pinned
 at `333afa05c421b4e02a47b6c1b51686d20ce40cdd` (`infra/setup_itbench.sh`), with `itbench.patch` applied: it gives
 ITBench's span-metrics connector the name the pinned demo chart uses, `span_metrics`.
 
@@ -21,8 +22,9 @@ workers, `kindest/node:v1.37.0`), starts cloud-provider-kind, runs `itbench prep
 and scales ITBench's OpenTelemetry collectors (namespace `opentelemetry-collectors`), which export traces for agents
 and are read by none of the alert rules, to zero replicas; their Services stay for the application playbook.
 ITBench needs Kubernetes 1.34 or later, so its kind, kubectl and cloud-provider-kind come from `/opt/itbench/bin`. At
-the pinned commit `make deploy-applications` no longer maps a scenario to its application, so the probe enables the
-OpenTelemetry demo with `applications_opentelemetry_demo_enabled`.
+the pinned commit `make deploy-applications` no longer maps a scenario to its application, so the probe deploys it
+with the scenario's own `extra_variables.yaml`, which enables the OpenTelemetry demo (and, for scenario 38, its
+autoscalers).
 
 ## Episode
 
@@ -56,6 +58,12 @@ Fixed before the first episode, in `schedule.csv` (`predicted`: whether the aler
 - `RESTART` passes everywhere: the pod-state alerts are keyed by pod and must hold for 5 minutes, so replacement pods
   clear them for at least that long, and the error-rate alert restarts with the demo's own collector.
 - `SCALE0` passes the pod-state scenarios (no pod, no alert) and `SILENCE` the error-rate ones (no frontend spans).
+- For the other 18 scenarios: the no-op fails wherever the fault leaves a pod not ready, waiting or crash-looping, or
+  makes requests fail; it passes on 34 and 116, whose `HighRequestLatency` alert should not fire (a rejected
+  password fails fast; etcd pressure slows the API server, not the demo's requests). `RESTART` passes everywhere except
+  38, whose `KubeHpaMaxedOut` alert is keyed by the autoscaler, not by a pod. `SILENCE` passes 43 and 63 and fails 31
+  and 58, whose ground truth includes `NoRequestsReceived`, which fires for services that receive no requests, and the
+  demo's `chatbot` and `mcp` receive none.
 
 ## Running
 
