@@ -22,4 +22,5 @@ The SREGym commit is the last one that registers all 125 problems. The August re
 `experiments/` used SREGym `ba07faf1a322f9b6d4a279643bb796aa2f36f64b` and are not regenerated.
 
 Host settings applied by the script: `fs.inotify.max_user_instances=1024`,
-`fs.inotify.max_user_watches=1048576`, automatic package upgrades disabled, Docker packages held.
+`fs.inotify.max_user_watches=1048576`, `net.ipv4.ip_forward=1` (container networking needs it and some cloud
+images turn it off), automatic package upgrades disabled, Docker packages held.

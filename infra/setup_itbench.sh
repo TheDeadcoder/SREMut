@@ -11,6 +11,7 @@ KIND_VERSION="v0.33.0"
 KUBECTL_VERSION="v1.37.0"
 BALANCER_VERSION="0.12.0"
 BIN="/opt/itbench/bin"
+PATCH="$(dirname "$(readlink -f "$0")")/../studies/itbench_audit/itbench.patch"
 
 [[ $EUID -eq 0 ]] || { echo "run as root" >&2; exit 1; }
 
@@ -18,6 +19,7 @@ cat > /etc/sysctl.d/99-itbench.conf <<'EOF'
 fs.inotify.max_user_instances=1024
 fs.inotify.max_user_watches=1048576
 vm.max_map_count=262144
+net.ipv4.ip_forward=1
 EOF
 sysctl --system >/dev/null
 
@@ -46,13 +48,14 @@ grep " ${archive}\$" checksums.txt | sha256sum -c --quiet -
 tar -xzf "$archive" cloud-provider-kind
 install -m 0755 cloud-provider-kind "$BIN/cloud-provider-kind"
 
-sudo -u "$RUN_USER" -H bash -s -- "$ITBENCH_REPO" "$ITBENCH_COMMIT" <<'EOF'
+sudo -u "$RUN_USER" -H bash -s -- "$ITBENCH_REPO" "$ITBENCH_COMMIT" "$PATCH" <<'EOF'
 set -euo pipefail
 cd ~
 [[ -d ITBench/.git ]] || git clone --quiet "$1" ITBench
 cd ITBench
 git fetch --quiet origin
 git checkout --quiet --detach "$2"
+git apply --reverse --check "$3" 2>/dev/null || git apply "$3"
 make deps
 make -C scenarios/sre group-vars
 EOF
