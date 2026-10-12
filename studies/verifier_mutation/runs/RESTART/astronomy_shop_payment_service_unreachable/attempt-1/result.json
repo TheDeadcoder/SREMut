@@ -1,0 +1,190 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/cart",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/grafana",
+      "deployments/image-provider",
+      "deployments/jaeger",
+      "deployments/kafka",
+      "deployments/llm",
+      "deployments/load-generator",
+      "deployments/payment",
+      "deployments/postgresql",
+      "deployments/product-catalog",
+      "deployments/product-reviews",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/valkey-cart",
+      "statefulsets/opensearch"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "alerts": [
+          "ContainerCPUThrottling"
+        ],
+        "namespace": "astronomy-shop"
+      },
+      "failure_class": "agent_error",
+      "reason": "alerts_still_firing",
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/flagd-config"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "---",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "-------"
+  },
+  "operator": "RESTART",
+  "problem_id": "astronomy_shop_payment_service_unreachable",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

@@ -1,0 +1,614 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-FeatureFlagHttpProbeMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5906,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/frontend-runtime-config",
+      "deployments/frontend",
+      "jobs/wrk2-job"
+    ],
+    "oracle_window": [
+      {
+        "accuracy": 50.0,
+        "failure_class": "ambiguous",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "output": "Connecting to frontend:5000 (10.96.206.141:5000)\nwget: can't connect to remote host (10.96.206.141): Connection refused",
+              "pod": "consul-5c767d7459-xvjzg"
+            },
+            "failure_class": "ambiguous",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "http_probe_response_missing",
+            "success": false
+          }
+        ],
+        "reason": "http_probe_response_missing",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "ambiguous",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "output": "Connecting to frontend:5000 (10.96.206.141:5000)\nwget: can't connect to remote host (10.96.206.141): Connection refused",
+              "pod": "consul-5c767d7459-xvjzg"
+            },
+            "failure_class": "ambiguous",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "http_probe_response_missing",
+            "success": false
+          }
+        ],
+        "reason": "http_probe_response_missing",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      }
+    ],
+    "profile": "------",
+    "reference": {
+      "capacity": [],
+      "function": false,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 5944,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "namespace": "hotel-reservation",
+              "phase": "Pending",
+              "pod": "wrk2-job-6dltx"
+            },
+            "failure_class": "ambiguous",
+            "name": "0-MitigationOracle",
+            "reason": "pods_not_ready",
+            "success": false
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "pods_not_ready+endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "endpoint_error_rate_high",
+        "success": false
+      }
+    ],
+    "profile": "-----------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "feature_flag_latent_bug_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

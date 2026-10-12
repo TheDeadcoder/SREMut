@@ -1,0 +1,753 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/basic-discovery",
+      "statefulsets/basic-pd",
+      "statefulsets/basic-tidb",
+      "statefulsets/basic-tikv"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "healthy": {
+    "oracle": {
+      "any_pvc_pending": false,
+      "cr_values": {
+        "pd.storageClassName": "openebs-hostpath",
+        "tikv.storageClassName": "openebs-hostpath"
+      },
+      "events_tail": "mal    SuccessfulCreate        statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb successful\n4m34s       Normal    SuccessfulCreate        tidbcluster/basic                         create Service basic-tidb-peer in  basic successful\n4m34s       Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n4m33s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m33s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m33s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n4m33s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n4m33s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m33s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n4m21s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n4m11s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n4m10s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m10s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m10s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m7s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n",
+      "fault_applied": false,
+      "pvc_pd": [
+        {
+          "name": "pd-basic-pd-0",
+          "phase": "Bound",
+          "storageClassName": "openebs-hostpath"
+        }
+      ],
+      "pvc_tikv": [
+        {
+          "name": "tikv-basic-tikv-0",
+          "phase": "Bound",
+          "storageClassName": "openebs-hostpath"
+        }
+      ],
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "persistentvolumeclaims/pd-basic-pd-0",
+      "statefulsets/basic-pd"
+    ],
+    "oracle_window": [
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "db\n2m1s        Normal    Created                 pod/basic-discovery-865ccb69bb-v8f2m      Created container: discovery\n2m1s        Normal    Started                 pod/basic-discovery-865ccb69bb-v8f2m      Started container discovery\n2m1s        Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8f2m      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n118s        Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n117s        Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n117s        Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n117s        Normal    Started                 pod/basic-tikv-0                          Started container tikv\n90s         Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n89s         Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n89s         Normal    Started                 pod/basic-tidb-0                          Started container tidb\n89s         Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n89s         Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n89s         Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n89s         Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n7s          Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.180:4000: connect: connection refused\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "db\n2m17s       Normal    Created                 pod/basic-discovery-865ccb69bb-v8f2m      Created container: discovery\n2m17s       Normal    Started                 pod/basic-discovery-865ccb69bb-v8f2m      Started container discovery\n2m17s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8f2m      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n2m14s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n2m13s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n2m13s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m13s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n106s        Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n5s          Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n5s          Normal    Started                 pod/basic-tidb-0                          Started container tidb\n5s          Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n105s        Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n105s        Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n105s        Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n14s         Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.180:4000: connect: connection refused\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "db\n2m32s       Normal    Created                 pod/basic-discovery-865ccb69bb-v8f2m      Created container: discovery\n2m32s       Normal    Started                 pod/basic-discovery-865ccb69bb-v8f2m      Started container discovery\n2m32s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8f2m      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n2m29s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n2m28s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n2m28s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m28s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m1s        Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n20s         Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n20s         Normal    Started                 pod/basic-tidb-0                          Started container tidb\n20s         Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n2m          Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n2m          Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n2m          Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n8s          Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.180:4000: connect: connection refused\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "db\n2m48s       Normal    Created                 pod/basic-discovery-865ccb69bb-v8f2m      Created container: discovery\n2m48s       Normal    Started                 pod/basic-discovery-865ccb69bb-v8f2m      Started container discovery\n2m48s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8f2m      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n2m45s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n2m44s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n2m44s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m44s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m17s       Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n36s         Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n36s         Normal    Started                 pod/basic-tidb-0                          Started container tidb\n36s         Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n2m16s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n2m16s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n2m16s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4s          Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.180:4000: connect: connection refused\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "db\n3m4s        Normal    Created                 pod/basic-discovery-865ccb69bb-v8f2m      Created container: discovery\n3m4s        Normal    Started                 pod/basic-discovery-865ccb69bb-v8f2m      Started container discovery\n3m4s        Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8f2m      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n3m1s        Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n3m          Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n3m          Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n3m          Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m33s       Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n52s         Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n52s         Normal    Started                 pod/basic-tidb-0                          Started container tidb\n52s         Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n2m32s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n2m32s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n2m32s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n10s         Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.180:4000: connect: connection refused\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "db\n3m19s       Normal    Created                 pod/basic-discovery-865ccb69bb-v8f2m      Created container: discovery\n3m19s       Normal    Started                 pod/basic-discovery-865ccb69bb-v8f2m      Started container discovery\n3m19s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8f2m      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n3m16s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n3m15s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n3m15s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n3m15s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m48s       Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n67s         Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n67s         Normal    Started                 pod/basic-tidb-0                          Started container tidb\n67s         Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n2m47s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n2m47s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n2m47s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n5s          Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.180:4000: connect: connection refused\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "db\n3m35s       Normal    Created                 pod/basic-discovery-865ccb69bb-v8f2m      Created container: discovery\n3m35s       Normal    Started                 pod/basic-discovery-865ccb69bb-v8f2m      Started container discovery\n3m35s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8f2m      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n3m32s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n3m31s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n3m31s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n3m31s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n3m4s        Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n83s         Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n83s         Normal    Started                 pod/basic-tidb-0                          Started container tidb\n83s         Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n3m3s        Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n3m3s        Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n3m3s        Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n1s          Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.180:4000: connect: connection refused\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "statefulsets/basic-pd",
+        "statefulsets/basic-tidb"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "basic-pd",
+        "basic-pd-peer",
+        "basic-tidb"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "ully Create     tidbcluster/basic                         create ConfigMap/basic-tidb for controller TidbCluster/basic successfully\n4m35s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m35s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m35s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n4m35s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n4m35s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m35s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n4m23s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n4m13s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n4m12s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m12s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m12s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m9s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n0s          Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n1s          Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n4m51s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m39s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n4m29s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n4m28s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m28s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m28s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m25s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n16s         Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n17s         Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n16s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n10s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n16s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n12s         Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n5m6s        Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m54s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n4m44s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n4m43s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m43s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m43s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m40s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n31s         Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n32s         Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n31s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n10s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n31s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n27s         Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n5m22s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n5m10s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n5m          Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n4m59s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m59s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m59s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m56s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n47s         Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n48s         Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n47s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n11s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n47s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n43s         Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n5m38s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n5m26s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n5m16s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n5m15s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n5m15s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n5m15s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n5m12s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n63s         Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n64s         Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n63s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n12s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n63s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n59s         Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n5m54s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n5m42s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n5m32s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n5m31s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n5m31s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n5m31s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n5m28s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n79s         Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n80s         Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n79s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n13s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n79s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n75s         Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n6m9s        Normal    Started                 pod/basic-tidb-0                          Started container tidb\n5m57s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n5m47s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n5m46s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n5m46s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n5m46s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n5m43s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n94s         Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n95s         Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n94s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n13s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n94s         Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n90s         Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n6m25s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n6m13s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n6m3s        Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n6m2s        Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n6m2s        Normal    Started                 pod/mysql-client                          Started container mysql-client\n6m2s        Normal    Created                 pod/mysql-client                          Created container: mysql-client\n5m59s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n110s        Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n111s        Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n110s        Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n14s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n110s        Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n106s        Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n6m41s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n6m29s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n6m19s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n6m18s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n6m18s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n6m18s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n6m15s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n2m6s        Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n2m7s        Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n2m6s        Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n15s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n2m6s        Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n2m2s        Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n6m56s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n6m44s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n6m34s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n6m33s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n6m33s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n6m33s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n6m30s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n2m21s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n2m22s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n2m21s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n15s         Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n2m21s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n2m17s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n7m12s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n7m          Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n6m50s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n6m49s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n6m49s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n6m49s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n6m46s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n2m37s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n2m38s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n2m37s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n1s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n2m37s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n2m33s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n7m28s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n7m16s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n7m6s        Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n7m5s        Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n7m5s        Normal    Started                 pod/mysql-client                          Started container mysql-client\n7m5s        Normal    Created                 pod/mysql-client                          Created container: mysql-client\n7m2s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n2m53s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n2m54s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n2m53s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n2s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n2m53s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n2m49s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n7m43s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n7m31s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n7m21s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n7m20s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n7m20s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n7m20s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n7m17s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n3m8s        Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n3m9s        Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n3m8s        Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n2s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n3m8s        Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n3m4s        Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n7m59s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n7m47s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n7m37s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n7m36s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n7m36s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n7m36s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n7m33s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n3m24s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n3m25s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n3m24s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n3s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n3m24s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n3m20s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n8m15s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n8m3s        Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n7m53s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n7m52s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n7m52s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n7m52s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n7m49s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n3m40s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n3m41s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n3m40s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n4s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n3m40s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n3m36s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n8m30s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n8m18s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n8m8s        Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n8m7s        Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n8m7s        Normal    Started                 pod/mysql-client                          Started container mysql-client\n8m7s        Normal    Created                 pod/mysql-client                          Created container: mysql-client\n8m4s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n3m55s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n3m56s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n3m55s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n4s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n3m55s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n3m51s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n8m46s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n8m34s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n8m24s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n8m23s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n8m23s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n8m23s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n8m20s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n4m11s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n4m12s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n4m11s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n5s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n4m11s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n4m7s        Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n9m2s        Normal    Started                 pod/basic-tidb-0                          Started container tidb\n8m50s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n8m40s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n8m39s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n8m39s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n8m39s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n8m36s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n4m27s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n4m28s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n4m27s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n6s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n4m27s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n4m23s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n9m17s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n9m5s        Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n8m55s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n8m54s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n8m54s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n8m54s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n8m51s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n4m42s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n4m43s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n4m42s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n6s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n4m42s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n4m38s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n9m33s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n9m21s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n9m11s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n9m10s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n9m10s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n9m10s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n9m7s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n4m58s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n4m59s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n4m58s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n7s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n4m58s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n4m54s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      },
+      {
+        "any_pvc_pending": true,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " pod/basic-tidb-0                          Started container slowlog\n9m49s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n9m37s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.162.186:4000: connect: connection refused\n9m27s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n9m26s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n9m26s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n9m26s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n9m23s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n5m14s       Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n5m15s       Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n5m14s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n8s          Warning   ProvisioningFailed      persistentvolumeclaim/pd-basic-pd-0       storageclass.storage.k8s.io \"nonexistent-storage-class\" not found\n5m14s       Normal    SuccessfulCreate        statefulset/basic-pd                      create Claim pd-basic-pd-0 Pod basic-pd-0 in StatefulSet basic-pd success\n5m10s       Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Pending",
+            "storageClassName": "nonexistent-storage-class"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      }
+    ],
+    "profile": "---------------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "operator_non_existent_storage",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "statefulsets/basic-pd"
+  ]
+}

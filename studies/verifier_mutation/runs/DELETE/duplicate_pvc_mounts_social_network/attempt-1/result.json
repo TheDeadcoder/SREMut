@@ -1,0 +1,125 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/jaeger"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "jaeger"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5120,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/jaeger",
+      "persistentvolumeclaims/jaeger-pvc"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '82a60da7-7b32-4b0b-bbe6-40ffa4e74f58', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '214'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"jaeger\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"jaeger\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '425754fb-6bf3-4ee4-831e-b040e44eabc4', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '214'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"jaeger\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"jaeger\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '4ef7fabd-1a87-4d75-955a-9385f2e304d7', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '214'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"jaeger\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"jaeger\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'ea62fb71-89e2-4a54-8d3b-31bafbf585c9', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '214'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"jaeger\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"jaeger\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '25b4f96e-c0e2-41a5-a1c0-53e019d19734', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '214'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"jaeger\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"jaeger\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '5ebb1b86-0fdb-422e-9f92-2a5af947d78a', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '214'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"jaeger\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"jaeger\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '7bb47f36-08e1-4e8c-8b8b-be25948c7e7b', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '214'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"jaeger\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"jaeger\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/jaeger"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5120,
+        "rounds": 5
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "duplicate_pvc_mounts_social_network",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/jaeger"
+  ]
+}

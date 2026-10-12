@@ -1,0 +1,125 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/url-shorten-mongodb"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5120,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/url-shorten-mongodb",
+      "services/jaeger"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/url-shorten-mongodb"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "url-shorten-mongodb"
+      ]
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "auth_miss_mongodb",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/url-shorten-mongodb"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/bhotelwrk-wlgen"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "HighRequestLatency",
+            "KubePodNotReady"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "+-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": null
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/bhotelwrk-wlgen-env",
+      "deployments/bhotelwrk-wlgen",
+      "deployments/frontend-service",
+      "deployments/geo-db",
+      "deployments/geo-service",
+      "deployments/jaeger",
+      "deployments/profile-cache",
+      "deployments/profile-db",
+      "deployments/profile-service",
+      "deployments/rate-cache",
+      "deployments/rate-db",
+      "deployments/rate-service",
+      "deployments/recomd-db",
+      "deployments/recomd-service",
+      "deployments/reserv-cache",
+      "deployments/reserv-db",
+      "deployments/reserv-service",
+      "deployments/search-service",
+      "deployments/user-db",
+      "deployments/user-service"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "HighRequestLatency",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "---",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": null
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "gc_capacity_degradation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/bhotelwrk-wlgen"
+  ]
+}

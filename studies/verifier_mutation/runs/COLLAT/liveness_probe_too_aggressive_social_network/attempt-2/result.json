@@ -1,0 +1,106 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/compose-post-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 3.4,
+          "namespace": "social-network",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5119,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/aux-service-script",
+      "deployments/aux-service",
+      "services/aux-service"
+    ],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "+++",
+    "reference": {
+      "capacity": [
+        "deployments/compose-post-service"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "compose-post-service"
+      ],
+      "traffic": {
+        "failed_rounds": 5,
+        "requests": 619,
+        "rounds": 5
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "liveness_probe_too_aggressive_social_network",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "detail": {
+          "held_for_seconds": 21.2,
+          "namespace": "social-network",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "-+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5120,
+        "rounds": 5
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/aux-service"
+  ]
+}

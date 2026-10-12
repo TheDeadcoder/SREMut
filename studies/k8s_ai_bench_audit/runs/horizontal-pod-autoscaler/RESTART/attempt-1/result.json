@@ -1,0 +1,37 @@
+{
+  "action": "RESTART",
+  "action_result": {
+    "applied": true,
+    "targets": {
+      "hpa-test": [
+        "deployments/web-app"
+      ]
+    }
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 31,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 17s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nThanks for using kind! \ud83d\ude0a"
+  },
+  "namespaces": [
+    "hpa-test"
+  ],
+  "settled": true,
+  "setup": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "namespace/hpa-test created\ndeployment.apps/web-app created"
+  },
+  "status": "COMPLETED",
+  "task": "horizontal-pod-autoscaler",
+  "verify_immediate": {
+    "exit_code": 1,
+    "seconds": 0,
+    "tail": "Error: No HPA found in hpa-test namespace.\nerror: error executing jsonpath \"{.items[0].metadata.name}\": Error executing template: array index out of bounds: index 0, length 0. Printing more information for debugging the template:\n\ttemplate was:\n\t\t{.items[0].metadata.name}\n\tobject given to jsonpath engine was:\n\t\tmap[string]interface {}{\"apiVersion\":\"v1\", \"items\":[]interface {}{}, \"kind\":\"List\", \"metadata\":map[string]interface {}{\"resourceVersion\":\"\"}}\n\n"
+  },
+  "verify_settled": {
+    "exit_code": 1,
+    "seconds": 0,
+    "tail": "Error: No HPA found in hpa-test namespace.\nerror: error executing jsonpath \"{.items[0].metadata.name}\": Error executing template: array index out of bounds: index 0, length 0. Printing more information for debugging the template:\n\ttemplate was:\n\t\t{.items[0].metadata.name}\n\tobject given to jsonpath engine was:\n\t\tmap[string]interface {}{\"apiVersion\":\"v1\", \"items\":[]interface {}{}, \"kind\":\"List\", \"metadata\":map[string]interface {}{\"resourceVersion\":\"\"}}\n\n"
+  }
+}

@@ -1,0 +1,335 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/cart",
+      "deployments/cart-retained",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/frontend-retained",
+      "deployments/grafana",
+      "deployments/image-provider",
+      "deployments/jaeger",
+      "deployments/kafka",
+      "deployments/llm",
+      "deployments/load-generator",
+      "deployments/payment",
+      "deployments/postgresql",
+      "deployments/product-catalog",
+      "deployments/product-reviews",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/valkey-cart",
+      "deployments/valkey-next",
+      "statefulsets/opensearch"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "cross_instance_operations": true,
+      "customer_state_restored": true,
+      "deployment_exists": true,
+      "no_pod_carries_override": false,
+      "persistent_after_replacement": true,
+      "product_probe_succeeded": true,
+      "ready_endpoint": true,
+      "reason": "customer state and new cart operations agree across persistent routes",
+      "rollout_complete": true,
+      "runtime_available": true,
+      "success": true,
+      "template_override_removed": false
+    },
+    "traffic": {
+      "error": "Exception: No load-generator found in namespace astronomy-shop"
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/customer-support",
+      "deployments/frontend-proxy",
+      "deployments/valkey-next",
+      "services/valkey-cart"
+    ],
+    "oracle_window": [
+      {
+        "deployment_exists": true,
+        "failure_class": "ambiguous",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "pod(s) frontend-proxy-6778c8876d-dxnh6 still carry a static hosts entry for 'frontend'",
+        "reason_code": "connectivity_probe_failed",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      }
+    ],
+    "profile": "----",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "valkey-cart"
+      ],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      },
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      }
+    ],
+    "profile": "---------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "stale_hostaliases_dns_poisoning_astronomy_shop",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

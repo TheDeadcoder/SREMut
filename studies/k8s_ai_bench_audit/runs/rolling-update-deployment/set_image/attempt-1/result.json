@@ -1,0 +1,37 @@
+{
+  "action": "set_image",
+  "action_result": {
+    "applied": true,
+    "script": {
+      "exit_code": 0,
+      "seconds": 0,
+      "tail": "deployment.apps/web-app image updated"
+    }
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 32,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 18s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nThanks for using kind! \ud83d\ude0a"
+  },
+  "namespaces": [
+    "rollout-test"
+  ],
+  "settled": true,
+  "setup": {
+    "exit_code": 0,
+    "seconds": 6,
+    "tail": "namespace/rollout-test created\ndeployment.apps/web-app created\ndeployment.apps/web-app condition met\nSetup succeeded for rolling-update-deployment"
+  },
+  "status": "COMPLETED",
+  "task": "rolling-update-deployment",
+  "verify_immediate": {
+    "exit_code": 0,
+    "seconds": 10,
+    "tail": "Starting verification for rolling-update-deployment...\nWaiting for deployment 'web-app' in namespace 'rollout-test' to complete its rollout...\nWaiting for deployment \"web-app\" rollout to finish: 1 out of 3 new replicas have been updated...\nWaiting for deployment \"web-app\" rollout to finish: 1 out of 3 new replicas have been updated...\nWaiting for deployment \"web-app\" rollout to finish: 1 out of 3 new replicas have been updated...\nWaiting for deployment \"web-app\" rollout to finish: 2 out of 3 new replicas have been updated...\nWaiting for deployment \"web-app\" rollout to finish: 2 out of 3 new replicas have been updated...\nWaiting for deployment \"web-app\" rollout to finish: 2 out of 3 new replicas have been updated...\nWaiting for deployment \"web-app\" rollout to finish: 1 old replicas are pending termination...\nWaiting for deployment \"web-app\" rollout to finish: 1 old replicas are pending termination...\ndeployment \"web-app\" successfully rolled out\nDeployment rollout completed successfully.\nVerifying container images for all pods managed by the deployment...\nFound active pod-template-hash: 7696f7b8b. Verifying pods with this label...\nPASSED: Pod 'web-app-7696f7b8b-s27zx' is running the correct image (nginx:1.22).\nPASSED: Pod 'web-app-7696f7b8b-wlz62' is running the correct image (nginx:1.22).\nPASSED: Pod 'web-app-7696f7b8b-xxpjd' is running the correct image (nginx:1.22).\nVerification successful for rolling-update-deployment."
+  },
+  "verify_settled": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "Starting verification for rolling-update-deployment...\nWaiting for deployment 'web-app' in namespace 'rollout-test' to complete its rollout...\ndeployment \"web-app\" successfully rolled out\nDeployment rollout completed successfully.\nVerifying container images for all pods managed by the deployment...\nFound active pod-template-hash: 7696f7b8b. Verifying pods with this label...\nPASSED: Pod 'web-app-7696f7b8b-s27zx' is running the correct image (nginx:1.22).\nPASSED: Pod 'web-app-7696f7b8b-wlz62' is running the correct image (nginx:1.22).\nPASSED: Pod 'web-app-7696f7b8b-xxpjd' is running the correct image (nginx:1.22).\nVerification successful for rolling-update-deployment."
+  }
+}

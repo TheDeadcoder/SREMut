@@ -1,0 +1,106 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/frontend-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": null
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/bhotelwrk-wlgen-env",
+      "deployments/bhotelwrk-wlgen"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "-",
+    "reference": {
+      "capacity": [
+        "deployments/frontend-service"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "frontend-service"
+      ],
+      "traffic": null
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "load_spike_rpc_retry_storm",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "detail": {
+          "alerts": [
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "HighRequestLatency"
+          ],
+          "namespace": "blueprint-hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "--+",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": null
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

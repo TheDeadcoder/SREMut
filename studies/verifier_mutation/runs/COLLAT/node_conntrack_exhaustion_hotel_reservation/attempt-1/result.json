@@ -1,0 +1,145 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "conntrack_ratio": 1.0,
+        "frontend_probe": true,
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "conntrack_ratio": 0.001800537109375,
+      "frontend_probe": true,
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5906,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5906,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "node_conntrack_exhaustion_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "conntrack_ratio": 0.000858306884765625,
+        "frontend_probe": true,
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 2972,
+        "rounds": 1
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/profile"
+  ]
+}

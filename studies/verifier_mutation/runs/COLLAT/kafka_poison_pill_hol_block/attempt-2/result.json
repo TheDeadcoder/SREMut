@@ -1,0 +1,84 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/accounting"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "blocked_offset": 20,
+          "detail": null
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "error": "RuntimeError: no running order-stream pod found"
+      },
+      "failure_class": "ambiguous",
+      "reason": "pipeline_snapshot_failed",
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/orders-pipeline-scripts",
+      "deployments/order-stream",
+      "deployments/orders-validator"
+    ],
+    "oracle_window": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [
+        "deployments/accounting"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "kafka_poison_pill_hol_block",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

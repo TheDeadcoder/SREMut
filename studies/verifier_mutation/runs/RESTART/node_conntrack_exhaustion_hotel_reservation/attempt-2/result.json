@@ -1,0 +1,124 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/edge-traffic-client",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/rpc-gateway",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "remove application: Exception: [red]Timeout: Namespace 'hotel-reservation' was not deleted within 300 seconds.",
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'hotel-reservation' was not deleted within 300 seconds."
+  ],
+  "healthy": {
+    "oracle": {
+      "conntrack_ratio": 0.00296783447265625,
+      "frontend_probe": true,
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5867,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/edge-traffic-client",
+      "deployments/rpc-gateway",
+      "services/rpc-gateway"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "--",
+    "reference": {
+      "capacity": [
+        "deployments/geo",
+        "deployments/mongodb-geo",
+        "deployments/mongodb-user",
+        "deployments/profile",
+        "deployments/rate",
+        "deployments/recommendation",
+        "deployments/user"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "geo",
+        "mongodb-geo",
+        "mongodb-user",
+        "profile",
+        "rate",
+        "recommendation",
+        "user"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 5906,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "conntrack_ratio": 1.0,
+        "frontend_probe": false,
+        "success": false
+      },
+      {
+        "conntrack_ratio": 1.0,
+        "frontend_probe": false,
+        "success": false
+      }
+    ],
+    "profile": "--"
+  },
+  "operator": "RESTART",
+  "problem_id": "node_conntrack_exhaustion_hotel_reservation",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

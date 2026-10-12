@@ -1,0 +1,173 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "message": "Policy namespace 'policy-system' was deleted. The policy plane must remain present; restore the namespace and the webhooks, and apply a non-destructive fix."
+      },
+      "failure_class": "agent_error",
+      "reason": "workload_not_intact",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5906,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      }
+    ],
+    "profile": "--",
+    "reference": {
+      "capacity": [
+        "deployments/consul",
+        "deployments/frontend",
+        "deployments/geo",
+        "deployments/jaeger",
+        "deployments/memcached-profile",
+        "deployments/memcached-rate",
+        "deployments/memcached-reserve",
+        "deployments/mongodb-geo",
+        "deployments/mongodb-profile",
+        "deployments/mongodb-rate",
+        "deployments/mongodb-recommendation",
+        "deployments/mongodb-reservation",
+        "deployments/mongodb-user",
+        "deployments/profile",
+        "deployments/rate",
+        "deployments/recommendation",
+        "deployments/reservation",
+        "deployments/search",
+        "deployments/user"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "consul",
+        "frontend",
+        "geo",
+        "jaeger-out",
+        "memcached-profile",
+        "memcached-rate",
+        "memcached-reserve",
+        "mongodb-geo",
+        "mongodb-profile",
+        "mongodb-rate",
+        "mongodb-recommendation",
+        "mongodb-reservation",
+        "mongodb-user",
+        "profile",
+        "rate",
+        "recommendation",
+        "reservation",
+        "search",
+        "user"
+      ],
+      "traffic": {
+        "error": "Exception: No pods found for job wrk2-job in namespace hotel-reservation"
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      }
+    ],
+    "profile": "-----"
+  },
+  "operator": "RESTART",
+  "problem_id": "cumulative_admission_webhook_timeout_hotel_reservation",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/recommendation"
+  ]
+}

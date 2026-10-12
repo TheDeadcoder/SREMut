@@ -1,0 +1,112 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/cleanup-controller",
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "failure_class": "ambiguous",
+      "reason": "controller_not_healthy",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5943,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/cleanup-controller-script",
+      "configmaps/reservation-cleanup-token",
+      "deployments/cleanup-controller"
+    ],
+    "oracle_window": [
+      {
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "--",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5905,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "------"
+  },
+  "operator": "RESTART",
+  "problem_id": "finalizer_deadlock_controller_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

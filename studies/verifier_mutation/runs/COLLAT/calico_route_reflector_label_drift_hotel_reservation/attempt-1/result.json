@@ -1,0 +1,157 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "namespace": "platform-checks"
+      },
+      "failure_class": "ambiguous",
+      "reason": "no_deployments_found",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 2934,
+      "rounds": 1
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "consul",
+          "desired": 0,
+          "expected": 1
+        },
+        "failure_class": "agent_error",
+        "reason": "app_replicas_reduced",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "desired": 0,
+          "expected": 1
+        },
+        "failure_class": "agent_error",
+        "reason": "app_replicas_reduced",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "desired": 0,
+          "expected": 1
+        },
+        "failure_class": "agent_error",
+        "reason": "app_replicas_reduced",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "desired": 0,
+          "expected": 1
+        },
+        "failure_class": "agent_error",
+        "reason": "app_replicas_reduced",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "desired": 0,
+          "expected": 1
+        },
+        "failure_class": "agent_error",
+        "reason": "app_replicas_reduced",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "desired": 0,
+          "expected": 1
+        },
+        "failure_class": "agent_error",
+        "reason": "app_replicas_reduced",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "desired": 0,
+          "expected": 1
+        },
+        "failure_class": "agent_error",
+        "reason": "app_replicas_reduced",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5942,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "calico_route_reflector_label_drift_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": false,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 5837,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

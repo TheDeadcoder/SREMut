@@ -1,0 +1,91 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/basic-discovery"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "statefulsets/basic-tidb"
+    ],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "+++++++",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "operator_overload_replicas",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "statefulsets/basic-tidb"
+  ]
+}

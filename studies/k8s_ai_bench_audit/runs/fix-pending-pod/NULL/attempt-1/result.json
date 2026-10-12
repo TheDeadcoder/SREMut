@@ -1,0 +1,32 @@
+{
+  "action": "NULL",
+  "action_result": {
+    "applied": true
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 31,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 16s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nHave a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community \ud83d\ude42"
+  },
+  "namespaces": [
+    "homepage-ns"
+  ],
+  "settled": true,
+  "setup": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "namespace/homepage-ns created\npersistentvolumeclaim/homepage-pvc created\npod/homepage-pod created"
+  },
+  "status": "COMPLETED",
+  "task": "fix-pending-pod",
+  "verify_immediate": {
+    "exit_code": 1,
+    "seconds": 120,
+    "tail": "Starting verification for fix-pending-pods...\n\u2139Waiting for PVC 'homepage-pvc' to be 'Bound'...\nPVC 'homepage-pvc' did not become Bound within 120s.\nInfo for 'homepage-pvc' in namespace 'homepage-ns':\nName:          homepage-pvc\nNamespace:     homepage-ns\nStorageClass:  sc\nStatus:        Pending\nVolume:        \nLabels:        <none>\nAnnotations:   <none>\nFinalizers:    [kubernetes.io/pvc-protection]\nCapacity:      \nAccess Modes:  \nVolumeMode:    Filesystem\nUsed By:       homepage-pod\nEvents:\n  Type     Reason              Age               From                         Message\n  ----     ------              ----              ----                         -------\n  Warning  ProvisioningFailed  15s (x9 over 2m)  persistentvolume-controller  storageclass.storage.k8s.io \"sc\" not found\n---\nInfo for StorageClass and PersistentVolumes:\nNAME                                             PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE\nstorageclass.storage.k8s.io/standard (default)   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  2m17s\nerror: timed out waiting for the condition on persistentvolumeclaims/homepage-pvc"
+  },
+  "verify_settled": {
+    "exit_code": 1,
+    "seconds": 120,
+    "tail": "Starting verification for fix-pending-pods...\n\u2139Waiting for PVC 'homepage-pvc' to be 'Bound'...\nPVC 'homepage-pvc' did not become Bound within 120s.\nInfo for 'homepage-pvc' in namespace 'homepage-ns':\nName:          homepage-pvc\nNamespace:     homepage-ns\nStorageClass:  sc\nStatus:        Pending\nVolume:        \nLabels:        <none>\nAnnotations:   <none>\nFinalizers:    [kubernetes.io/pvc-protection]\nCapacity:      \nAccess Modes:  \nVolumeMode:    Filesystem\nUsed By:       homepage-pod\nEvents:\n  Type     Reason              Age               From                         Message\n  ----     ------              ----              ----                         -------\n  Warning  ProvisioningFailed  0s (x18 over 4m)  persistentvolume-controller  storageclass.storage.k8s.io \"sc\" not found\n---\nInfo for StorageClass and PersistentVolumes:\nNAME                                             PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE\nstorageclass.storage.k8s.io/standard (default)   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  4m17s\nerror: timed out waiting for the condition on persistentvolumeclaims/homepage-pvc"
+  }
+}

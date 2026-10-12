@@ -1,0 +1,123 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployments": {
+            "mongodb-geo": "mongo:8.0.14-rc0",
+            "mongodb-profile": "mongo:8.0.14-rc0",
+            "mongodb-rate": "mongo:8.0.14-rc0",
+            "mongodb-recommendation": "mongo:8.0.14-rc0",
+            "mongodb-reservation": "mongo:8.0.14-rc0",
+            "mongodb-user": "mongo:8.0.14-rc0"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5906,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user"
+    ],
+    "oracle_window": [
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'c0bd380d-c881-4a6a-a441-c93db7cb16f6', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '224'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"mongodb-geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"mongodb-geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '4606b046-55c0-40de-87c8-0f3add300f71', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '224'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"mongodb-geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"mongodb-geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '520d829f-e8b4-4ccd-a781-b759665e3e3a', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '224'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"mongodb-geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"mongodb-geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '334a4cd5-6bd7-4c99-b4cb-a1933c8f08d1', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '224'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"mongodb-geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"mongodb-geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'b88dff2c-eaff-46fc-bbe1-98fc5c8c2a61', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '224'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"mongodb-geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"mongodb-geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'c962b91f-101e-43f0-8819-3c5fd367f011', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '224'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"mongodb-geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"mongodb-geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '41a49d00-5c79-4ed3-83f9-b16a8d3f60e3', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '224'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"mongodb-geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"mongodb-geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      }
+    ],
+    "profile": "???????",
+    "reference": {
+      "capacity": [
+        "deployments/mongodb-geo",
+        "deployments/mongodb-profile",
+        "deployments/mongodb-rate",
+        "deployments/mongodb-recommendation",
+        "deployments/mongodb-reservation",
+        "deployments/mongodb-user"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "mongodb-geo",
+        "mongodb-profile",
+        "mongodb-rate",
+        "mongodb-recommendation",
+        "mongodb-reservation",
+        "mongodb-user"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 5905,
+        "rounds": 2
+      }
+    },
+    "verdict": null
+  },
+  "operator": "DELETE",
+  "problem_id": "update_incompatible_correlated",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/mongodb-geo",
+    "deployments/mongodb-profile",
+    "deployments/mongodb-rate",
+    "deployments/mongodb-recommendation",
+    "deployments/mongodb-reservation",
+    "deployments/mongodb-user"
+  ]
+}

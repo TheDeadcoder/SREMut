@@ -1,0 +1,167 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/compose-post-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "user-service",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 1
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5118,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/user-service"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "compose-post-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "compose-post-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "compose-post-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "compose-post-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "compose-post-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "compose-post-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "compose-post-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/compose-post-service"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "compose-post-service"
+      ],
+      "traffic": {
+        "failed_rounds": 5,
+        "requests": 583,
+        "rounds": 5
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "init_container_dependency_hang_social_network",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "detail": {
+          "namespace": "social-network",
+          "phase": "Pending",
+          "pod": "user-service-6fb8894945-pn4ph"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "namespace": "social-network",
+          "phase": "Pending",
+          "pod": "user-service-6fb8894945-pn4ph"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "--+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5119,
+        "rounds": 5
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

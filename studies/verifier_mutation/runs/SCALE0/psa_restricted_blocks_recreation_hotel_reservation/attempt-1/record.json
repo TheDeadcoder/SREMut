@@ -1,0 +1,40 @@
+{
+  "attempt": 1,
+  "duration_seconds": 375,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "psa_restricted_blocks_recreation_hotel_reservation",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "mcp-server",
+      "prometheus-server",
+      "prometheus-kube-state-metrics"
+    ],
+    "cluster_roles_deleted": [
+      "mcp-server",
+      "prometheus-server",
+      "prometheus-kube-state-metrics"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "observe"
+    ],
+    "persistent_volumes_deleted": [
+      "pvc-a92bd68c-ad6c-48d0-b099-180184032766",
+      "pvc-624fc079-fd60-4591-bb09-daded2a92b59"
+    ]
+  },
+  "server": "C",
+  "status": "COMPLETED"
+}

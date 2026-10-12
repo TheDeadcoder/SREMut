@@ -1,0 +1,106 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #5\\nRunning 30s test @ http://10.96.11.200:5000\\n  3 threads and 100 connections..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5941,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "++",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5905,
+        "rounds": 2
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "ephemeral_port_range_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5758,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/rate"
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/compose-post-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5119,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": false
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "++-++++",
+    "reference": {
+      "capacity": [
+        "deployments/compose-post-service"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "compose-post-service"
+      ],
+      "traffic": {
+        "failed_rounds": 5,
+        "requests": 649,
+        "rounds": 5
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "assign_to_non_existent_node",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": false
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "-+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5119,
+        "rounds": 5
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/user-service"
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/jaeger"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "jaeger"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 1,
+      "requests": 5109,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/jaeger",
+      "persistentvolumeclaims/jaeger-pvc"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "jaeger",
+          "desired": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "jaeger",
+          "desired": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "jaeger",
+          "desired": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "jaeger",
+          "desired": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "jaeger",
+          "desired": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "jaeger",
+          "desired": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "jaeger",
+          "desired": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/jaeger"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5120,
+        "rounds": 5
+      }
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "duplicate_pvc_mounts_social_network",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/jaeger"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "attempt": 1,
+  "duration_seconds": 888,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "valkey_auth_disruption",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "mcp-server",
+      "prometheus-kube-state-metrics",
+      "prometheus-server"
+    ],
+    "cluster_roles_deleted": [
+      "mcp-server",
+      "prometheus-kube-state-metrics",
+      "prometheus-server"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "observe"
+    ],
+    "persistent_volumes_deleted": [
+      "pvc-8c3b8def-b7d5-45a8-bd65-01ee104bbb13",
+      "pvc-bf85f398-3d3a-4e21-b08a-407f843af23e"
+    ]
+  },
+  "server": "C",
+  "status": "COMPLETED"
+}

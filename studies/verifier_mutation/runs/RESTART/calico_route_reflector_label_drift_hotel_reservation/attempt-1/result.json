@@ -1,0 +1,338 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "namespace": "platform-checks"
+      },
+      "failure_class": "ambiguous",
+      "reason": "no_deployments_found",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5905,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend",
+      "deployments/reservation"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "---",
+    "reference": {
+      "capacity": [
+        "deployments/geo",
+        "deployments/profile",
+        "deployments/rate",
+        "deployments/recommendation",
+        "deployments/reservation",
+        "deployments/user"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "geo",
+        "profile",
+        "rate",
+        "recommendation",
+        "reservation",
+        "user"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "label": "node-role.kubernetes.io/master",
+          "peers": [
+            "cluster-peer-policy"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "--------------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "calico_route_reflector_label_drift_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

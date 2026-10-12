@@ -1,0 +1,41 @@
+{
+  "attempt": 2,
+  "duration_seconds": 413,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "assign_to_non_existent_node",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "mcp-server",
+      "prometheus-server",
+      "prometheus-kube-state-metrics"
+    ],
+    "cluster_roles_deleted": [
+      "mcp-server",
+      "prometheus-server",
+      "prometheus-kube-state-metrics"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "khaos",
+      "observe"
+    ],
+    "persistent_volumes_deleted": [
+      "pvc-0473e4c1-4fd4-44e6-8f27-ce1147cb45b0",
+      "pvc-f4c6d642-10a6-44c4-a4c9-f7bbc264c518"
+    ]
+  },
+  "server": "C",
+  "status": "COMPLETED"
+}

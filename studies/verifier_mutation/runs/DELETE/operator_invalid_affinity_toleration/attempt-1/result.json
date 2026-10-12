@@ -1,0 +1,59 @@
+{
+  "applied": null,
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "ed                  pod/basic-tidb-0                          Successfully pulled image \"busybox:1.26.2\" in 1.738s (1.738s including waiting). Image size: 701277 bytes.\n4m52s       Normal   Created                 pod/basic-tidb-0                          Created container: slowlog\n4m52s       Normal   Started                 pod/basic-tidb-0                          Started container slowlog\n4m45s       Normal   Pulled                  pod/basic-tidb-0                          Successfully pulled image \"pingcap/tidb:v8.1.0\" in 6.95s (6.95s including waiting). Image size: 161052200 bytes.\n4m45s       Normal   Created                 pod/basic-tidb-0                          Created container: tidb\n4m45s       Normal   Started                 pod/basic-tidb-0                          Started container tidb\n4m33s       Normal   Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n4m32s       Normal   Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n4m19s       Normal   Created                 pod/mysql-client                          Created container: mysql-client\n4m19s       Normal   Started                 pod/mysql-client                          Started container mysql-client\n4m19s       Normal   Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 13.352s (13.352s including waiting). Image size: 238996708 bytes.\n4m16s       Normal   Killing                 pod/mysql-client                          Stopping container mysql-client\n1s          Normal   SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n1s          Normal   Killing                 pod/basic-tidb-0                          Stopping container slowlog\n1s          Normal   Killing                 pod/basic-tidb-0                          Stopping container tidb\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "applied_in": {
+        "any_pod_has_bad_effect": false,
+        "cr_has_bad_effect": false,
+        "sts_has_bad_effect": false
+      },
+      "details": {
+        "cr_effects": [],
+        "pod_effects": [
+          "NoExecute",
+          "NoExecute"
+        ],
+        "recent_events_tail": "  pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker\n4m53s       Normal   Pulling                 pod/basic-tidb-0                          Pulling image \"busybox:1.26.2\"\n4m51s       Normal   Pulled                  pod/basic-tidb-0                          Successfully pulled image \"busybox:1.26.2\" in 1.738s (1.738s including waiting). Image size: 701277 bytes.\n4m51s       Normal   Created                 pod/basic-tidb-0                          Created container: slowlog\n4m51s       Normal   Started                 pod/basic-tidb-0                          Started container slowlog\n4m51s       Normal   Pulling                 pod/basic-tidb-0                          Pulling image \"pingcap/tidb:v8.1.0\"\n4m44s       Normal   Pulled                  pod/basic-tidb-0                          Successfully pulled image \"pingcap/tidb:v8.1.0\" in 6.95s (6.95s including waiting). Image size: 161052200 bytes.\n4m44s       Normal   Created                 pod/basic-tidb-0                          Created container: tidb\n4m44s       Normal   Started                 pod/basic-tidb-0                          Started container tidb\n4m32s       Normal   Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker2\n4m31s       Normal   Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n4m18s       Normal   Started                 pod/mysql-client                          Started container mysql-client\n4m18s       Normal   Created                 pod/mysql-client                          Created container: mysql-client\n4m18s       Normal   Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 13.352s (13.352s including waiting). Image size: 238996708 bytes.\n4m15s       Normal   Killing                 pod/mysql-client                          Stopping container mysql-client\n",
+        "sts_effects": []
+      },
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "DELETE",
+  "problem_id": "operator_invalid_affinity_toleration",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

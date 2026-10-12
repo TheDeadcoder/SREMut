@@ -1,0 +1,416 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/cart",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/grafana",
+      "deployments/image-provider",
+      "deployments/jaeger",
+      "deployments/kafka",
+      "deployments/llm",
+      "deployments/load-generator",
+      "deployments/payment",
+      "deployments/postgresql",
+      "deployments/product-catalog",
+      "deployments/product-reviews",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/valkey-cart",
+      "statefulsets/opensearch"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-IncorrectPortAssignmentMitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-AssignNonExistentNodeMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/checkout"
+    ],
+    "oracle_window": [
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "----",
+    "reference": {
+      "capacity": [
+        "deployments/checkout"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "checkout"
+      ],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "address": "product-catalog:8082",
+              "env": "PRODUCT_CATALOG_ADDR"
+            },
+            "failure_class": "agent_error",
+            "name": "0-IncorrectPortAssignmentMitigationOracle",
+            "reason": "fault_still_present",
+            "success": false
+          },
+          {
+            "name": "1-AssignNonExistentNodeMitigationOracle",
+            "success": false
+          }
+        ],
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-----------"
+  },
+  "operator": "RESTART",
+  "problem_id": "unschedulable_incorrect_port_assignment",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/checkout"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "path": "/api",
+          "routed_to": "recommendation-service"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'd6465da2-a423-4d29-b1d7-e6b08445daf6', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '274'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"ingresses.networking.k8s.io \\\"hotel-reservation-ingress\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"hotel-reservation-ingress\",\"group\":\"networking.k8s.io\",\"kind\":\"ingresses\"},\"code\":404}\n\n",
+        "status": 404
+      },
+      "failure_class": "ambiguous",
+      "reason": "kubernetes_resource_missing",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5798,
+      "rounds": 2
+    }
+  },
+  "operator": "SCALE0",
+  "problem_id": "ingress_misroute",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

@@ -1,0 +1,133 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployments": {
+            "frontend": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "geo": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "profile": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "rate": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "recommendation": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "reservation": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "search": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "user": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5867,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ],
+    "oracle_window": [
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'e98649f7-fda9-4a1a-8c8f-56b524e9cfbb', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'b863f8a7-06d5-4d3f-9f66-49873ab4b20c', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'caed766a-4a97-473c-97fd-11e27cd18f82', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'b321984c-24a2-4d33-96fb-dd7b5b1cb01d', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'b863f8a7-06d5-4d3f-9f66-49873ab4b20c', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'caed766a-4a97-473c-97fd-11e27cd18f82', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '1d378cb6-8e0d-4ab5-8af8-a1948cb0b607', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'b863f8a7-06d5-4d3f-9f66-49873ab4b20c', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'caed766a-4a97-473c-97fd-11e27cd18f82', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'a56e4e56-a439-4f52-aa01-348e2937eea9', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'b863f8a7-06d5-4d3f-9f66-49873ab4b20c', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'caed766a-4a97-473c-97fd-11e27cd18f82', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '034235fd-465b-4635-b26f-eb00f70b6265', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'b863f8a7-06d5-4d3f-9f66-49873ab4b20c', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'caed766a-4a97-473c-97fd-11e27cd18f82', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '84803d7b-9dd7-43d6-9160-5ce292fdee8f', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'b863f8a7-06d5-4d3f-9f66-49873ab4b20c', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'caed766a-4a97-473c-97fd-11e27cd18f82', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '4599ea17-7802-4e2c-ab01-8e65d11a41c3', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'b863f8a7-06d5-4d3f-9f66-49873ab4b20c', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'caed766a-4a97-473c-97fd-11e27cd18f82', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      }
+    ],
+    "profile": "???????",
+    "reference": {
+      "capacity": [
+        "deployments/frontend",
+        "deployments/geo",
+        "deployments/profile",
+        "deployments/rate",
+        "deployments/recommendation",
+        "deployments/reservation",
+        "deployments/search",
+        "deployments/user"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "frontend",
+        "geo",
+        "profile",
+        "rate",
+        "recommendation",
+        "reservation",
+        "search",
+        "user"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": null
+  },
+  "operator": "DELETE",
+  "problem_id": "faulty_image_correlated",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/frontend",
+    "deployments/geo",
+    "deployments/profile",
+    "deployments/rate",
+    "deployments/recommendation",
+    "deployments/reservation",
+    "deployments/search",
+    "deployments/user"
+  ]
+}

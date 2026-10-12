@@ -1,0 +1,36 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "blocked_offset": 20,
+          "detail": null
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "error": "RuntimeError: no running order-stream pod found"
+      },
+      "failure_class": "ambiguous",
+      "reason": "pipeline_snapshot_failed",
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "DELETE",
+  "problem_id": "kafka_poison_pill_hol_block",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

@@ -1,0 +1,680 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/cart",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/grafana",
+      "deployments/image-provider",
+      "deployments/jaeger",
+      "deployments/kafka",
+      "deployments/llm",
+      "deployments/load-generator",
+      "deployments/payment",
+      "deployments/postgresql",
+      "deployments/product-catalog",
+      "deployments/product-reviews",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/valkey-cart",
+      "statefulsets/opensearch"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "configured_conn": "postgres://otelu:otelp@postgresql/otel?sslmode=disable",
+      "current_pod_uids": [
+        "5da4c541-d65c-4ef2-8fb2-68d09cc8885d"
+      ],
+      "deployment_exists": true,
+      "deployment_references_secret": false,
+      "detail": {
+        "message": "the Secret does not contain the required rotated connection string"
+      },
+      "failure_class": "agent_error",
+      "pods_ready": true,
+      "postgres_accepts_new_password": false,
+      "postgres_accepts_old_password": false,
+      "postgresql_init_uses_new_password": false,
+      "product_probe_succeeded": false,
+      "ready_target_endpoint": true,
+      "reason": "secret_not_rotated",
+      "rollout_complete": true,
+      "secret_conn": null,
+      "stale_pod_uid": null,
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/postgresql-init",
+      "deployments/accounting",
+      "deployments/product-catalog",
+      "deployments/product-reviews"
+    ],
+    "oracle_window": [
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "fe51c989-d4da-4060-a357-55a29e9c8f43"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "detail": {
+          "message": "a fresh /api/products request did not return catalog data"
+        },
+        "failure_class": "ambiguous",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "product_probe_failed",
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "fe51c989-d4da-4060-a357-55a29e9c8f43"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "detail": {
+          "message": "a fresh /api/products request did not return catalog data"
+        },
+        "failure_class": "ambiguous",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "product_probe_failed",
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "fe51c989-d4da-4060-a357-55a29e9c8f43"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "message": "required credential rotation is consistent and product queries succeed",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": true,
+        "ready_target_endpoint": true,
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": true
+      },
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "fe51c989-d4da-4060-a357-55a29e9c8f43"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "message": "required credential rotation is consistent and product queries succeed",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": true,
+        "ready_target_endpoint": true,
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": true
+      }
+    ],
+    "profile": "--++",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      },
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "286bd213-ea1e-4d45-9ccf-76cb8a5a2e36",
+        "success": false
+      }
+    ],
+    "profile": "---------------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "secret_rotation_stale_env_credentials_astronomy_shop",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

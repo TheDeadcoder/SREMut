@@ -1,0 +1,60 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "reservation",
+          "desired": 1,
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "priority_class": "platform-medium"
+      },
+      "failure_class": "agent_error",
+      "reason": "platform_priority_class_deleted",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5905,
+      "rounds": 2
+    }
+  },
+  "operator": "COLLAT",
+  "problem_id": "priority_preemption_cascade_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": false,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 5871,
+        "rounds": 2
+      }
+    }
+  },
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/reservation"
+  ]
+}

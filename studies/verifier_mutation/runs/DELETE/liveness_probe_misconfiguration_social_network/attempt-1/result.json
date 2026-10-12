@@ -1,0 +1,153 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/user-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "detail": {
+          "deployment": "user-service",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "++++++++-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5932,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/user-service"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "user-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "user-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "user-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "user-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "user-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "user-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "user-service",
+          "namespace": "social-network"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/user-service"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "user-service"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 526,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "liveness_probe_misconfiguration_social_network",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/user-service"
+  ]
+}

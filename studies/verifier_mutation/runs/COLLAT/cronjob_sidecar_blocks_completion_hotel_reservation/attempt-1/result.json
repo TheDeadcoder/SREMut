@@ -1,0 +1,149 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "cronjob": "audit-log-archiver"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "cronjob": "audit-log-archiver"
+      },
+      "failure_class": "agent_error",
+      "reason": "cronjob_deleted",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5904,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "cronjobs/audit-log-archiver"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "consul",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5942,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "cronjob_sidecar_blocks_completion_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5904,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

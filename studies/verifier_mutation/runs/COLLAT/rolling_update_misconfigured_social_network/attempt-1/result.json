@@ -1,0 +1,94 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/compose-post-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "custom-service"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "deployment": "custom-service"
+      },
+      "failure_class": "ambiguous",
+      "reason": "deployment_has_no_pod_template",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5119,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/custom-service"
+    ],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "++",
+    "reference": {
+      "capacity": [
+        "deployments/compose-post-service"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "compose-post-service"
+      ],
+      "traffic": {
+        "failed_rounds": 5,
+        "requests": 500,
+        "rounds": 5
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "rolling_update_misconfigured_social_network",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5120,
+        "rounds": 5
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/custom-service"
+  ]
+}
