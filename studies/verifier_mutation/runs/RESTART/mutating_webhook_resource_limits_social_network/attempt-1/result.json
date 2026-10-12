@@ -1,0 +1,271 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/compose-post-service",
+      "deployments/home-timeline-redis",
+      "deployments/home-timeline-service",
+      "deployments/jaeger",
+      "deployments/media-frontend",
+      "deployments/media-memcached",
+      "deployments/media-mongodb",
+      "deployments/media-service",
+      "deployments/nginx-thrift",
+      "deployments/post-storage-memcached",
+      "deployments/post-storage-mongodb",
+      "deployments/post-storage-service",
+      "deployments/social-graph-mongodb",
+      "deployments/social-graph-redis",
+      "deployments/social-graph-service",
+      "deployments/text-service",
+      "deployments/unique-id-service",
+      "deployments/url-shorten-memcached",
+      "deployments/url-shorten-mongodb",
+      "deployments/url-shorten-service",
+      "deployments/user-memcached",
+      "deployments/user-mention-service",
+      "deployments/user-mongodb",
+      "deployments/user-service",
+      "deployments/user-timeline-mongodb",
+      "deployments/user-timeline-redis",
+      "deployments/user-timeline-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5119,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/nginx-thrift"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "--",
+    "reference": {
+      "capacity": [
+        "deployments/media-mongodb",
+        "deployments/nginx-thrift",
+        "deployments/post-storage-mongodb",
+        "deployments/social-graph-mongodb",
+        "deployments/url-shorten-mongodb",
+        "deployments/user-mongodb",
+        "deployments/user-timeline-mongodb"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "media-mongodb",
+        "nginx-thrift",
+        "post-storage-mongodb",
+        "social-graph-mongodb",
+        "url-shorten-mongodb",
+        "user-mongodb",
+        "user-timeline-mongodb"
+      ],
+      "traffic": {
+        "failed_rounds": 3,
+        "requests": 112,
+        "rounds": 3
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "nginx-thrift"
+        },
+        "failure_class": "ambiguous",
+        "reason": "no_ready_endpoints",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "container": "nginx-thrift",
+          "deployment": "nginx-thrift",
+          "intended_memory": "(Decimal('134217728'), Decimal('268435456'))"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "----------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "mutating_webhook_resource_limits_social_network",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/nginx-thrift"
+  ]
+}

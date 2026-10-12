@@ -1,0 +1,118 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployments": {
+            "frontend": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "geo": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "profile": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "rate": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "recommendation": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "reservation": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "search": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766",
+            "user": "ghcr.io/sregym/hotel-reservation:20260912.2@sha256:d3c82fbcbe2fc74f47c7cb35dc72040c93c6db62084b98b560e3f69a8f130766"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 1,
+      "requests": 5868,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "+++++++",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5943,
+        "rounds": 2
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "faulty_image_correlated",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5456,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/frontend",
+    "deployments/geo",
+    "deployments/profile",
+    "deployments/rate",
+    "deployments/recommendation",
+    "deployments/reservation",
+    "deployments/search",
+    "deployments/user"
+  ]
+}

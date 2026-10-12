@@ -1,0 +1,89 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/product-catalog"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployments": {
+            "product-catalog": "app-image:latest"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/product-catalog"
+    ],
+    "oracle_window": [
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'ed75dadf-b22e-4df9-9268-2d214c18a9a6', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '232'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"product-catalog\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"product-catalog\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '90ed706f-183f-45ca-b5cc-89b12ebc64d5', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '232'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"product-catalog\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"product-catalog\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '07a5bfb5-fee2-49e2-99c1-4cb305fe2d79', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '232'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"product-catalog\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"product-catalog\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '93e9fa54-ebc4-41eb-8731-5865561fd2bb', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '232'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"product-catalog\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"product-catalog\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '61f026ad-2aa0-4e60-a39d-10a8454179bf', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '232'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"product-catalog\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"product-catalog\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'c6a88f83-f1fe-4c22-a50e-54d93ba1d9aa', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '232'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"product-catalog\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"product-catalog\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      },
+      {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '6ab2f5b4-06b2-43d0-a22a-b9d25efa254e', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '232'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"product-catalog\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"product-catalog\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+        "success": null
+      }
+    ],
+    "profile": "???????",
+    "reference": {
+      "capacity": [
+        "deployments/product-catalog"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "product-catalog"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": null
+  },
+  "operator": "DELETE",
+  "problem_id": "incorrect_image",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/product-catalog"
+  ]
+}

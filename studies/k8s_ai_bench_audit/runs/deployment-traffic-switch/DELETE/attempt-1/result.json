@@ -1,0 +1,22 @@
+{
+  "action": "DELETE",
+  "action_result": {
+    "applied": false,
+    "targets": {}
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 31,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 16s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nHave a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community \ud83d\ude42"
+  },
+  "namespaces": [
+    "e-commerce"
+  ],
+  "setup": {
+    "exit_code": 0,
+    "seconds": 10,
+    "tail": "namespace/e-commerce created\nApplying Kubernetes resources from artifacts/ directory...\ndeployment.apps/checkout-service-blue created\ndeployment.apps/checkout-service-green created\nservice/checkout-service created\nWaiting for blue deployment to be ready...\nWaiting for deployment \"checkout-service-blue\" rollout to finish: 0 of 2 updated replicas are available...\nWaiting for deployment \"checkout-service-blue\" rollout to finish: 1 of 2 updated replicas are available...\ndeployment \"checkout-service-blue\" successfully rolled out\nWaiting for green deployment to be ready...\nWaiting for deployment \"checkout-service-green\" rollout to finish: 1 of 2 updated replicas are available...\ndeployment \"checkout-service-green\" successfully rolled out\nSetup complete. Service 'checkout-service' is pointing to 'blue'."
+  },
+  "status": "COMPLETED",
+  "task": "deployment-traffic-switch"
+}

@@ -1,0 +1,35 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "message": "A review write did not succeed: the id sequence is still exhausted"
+        },
+        "failure_class": "agent_error",
+        "reason": "review_sequence_exhausted",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "message": "The injected marker review is missing. The database was re-seeded or wiped (e.g. a postgres pod restart or TRUNCATE), which is not a valid mitigation"
+      },
+      "failure_class": "ambiguous",
+      "reason": "preserved_review_missing",
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "DELETE",
+  "problem_id": "integer_overflow_primary_key_astronomy_shop",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

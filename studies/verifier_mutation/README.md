@@ -56,7 +56,7 @@ changed that still differ from the healthy state.
 | `rejected_fault_present` | rejects | healthy, but an object the injection changed is still in place |
 | `unknown` | changes its verdict within the 90 s | - |
 
-The mutation score of a problem or operator is killed / (killed + survived). A survivor counts as
+The mutation score of a problem or operator is killed / (killed + survived) over first attempts. A survivor counts as
 confirmed once a second attempt of the same episode, on another server where possible, survives too:
 
 ```bash

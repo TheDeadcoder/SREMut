@@ -1,0 +1,69 @@
+{
+  "applied": {
+    "targets": [
+      "statefulsets/basic-tidb"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "statefulsets/basic-tidb"
+    ],
+    "oracle_window": [
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      }
+    ],
+    "profile": "-----",
+    "reference": {
+      "capacity": [
+        "statefulsets/basic-tidb"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "operator_overload_replicas",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "statefulsets/basic-tidb"
+  ]
+}

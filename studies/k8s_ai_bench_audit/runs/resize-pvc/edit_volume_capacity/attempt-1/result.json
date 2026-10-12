@@ -1,0 +1,37 @@
+{
+  "action": "edit_volume_capacity",
+  "action_result": {
+    "applied": true,
+    "script": {
+      "exit_code": 0,
+      "seconds": 5,
+      "tail": "persistentvolumeclaim/storage-pvc condition met\npersistentvolume/pvc-cd4dab13-d068-4cbc-8596-7268b7811519 patched"
+    }
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 34,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 19s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nNot sure what to do next? \ud83d\ude05  Check out https://kind.sigs.k8s.io/docs/user/quick-start/"
+  },
+  "namespaces": [
+    "resize-pv"
+  ],
+  "settled": true,
+  "setup": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "namespace/resize-pv created\npersistentvolumeclaim/storage-pvc created\npod/storage-pod created"
+  },
+  "status": "COMPLETED",
+  "task": "resize-pvc",
+  "verify_immediate": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "Attempting to get PV name from PVC: storage-pvc\npersistentvolume/pvc-cd4dab13-d068-4cbc-8596-7268b7811519 condition met\nSUCCESS: PersistentVolume 'pvc-cd4dab13-d068-4cbc-8596-7268b7811519' reached the expected capacity of 15Gi."
+  },
+  "verify_settled": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "Attempting to get PV name from PVC: storage-pvc\npersistentvolume/pvc-cd4dab13-d068-4cbc-8596-7268b7811519 condition met\nSUCCESS: PersistentVolume 'pvc-cd4dab13-d068-4cbc-8596-7268b7811519' reached the expected capacity of 15Gi."
+  }
+}

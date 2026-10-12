@@ -1,0 +1,123 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/recommendation"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "message": "Policy namespace 'policy-system' was deleted. The policy plane must remain present; restore the namespace and the webhooks, and apply a non-destructive fix."
+      },
+      "failure_class": "agent_error",
+      "reason": "workload_not_intact",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5904,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "detail": {
+          "message": "Target deployment 'recommendation' in 'hotel-reservation' was deleted. The application workload must remain present; restore the deployment and re-apply the fix."
+        },
+        "failure_class": "agent_error",
+        "reason": "workload_not_intact",
+        "success": false
+      },
+      {
+        "detail": {
+          "message": "Target deployment 'recommendation' in 'hotel-reservation' was deleted. The application workload must remain present; restore the deployment and re-apply the fix."
+        },
+        "failure_class": "agent_error",
+        "reason": "workload_not_intact",
+        "success": false
+      },
+      {
+        "detail": {
+          "message": "Target deployment 'recommendation' in 'hotel-reservation' was deleted. The application workload must remain present; restore the deployment and re-apply the fix."
+        },
+        "failure_class": "agent_error",
+        "reason": "workload_not_intact",
+        "success": false
+      },
+      {
+        "detail": {
+          "message": "Target deployment 'recommendation' in 'hotel-reservation' was deleted. The application workload must remain present; restore the deployment and re-apply the fix."
+        },
+        "failure_class": "agent_error",
+        "reason": "workload_not_intact",
+        "success": false
+      },
+      {
+        "detail": {
+          "message": "Target deployment 'recommendation' in 'hotel-reservation' was deleted. The application workload must remain present; restore the deployment and re-apply the fix."
+        },
+        "failure_class": "agent_error",
+        "reason": "workload_not_intact",
+        "success": false
+      },
+      {
+        "detail": {
+          "message": "Target deployment 'recommendation' in 'hotel-reservation' was deleted. The application workload must remain present; restore the deployment and re-apply the fix."
+        },
+        "failure_class": "agent_error",
+        "reason": "workload_not_intact",
+        "success": false
+      },
+      {
+        "detail": {
+          "message": "Target deployment 'recommendation' in 'hotel-reservation' was deleted. The application workload must remain present; restore the deployment and re-apply the fix."
+        },
+        "failure_class": "agent_error",
+        "reason": "workload_not_intact",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/recommendation"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "recommendation"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 5943,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "cumulative_admission_webhook_timeout_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/recommendation"
+  ]
+}

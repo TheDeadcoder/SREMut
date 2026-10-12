@@ -1,0 +1,59 @@
+{
+  "attempt": 1,
+  "duration_seconds": 1869,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "kafka_producer_leak",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "flagd-reader-binding",
+      "prometheus-server",
+      "prometheus",
+      "mcp-server",
+      "kube-state-metrics",
+      "train-ticket-deploy-rolebinding",
+      "prometheus-kube-state-metrics"
+    ],
+    "cluster_roles_deleted": [
+      "train-ticket-deploy-role",
+      "prometheus-server",
+      "prometheus",
+      "mcp-server",
+      "kube-state-metrics",
+      "prometheus-kube-state-metrics",
+      "flagd-reader"
+    ],
+    "failed_pods_deleted": 1,
+    "kube_system_deleted": [
+      "deployment.apps/alertmanager",
+      "deployment.apps/alertsnitch",
+      "deployment.apps/alertsnitch-mysql",
+      "deployment.apps/grafana-core",
+      "deployment.apps/kube-state-metrics",
+      "deployment.apps/prometheus",
+      "daemonset.apps/node-exporter",
+      "service/alertmanager",
+      "service/alertsnitch",
+      "service/alertsnitch-mysql",
+      "service/grafana",
+      "service/kube-state-metrics",
+      "service/node-exporter",
+      "service/prometheus"
+    ],
+    "namespaces_deleted": [
+      "observe"
+    ]
+  },
+  "server": "C",
+  "status": "COMPLETED"
+}

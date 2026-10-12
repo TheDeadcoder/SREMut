@@ -1,0 +1,144 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "last_check": "No HorizontalPodAutoscaler targets Deployment/frontend. Deleting the HPA without replacing it is not a valid mitigation.",
+        "timeout_seconds": 60
+      },
+      "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: No HorizontalPodAutoscaler targets Deployment/frontend. Deleting the HPA without replacing it is not a valid mitigation.",
+      "failure_class": "agent_error",
+      "reason": "hpa_never_became_healthy",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5944,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy",
+        "success": false
+      },
+      {
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy",
+        "success": false
+      }
+    ],
+    "profile": "--",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5907,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy",
+        "success": false
+      },
+      {
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy",
+        "success": false
+      },
+      {
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy",
+        "success": false
+      },
+      {
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy",
+        "success": false
+      },
+      {
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy",
+        "success": false
+      }
+    ],
+    "profile": "-----"
+  },
+  "operator": "RESTART",
+  "problem_id": "hpa_missing_effective_cpu_request_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

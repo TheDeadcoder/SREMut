@@ -1,0 +1,72 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/mongodb-geo"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "+-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5905,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [
+        "deployments/mongodb-geo"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "mongodb-geo"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5871,
+        "rounds": 2
+      }
+    },
+    "verdict": true
+  },
+  "operator": "DELETE",
+  "problem_id": "silent_data_corruption",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/mongodb-geo"
+  ]
+}

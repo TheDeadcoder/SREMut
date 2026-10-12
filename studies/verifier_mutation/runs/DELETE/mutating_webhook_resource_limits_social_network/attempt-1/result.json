@@ -1,0 +1,124 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/nginx-thrift"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "nginx-thrift"
+        },
+        "failure_class": "ambiguous",
+        "reason": "no_ready_endpoints",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5120,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/nginx-thrift"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '10f5acce-40c1-4355-80c1-0063b8014d2d', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '226'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"nginx-thrift\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"nginx-thrift\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'b727a064-70e8-4592-862f-6ea90e97584f', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '226'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"nginx-thrift\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"nginx-thrift\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'c4903498-171b-44d5-826a-b3664e37c247', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '226'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"nginx-thrift\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"nginx-thrift\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'b6f8cf38-f2eb-41f9-b8c5-29c420b9062a', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '226'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"nginx-thrift\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"nginx-thrift\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'a9d82683-d8c5-458f-b484-20a768f4d115', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '226'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"nginx-thrift\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"nginx-thrift\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'dde2b644-1cc8-4ea1-a0bd-8e0b984f482a', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '226'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"nginx-thrift\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"nginx-thrift\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '690c167c-58ab-4c1d-a66a-4c0ebbbe32b4', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '226'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"nginx-thrift\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"nginx-thrift\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/nginx-thrift"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "nginx-thrift"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "mutating_webhook_resource_limits_social_network",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/nginx-thrift"
+  ]
+}

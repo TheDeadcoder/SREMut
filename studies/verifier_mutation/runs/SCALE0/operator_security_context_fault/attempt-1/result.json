@@ -1,0 +1,45 @@
+{
+  "applied": null,
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "cr_runAsUser": -1,
+        "fault_applied": true,
+        "pod_runAsUsers": [
+          [
+            "basic-tidb-0",
+            null
+          ]
+        ],
+        "sts_runAsUser": -1,
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "cr_runAsUser": null,
+      "fault_applied": false,
+      "pod_runAsUsers": [
+        [
+          "basic-tidb-0",
+          null
+        ]
+      ],
+      "sts_runAsUser": null,
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "SCALE0",
+  "problem_id": "operator_security_context_fault",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

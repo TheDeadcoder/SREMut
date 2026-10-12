@@ -1,0 +1,34 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "env": "FRONTEND_HOST",
+          "values": [
+            "frontend",
+            "localhost"
+          ]
+        },
+        "failure_class": "agent_error",
+        "reason": "duplicate_env_definitions",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "DELETE",
+  "problem_id": "env_variable_shadowing_astronomy_shop",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

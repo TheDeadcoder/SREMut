@@ -1,0 +1,129 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/recommendation"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5870,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/recommendation"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/recommendation"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "recommendation"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 5869,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "nightly_rebalance_oom_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/recommendation"
+  ]
+}

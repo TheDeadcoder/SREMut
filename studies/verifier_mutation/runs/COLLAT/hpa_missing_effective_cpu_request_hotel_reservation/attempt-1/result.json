@@ -1,0 +1,115 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "last_check": "HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+          "timeout_seconds": 60
+        },
+        "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: HPA/frontend-capacity cannot currently compute its CPU metric: no current CPU resource metric is reported",
+        "failure_class": "agent_error",
+        "reason": "hpa_never_became_healthy",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "last_check": "No HorizontalPodAutoscaler targets Deployment/frontend. Deleting the HPA without replacing it is not a valid mitigation.",
+        "timeout_seconds": 60
+      },
+      "details": "Timed out after 60s waiting for 2 consecutive healthy HPA polls. Last check: No HorizontalPodAutoscaler targets Deployment/frontend. Deleting the HPA without replacing it is not a valid mitigation.",
+      "failure_class": "agent_error",
+      "reason": "hpa_never_became_healthy",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5905,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend"
+    ],
+    "oracle_window": [
+      {
+        "details": "Deployment/frontend is Ready and HPA(s) [frontend-capacity] are healthy",
+        "success": true
+      },
+      {
+        "details": "Deployment/frontend is Ready and HPA(s) [frontend-capacity] are healthy",
+        "success": true
+      },
+      {
+        "details": "Deployment/frontend is Ready and HPA(s) [frontend-capacity] are healthy",
+        "success": true
+      },
+      {
+        "details": "Deployment/frontend is Ready and HPA(s) [frontend-capacity] are healthy",
+        "success": true
+      },
+      {
+        "details": "Deployment/frontend is Ready and HPA(s) [frontend-capacity] are healthy",
+        "success": true
+      },
+      {
+        "details": "Deployment/frontend is Ready and HPA(s) [frontend-capacity] are healthy",
+        "success": true
+      }
+    ],
+    "profile": "++++++",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5943,
+        "rounds": 2
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "hpa_missing_effective_cpu_request_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "details": "Deployment/frontend is Ready and HPA(s) [frontend-capacity] are healthy",
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5868,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

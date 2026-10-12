@@ -1,0 +1,43 @@
+{
+  "attempt": 1,
+  "duration_seconds": 1088,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "ingress-nginx",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym",
+    "tidb-cluster",
+    "tidb-operator"
+  ],
+  "problem_id": "operator_overload_replicas",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "prometheus-server",
+      "mcp-server",
+      "prometheus-kube-state-metrics"
+    ],
+    "cluster_roles_deleted": [
+      "prometheus-server",
+      "mcp-server",
+      "prometheus-kube-state-metrics"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "observe"
+    ],
+    "persistent_volumes_deleted": [
+      "pvc-75e79a22-fc3e-4fce-b610-c3e2b580112d",
+      "pvc-14f48cdb-9fab-46f9-b7da-79d7d60fdc4b"
+    ]
+  },
+  "server": "C",
+  "status": "COMPLETED"
+}

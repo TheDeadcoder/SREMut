@@ -1,0 +1,65 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "namespace": "hotel-reservation",
+              "phase": "Pending",
+              "pod": "wrk2-job-chm79"
+            },
+            "failure_class": "ambiguous",
+            "name": "0-MitigationOracle",
+            "reason": "pods_not_ready",
+            "success": false
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "pods_not_ready+endpoint_error_rate_high",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-FeatureFlagHttpProbeMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5942,
+      "rounds": 2
+    }
+  },
+  "operator": "DELETE",
+  "problem_id": "feature_flag_latent_bug_hotel_reservation",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

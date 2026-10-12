@@ -1,0 +1,127 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/basic-discovery",
+      "statefulsets/basic-pd",
+      "statefulsets/basic-tidb",
+      "statefulsets/basic-tikv"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "statefulsets/basic-tidb"
+    ],
+    "oracle_window": [
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      }
+    ],
+    "profile": "-----",
+    "reference": {
+      "capacity": [
+        "statefulsets/basic-pd",
+        "statefulsets/basic-tidb",
+        "statefulsets/basic-tikv"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "basic-pd",
+        "basic-pd-peer",
+        "basic-tidb",
+        "basic-tikv-peer"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      }
+    ],
+    "profile": "-----------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "operator_overload_replicas",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "statefulsets/basic-tidb"
+  ]
+}

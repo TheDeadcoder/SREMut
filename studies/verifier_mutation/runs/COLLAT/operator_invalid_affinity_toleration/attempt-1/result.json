@@ -1,0 +1,252 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/basic-discovery"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "                      create ConfigMap/basic-tidb for controller TidbCluster/basic successfully\n4m28s       Normal   SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tidb in  basic successful\n4m24s       Normal   Created                 pod/basic-tidb-0                          Created container: tidb\n4m27s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m27s       Normal   Created                 pod/basic-tidb-0                          Created container: slowlog\n4m27s       Normal   Started                 pod/basic-tidb-0                          Started container slowlog\n4m24s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m24s       Normal   Started                 pod/basic-tidb-0                          Started container tidb\n4m11s       Normal   Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m10s       Normal   Started                 pod/mysql-client                          Started container mysql-client\n4m10s       Normal   Created                 pod/mysql-client                          Created container: mysql-client\n4m10s       Normal   Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m7s        Normal   Killing                 pod/mysql-client                          Stopping container mysql-client\n0s          Normal   Killing                 pod/basic-tidb-0                          Stopping container slowlog\n0s          Normal   SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n0s          Normal   Killing                 pod/basic-tidb-0                          Stopping container tidb\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "applied_in": {
+        "any_pod_has_bad_effect": false,
+        "cr_has_bad_effect": false,
+        "sts_has_bad_effect": false
+      },
+      "details": {
+        "cr_effects": [],
+        "pod_effects": [
+          "NoExecute",
+          "NoExecute"
+        ],
+        "recent_events_tail": "c-tidb successful\n4m27s       Normal   Successfully Create     tidbcluster/basic                         create ConfigMap/basic-tidb for controller TidbCluster/basic successfully\n4m27s       Normal   SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tidb in  basic successful\n4m27s       Normal   Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker2\n4m27s       Normal   SuccessfulCreate        tidbcluster/basic                         create Service basic-tidb-peer in  basic successful\n4m26s       Normal   Started                 pod/basic-tidb-0                          Started container slowlog\n4m23s       Normal   Created                 pod/basic-tidb-0                          Created container: tidb\n4m23s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m26s       Normal   Created                 pod/basic-tidb-0                          Created container: slowlog\n4m26s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m23s       Normal   Started                 pod/basic-tidb-0                          Started container tidb\n4m10s       Normal   Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m9s        Normal   Started                 pod/mysql-client                          Started container mysql-client\n4m9s        Normal   Created                 pod/mysql-client                          Created container: mysql-client\n4m9s        Normal   Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m6s        Normal   Killing                 pod/mysql-client                          Stopping container mysql-client\n",
+        "sts_effects": []
+      },
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "statefulsets/basic-tidb"
+    ],
+    "oracle_window": [
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": false
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "already present on machine\n8m5s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n3m58s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n3m58s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n3m58s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n3m30s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.110.137:4000: connect: connection refused\n3m27s       Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker2\n3m26s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n3m26s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n3m26s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n3m26s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n3m26s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n3m26s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n1s          Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n1s          Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-qd565\n1s          Normal    Killing                 pod/basic-discovery-865ccb69bb-qd565      Stopping container discovery\n",
+          "sts_effects": []
+        },
+        "success": true
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": false
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "    Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker2\n3m42s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n3m42s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n3m42s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n3m42s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n3m42s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n3m42s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n17s         Normal    Killing                 pod/basic-discovery-865ccb69bb-qd565      Stopping container discovery\n17s         Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n17s         Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-qd565\n12s         Normal    Scheduled               pod/basic-discovery-865ccb69bb-v8mgq      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-v8mgq to kind-worker2\n12s         Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-v8mgq\n11s         Normal    Created                 pod/basic-discovery-865ccb69bb-v8mgq      Created container: discovery\n11s         Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8mgq      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n11s         Normal    Started                 pod/basic-discovery-865ccb69bb-v8mgq      Started container discovery\n",
+          "sts_effects": []
+        },
+        "success": true
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": false
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "    Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker2\n3m58s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n3m58s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n3m58s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n3m58s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n3m58s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n3m58s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n33s         Normal    Killing                 pod/basic-discovery-865ccb69bb-qd565      Stopping container discovery\n33s         Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n33s         Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-qd565\n28s         Normal    Scheduled               pod/basic-discovery-865ccb69bb-v8mgq      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-v8mgq to kind-worker2\n28s         Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-v8mgq\n27s         Normal    Created                 pod/basic-discovery-865ccb69bb-v8mgq      Created container: discovery\n27s         Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8mgq      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n27s         Normal    Started                 pod/basic-discovery-865ccb69bb-v8mgq      Started container discovery\n",
+          "sts_effects": []
+        },
+        "success": true
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": false
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "    Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker2\n4m13s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m13s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m13s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n4m13s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n4m13s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m13s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n48s         Normal    Killing                 pod/basic-discovery-865ccb69bb-qd565      Stopping container discovery\n48s         Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n48s         Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-qd565\n43s         Normal    Scheduled               pod/basic-discovery-865ccb69bb-v8mgq      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-v8mgq to kind-worker2\n43s         Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-v8mgq\n42s         Normal    Created                 pod/basic-discovery-865ccb69bb-v8mgq      Created container: discovery\n42s         Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8mgq      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n42s         Normal    Started                 pod/basic-discovery-865ccb69bb-v8mgq      Started container discovery\n",
+          "sts_effects": []
+        },
+        "success": true
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": false
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "    Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker2\n4m29s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m29s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m29s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n4m29s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n4m29s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m29s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n64s         Normal    Killing                 pod/basic-discovery-865ccb69bb-qd565      Stopping container discovery\n64s         Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n64s         Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-qd565\n59s         Normal    Scheduled               pod/basic-discovery-865ccb69bb-v8mgq      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-v8mgq to kind-worker2\n59s         Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-v8mgq\n58s         Normal    Created                 pod/basic-discovery-865ccb69bb-v8mgq      Created container: discovery\n58s         Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8mgq      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n58s         Normal    Started                 pod/basic-discovery-865ccb69bb-v8mgq      Started container discovery\n",
+          "sts_effects": []
+        },
+        "success": true
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": false
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "    Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker2\n4m45s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m45s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m45s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n4m45s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n4m45s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m45s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n80s         Normal    Killing                 pod/basic-discovery-865ccb69bb-qd565      Stopping container discovery\n80s         Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n80s         Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-qd565\n75s         Normal    Scheduled               pod/basic-discovery-865ccb69bb-v8mgq      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-v8mgq to kind-worker2\n75s         Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-v8mgq\n74s         Normal    Created                 pod/basic-discovery-865ccb69bb-v8mgq      Created container: discovery\n74s         Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8mgq      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n74s         Normal    Started                 pod/basic-discovery-865ccb69bb-v8mgq      Started container discovery\n",
+          "sts_effects": []
+        },
+        "success": true
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": false
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "    Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker2\n5m1s        Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n5m1s        Normal    Started                 pod/basic-tidb-0                          Started container tidb\n5m1s        Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n5m1s        Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n5m1s        Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n5m1s        Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n96s         Normal    Killing                 pod/basic-discovery-865ccb69bb-qd565      Stopping container discovery\n96s         Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n96s         Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-qd565\n91s         Normal    Scheduled               pod/basic-discovery-865ccb69bb-v8mgq      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-v8mgq to kind-worker2\n91s         Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-v8mgq\n90s         Normal    Created                 pod/basic-discovery-865ccb69bb-v8mgq      Created container: discovery\n90s         Normal    Pulled                  pod/basic-discovery-865ccb69bb-v8mgq      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n90s         Normal    Started                 pod/basic-discovery-865ccb69bb-v8mgq      Started container discovery\n",
+          "sts_effects": []
+        },
+        "success": true
+      }
+    ],
+    "profile": "+++++++",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "operator_invalid_affinity_toleration",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "                      create ConfigMap/basic-tidb for controller TidbCluster/basic successfully\n4m31s       Normal   SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tidb in  basic successful\n4m27s       Normal   Created                 pod/basic-tidb-0                          Created container: tidb\n4m30s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m30s       Normal   Created                 pod/basic-tidb-0                          Created container: slowlog\n4m30s       Normal   Started                 pod/basic-tidb-0                          Started container slowlog\n4m27s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m27s       Normal   Started                 pod/basic-tidb-0                          Started container tidb\n4m14s       Normal   Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m13s       Normal   Started                 pod/mysql-client                          Started container mysql-client\n4m13s       Normal   Created                 pod/mysql-client                          Created container: mysql-client\n4m13s       Normal   Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m10s       Normal   Killing                 pod/mysql-client                          Stopping container mysql-client\n3s          Normal   Killing                 pod/basic-tidb-0                          Stopping container slowlog\n3s          Normal   SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n3s          Normal   Killing                 pod/basic-tidb-0                          Stopping container tidb\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": false,
+          "sts_has_bad_effect": false
+        },
+        "details": {
+          "cr_effects": [],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "   create Service basic-tidb in  basic successful\n4m43s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m46s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n4m46s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m43s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n4m46s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n4m43s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m30s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m29s       Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m29s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m29s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m26s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n19s         Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n19s         Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n19s         Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n1s          Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.110.137:4000: connect: connection refused\n",
+          "sts_effects": []
+        },
+        "success": true
+      }
+    ],
+    "profile": "-+",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

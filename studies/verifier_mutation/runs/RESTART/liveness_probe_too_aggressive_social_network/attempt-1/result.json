@@ -1,0 +1,245 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/aux-service",
+      "deployments/compose-post-service",
+      "deployments/home-timeline-redis",
+      "deployments/home-timeline-service",
+      "deployments/jaeger",
+      "deployments/media-frontend",
+      "deployments/media-memcached",
+      "deployments/media-mongodb",
+      "deployments/media-service",
+      "deployments/nginx-thrift",
+      "deployments/post-storage-memcached",
+      "deployments/post-storage-mongodb",
+      "deployments/post-storage-service",
+      "deployments/social-graph-mongodb",
+      "deployments/social-graph-redis",
+      "deployments/social-graph-service",
+      "deployments/text-service",
+      "deployments/unique-id-service",
+      "deployments/url-shorten-memcached",
+      "deployments/url-shorten-mongodb",
+      "deployments/url-shorten-service",
+      "deployments/user-memcached",
+      "deployments/user-mention-service",
+      "deployments/user-mongodb",
+      "deployments/user-service",
+      "deployments/user-timeline-mongodb",
+      "deployments/user-timeline-redis",
+      "deployments/user-timeline-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5119,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/aux-service-script",
+      "deployments/aux-service",
+      "services/aux-service"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 1.9,
+          "namespace": "social-network",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      }
+    ],
+    "profile": "-----",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5120,
+        "rounds": 5
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 4.9,
+          "namespace": "social-network",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "held_for_seconds": 2.8,
+          "namespace": "social-network",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "buffer_period": 10,
+          "namespace": "social-network"
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      }
+    ],
+    "profile": "-------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "liveness_probe_too_aggressive_social_network",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/aux-service"
+  ]
+}

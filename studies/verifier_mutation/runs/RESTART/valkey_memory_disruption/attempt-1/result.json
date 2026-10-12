@@ -1,0 +1,219 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/cart",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/grafana",
+      "deployments/image-provider",
+      "deployments/jaeger",
+      "deployments/kafka",
+      "deployments/llm",
+      "deployments/load-generator",
+      "deployments/payment",
+      "deployments/postgresql",
+      "deployments/product-catalog",
+      "deployments/product-reviews",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/valkey-cart",
+      "statefulsets/opensearch"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "alerts": [
+          "ContainerCPUThrottling"
+        ],
+        "namespace": "astronomy-shop"
+      },
+      "failure_class": "agent_error",
+      "reason": "alerts_still_firing",
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "jobs/valkey-memory-flood"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady",
+            "HighRequestErrorRate",
+            "KubePodNotReady"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady",
+            "HighRequestErrorRate",
+            "KubePodNotReady",
+            "PodStatusError",
+            "ServiceEndpointDown"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady",
+            "HighRequestErrorRate",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "---",
+    "reference": {
+      "capacity": [
+        "deployments/cart",
+        "deployments/valkey-cart"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "cart",
+        "valkey-cart"
+      ],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady",
+            "KubePodNotReady"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady",
+            "HighRequestErrorRate",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "-------"
+  },
+  "operator": "RESTART",
+  "problem_id": "valkey_memory_disruption",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/valkey-cart"
+  ]
+}

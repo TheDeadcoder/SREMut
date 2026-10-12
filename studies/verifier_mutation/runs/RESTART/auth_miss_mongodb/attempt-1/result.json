@@ -1,0 +1,159 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/compose-post-service",
+      "deployments/home-timeline-redis",
+      "deployments/home-timeline-service",
+      "deployments/jaeger",
+      "deployments/media-frontend",
+      "deployments/media-memcached",
+      "deployments/media-mongodb",
+      "deployments/media-service",
+      "deployments/nginx-thrift",
+      "deployments/post-storage-memcached",
+      "deployments/post-storage-mongodb",
+      "deployments/post-storage-service",
+      "deployments/social-graph-mongodb",
+      "deployments/social-graph-redis",
+      "deployments/social-graph-service",
+      "deployments/text-service",
+      "deployments/unique-id-service",
+      "deployments/url-shorten-memcached",
+      "deployments/url-shorten-mongodb",
+      "deployments/url-shorten-service",
+      "deployments/user-memcached",
+      "deployments/user-mention-service",
+      "deployments/user-mongodb",
+      "deployments/user-service",
+      "deployments/user-timeline-mongodb",
+      "deployments/user-timeline-redis",
+      "deployments/user-timeline-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5120,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/url-shorten-mongodb",
+      "services/jaeger"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "--",
+    "reference": {
+      "capacity": [
+        "deployments/url-shorten-mongodb"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "url-shorten-mongodb"
+      ],
+      "traffic": {
+        "failed_rounds": 5,
+        "requests": 5120,
+        "rounds": 5
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "url-shorten-mongodb",
+          "desired": 1,
+          "namespace": "social-network",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-----"
+  },
+  "operator": "RESTART",
+  "problem_id": "auth_miss_mongodb",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/url-shorten-mongodb"
+  ]
+}

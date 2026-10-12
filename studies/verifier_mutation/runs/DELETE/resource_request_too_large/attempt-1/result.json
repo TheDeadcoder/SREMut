@@ -1,0 +1,129 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/mongodb-rate"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "mongodb-rate",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5942,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/mongodb-rate"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "mongodb-rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/mongodb-rate"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "mongodb-rate"
+      ],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 5933,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "resource_request_too_large",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/mongodb-rate"
+  ]
+}

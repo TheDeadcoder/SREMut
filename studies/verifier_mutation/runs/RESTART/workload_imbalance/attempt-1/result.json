@@ -1,0 +1,340 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/cart",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/grafana",
+      "deployments/image-provider",
+      "deployments/jaeger",
+      "deployments/kafka",
+      "deployments/llm",
+      "deployments/load-generator",
+      "deployments/payment",
+      "deployments/postgresql",
+      "deployments/product-catalog",
+      "deployments/product-reviews",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/valkey-cart",
+      "statefulsets/opensearch"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend",
+      "deployments/load-generator"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "average_others": 36.75,
+          "deployment": "frontend",
+          "max_usage": 691
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 16.75,
+          "deployment": "frontend",
+          "max_usage": 788
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 14.25,
+          "deployment": "frontend",
+          "max_usage": 775
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 13.25,
+          "deployment": "frontend",
+          "max_usage": 708
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 14.0,
+          "deployment": "frontend",
+          "max_usage": 644
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 13.25,
+          "deployment": "frontend",
+          "max_usage": 582
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 11.5,
+          "deployment": "frontend",
+          "max_usage": 665
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "average_others": 197.5,
+          "deployment": "frontend",
+          "max_usage": 980
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 32.75,
+          "deployment": "frontend",
+          "max_usage": 840
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 7.5,
+          "deployment": "frontend",
+          "max_usage": 639
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 8.0,
+          "deployment": "frontend",
+          "max_usage": 624
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 16.75,
+          "deployment": "frontend",
+          "max_usage": 635
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 11.5,
+          "deployment": "frontend",
+          "max_usage": 638
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 11.25,
+          "deployment": "frontend",
+          "max_usage": 596
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 8.0,
+          "deployment": "frontend",
+          "max_usage": 601
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 8.0,
+          "deployment": "frontend",
+          "max_usage": 544
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 11.75,
+          "deployment": "frontend",
+          "max_usage": 571
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 9.75,
+          "deployment": "frontend",
+          "max_usage": 607
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 8.5,
+          "deployment": "frontend",
+          "max_usage": 619
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 8.25,
+          "deployment": "frontend",
+          "max_usage": 630
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 8.5,
+          "deployment": "frontend",
+          "max_usage": 630
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 8.75,
+          "deployment": "frontend",
+          "max_usage": 600
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 10.75,
+          "deployment": "frontend",
+          "max_usage": 634
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 9.25,
+          "deployment": "frontend",
+          "max_usage": 596
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 9.0,
+          "deployment": "frontend",
+          "max_usage": 592
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 12.75,
+          "deployment": "frontend",
+          "max_usage": 537
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "average_others": 16.5,
+          "deployment": "frontend",
+          "max_usage": 524
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "--------------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "workload_imbalance",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

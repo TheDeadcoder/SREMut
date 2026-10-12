@@ -1,0 +1,79 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/user-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5120,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/user-service"
+    ],
+    "oracle_window": [
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/user-service"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "user-service"
+      ],
+      "traffic": {
+        "failed_rounds": 5,
+        "requests": 523,
+        "rounds": 5
+      }
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "assign_to_non_existent_node",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/user-service"
+  ]
+}

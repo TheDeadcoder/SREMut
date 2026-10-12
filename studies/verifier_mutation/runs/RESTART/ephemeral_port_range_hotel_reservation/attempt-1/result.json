@@ -1,0 +1,161 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 1,
+      "requests": 5906,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #1\\nRunning 30s test @ http://10.96.63.3:5000\\n  3 threads and 100 connections\\n\\n..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      },
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #3\\nRunning 30s test @ http://10.96.63.3:5000\\n  3 threads and 100 connections\\n\\n..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      }
+    ],
+    "profile": "--",
+    "reference": {
+      "capacity": [
+        "deployments/rate"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "rate"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 2682,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #5\\nRunning 30s test @ http://10.96.63.3:5000\\n  3 threads and 100 connections\\n\\n..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      },
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #7\\nRunning 30s test @ http://10.96.63.3:5000\\n  3 threads and 100 connections\\n\\n..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      },
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #9\\nRunning 30s test @ http://10.96.63.3:5000\\n  3 threads and 100 connections\\n\\n..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      },
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #11\\nRunning 30s test @ http://10.96.63.3:5000\\n  3 threads and 100 connections\\n..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      },
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #13\\nRunning 30s test @ http://10.96.63.3:5000\\n  3 threads and 100 connections\\n..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      },
+      {
+        "detail": {
+          "entry_time": "<time>",
+          "log": "Running wrk2 on round #15\\nRunning 30s test @ http://10.96.63.3:5000\\n  3 threads and 100 connections\\n..."
+        },
+        "failure_class": "ambiguous",
+        "reason": "workload_requests_failing",
+        "success": false
+      }
+    ],
+    "profile": "------"
+  },
+  "operator": "RESTART",
+  "problem_id": "ephemeral_port_range_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/rate"
+  ]
+}

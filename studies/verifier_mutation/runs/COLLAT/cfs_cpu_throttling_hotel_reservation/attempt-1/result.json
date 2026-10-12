@@ -1,0 +1,137 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "container": "hotel-reserv-geo",
+          "cpu_limit": "95m",
+          "injected_limit": "95m"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 17679,
+      "rounds": 1
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "detail": {
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "required_deployment_not_rolled_out",
+        "success": false
+      },
+      {
+        "detail": {
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "required_deployment_not_rolled_out",
+        "success": false
+      },
+      {
+        "detail": {
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "required_deployment_not_rolled_out",
+        "success": false
+      },
+      {
+        "detail": {
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "required_deployment_not_rolled_out",
+        "success": false
+      },
+      {
+        "detail": {
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "required_deployment_not_rolled_out",
+        "success": false
+      },
+      {
+        "detail": {
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "required_deployment_not_rolled_out",
+        "success": false
+      },
+      {
+        "detail": {
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "ambiguous",
+        "reason": "required_deployment_not_rolled_out",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 17711,
+        "rounds": 1
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "cfs_cpu_throttling_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": false,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 17578,
+        "rounds": 1
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

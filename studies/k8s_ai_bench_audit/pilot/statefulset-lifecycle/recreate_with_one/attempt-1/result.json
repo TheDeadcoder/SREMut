@@ -1,0 +1,37 @@
+{
+  "action": "recreate_with_one",
+  "action_result": {
+    "applied": true,
+    "script": {
+      "exit_code": 0,
+      "seconds": 24,
+      "tail": "service/db created\nstatefulset.apps/db created\nWaiting for 3 pods to be ready...\nWaiting for 2 pods to be ready...\nWaiting for 2 pods to be ready...\nWaiting for 1 pods to be ready...\nWaiting for 1 pods to be ready...\npartitioned roll out complete: 3 new pods have been updated...\nstatefulset.apps \"db\" deleted\nservice/db unchanged\nstatefulset.apps/db created"
+    }
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 32,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 18s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nNot sure what to do next? \ud83d\ude05  Check out https://kind.sigs.k8s.io/docs/user/quick-start/"
+  },
+  "namespaces": [
+    "statefulset-test"
+  ],
+  "settled": true,
+  "setup": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "namespace/statefulset-test created"
+  },
+  "status": "COMPLETED",
+  "task": "statefulset-lifecycle",
+  "verify_immediate": {
+    "exit_code": 1,
+    "seconds": 33,
+    "tail": "Verifying old pods are deleted\npod/db-1 condition met\npod/db-2 condition met\nOld pods are deleted\nVerifying StatefulSet replica count\nStatefulSet is running with 1 replicas\nPod db-0 not found in namespace statefulset-test"
+  },
+  "verify_settled": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "Verifying old pods are deleted\nOld pods are deleted\nVerifying StatefulSet replica count\nStatefulSet is running with 1 replicas\nDefaulted container \"db\" out of: db, init-data (init)"
+  }
+}

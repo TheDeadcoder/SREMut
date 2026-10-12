@@ -1,0 +1,203 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/cart",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/grafana",
+      "deployments/image-provider",
+      "deployments/jaeger",
+      "deployments/kafka",
+      "deployments/llm",
+      "deployments/load-generator",
+      "deployments/payment",
+      "deployments/postgresql",
+      "deployments/product-catalog",
+      "deployments/product-reviews",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/valkey-cart",
+      "statefulsets/opensearch"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "alerts": [
+          "ContainerCPUThrottling"
+        ],
+        "namespace": "astronomy-shop"
+      },
+      "failure_class": "agent_error",
+      "reason": "alerts_still_firing",
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "nodes/kind-worker",
+      "nodes/kind-worker2",
+      "nodes/kind-worker3"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady",
+            "HighRequestErrorRate",
+            "KubePodNotReady"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "---",
+    "reference": {
+      "capacity": [
+        "deployments/accounting",
+        "deployments/ad",
+        "deployments/cart",
+        "deployments/checkout",
+        "deployments/currency",
+        "deployments/email",
+        "deployments/flagd",
+        "deployments/fraud-detection",
+        "deployments/frontend",
+        "deployments/frontend-proxy",
+        "deployments/grafana",
+        "deployments/image-provider",
+        "deployments/jaeger",
+        "deployments/kafka",
+        "deployments/llm",
+        "deployments/load-generator",
+        "deployments/payment",
+        "deployments/postgresql",
+        "deployments/product-catalog",
+        "deployments/product-reviews",
+        "deployments/quote",
+        "deployments/recommendation",
+        "deployments/shipping",
+        "deployments/valkey-cart",
+        "statefulsets/opensearch"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "ad",
+        "cart",
+        "checkout",
+        "currency",
+        "email",
+        "flagd",
+        "frontend",
+        "frontend-proxy",
+        "grafana",
+        "image-provider",
+        "kafka",
+        "llm",
+        "load-generator",
+        "opensearch",
+        "otel-collector",
+        "payment",
+        "postgresql",
+        "product-catalog",
+        "product-reviews",
+        "quote",
+        "recommendation",
+        "shipping",
+        "valkey-cart"
+      ],
+      "traffic": {
+        "error": "ApiException: (0)\nReason: Handshake status 500 Internal Server Error -+-+- {'audit-id': 'e92a91de-a2d0-4db9-8f45-5740e2493916', 'cache-control': 'no-cache, private', 'content-type': 'application/json', 'date': '<time>', 'content-length': '170'} -+-+- b'{\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"error dialing backend: dial tcp 172.18.0.2:10250: connect: connection refused\",\"code\":500}\\n'\n"
+      }
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "kubelet_crash",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/accounting",
+    "deployments/ad",
+    "deployments/cart",
+    "deployments/checkout",
+    "deployments/currency",
+    "deployments/email",
+    "deployments/flagd",
+    "deployments/fraud-detection",
+    "deployments/frontend",
+    "deployments/frontend-proxy",
+    "deployments/grafana",
+    "deployments/image-provider",
+    "deployments/jaeger",
+    "deployments/kafka",
+    "deployments/llm",
+    "deployments/load-generator",
+    "deployments/payment",
+    "deployments/postgresql",
+    "deployments/product-catalog",
+    "deployments/product-reviews",
+    "deployments/quote",
+    "deployments/recommendation",
+    "deployments/shipping",
+    "deployments/valkey-cart",
+    "statefulsets/opensearch"
+  ]
+}

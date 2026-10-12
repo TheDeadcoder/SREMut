@@ -1,0 +1,42 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "policy": "Local",
+          "uncovered_nodes": [
+            "kind-worker2",
+            "kind-worker3"
+          ]
+        },
+        "failure_class": "agent_error",
+        "internalTrafficPolicy": "Local",
+        "reason": "fault_still_present",
+        "success": false,
+        "uncovered_nodes": [
+          "kind-worker2",
+          "kind-worker3"
+        ]
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "internalTrafficPolicy": "Cluster",
+      "probe_node": "kind-worker",
+      "probe_ok": true,
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "DELETE",
+  "problem_id": "internal_traffic_policy_local_astronomy_shop",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

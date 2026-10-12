@@ -1,0 +1,122 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/frontend"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'f288d931-f35c-4499-b74b-f6c5ea8647e7', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '6341c0f5-f670-47dc-93b1-6f60e2ccbd4b', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '7010a909-d722-4021-8296-418efb117cd2', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '1f28d6cf-dd8f-4f6c-bb76-f141af387c45', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '739afce7-08a3-4bc0-8583-a2d195f14fd9', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '7d4ef954-1cd3-4f54-9148-f19b1847d856', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '78c9a66c-e6f4-4237-948c-fc3fcb587459', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'e5905196-8e59-47b2-bf6c-368bb51e6ada', 'X-Kubernetes-Pf-Prioritylevel-Uid': '118d4b88-ff14-4e1a-875d-2d5a4e102fa9', 'Date': '<time>', 'Content-Length': '218'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"frontend\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"frontend\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n",
+          "status": 404
+        },
+        "failure_class": "ambiguous",
+        "reason": "kubernetes_resource_missing",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/frontend"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "frontend"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "readiness_probe_misconfiguration_astronomy_shop",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/frontend"
+  ]
+}

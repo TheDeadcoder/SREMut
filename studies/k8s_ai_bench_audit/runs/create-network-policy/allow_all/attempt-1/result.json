@@ -1,0 +1,38 @@
+{
+  "action": "allow_all",
+  "action_result": {
+    "applied": true,
+    "script": {
+      "exit_code": 0,
+      "seconds": 0,
+      "tail": "networkpolicy.networking.k8s.io/np created"
+    }
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 31,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 16s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nThanks for using kind! \ud83d\ude0a"
+  },
+  "namespaces": [
+    "ns1",
+    "ns2"
+  ],
+  "settled": true,
+  "setup": {
+    "exit_code": 0,
+    "seconds": 0,
+    "tail": "Waiting for namespaces to be fully deleted...\nnamespace/ns1 created\nnamespace/ns2 created\nSetup completed"
+  },
+  "status": "COMPLETED",
+  "task": "create-network-policy",
+  "verify_immediate": {
+    "exit_code": 1,
+    "seconds": 0,
+    "tail": "Starting verification for create-network-policy\nFailed: NetworkPolicy egress specs don't match (after full normalization):\n\u001b[36m2c2,24\u001b[0m\n\u001b[31m<   {}\u001b[0m\n---\n\u001b[32m>   {\u001b[0m\n\u001b[32m>     \"ports\": [\u001b[0m\n\u001b[32m>       {\u001b[0m\n\u001b[32m>         \"port\": 53,\u001b[0m\n\u001b[32m>         \"protocol\": \"TCP\"\u001b[0m\n\u001b[32m>       },\u001b[0m\n\u001b[32m>       {\u001b[0m\n\u001b[32m>         \"port\": 53,\u001b[0m\n\u001b[32m>         \"protocol\": \"UDP\"\u001b[0m\n\u001b[32m>       }\u001b[0m\n\u001b[32m>     ]\u001b[0m\n\u001b[32m>   },\u001b[0m\n\u001b[32m>   {\u001b[0m\n\u001b[32m>     \"to\": [\u001b[0m\n\u001b[32m>       {\u001b[0m\n\u001b[32m>         \"namespaceSelector\": {\u001b[0m\n\u001b[32m>           \"matchLabels\": {\u001b[0m\n\u001b[32m>             \"kubernetes.io/metadata.name\": \"ns2\"\u001b[0m\n\u001b[32m>           }\u001b[0m\n\u001b[32m>         }\u001b[0m\n\u001b[32m>       }\u001b[0m\n\u001b[32m>     ]\u001b[0m\n\u001b[32m>   }\u001b[0m"
+  },
+  "verify_settled": {
+    "exit_code": 1,
+    "seconds": 0,
+    "tail": "Starting verification for create-network-policy\nFailed: NetworkPolicy egress specs don't match (after full normalization):\n\u001b[36m2c2,24\u001b[0m\n\u001b[31m<   {}\u001b[0m\n---\n\u001b[32m>   {\u001b[0m\n\u001b[32m>     \"ports\": [\u001b[0m\n\u001b[32m>       {\u001b[0m\n\u001b[32m>         \"port\": 53,\u001b[0m\n\u001b[32m>         \"protocol\": \"TCP\"\u001b[0m\n\u001b[32m>       },\u001b[0m\n\u001b[32m>       {\u001b[0m\n\u001b[32m>         \"port\": 53,\u001b[0m\n\u001b[32m>         \"protocol\": \"UDP\"\u001b[0m\n\u001b[32m>       }\u001b[0m\n\u001b[32m>     ]\u001b[0m\n\u001b[32m>   },\u001b[0m\n\u001b[32m>   {\u001b[0m\n\u001b[32m>     \"to\": [\u001b[0m\n\u001b[32m>       {\u001b[0m\n\u001b[32m>         \"namespaceSelector\": {\u001b[0m\n\u001b[32m>           \"matchLabels\": {\u001b[0m\n\u001b[32m>             \"kubernetes.io/metadata.name\": \"ns2\"\u001b[0m\n\u001b[32m>           }\u001b[0m\n\u001b[32m>         }\u001b[0m\n\u001b[32m>       }\u001b[0m\n\u001b[32m>     ]\u001b[0m\n\u001b[32m>   }\u001b[0m"
+  }
+}
