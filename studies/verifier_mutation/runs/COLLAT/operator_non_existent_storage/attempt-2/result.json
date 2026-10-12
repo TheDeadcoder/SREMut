@@ -1,0 +1,314 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/basic-discovery"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "nonexistent-storage-class",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": " successful\n4m21s       Normal    Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker3\n4m21s       Normal    SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tidb in  basic successful\n4m20s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n4m20s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n4m20s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m20s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n4m20s       Normal    Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m20s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m7s        Normal    Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m7s        Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m7s        Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m7s        Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m5s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n0s          Warning   FailedCreate            statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd failed error: pvc pd-basic-pd-0 is being deleted\n1s          Normal    Killing                 pod/basic-pd-0                            Stopping container pd\n",
+        "fault_applied": true,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "any_pvc_pending": false,
+      "cr_values": {
+        "pd.storageClassName": "openebs-hostpath",
+        "tikv.storageClassName": "openebs-hostpath"
+      },
+      "events_tail": "c-tidb successful\n4m20s       Normal   Successfully Create     tidbcluster/basic                         create ConfigMap/basic-tidb for controller TidbCluster/basic successfully\n4m20s       Normal   SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tidb in  basic successful\n4m20s       Normal   Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker3\n4m20s       Normal   SuccessfulCreate        tidbcluster/basic                         create Service basic-tidb-peer in  basic successful\n4m19s       Normal   Started                 pod/basic-tidb-0                          Started container slowlog\n4m19s       Normal   Started                 pod/basic-tidb-0                          Started container tidb\n4m19s       Normal   Created                 pod/basic-tidb-0                          Created container: tidb\n4m19s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m19s       Normal   Created                 pod/basic-tidb-0                          Created container: slowlog\n4m19s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m6s        Normal   Started                 pod/mysql-client                          Started container mysql-client\n4m6s        Normal   Created                 pod/mysql-client                          Created container: mysql-client\n4m6s        Normal   Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m6s        Normal   Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m4s        Normal   Killing                 pod/mysql-client                          Stopping container mysql-client\n",
+      "fault_applied": false,
+      "pvc_pd": [
+        {
+          "name": "pd-basic-pd-0",
+          "phase": "Bound",
+          "storageClassName": "openebs-hostpath"
+        }
+      ],
+      "pvc_tikv": [
+        {
+          "name": "tikv-basic-tikv-0",
+          "phase": "Bound",
+          "storageClassName": "openebs-hostpath"
+        }
+      ],
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "persistentvolumeclaims/pd-basic-pd-0",
+      "statefulsets/basic-pd"
+    ],
+    "oracle_window": [
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "openebs-hostpath",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "-tikv-peer in  basic successful\n4m56s       Normal    SuccessfulCreate        statefulset/basic-tikv                    create Pod basic-tikv-0 in StatefulSet basic-tikv successful\n4m56s       Normal    SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tikv in  basic successful\n119s        Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n119s        Normal    Started                 pod/basic-tikv-0                          Started container tikv\n119s        Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n5s          Warning   BackOff                 pod/basic-tikv-0                          Back-off restarting failed container tikv in pod basic-tikv-0_tidb-cluster(5651e6dc-fb0b-4118-b926-185efd93ed37)\n2m5s        Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n2m5s        Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-dn2sb\n2m5s        Normal    Killing                 pod/basic-discovery-865ccb69bb-dn2sb      Stopping container discovery\n116s        Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-527cl\n116s        Normal    Scheduled               pod/basic-discovery-865ccb69bb-527cl      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-527cl to kind-worker3\n115s        Normal    Started                 pod/basic-discovery-865ccb69bb-527cl      Started container discovery\n115s        Normal    Created                 pod/basic-discovery-865ccb69bb-527cl      Created container: discovery\n115s        Normal    Pulled                  pod/basic-discovery-865ccb69bb-527cl      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n",
+        "fault_applied": false,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": true
+      },
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "openebs-hostpath",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "-tikv-peer in  basic successful\n5m12s       Normal    SuccessfulCreate        statefulset/basic-tikv                    create Pod basic-tikv-0 in StatefulSet basic-tikv successful\n5m12s       Normal    SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tikv in  basic successful\n2m15s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m15s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m15s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n10s         Warning   BackOff                 pod/basic-tikv-0                          Back-off restarting failed container tikv in pod basic-tikv-0_tidb-cluster(5651e6dc-fb0b-4118-b926-185efd93ed37)\n2m21s       Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n2m21s       Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-dn2sb\n2m21s       Normal    Killing                 pod/basic-discovery-865ccb69bb-dn2sb      Stopping container discovery\n2m12s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-527cl\n2m12s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-527cl      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-527cl to kind-worker3\n2m11s       Normal    Started                 pod/basic-discovery-865ccb69bb-527cl      Started container discovery\n2m11s       Normal    Created                 pod/basic-discovery-865ccb69bb-527cl      Created container: discovery\n2m11s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-527cl      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n",
+        "fault_applied": false,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": true
+      },
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "openebs-hostpath",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "-tikv-peer in  basic successful\n5m27s       Normal    SuccessfulCreate        statefulset/basic-tikv                    create Pod basic-tikv-0 in StatefulSet basic-tikv successful\n5m27s       Normal    SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tikv in  basic successful\n2m30s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m30s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m30s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n11s         Warning   BackOff                 pod/basic-tikv-0                          Back-off restarting failed container tikv in pod basic-tikv-0_tidb-cluster(5651e6dc-fb0b-4118-b926-185efd93ed37)\n2m36s       Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n2m36s       Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-dn2sb\n2m36s       Normal    Killing                 pod/basic-discovery-865ccb69bb-dn2sb      Stopping container discovery\n2m27s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-527cl\n2m27s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-527cl      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-527cl to kind-worker3\n2m26s       Normal    Started                 pod/basic-discovery-865ccb69bb-527cl      Started container discovery\n2m26s       Normal    Created                 pod/basic-discovery-865ccb69bb-527cl      Created container: discovery\n2m26s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-527cl      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n",
+        "fault_applied": false,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": true
+      },
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "openebs-hostpath",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "-tikv-peer in  basic successful\n5m43s       Normal    SuccessfulCreate        statefulset/basic-tikv                    create Pod basic-tikv-0 in StatefulSet basic-tikv successful\n5m43s       Normal    SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tikv in  basic successful\n2m46s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m46s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m46s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n27s         Warning   BackOff                 pod/basic-tikv-0                          Back-off restarting failed container tikv in pod basic-tikv-0_tidb-cluster(5651e6dc-fb0b-4118-b926-185efd93ed37)\n2m52s       Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n2m52s       Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-dn2sb\n2m52s       Normal    Killing                 pod/basic-discovery-865ccb69bb-dn2sb      Stopping container discovery\n2m43s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-527cl\n2m43s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-527cl      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-527cl to kind-worker3\n2m42s       Normal    Started                 pod/basic-discovery-865ccb69bb-527cl      Started container discovery\n2m42s       Normal    Created                 pod/basic-discovery-865ccb69bb-527cl      Created container: discovery\n2m42s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-527cl      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n",
+        "fault_applied": false,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": true
+      },
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "openebs-hostpath",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "-tikv-peer in  basic successful\n5m58s       Normal    SuccessfulCreate        statefulset/basic-tikv                    create Pod basic-tikv-0 in StatefulSet basic-tikv successful\n5m58s       Normal    SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tikv in  basic successful\n13s         Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n13s         Normal    Started                 pod/basic-tikv-0                          Started container tikv\n13s         Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n42s         Warning   BackOff                 pod/basic-tikv-0                          Back-off restarting failed container tikv in pod basic-tikv-0_tidb-cluster(5651e6dc-fb0b-4118-b926-185efd93ed37)\n3m7s        Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n3m7s        Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-dn2sb\n3m7s        Normal    Killing                 pod/basic-discovery-865ccb69bb-dn2sb      Stopping container discovery\n2m58s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-527cl\n2m58s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-527cl      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-527cl to kind-worker3\n2m57s       Normal    Started                 pod/basic-discovery-865ccb69bb-527cl      Started container discovery\n2m57s       Normal    Created                 pod/basic-discovery-865ccb69bb-527cl      Created container: discovery\n2m57s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-527cl      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n",
+        "fault_applied": false,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": true
+      },
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "openebs-hostpath",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "-tikv-peer in  basic successful\n6m14s       Normal    SuccessfulCreate        statefulset/basic-tikv                    create Pod basic-tikv-0 in StatefulSet basic-tikv successful\n6m14s       Normal    SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tikv in  basic successful\n29s         Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n29s         Normal    Started                 pod/basic-tikv-0                          Started container tikv\n29s         Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n58s         Warning   BackOff                 pod/basic-tikv-0                          Back-off restarting failed container tikv in pod basic-tikv-0_tidb-cluster(5651e6dc-fb0b-4118-b926-185efd93ed37)\n3m23s       Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n3m23s       Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-dn2sb\n3m23s       Normal    Killing                 pod/basic-discovery-865ccb69bb-dn2sb      Stopping container discovery\n3m14s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-527cl\n3m14s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-527cl      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-527cl to kind-worker3\n3m13s       Normal    Started                 pod/basic-discovery-865ccb69bb-527cl      Started container discovery\n3m13s       Normal    Created                 pod/basic-discovery-865ccb69bb-527cl      Created container: discovery\n3m13s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-527cl      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n",
+        "fault_applied": false,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": true
+      },
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "openebs-hostpath",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "-tikv-peer in  basic successful\n6m29s       Normal    SuccessfulCreate        statefulset/basic-tikv                    create Pod basic-tikv-0 in StatefulSet basic-tikv successful\n6m29s       Normal    SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tikv in  basic successful\n44s         Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n44s         Normal    Started                 pod/basic-tikv-0                          Started container tikv\n44s         Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n73s         Warning   BackOff                 pod/basic-tikv-0                          Back-off restarting failed container tikv in pod basic-tikv-0_tidb-cluster(5651e6dc-fb0b-4118-b926-185efd93ed37)\n3m38s       Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled down replica set basic-discovery-865ccb69bb from 1 to 0\n3m38s       Normal    SuccessfulDelete        replicaset/basic-discovery-865ccb69bb     Deleted pod: basic-discovery-865ccb69bb-dn2sb\n3m38s       Normal    Killing                 pod/basic-discovery-865ccb69bb-dn2sb      Stopping container discovery\n3m29s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-527cl\n3m29s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-527cl      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-527cl to kind-worker3\n3m28s       Normal    Started                 pod/basic-discovery-865ccb69bb-527cl      Started container discovery\n3m28s       Normal    Created                 pod/basic-discovery-865ccb69bb-527cl      Created container: discovery\n3m28s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-527cl      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n",
+        "fault_applied": false,
+        "pvc_pd": [
+          {
+            "name": "pd-basic-pd-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": true
+      }
+    ],
+    "profile": "+++++++",
+    "reference": {
+      "capacity": [
+        "statefulsets/basic-tidb",
+        "statefulsets/basic-tikv"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "basic-tidb",
+        "basic-tidb-peer"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "operator_non_existent_storage",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "any_pvc_pending": false,
+        "cr_values": {
+          "pd.storageClassName": "openebs-hostpath",
+          "tikv.storageClassName": "openebs-hostpath"
+        },
+        "events_tail": "basic-discovery-865ccb69bb from 0 to 1\n8s          Warning   FailedMount             pod/basic-discovery-865ccb69bb-jgzwf      MountVolume.SetUp failed for volume \"kube-api-access-72gdr\" : failed to fetch token: serviceaccounts \"basic-discovery\" not found\n7s          Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n7s          Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n5s          Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-q2d7j\n5s          Normal    ScalingReplicaSet       deployment/basic-discovery                Scaled up replica set basic-discovery-865ccb69bb from 0 to 1\n5s          Normal    Scheduled               pod/basic-discovery-865ccb69bb-q2d7j      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-q2d7j to kind-worker\n5s          Warning   FailedScheduling        pod/basic-pd-0                            0/4 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/4 nodes are available: 4 Preemption is not helpful for scheduling.\n5s          Normal    SuccessfulCreate        statefulset/basic-pd                      create Pod basic-pd-0 in StatefulSet basic-pd successful\n4s          Normal    Started                 pod/basic-discovery-865ccb69bb-q2d7j      Started container discovery\n4s          Normal    Created                 pod/basic-discovery-865ccb69bb-q2d7j      Created container: discovery\n4s          Normal    Pulled                  pod/basic-discovery-865ccb69bb-q2d7j      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n2s          Normal    Killing                 pod/basic-discovery-865ccb69bb-q2d7j      Stopping container discovery\n",
+        "fault_applied": false,
+        "pvc_pd": [],
+        "pvc_tikv": [
+          {
+            "name": "tikv-basic-tikv-0",
+            "phase": "Bound",
+            "storageClassName": "openebs-hostpath"
+          }
+        ],
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [
+        "deployments/basic-discovery",
+        "statefulsets/basic-pd",
+        "statefulsets/basic-tidb",
+        "statefulsets/basic-tikv"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "basic-discovery",
+        "basic-pd",
+        "basic-pd-peer",
+        "basic-tidb",
+        "basic-tidb-peer",
+        "basic-tikv-peer"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    }
+  },
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "statefulsets/basic-pd"
+  ]
+}

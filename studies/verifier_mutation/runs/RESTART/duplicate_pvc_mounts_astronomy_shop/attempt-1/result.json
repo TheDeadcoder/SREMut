@@ -1,0 +1,104 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/cart",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/grafana",
+      "deployments/image-provider",
+      "deployments/jaeger",
+      "deployments/kafka",
+      "deployments/llm",
+      "deployments/load-generator",
+      "deployments/payment",
+      "deployments/postgresql",
+      "deployments/product-catalog",
+      "deployments/product-reviews",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/valkey-cart",
+      "statefulsets/opensearch"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/frontend",
+      "persistentvolumeclaims/frontend-pvc"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "frontend"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "---"
+  },
+  "operator": "RESTART",
+  "problem_id": "duplicate_pvc_mounts_astronomy_shop",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/frontend"
+  ]
+}

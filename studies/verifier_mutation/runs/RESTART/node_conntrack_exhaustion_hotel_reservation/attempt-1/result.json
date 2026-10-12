@@ -1,0 +1,102 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/edge-traffic-client",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/rpc-gateway",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "conntrack_ratio": 0.001987457275390625,
+      "frontend_probe": true,
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5943,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/edge-traffic-client",
+      "deployments/rpc-gateway",
+      "services/rpc-gateway"
+    ],
+    "oracle_window": [
+      {
+        "conntrack_ratio": 0.29355621337890625,
+        "frontend_probe": true,
+        "success": true
+      },
+      {
+        "conntrack_ratio": 1.0,
+        "frontend_probe": false,
+        "success": false
+      }
+    ],
+    "profile": "+-",
+    "reference": {
+      "capacity": [
+        "deployments/reservation"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "reservation"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 3127,
+        "rounds": 2
+      }
+    },
+    "verdict": true
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "conntrack_ratio": 1.0,
+        "frontend_probe": true,
+        "success": false
+      },
+      {
+        "conntrack_ratio": 1.0,
+        "frontend_probe": false,
+        "success": false
+      },
+      {
+        "conntrack_ratio": 1.0,
+        "frontend_probe": false,
+        "success": false
+      }
+    ],
+    "profile": "---"
+  },
+  "operator": "RESTART",
+  "problem_id": "node_conntrack_exhaustion_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

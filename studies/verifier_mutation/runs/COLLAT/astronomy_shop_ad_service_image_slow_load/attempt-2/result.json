@@ -1,0 +1,142 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/accounting"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "MessageConsumerLag"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "alerts": [
+          "ContainerCPUThrottling",
+          "MessageConsumerLag"
+        ],
+        "namespace": "astronomy-shop"
+      },
+      "failure_class": "agent_error",
+      "reason": "alerts_still_firing",
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/flagd-config"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling",
+            "DeploymentNotReady"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "---",
+    "reference": {
+      "capacity": [
+        "deployments/accounting"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "astronomy_shop_ad_service_image_slow_load",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "--+",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

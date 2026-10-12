@@ -1,0 +1,59 @@
+{
+  "applied": null,
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "p/basic-tidb for controller TidbCluster/basic successfully\n4m19s       Normal   SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tidb in  basic successful\n4m19s       Normal   Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker3\n4m19s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"busybox:1.26.2\" already present on machine\n4m19s       Normal   Started                 pod/basic-tidb-0                          Started container slowlog\n4m19s       Normal   Pulled                  pod/basic-tidb-0                          Container image \"pingcap/tidb:v8.1.0\" already present on machine\n4m19s       Normal   Created                 pod/basic-tidb-0                          Created container: tidb\n4m18s       Normal   Started                 pod/basic-tidb-0                          Started container tidb\n4m5s        Normal   Created                 pod/mysql-client                          Created container: mysql-client\n4m5s        Normal   Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m5s        Normal   Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m4s        Normal   Started                 pod/mysql-client                          Started container mysql-client\n4m2s        Normal   Killing                 pod/mysql-client                          Stopping container mysql-client\n0s          Normal   Killing                 pod/basic-tidb-0                          Stopping container slowlog\n0s          Normal   Killing                 pod/basic-tidb-0                          Stopping container tidb\n0s          Normal   SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "applied_in": {
+        "any_pod_has_bad_effect": false,
+        "cr_has_bad_effect": false,
+        "sts_has_bad_effect": false
+      },
+      "details": {
+        "cr_effects": [],
+        "pod_effects": [
+          "NoExecute",
+          "NoExecute"
+        ],
+        "recent_events_tail": "v8.1.0\" already present on machine\n4m18s       Normal   Successfully Create     tidbcluster/basic                         create ConfigMap/basic-tidb for controller TidbCluster/basic successfully\n4m18s       Normal   SuccessfulCreate        tidbcluster/basic                         create StatefulSet basic-tidb in  basic successful\n4m18s       Normal   Scheduled               pod/basic-tidb-0                          Successfully assigned tidb-cluster/basic-tidb-0 to kind-worker3\n4m18s       Normal   Created                 pod/basic-tidb-0                          Created container: slowlog\n4m18s       Normal   Started                 pod/basic-tidb-0                          Started container slowlog\n4m18s       Normal   SuccessfulCreate        tidbcluster/basic                         create Service basic-tidb in  basic successful\n4m18s       Normal   Created                 pod/basic-tidb-0                          Created container: tidb\n4m18s       Normal   SuccessfulCreate        tidbcluster/basic                         create Service basic-tidb-peer in  basic successful\n4m18s       Normal   SuccessfulCreate        statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb successful\n4m17s       Normal   Started                 pod/basic-tidb-0                          Started container tidb\n4m4s        Normal   Created                 pod/mysql-client                          Created container: mysql-client\n4m4s        Normal   Pulled                  pod/mysql-client                          Container image \"mysql:8\" already present on machine\n4m4s        Normal   Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m3s        Normal   Started                 pod/mysql-client                          Started container mysql-client\n4m1s        Normal   Killing                 pod/mysql-client                          Stopping container mysql-client\n",
+        "sts_effects": []
+      },
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "SCALE0",
+  "problem_id": "operator_invalid_affinity_toleration",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

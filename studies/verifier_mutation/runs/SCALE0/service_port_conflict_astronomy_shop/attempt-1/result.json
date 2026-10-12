@@ -1,0 +1,125 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/ad"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "ad",
+          "desired": 1,
+          "namespace": "astronomy-shop",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/ad"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "ad",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "ad",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "ad",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "ad",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "ad",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "ad",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "ad",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/ad"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "ad"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "service_port_conflict_astronomy_shop",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/ad"
+  ]
+}

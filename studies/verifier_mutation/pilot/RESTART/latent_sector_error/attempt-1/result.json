@@ -1,0 +1,183 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5904,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "---",
+    "reference": {
+      "capacity": [
+        "deployments/geo",
+        "deployments/mongodb-geo"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "geo",
+        "mongodb-geo"
+      ]
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "alerts": [
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      },
+      {
+        "detail": {
+          "alerts": [
+            "DeploymentNotReady",
+            "KubePodNotReady",
+            "PodStatusError"
+          ],
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ],
+    "profile": "------"
+  },
+  "operator": "RESTART",
+  "problem_id": "latent_sector_error",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/mongodb-geo"
+  ]
+}

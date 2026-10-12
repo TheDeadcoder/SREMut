@@ -1,0 +1,117 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/basic-discovery"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "cr_statefulSetUpdateStrategy": "SomeStrategyForUpdate",
+        "fault_applied": true,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "cr_statefulSetUpdateStrategy": null,
+      "fault_applied": false,
+      "sts_updateStrategy_type": "RollingUpdate",
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "cr_statefulSetUpdateStrategy": null,
+        "fault_applied": false,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": true
+      },
+      {
+        "cr_statefulSetUpdateStrategy": null,
+        "fault_applied": false,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": true
+      },
+      {
+        "cr_statefulSetUpdateStrategy": null,
+        "fault_applied": false,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": true
+      },
+      {
+        "cr_statefulSetUpdateStrategy": null,
+        "fault_applied": false,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": true
+      },
+      {
+        "cr_statefulSetUpdateStrategy": null,
+        "fault_applied": false,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": true
+      },
+      {
+        "cr_statefulSetUpdateStrategy": null,
+        "fault_applied": false,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": true
+      },
+      {
+        "cr_statefulSetUpdateStrategy": null,
+        "fault_applied": false,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": true
+      }
+    ],
+    "profile": "+++++++",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "operator_wrong_update_strategy_fault",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "cr_statefulSetUpdateStrategy": null,
+        "fault_applied": false,
+        "sts_updateStrategy_type": "RollingUpdate",
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

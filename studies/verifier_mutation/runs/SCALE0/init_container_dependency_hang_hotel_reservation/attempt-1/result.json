@@ -1,0 +1,35 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "frontend",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 1
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5944,
+      "rounds": 2
+    }
+  },
+  "operator": "SCALE0",
+  "problem_id": "init_container_dependency_hang_hotel_reservation",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

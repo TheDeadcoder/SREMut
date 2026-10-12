@@ -1,0 +1,33 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "frontend",
+          "desired": 1,
+          "namespace": "astronomy-shop",
+          "ready": 1
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "SCALE0",
+  "problem_id": "init_container_dependency_hang_astronomy_shop",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

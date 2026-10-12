@@ -1,0 +1,141 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/recommendation"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5942,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 0,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 0,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 0,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 0,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 0,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 0,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "desired": 0,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "agent_error",
+        "reason": "faulty_deployment_not_ready",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/recommendation"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "recommendation"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 5905,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "psa_restricted_blocks_recreation_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/recommendation"
+  ]
+}

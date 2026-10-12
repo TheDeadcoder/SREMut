@@ -1,0 +1,58 @@
+{
+  "attempt": 2,
+  "duration_seconds": 427,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "psa_restricted_blocks_recreation_hotel_reservation",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "prometheus-kube-state-metrics",
+      "ingress-nginx",
+      "prometheus-server",
+      "mcp-server",
+      "tidb-operator:tidb-controller-manager"
+    ],
+    "cluster_roles_deleted": [
+      "prometheus-kube-state-metrics",
+      "ingress-nginx",
+      "prometheus-server",
+      "mcp-server",
+      "tidb-operator:tidb-controller-manager"
+    ],
+    "crds_deleted": [
+      "tidbmonitors.pingcap.com",
+      "tidbinitializers.pingcap.com",
+      "tidbclusters.pingcap.com",
+      "tidbdashboards.pingcap.com",
+      "backups.pingcap.com",
+      "backupschedules.pingcap.com",
+      "compactbackups.pingcap.com",
+      "tidbngmonitorings.pingcap.com",
+      "dmclusters.pingcap.com",
+      "restores.pingcap.com"
+    ],
+    "failed_pods_deleted": 3,
+    "namespaces_deleted": [
+      "tidb-cluster",
+      "observe",
+      "ingress-nginx",
+      "tidb-operator"
+    ],
+    "validating_webhook_configs_deleted": [
+      "ingress-nginx-admission"
+    ]
+  },
+  "server": "C",
+  "status": "COMPLETED"
+}

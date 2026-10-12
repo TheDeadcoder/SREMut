@@ -1,0 +1,66 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "f247b49c-a45b-4de9-97d0-42172dbae761"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "f247b49c-a45b-4de9-97d0-42172dbae761"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "f247b49c-a45b-4de9-97d0-42172dbae761",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "configured_conn": "postgres://otelu:otelp@postgresql/otel?sslmode=disable",
+      "current_pod_uids": [
+        "e52642d8-edec-466d-8451-66a04c7784bd"
+      ],
+      "deployment_exists": true,
+      "deployment_references_secret": false,
+      "detail": {
+        "message": "the Secret does not contain the required rotated connection string"
+      },
+      "failure_class": "agent_error",
+      "pods_ready": true,
+      "postgres_accepts_new_password": false,
+      "postgres_accepts_old_password": false,
+      "postgresql_init_uses_new_password": false,
+      "product_probe_succeeded": false,
+      "ready_target_endpoint": true,
+      "reason": "secret_not_rotated",
+      "rollout_complete": true,
+      "secret_conn": null,
+      "stale_pod_uid": null,
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "operator": "DELETE",
+  "problem_id": "secret_rotation_stale_env_credentials_astronomy_shop",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

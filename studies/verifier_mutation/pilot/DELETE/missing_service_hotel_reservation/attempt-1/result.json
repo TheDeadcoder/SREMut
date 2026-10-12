@@ -1,0 +1,134 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/rate"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "detail": {
+          "deployment": "rate",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "+++-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5870,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "services/mongodb-rate"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "rate",
+          "namespace": "hotel-reservation"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_missing",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/rate"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "mongodb-rate",
+        "rate"
+      ]
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "missing_service_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/rate"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployments": {
+            "mongodb-geo": "mongo:8.0.14-rc0",
+            "mongodb-profile": "mongo:8.0.14-rc0",
+            "mongodb-rate": "mongo:8.0.14-rc0",
+            "mongodb-recommendation": "mongo:8.0.14-rc0",
+            "mongodb-reservation": "mongo:8.0.14-rc0",
+            "mongodb-user": "mongo:8.0.14-rc0"
+          }
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5944,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "+++++++",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5943,
+        "rounds": 2
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "update_incompatible_correlated",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5932,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/mongodb-geo",
+    "deployments/mongodb-profile",
+    "deployments/mongodb-rate",
+    "deployments/mongodb-recommendation",
+    "deployments/mongodb-reservation",
+    "deployments/mongodb-user"
+  ]
+}

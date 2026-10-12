@@ -1,0 +1,105 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "recommendation",
+          "message": "Deployment 'recommendation' in 'hotel-reservation' shows ready_replicas=0 (expected 1). The application is rollout is incomplete."
+        },
+        "failure_class": "ambiguous",
+        "reason": "pods_not_ready",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "message": "Policy namespace 'policy-system' was deleted. The policy plane must remain present; restore the namespace and the webhooks, and apply a non-destructive fix."
+      },
+      "failure_class": "agent_error",
+      "reason": "workload_not_intact",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5869,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "++++++",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5942,
+        "rounds": 2
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "cumulative_admission_webhook_timeout_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5905,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/recommendation"
+  ]
+}

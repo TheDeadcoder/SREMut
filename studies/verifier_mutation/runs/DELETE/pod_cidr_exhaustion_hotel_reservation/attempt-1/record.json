@@ -1,0 +1,72 @@
+{
+  "attempt": 1,
+  "duration_seconds": 602,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "chaos-mesh",
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "sregym"
+  ],
+  "problem_id": "pod_cidr_exhaustion_hotel_reservation",
+  "reset": {
+    "cluster_role_bindings_deleted": [
+      "ingress-nginx",
+      "tidb-operator:tidb-controller-manager",
+      "prometheus-kube-state-metrics",
+      "prometheus-server",
+      "mcp-server"
+    ],
+    "cluster_roles_deleted": [
+      "ingress-nginx",
+      "tidb-operator:tidb-controller-manager",
+      "prometheus-kube-state-metrics",
+      "prometheus-server",
+      "mcp-server"
+    ],
+    "crds_deleted": [
+      "tidbmonitors.pingcap.com",
+      "tidbngmonitorings.pingcap.com",
+      "restores.pingcap.com",
+      "tidbdashboards.pingcap.com",
+      "dmclusters.pingcap.com",
+      "backups.pingcap.com",
+      "backupschedules.pingcap.com",
+      "compactbackups.pingcap.com",
+      "tidbclusters.pingcap.com",
+      "tidbinitializers.pingcap.com"
+    ],
+    "failed_pods_deleted": 3,
+    "localpv_dirs_gc": {
+      "by_node": {
+        "kind-control-plane": 2,
+        "kind-worker": 0,
+        "kind-worker2": 0,
+        "kind-worker3": 1
+      },
+      "removed": 3
+    },
+    "namespaces_deleted": [
+      "tidb-operator",
+      "ingress-nginx",
+      "observe"
+    ],
+    "persistent_volumes_deleted": [
+      "pvc-a8f2b677-19ab-4ed6-8151-340780ee74ec",
+      "pvc-fbde4448-4240-466f-8ac2-a9c4a5854745",
+      "pvc-1dd582a9-d1b8-40e0-b0b4-489c37aa7326",
+      "pvc-9d174ea9-67d1-44fa-8b14-0bf7c5c87540"
+    ],
+    "validating_webhook_configs_deleted": [
+      "ingress-nginx-admission"
+    ]
+  },
+  "server": "C",
+  "status": "COMPLETED"
+}

@@ -1,0 +1,78 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/aux-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 2.7,
+          "namespace": "social-network",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5119,
+      "rounds": 5
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/aux-service-script",
+      "services/aux-service"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 23.4,
+          "namespace": "social-network",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "-++",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5120,
+        "rounds": 5
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "liveness_probe_too_aggressive_social_network",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/aux-service"
+  ]
+}

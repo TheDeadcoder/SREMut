@@ -1,0 +1,225 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/ad"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "configured_conn": null,
+        "current_pod_uids": [
+          "746fe854-0dec-4328-8da6-e950c3ee84ff"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": false,
+        "detail": {
+          "message": "the product-catalog pod from before credential rotation is still serving",
+          "pod_uid": "746fe854-0dec-4328-8da6-e950c3ee84ff"
+        },
+        "failure_class": "agent_error",
+        "pods_ready": true,
+        "postgres_accepts_new_password": false,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": false,
+        "product_probe_succeeded": false,
+        "ready_target_endpoint": true,
+        "reason": "stale_pod_still_serving",
+        "rollout_complete": true,
+        "secret_conn": null,
+        "stale_pod_uid": "746fe854-0dec-4328-8da6-e950c3ee84ff",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "configured_conn": "postgres://otelu:otelp@postgresql/otel?sslmode=disable",
+      "current_pod_uids": [
+        "8a07ddc2-05c5-477b-b4ec-a46e7a331d84"
+      ],
+      "deployment_exists": true,
+      "deployment_references_secret": false,
+      "detail": {
+        "message": "the Secret does not contain the required rotated connection string"
+      },
+      "failure_class": "agent_error",
+      "pods_ready": true,
+      "postgres_accepts_new_password": false,
+      "postgres_accepts_old_password": false,
+      "postgresql_init_uses_new_password": false,
+      "product_probe_succeeded": false,
+      "ready_target_endpoint": true,
+      "reason": "secret_not_rotated",
+      "rollout_complete": true,
+      "secret_conn": null,
+      "stale_pod_uid": null,
+      "success": false
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/postgresql-init",
+      "deployments/accounting",
+      "deployments/product-catalog",
+      "deployments/product-reviews"
+    ],
+    "oracle_window": [
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "75a12f4a-b3fe-4d1c-b3cd-e59588152915"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "message": "required credential rotation is consistent and product queries succeed",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": true,
+        "ready_target_endpoint": true,
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": null,
+        "success": true
+      },
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "75a12f4a-b3fe-4d1c-b3cd-e59588152915"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "message": "required credential rotation is consistent and product queries succeed",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": true,
+        "ready_target_endpoint": true,
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": null,
+        "success": true
+      },
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "75a12f4a-b3fe-4d1c-b3cd-e59588152915"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "message": "required credential rotation is consistent and product queries succeed",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": true,
+        "ready_target_endpoint": true,
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": null,
+        "success": true
+      },
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "75a12f4a-b3fe-4d1c-b3cd-e59588152915"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "message": "required credential rotation is consistent and product queries succeed",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": true,
+        "ready_target_endpoint": true,
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": null,
+        "success": true
+      },
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "75a12f4a-b3fe-4d1c-b3cd-e59588152915"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "message": "required credential rotation is consistent and product queries succeed",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": true,
+        "ready_target_endpoint": true,
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": null,
+        "success": true
+      }
+    ],
+    "profile": "+++++",
+    "reference": {
+      "capacity": [
+        "deployments/ad"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "ad"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "secret_rotation_stale_env_credentials_astronomy_shop",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "configured_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "current_pod_uids": [
+          "75a12f4a-b3fe-4d1c-b3cd-e59588152915"
+        ],
+        "deployment_exists": true,
+        "deployment_references_secret": true,
+        "message": "required credential rotation is consistent and product queries succeed",
+        "pods_ready": true,
+        "postgres_accepts_new_password": true,
+        "postgres_accepts_old_password": false,
+        "postgresql_init_uses_new_password": true,
+        "product_probe_succeeded": true,
+        "ready_target_endpoint": true,
+        "rollout_complete": true,
+        "secret_conn": "postgres://otelu:otelp_7k9m2q4x@postgresql/otel?sslmode=disable",
+        "stale_pod_uid": null,
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

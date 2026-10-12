@@ -1,0 +1,49 @@
+{
+  "applied": null,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "accuracy": 0.0,
+        "failure_class": "ambiguous",
+        "oracles": [
+          {
+            "detail": {
+              "entry_time": "<time>",
+              "log": "{\"current_response_time_percentile_50\": 25, \"current_response_time_percentile_95\": 98, \"errors\": [{\"..."
+            },
+            "failure_class": "ambiguous",
+            "name": "0-WorkloadOracle",
+            "reason": "workload_requests_failing",
+            "success": false
+          }
+        ],
+        "reason": "workload_requests_failing",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-WorkloadOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 148,
+      "rounds": 5
+    }
+  },
+  "operator": "SCALE0",
+  "problem_id": "trainticket_f17_nested_sql_select_clause_error",
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

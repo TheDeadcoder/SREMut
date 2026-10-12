@@ -1,0 +1,563 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/basic-discovery",
+      "statefulsets/basic-pd",
+      "statefulsets/basic-tidb",
+      "statefulsets/basic-tikv"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "wait for namespace deletion: Exception: [red]Timeout: Namespace 'tidb-cluster' was not deleted within 300 seconds."
+  ],
+  "healthy": {
+    "oracle": {
+      "applied_in": {
+        "any_pod_has_bad_effect": false,
+        "cr_has_bad_effect": false,
+        "sts_has_bad_effect": false
+      },
+      "details": {
+        "cr_effects": [],
+        "pod_effects": [
+          "NoExecute",
+          "NoExecute"
+        ],
+        "recent_events_tail": "          Pulling image \"busybox:1.26.2\"\n5m14s       Normal    Pulled                  pod/basic-tidb-0                          Successfully pulled image \"busybox:1.26.2\" in 1.846s (1.846s including waiting). Image size: 701277 bytes.\n5m14s       Normal    Created                 pod/basic-tidb-0                          Created container: slowlog\n5m14s       Normal    Started                 pod/basic-tidb-0                          Started container slowlog\n5m14s       Normal    Pulling                 pod/basic-tidb-0                          Pulling image \"pingcap/tidb:v8.1.0\"\n5m9s        Normal    Pulled                  pod/basic-tidb-0                          Successfully pulled image \"pingcap/tidb:v8.1.0\" in 5.404s (5.404s including waiting). Image size: 161052200 bytes.\n5m8s        Normal    Started                 pod/basic-tidb-0                          Started container tidb\n5m8s        Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n4m56s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n4m45s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m44s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n4m20s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m20s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m20s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n4m17s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n",
+        "sts_effects": []
+      },
+      "success": true
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "statefulsets/basic-tidb"
+    ],
+    "oracle_window": [
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": " Stopping container pd\n2m4s        Normal    Killing                 pod/basic-tikv-0                          Stopping container tikv\n2m4s        Normal    Scheduled               pod/basic-discovery-865ccb69bb-94ttb      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-94ttb to kind-worker3\n2m4s        Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-94ttb\n2m4s        Normal    Killing                 pod/basic-discovery-865ccb69bb-p9kxx      Stopping container discovery\n2m2s        Normal    Started                 pod/basic-discovery-865ccb69bb-94ttb      Started container discovery\n2m2s        Normal    Pulled                  pod/basic-discovery-865ccb69bb-94ttb      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n2m2s        Normal    Scheduled               pod/basic-pd-0                            Successfully assigned tidb-cluster/basic-pd-0 to kind-worker\n2m2s        Normal    Created                 pod/basic-discovery-865ccb69bb-94ttb      Created container: discovery\n2m1s        Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n2m1s        Normal    Created                 pod/basic-pd-0                            Created container: pd\n2m1s        Normal    Started                 pod/basic-pd-0                            Started container pd\n2m1s        Normal    Pulled                  pod/basic-pd-0                            Container image \"pingcap/pd:v8.1.0\" already present on machine\n2m          Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m          Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m          Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": " Stopping container pd\n2m20s       Normal    Killing                 pod/basic-tikv-0                          Stopping container tikv\n2m20s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-94ttb      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-94ttb to kind-worker3\n2m20s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-94ttb\n2m20s       Normal    Killing                 pod/basic-discovery-865ccb69bb-p9kxx      Stopping container discovery\n2m18s       Normal    Started                 pod/basic-discovery-865ccb69bb-94ttb      Started container discovery\n2m18s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-94ttb      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n2m18s       Normal    Scheduled               pod/basic-pd-0                            Successfully assigned tidb-cluster/basic-pd-0 to kind-worker\n2m18s       Normal    Created                 pod/basic-discovery-865ccb69bb-94ttb      Created container: discovery\n2m17s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n2m17s       Normal    Created                 pod/basic-pd-0                            Created container: pd\n2m17s       Normal    Started                 pod/basic-pd-0                            Started container pd\n2m17s       Normal    Pulled                  pod/basic-pd-0                            Container image \"pingcap/pd:v8.1.0\" already present on machine\n2m16s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m16s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m16s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": " Stopping container pd\n2m36s       Normal    Killing                 pod/basic-tikv-0                          Stopping container tikv\n2m36s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-94ttb      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-94ttb to kind-worker3\n2m36s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-94ttb\n2m36s       Normal    Killing                 pod/basic-discovery-865ccb69bb-p9kxx      Stopping container discovery\n2m34s       Normal    Started                 pod/basic-discovery-865ccb69bb-94ttb      Started container discovery\n2m34s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-94ttb      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n2m34s       Normal    Scheduled               pod/basic-pd-0                            Successfully assigned tidb-cluster/basic-pd-0 to kind-worker\n2m34s       Normal    Created                 pod/basic-discovery-865ccb69bb-94ttb      Created container: discovery\n2m33s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n2m33s       Normal    Created                 pod/basic-pd-0                            Created container: pd\n2m33s       Normal    Started                 pod/basic-pd-0                            Started container pd\n2m33s       Normal    Pulled                  pod/basic-pd-0                            Container image \"pingcap/pd:v8.1.0\" already present on machine\n2m32s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m32s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m32s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": " Stopping container pd\n2m52s       Normal    Killing                 pod/basic-tikv-0                          Stopping container tikv\n2m52s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-94ttb      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-94ttb to kind-worker3\n2m52s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-94ttb\n2m52s       Normal    Killing                 pod/basic-discovery-865ccb69bb-p9kxx      Stopping container discovery\n2m50s       Normal    Started                 pod/basic-discovery-865ccb69bb-94ttb      Started container discovery\n2m50s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-94ttb      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n2m50s       Normal    Scheduled               pod/basic-pd-0                            Successfully assigned tidb-cluster/basic-pd-0 to kind-worker\n2m50s       Normal    Created                 pod/basic-discovery-865ccb69bb-94ttb      Created container: discovery\n2m49s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n2m49s       Normal    Created                 pod/basic-pd-0                            Created container: pd\n2m49s       Normal    Started                 pod/basic-pd-0                            Started container pd\n2m49s       Normal    Pulled                  pod/basic-pd-0                            Container image \"pingcap/pd:v8.1.0\" already present on machine\n2m48s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n2m48s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n2m48s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": " Stopping container pd\n3m7s        Normal    Killing                 pod/basic-tikv-0                          Stopping container tikv\n3m7s        Normal    Scheduled               pod/basic-discovery-865ccb69bb-94ttb      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-94ttb to kind-worker3\n3m7s        Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-94ttb\n3m7s        Normal    Killing                 pod/basic-discovery-865ccb69bb-p9kxx      Stopping container discovery\n3m5s        Normal    Started                 pod/basic-discovery-865ccb69bb-94ttb      Started container discovery\n3m5s        Normal    Pulled                  pod/basic-discovery-865ccb69bb-94ttb      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n3m5s        Normal    Scheduled               pod/basic-pd-0                            Successfully assigned tidb-cluster/basic-pd-0 to kind-worker\n3m5s        Normal    Created                 pod/basic-discovery-865ccb69bb-94ttb      Created container: discovery\n3m4s        Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n3m4s        Normal    Created                 pod/basic-pd-0                            Created container: pd\n3m4s        Normal    Started                 pod/basic-pd-0                            Started container pd\n3m4s        Normal    Pulled                  pod/basic-pd-0                            Container image \"pingcap/pd:v8.1.0\" already present on machine\n3m3s        Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n3m3s        Normal    Started                 pod/basic-tikv-0                          Started container tikv\n3m3s        Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": " Stopping container pd\n3m23s       Normal    Killing                 pod/basic-tikv-0                          Stopping container tikv\n3m23s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-94ttb      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-94ttb to kind-worker3\n3m23s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-94ttb\n3m23s       Normal    Killing                 pod/basic-discovery-865ccb69bb-p9kxx      Stopping container discovery\n3m21s       Normal    Started                 pod/basic-discovery-865ccb69bb-94ttb      Started container discovery\n3m21s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-94ttb      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n3m21s       Normal    Scheduled               pod/basic-pd-0                            Successfully assigned tidb-cluster/basic-pd-0 to kind-worker\n3m21s       Normal    Created                 pod/basic-discovery-865ccb69bb-94ttb      Created container: discovery\n3m20s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n3m20s       Normal    Created                 pod/basic-pd-0                            Created container: pd\n3m20s       Normal    Started                 pod/basic-pd-0                            Started container pd\n3m20s       Normal    Pulled                  pod/basic-pd-0                            Container image \"pingcap/pd:v8.1.0\" already present on machine\n3m19s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n3m19s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n3m19s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": " Stopping container pd\n3m39s       Normal    Killing                 pod/basic-tikv-0                          Stopping container tikv\n3m39s       Normal    Scheduled               pod/basic-discovery-865ccb69bb-94ttb      Successfully assigned tidb-cluster/basic-discovery-865ccb69bb-94ttb to kind-worker3\n3m39s       Normal    SuccessfulCreate        replicaset/basic-discovery-865ccb69bb     Created pod: basic-discovery-865ccb69bb-94ttb\n3m39s       Normal    Killing                 pod/basic-discovery-865ccb69bb-p9kxx      Stopping container discovery\n3m37s       Normal    Started                 pod/basic-discovery-865ccb69bb-94ttb      Started container discovery\n3m37s       Normal    Pulled                  pod/basic-discovery-865ccb69bb-94ttb      Container image \"pingcap/tidb-operator:v1.6.3\" already present on machine\n3m37s       Normal    Scheduled               pod/basic-pd-0                            Successfully assigned tidb-cluster/basic-pd-0 to kind-worker\n3m37s       Normal    Created                 pod/basic-discovery-865ccb69bb-94ttb      Created container: discovery\n3m36s       Normal    Scheduled               pod/basic-tikv-0                          Successfully assigned tidb-cluster/basic-tikv-0 to kind-worker2\n3m36s       Normal    Created                 pod/basic-pd-0                            Created container: pd\n3m36s       Normal    Started                 pod/basic-pd-0                            Started container pd\n3m36s       Normal    Pulled                  pod/basic-pd-0                            Container image \"pingcap/pd:v8.1.0\" already present on machine\n3m35s       Normal    Created                 pod/basic-tikv-0                          Created container: tikv\n3m35s       Normal    Started                 pod/basic-tikv-0                          Started container tikv\n3m35s       Normal    Pulled                  pod/basic-tikv-0                          Container image \"pingcap/tikv:v8.1.0\" already present on machine\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "statefulsets/basic-tidb"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "basic-tidb",
+        "basic-tidb-peer"
+      ],
+      "traffic": {
+        "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "rted                 pod/basic-tidb-0                          Started container slowlog\n5m16s       Normal    Pulling                 pod/basic-tidb-0                          Pulling image \"pingcap/tidb:v8.1.0\"\n5m11s       Normal    Pulled                  pod/basic-tidb-0                          Successfully pulled image \"pingcap/tidb:v8.1.0\" in 5.404s (5.404s including waiting). Image size: 161052200 bytes.\n5m10s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n5m10s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m58s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n4m47s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n4m46s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n4m22s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m22s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m22s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n4m19s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n1s          Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n1s          Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n1s          Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [
+            "NoExecute",
+            "NoExecute"
+          ],
+          "recent_events_tail": "rted                 pod/basic-tidb-0                          Started container slowlog\n5m32s       Normal    Pulling                 pod/basic-tidb-0                          Pulling image \"pingcap/tidb:v8.1.0\"\n5m27s       Normal    Pulled                  pod/basic-tidb-0                          Successfully pulled image \"pingcap/tidb:v8.1.0\" in 5.404s (5.404s including waiting). Image size: 161052200 bytes.\n5m26s       Normal    Created                 pod/basic-tidb-0                          Created container: tidb\n5m26s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4s          Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n5m3s        Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n5m2s        Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n4m38s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m38s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m38s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n4m35s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n17s         Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n17s         Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n17s         Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n5m42s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n10s         Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n5m19s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n5m18s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n4m54s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n4m54s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n4m54s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n4m51s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n33s         Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n33s         Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n33s         Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n0s          Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n5m58s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n26s         Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n5m35s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n5m34s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n5m10s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n5m10s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n5m10s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n5m7s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n49s         Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n49s         Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n49s         Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n7s          Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n6m14s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n42s         Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n5m51s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n5m50s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n5m26s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n5m26s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n5m26s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n5m23s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n65s         Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n65s         Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n65s         Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n13s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n6m30s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n58s         Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n6m7s        Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n6m6s        Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n5m42s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n5m42s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n5m42s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n5m39s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n81s         Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n81s         Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n81s         Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n8s          Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n6m46s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n74s         Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n6m23s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n6m22s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n5m58s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n5m58s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n5m58s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n5m55s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n97s         Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n97s         Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n97s         Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n24s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n7m2s        Normal    Started                 pod/basic-tidb-0                          Started container tidb\n90s         Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n6m39s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n6m38s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n6m14s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n6m14s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n6m14s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n6m11s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n113s        Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n113s        Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n113s        Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n40s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n7m18s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n106s        Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n6m55s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n6m54s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n6m30s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n6m30s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n6m30s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n6m27s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n2m9s        Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n2m9s        Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n2m9s        Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n15s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n7m34s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n2m2s        Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n7m11s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n7m10s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n6m46s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n6m46s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n6m46s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n6m43s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n2m25s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n2m25s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n2m25s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n31s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n7m49s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n2m17s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n7m26s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n7m25s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n7m1s        Normal    Started                 pod/mysql-client                          Started container mysql-client\n7m1s        Normal    Created                 pod/mysql-client                          Created container: mysql-client\n7m1s        Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n6m58s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n2m40s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n2m40s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n2m40s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n46s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n8m5s        Normal    Started                 pod/basic-tidb-0                          Started container tidb\n2m33s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n7m42s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n7m41s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n7m17s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n7m17s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n7m17s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n7m14s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n2m56s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n2m56s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n2m56s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n62s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n8m21s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n2m49s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n7m58s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n7m57s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n7m33s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n7m33s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n7m33s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n7m30s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n3m12s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n3m12s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n3m12s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n78s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n8m37s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n3m5s        Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n8m14s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n8m13s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n7m49s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n7m49s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n7m49s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n7m46s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n3m28s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n3m28s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n3m28s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n12s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n8m53s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n3m21s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n8m30s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n8m29s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n8m5s        Normal    Started                 pod/mysql-client                          Started container mysql-client\n8m5s        Normal    Created                 pod/mysql-client                          Created container: mysql-client\n8m5s        Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n8m2s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n3m44s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n3m44s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n3m44s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n28s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n9m9s        Normal    Started                 pod/basic-tidb-0                          Started container tidb\n3m37s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n8m46s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n8m45s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n8m21s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n8m21s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n8m21s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n8m18s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n4m          Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n4m          Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n4m          Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n44s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n9m25s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n3m53s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n9m2s        Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n9m1s        Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n8m37s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n8m37s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n8m37s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n8m34s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n4m16s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n4m16s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n4m16s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n60s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n9m41s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m9s        Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n9m18s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n9m17s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n8m53s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n8m53s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n8m53s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n8m50s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n4m32s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n4m32s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n4m32s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n76s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n9m57s       Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m25s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n9m34s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n9m33s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n9m9s        Normal    Started                 pod/mysql-client                          Started container mysql-client\n9m9s        Normal    Created                 pod/mysql-client                          Created container: mysql-client\n9m9s        Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n9m6s        Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n4m48s       Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n4m48s       Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n4m48s       Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n92s         Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      },
+      {
+        "applied_in": {
+          "any_pod_has_bad_effect": false,
+          "cr_has_bad_effect": true,
+          "sts_has_bad_effect": true
+        },
+        "details": {
+          "cr_effects": [
+            "TAKE_SOME_EFFECT"
+          ],
+          "pod_effects": [],
+          "recent_events_tail": "reated                 pod/basic-tidb-0                          Created container: tidb\n10m         Normal    Started                 pod/basic-tidb-0                          Started container tidb\n4m40s       Warning   Unhealthy               pod/basic-tidb-0                          Readiness probe failed: dial tcp 10.244.195.242:4000: connect: connection refused\n9m49s       Normal    Scheduled               pod/mysql-client                          Successfully assigned tidb-cluster/mysql-client to kind-worker\n9m48s       Normal    Pulling                 pod/mysql-client                          Pulling image \"mysql:8\"\n9m24s       Normal    Started                 pod/mysql-client                          Started container mysql-client\n9m24s       Normal    Created                 pod/mysql-client                          Created container: mysql-client\n9m24s       Normal    Pulled                  pod/mysql-client                          Successfully pulled image \"mysql:8\" in 23.795s (23.795s including waiting). Image size: 238996708 bytes.\n9m21s       Normal    Killing                 pod/mysql-client                          Stopping container mysql-client\n5m3s        Normal    Killing                 pod/basic-tidb-0                          Stopping container slowlog\n5m3s        Normal    SuccessfulDelete        statefulset/basic-tidb                    delete Pod basic-tidb-0 in StatefulSet basic-tidb successful\n5m3s        Normal    Killing                 pod/basic-tidb-0                          Stopping container tidb\n107s        Warning   FailedCreate            statefulset/basic-tidb                    create Pod basic-tidb-0 in StatefulSet basic-tidb failed error: Pod \"basic-tidb-0\" is invalid: [spec.tolerations[0].effect: Invalid value: \"TAKE_SOME_EFFECT\": effect must be 'NoExecute' when `tolerationSeconds` is set, spec.tolerations[0].effect: Unsupported value: \"TAKE_SOME_EFFECT\": supported values: \"NoSchedule\", \"PreferNoSchedule\", \"NoExecute\"]\n",
+          "sts_effects": [
+            "TAKE_SOME_EFFECT"
+          ]
+        },
+        "success": false
+      }
+    ],
+    "profile": "--------------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "operator_invalid_affinity_toleration",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "statefulsets/basic-tidb"
+  ]
+}

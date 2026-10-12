@@ -1,0 +1,179 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 1,
+      "requests": 5866,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "--",
+    "reference": {
+      "capacity": [
+        "deployments/geo",
+        "deployments/mongodb-geo",
+        "deployments/mongodb-profile",
+        "deployments/mongodb-rate",
+        "deployments/mongodb-recommendation",
+        "deployments/mongodb-reservation",
+        "deployments/mongodb-user",
+        "deployments/profile",
+        "deployments/rate",
+        "deployments/recommendation",
+        "deployments/reservation",
+        "deployments/user"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "geo",
+        "mongodb-geo",
+        "mongodb-profile",
+        "mongodb-rate",
+        "mongodb-recommendation",
+        "mongodb-reservation",
+        "mongodb-user",
+        "profile",
+        "rate",
+        "recommendation",
+        "reservation",
+        "user"
+      ]
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "mongodb-geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "mongodb-geo",
+          "desired": 1,
+          "namespace": "hotel-reservation",
+          "ready": 0
+        },
+        "failure_class": "ambiguous",
+        "reason": "deployment_replicas_unready",
+        "success": false
+      }
+    ],
+    "profile": "-----"
+  },
+  "operator": "RESTART",
+  "problem_id": "pvc_claim_mismatch",
+  "settled": false,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/mongodb-geo",
+    "deployments/mongodb-profile",
+    "deployments/mongodb-rate",
+    "deployments/mongodb-recommendation",
+    "deployments/mongodb-reservation",
+    "deployments/mongodb-user",
+    "deployments/rate",
+    "deployments/reservation"
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/accounting"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "deployment_exists": true,
+        "failure_class": "agent_error",
+        "no_pod_carries_override": false,
+        "product_probe_succeeded": false,
+        "ready_endpoint": true,
+        "reason": "acknowledged customer carts are missing or inconsistent between serving routes",
+        "reason_code": "fault_still_present",
+        "rollout_complete": false,
+        "runtime_available": true,
+        "success": false,
+        "template_override_removed": true
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "cross_instance_operations": true,
+      "customer_state_restored": true,
+      "deployment_exists": true,
+      "no_pod_carries_override": false,
+      "persistent_after_replacement": true,
+      "product_probe_succeeded": true,
+      "ready_endpoint": true,
+      "reason": "customer state and new cart operations agree across persistent routes",
+      "rollout_complete": true,
+      "runtime_available": true,
+      "success": true,
+      "template_override_removed": false
+    },
+    "traffic": {
+      "error": "Exception: No load-generator found in namespace astronomy-shop"
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/customer-support",
+      "deployments/frontend-proxy"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "deployment": "accounting",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "reason_code": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "accounting",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "reason_code": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "accounting",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "reason_code": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "accounting",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "reason_code": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "accounting",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "reason_code": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "accounting",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "reason_code": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "detail": {
+          "deployment": "accounting",
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "required_deployment_scaled_to_zero",
+        "reason_code": "required_deployment_scaled_to_zero",
+        "success": false
+      }
+    ],
+    "profile": "-------",
+    "reference": {
+      "capacity": [
+        "deployments/accounting"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "stale_hostaliases_dns_poisoning_astronomy_shop",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "cross_instance_operations": true,
+        "customer_state_restored": true,
+        "deployment_exists": true,
+        "no_pod_carries_override": true,
+        "persistent_after_replacement": true,
+        "product_probe_succeeded": true,
+        "ready_endpoint": true,
+        "reason": "customer state and new cart operations agree across persistent routes",
+        "rollout_complete": true,
+        "runtime_available": true,
+        "success": true,
+        "template_override_removed": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": null,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "error": "Exception: No load-generator found in namespace astronomy-shop"
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

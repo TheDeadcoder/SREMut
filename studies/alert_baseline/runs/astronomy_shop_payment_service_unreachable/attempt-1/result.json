@@ -1,0 +1,269 @@
+{
+  "alert_oracles": 1,
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "delayed": {
+    "after_deploy": 333,
+    "baseline": [
+      "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+      "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+    ],
+    "healthy": {
+      "after_deploy": 333,
+      "verdict": {
+        "success": true
+      }
+    },
+    "recovery": {
+      "alerts": [
+        {
+          "after_deploy": 747,
+          "firing": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2",
+            "HighRequestErrorRate/checkout"
+          ],
+          "outside_delayed": [
+            "HighRequestErrorRate/checkout"
+          ],
+          "outside_immediate": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2",
+            "HighRequestErrorRate/checkout"
+          ]
+        },
+        {
+          "after_deploy": 807,
+          "firing": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2",
+            "HighRequestErrorRate/checkout"
+          ],
+          "outside_delayed": [
+            "HighRequestErrorRate/checkout"
+          ],
+          "outside_immediate": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2",
+            "HighRequestErrorRate/checkout"
+          ]
+        },
+        {
+          "after_deploy": 990,
+          "firing": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+          ],
+          "outside_delayed": [],
+          "outside_immediate": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+          ]
+        },
+        {
+          "after_deploy": 1172,
+          "firing": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+          ],
+          "outside_delayed": [],
+          "outside_immediate": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+          ]
+        },
+        {
+          "after_deploy": 1354,
+          "firing": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+          ],
+          "outside_delayed": [],
+          "outside_immediate": [
+            "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+          ]
+        }
+      ],
+      "profile": "--+++",
+      "verdicts": [
+        {
+          "detail": {
+            "alerts": [
+              "HighRequestErrorRate"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        },
+        {
+          "detail": {
+            "alerts": [
+              "HighRequestErrorRate"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ]
+    }
+  },
+  "detect": {
+    "alerts": [
+      {
+        "after_deploy": 641,
+        "firing": [
+          "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+        ],
+        "outside_delayed": [],
+        "outside_immediate": [
+          "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+        ]
+      },
+      {
+        "after_deploy": 712,
+        "firing": [
+          "ContainerCPUThrottling/load-generator-5d945c566-5dkp2",
+          "HighRequestErrorRate/checkout"
+        ],
+        "outside_delayed": [
+          "HighRequestErrorRate/checkout"
+        ],
+        "outside_immediate": [
+          "ContainerCPUThrottling/load-generator-5d945c566-5dkp2",
+          "HighRequestErrorRate/checkout"
+        ]
+      }
+    ],
+    "profile": "+-",
+    "verdicts": [
+      {
+        "success": true
+      },
+      {
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ]
+  },
+  "immediate": {
+    "after_deploy": 0,
+    "baseline": [],
+    "healthy": {
+      "after_deploy": 302,
+      "verdict": {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    },
+    "recovery": {
+      "after_deploy": 1355,
+      "verdict": {
+        "detail": {
+          "alerts": [
+            "ContainerCPUThrottling"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    }
+  },
+  "problem_id": "astronomy_shop_payment_service_unreachable",
+  "status": "COMPLETED",
+  "steady": [
+    {
+      "after_deploy": 0,
+      "firing": [],
+      "outside_immediate": []
+    },
+    {
+      "after_deploy": 30,
+      "firing": [],
+      "outside_immediate": []
+    },
+    {
+      "after_deploy": 61,
+      "firing": [],
+      "outside_immediate": []
+    },
+    {
+      "after_deploy": 91,
+      "firing": [],
+      "outside_immediate": []
+    },
+    {
+      "after_deploy": 121,
+      "firing": [],
+      "outside_immediate": []
+    },
+    {
+      "after_deploy": 151,
+      "firing": [],
+      "outside_immediate": []
+    },
+    {
+      "after_deploy": 181,
+      "firing": [
+        "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+        "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+      ],
+      "outside_immediate": [
+        "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+        "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+      ]
+    },
+    {
+      "after_deploy": 212,
+      "firing": [
+        "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+        "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+      ],
+      "outside_immediate": [
+        "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+        "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+      ]
+    },
+    {
+      "after_deploy": 242,
+      "firing": [
+        "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+        "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+      ],
+      "outside_immediate": [
+        "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+        "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+      ]
+    },
+    {
+      "after_deploy": 272,
+      "firing": [
+        "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+        "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+      ],
+      "outside_immediate": [
+        "ContainerCPUThrottling/grafana-5cb469bf99-7jpgl",
+        "ContainerCPUThrottling/load-generator-5d945c566-5dkp2"
+      ]
+    }
+  ]
+}

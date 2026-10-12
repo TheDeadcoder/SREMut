@@ -1,0 +1,113 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 3.0,
+          "namespace": "hotel-reservation",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5943,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/aux-service-script",
+      "deployments/aux-service",
+      "services/aux-service"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 1.2,
+          "namespace": "hotel-reservation",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "-++",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5944,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "liveness_probe_too_aggressive_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "detail": {
+          "held_for_seconds": 22.4,
+          "namespace": "hotel-reservation",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "-+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5943,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/aux-service"
+  ]
+}

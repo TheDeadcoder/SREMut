@@ -1,0 +1,207 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5905,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "networkpolicies/deny-all-recommendation"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "----",
+    "reference": {
+      "capacity": [
+        "deployments/recommendation"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "recommendation"
+      ],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 5903,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "service": "recommendation"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-------------"
+  },
+  "operator": "RESTART",
+  "problem_id": "network_policy_block",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

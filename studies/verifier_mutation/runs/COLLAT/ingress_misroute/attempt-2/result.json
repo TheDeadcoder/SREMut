@@ -1,0 +1,111 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "path": "/api",
+          "routed_to": "recommendation-service"
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "detail": {
+        "error": "ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '5c7f97a2-1083-4312-84ac-e4023be12f36', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': 'fe053993-85e7-4360-bba8-65ae8cdca713', 'X-Kubernetes-Pf-Prioritylevel-Uid': '4131ec4d-91b2-412b-ac0e-9b8d986e4ebf', 'Date': '<time>', 'Content-Length': '274'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"ingresses.networking.k8s.io \\\"hotel-reservation-ingress\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"hotel-reservation-ingress\",\"group\":\"networking.k8s.io\",\"kind\":\"ingresses\"},\"code\":404}\n\n",
+        "status": 404
+      },
+      "failure_class": "ambiguous",
+      "reason": "kubernetes_resource_missing",
+      "success": false
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5943,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "ingresses/hotel-reservation-ingress",
+      "services/frontend-service",
+      "services/recommendation-service"
+    ],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "+++++++",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5942,
+        "rounds": 2
+      }
+    },
+    "verdict": true
+  },
+  "operator": "COLLAT",
+  "problem_id": "ingress_misroute",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5903,
+        "rounds": 2
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

@@ -1,0 +1,155 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/consul",
+      "deployments/frontend",
+      "deployments/geo",
+      "deployments/jaeger",
+      "deployments/memcached-profile",
+      "deployments/memcached-rate",
+      "deployments/memcached-reserve",
+      "deployments/mongodb-geo",
+      "deployments/mongodb-profile",
+      "deployments/mongodb-rate",
+      "deployments/mongodb-recommendation",
+      "deployments/mongodb-reservation",
+      "deployments/mongodb-user",
+      "deployments/profile",
+      "deployments/rate",
+      "deployments/recommendation",
+      "deployments/reservation",
+      "deployments/search",
+      "deployments/user"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5803,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/profile"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      }
+    ],
+    "profile": "----",
+    "reference": {
+      "capacity": [],
+      "function": false,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 2,
+        "requests": 5942,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "noop": {
+    "oracle_window": [
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "detail": {
+          "dns_name": "profile.hotel-reservation.svc.cluster.local",
+          "port": 8081
+        },
+        "failure_class": "agent_error",
+        "reason": "fault_still_present",
+        "success": false
+      },
+      {
+        "failure_class": "ambiguous",
+        "reason": "required_deployment_not_rolled_out",
+        "success": false
+      }
+    ],
+    "profile": "------"
+  },
+  "operator": "RESTART",
+  "problem_id": "wrong_dns_policy_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/profile"
+  ]
+}

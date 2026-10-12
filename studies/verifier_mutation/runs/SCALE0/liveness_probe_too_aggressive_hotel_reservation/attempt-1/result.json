@@ -1,0 +1,79 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/aux-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 4.6,
+          "namespace": "hotel-reservation",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5905,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/aux-service-script",
+      "deployments/aux-service",
+      "services/aux-service"
+    ],
+    "oracle_window": [
+      {
+        "detail": {
+          "held_for_seconds": 19.8,
+          "namespace": "hotel-reservation",
+          "required_seconds": 30
+        },
+        "failure_class": "ambiguous",
+        "reason": "readiness_not_sustained",
+        "success": false
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "-++",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5869,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "liveness_probe_too_aggressive_hotel_reservation",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/aux-service"
+  ]
+}

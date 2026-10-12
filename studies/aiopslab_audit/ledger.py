@@ -33,7 +33,8 @@ def build_audit(runs=RUNS, schedule=SCHEDULE):
     by_operator = {}
     for row in ledger["episodes"]:
         row["default_label"] = default_label(row)
-        by_operator.setdefault(row["operator"], Counter())[row["default_label"]] += 1
+        if row["attempt"] == "attempt-1":
+            by_operator.setdefault(row["operator"], Counter())[row["default_label"]] += 1
     ledger["summary"]["by_operator_default_verdict"] = {
         op: {"labels": dict(c), "mutation_score": score(c)} for op, c in sorted(by_operator.items())}
     return ledger

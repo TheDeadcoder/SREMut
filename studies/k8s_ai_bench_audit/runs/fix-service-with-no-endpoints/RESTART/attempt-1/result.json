@@ -1,0 +1,37 @@
+{
+  "action": "RESTART",
+  "action_result": {
+    "applied": true,
+    "targets": {
+      "webshop-frontend": [
+        "deployments/web-app-deployment"
+      ]
+    }
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 33,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 18s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nHave a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community \ud83d\ude42"
+  },
+  "namespaces": [
+    "webshop-frontend"
+  ],
+  "settled": false,
+  "setup": {
+    "exit_code": 0,
+    "seconds": 1,
+    "tail": "namespace/webshop-frontend created\nservice/web-app-service created\ndeployment.apps/web-app-deployment created\nWaiting for resources to be created...\ndeployment.apps/web-app-deployment condition met\nSetup successful: Service has no endpoints as expected"
+  },
+  "status": "COMPLETED",
+  "task": "fix-service-with-no-endpoints",
+  "verify_immediate": {
+    "exit_code": 1,
+    "seconds": 120,
+    "tail": "Waiting for pods to become ready...\nPods are not reaching Ready state after fixing the node selector\ntimed out waiting for the condition on pods/web-app-deployment-76bbfbfb8c-8q2ts\ntimed out waiting for the condition on pods/web-app-deployment-76bbfbfb8c-gl8gh"
+  },
+  "verify_settled": {
+    "exit_code": 1,
+    "seconds": 120,
+    "tail": "Waiting for pods to become ready...\nPods are not reaching Ready state after fixing the node selector\ntimed out waiting for the condition on pods/web-app-deployment-76bbfbfb8c-8q2ts\ntimed out waiting for the condition on pods/web-app-deployment-76bbfbfb8c-gl8gh"
+  }
+}

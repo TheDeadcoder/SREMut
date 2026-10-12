@@ -1,0 +1,263 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/consul"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "namespace": "hotel-reservation",
+              "phase": "Pending",
+              "pod": "wrk2-job-s8ffj"
+            },
+            "failure_class": "ambiguous",
+            "name": "0-MitigationOracle",
+            "reason": "pods_not_ready",
+            "success": false
+          },
+          {
+            "detail": {
+              "attempts": 5,
+              "endpoint": "/hotels",
+              "succeeded": 0
+            },
+            "failure_class": "agent_error",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "endpoint_error_rate_high",
+            "success": false
+          }
+        ],
+        "reason": "pods_not_ready+endpoint_error_rate_high",
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "accuracy": 100.0,
+      "oracles": [
+        {
+          "name": "0-MitigationOracle",
+          "success": true
+        },
+        {
+          "name": "1-FeatureFlagHttpProbeMitigationOracle",
+          "success": true
+        }
+      ],
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5942,
+      "rounds": 2
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "configmaps/frontend-runtime-config",
+      "jobs/wrk2-job"
+    ],
+    "oracle_window": [
+      {
+        "accuracy": 0.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "deployment": "consul",
+              "namespace": "hotel-reservation"
+            },
+            "failure_class": "agent_error",
+            "name": "0-MitigationOracle",
+            "reason": "required_deployment_scaled_to_zero",
+            "success": false
+          },
+          {
+            "detail": {
+              "error": "RuntimeError: Command failed (exit 1): kubectl exec consul-5c767d7459-rdxsk -n hotel-reservation -- sh -c 'wget -T 10 -S -O - '\"'\"'http://frontend:5000/hotels?inDate=<time>&outDate=<time>&lat=37.7749&lon=-122.4194'\"'\"' 2>&1 || true': error: Internal error occurred: unable to upgrade connection: container not found (\"consul\")"
+            },
+            "failure_class": "ambiguous",
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "reason": "oracle_command_failed",
+            "success": false
+          }
+        ],
+        "reason": "required_deployment_scaled_to_zero+oracle_command_failed",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "deployment": "consul",
+              "namespace": "hotel-reservation"
+            },
+            "failure_class": "agent_error",
+            "name": "0-MitigationOracle",
+            "reason": "required_deployment_scaled_to_zero",
+            "success": false
+          },
+          {
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "success": true
+          }
+        ],
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "deployment": "consul",
+              "namespace": "hotel-reservation"
+            },
+            "failure_class": "agent_error",
+            "name": "0-MitigationOracle",
+            "reason": "required_deployment_scaled_to_zero",
+            "success": false
+          },
+          {
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "success": true
+          }
+        ],
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "deployment": "consul",
+              "namespace": "hotel-reservation"
+            },
+            "failure_class": "agent_error",
+            "name": "0-MitigationOracle",
+            "reason": "required_deployment_scaled_to_zero",
+            "success": false
+          },
+          {
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "success": true
+          }
+        ],
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "deployment": "consul",
+              "namespace": "hotel-reservation"
+            },
+            "failure_class": "agent_error",
+            "name": "0-MitigationOracle",
+            "reason": "required_deployment_scaled_to_zero",
+            "success": false
+          },
+          {
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "success": true
+          }
+        ],
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      },
+      {
+        "accuracy": 50.0,
+        "failure_class": "agent_error",
+        "oracles": [
+          {
+            "detail": {
+              "deployment": "consul",
+              "namespace": "hotel-reservation"
+            },
+            "failure_class": "agent_error",
+            "name": "0-MitigationOracle",
+            "reason": "required_deployment_scaled_to_zero",
+            "success": false
+          },
+          {
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "success": true
+          }
+        ],
+        "reason": "required_deployment_scaled_to_zero",
+        "success": false
+      }
+    ],
+    "profile": "------",
+    "reference": {
+      "capacity": [
+        "deployments/consul"
+      ],
+      "function": true,
+      "healthy": false,
+      "routing": [
+        "consul"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 5942,
+        "rounds": 2
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "feature_flag_latent_bug_hotel_reservation",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "accuracy": 100.0,
+        "oracles": [
+          {
+            "name": "0-MitigationOracle",
+            "success": true
+          },
+          {
+            "name": "1-FeatureFlagHttpProbeMitigationOracle",
+            "success": true
+          }
+        ],
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": true,
+      "healthy": true,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 2972,
+        "rounds": 1
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

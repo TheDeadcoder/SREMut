@@ -1,0 +1,139 @@
+2026-10-11 10:30:12 - INFO - all.application - Namespace astronomy-shop not found. Creating namespace. - base.py:create_namespace:85
+2026-10-11 10:30:13 - INFO - all.application - Namespace astronomy-shop created successfully: namespace/astronomy-shop created
+ - base.py:create_namespace:88
+2026-10-11 10:30:13 - INFO - all.sregym.conductor - Fixing Kubernetes... to normal state. - conductor.py:fix_kubernetes:1296
+2026-10-11 10:30:13 - INFO - all.sregym.conductor - [FIX] Imbalance leftover if any - conductor.py:fix_kubernetes:1297
+2026-10-11 10:30:13 - INFO - all.sregym.conductor - [FIX] KubeletCrash leftover if any - conductor.py:fix_kubernetes:1302
+2026-10-11 10:30:13 - INFO - all.sregym.conductor - [FIX] KubeletEvictionThresholdMisconfig leftover if any - conductor.py:fix_kubernetes:1306
+2026-10-11 10:30:15 - INFO - all.sregym.conductor - [FIX] Calico IPPool/strictAffinity leftover if any - conductor.py:fix_kubernetes:1318
+2026-10-11 10:30:16 - INFO - all.sregym.conductor - [FIX] Calico route-reflector label drift leftovers if any - conductor.py:_fix_calico_route_reflector_label_drift:1166
+2026-10-11 10:30:17 - INFO - all.sregym.conductor - [FIX] Stale CoreDNS NXDOMAIN templates if any - conductor.py:fix_kubernetes:1343
+2026-10-11 10:30:17 - INFO - all.sregym.conductor - [FIX] NightlyRebalanceOOM kube-system actor leftover if any - conductor.py:fix_kubernetes:1350
+2026-10-11 10:30:17 - INFO - all.sregym.conductor - [FIX] Clock drift leftover if any - conductor.py:fix_kubernetes:1358
+2026-10-11 10:30:17 - INFO - all.sregym.conductor - Fix Kubernetes completed. - conductor.py:fix_kubernetes:1365
+2026-10-11 10:30:17 - INFO - all.infra.helm - Helm Uninstall: astronomy-shop in namespace astronomy-shop - helm.py:uninstall:128
+2026-10-11 10:30:17 - DEBUG - all.infra.helm - Release astronomy-shop does not exist. Skipping uninstall. - helm.py:uninstall:134
+2026-10-11 10:30:23 - INFO - all.infra.kubectl - Namespace 'astronomy-shop' deleted successfully. - kubectl.py:delete_namespace:605
+2026-10-11 10:30:23 - DEBUG - all.infra.kubectl - No jobs found with label 'job=workload' in namespace 'astronomy-shop'. - kubectl.py:delete_job:424
+2026-10-11 10:30:23 - INFO - all.infra.cluster_state - Baseline state loaded from /home/runner/cache_dir/cluster_baseline_state.json - cluster_state.py:load_baseline_state:214
+2026-10-11 10:30:23 - INFO - all.sregym.conductor - [DEPLOY] Loaded persisted cluster baseline state - conductor.py:deploy_app:1377
+2026-10-11 10:30:23 - INFO - all.sregym.conductor - [DEPLOY] Setting up metrics-server… - conductor.py:deploy_app:1383
+2026-10-11 10:30:24 - INFO - all.sregym.conductor - [DEPLOY] metrics-server already present and patched; skipping re-apply - conductor.py:deploy_app:1391
+2026-10-11 10:30:24 - INFO - all.sregym.conductor - [DEPLOY] Setting up OpenEBS… - conductor.py:deploy_app:1415
+2026-10-11 10:30:24 - INFO - all.sregym.conductor - [DEPLOY] OpenEBS already deployed; skipping operator re-apply - conductor.py:deploy_app:1420
+2026-10-11 10:30:25 - INFO - all.sregym.conductor - [DEPLOY] Ensuring OpenEBS LocalPV-Device StorageClass… - conductor.py:_ensure_openebs_device_storageclass:1664
+2026-10-11 10:30:25 - INFO - all.sregym.conductor - [DEPLOY] StorageClass/openebs-device already exists; leaving it unchanged - conductor.py:_ensure_openebs_device_storageclass:1680
+2026-10-11 10:30:25 - INFO - all.sregym.conductor - [DEPLOY] Deploying Prometheus… - conductor.py:deploy_app:1449
+2026-10-11 10:30:25 - INFO - all.infra.helm - Helm Uninstall: prometheus in namespace observe - helm.py:uninstall:128
+2026-10-11 10:30:25 - DEBUG - all.infra.helm - Release prometheus does not exist. Skipping uninstall. - helm.py:uninstall:134
+2026-10-11 10:30:25 - INFO - all.infra.helm - Helm Install: prometheus in namespace observe - helm.py:install:40
+2026-10-11 10:30:25 - DEBUG - all.infra.helm - Chart dependencies already satisfied for /home/runner/SREGym/sregym/observer/prometheus/prometheus; skipping update - helm.py:ensure_dependencies:106
+2026-10-11 10:30:27 - DEBUG - all.infra.helm - NAME: prometheus
+LAST DEPLOYED: Sun Oct 11 10:30:26 2026
+NAMESPACE: observe
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+The Prometheus server can be accessed via port 80 on the following DNS name from within your cluster:
+prometheus-server.observe.svc.cluster.local
+
+
+Get the Prometheus server URL by running these commands in the same shell:
+  export NODE_PORT=$(kubectl get --namespace observe -o jsonpath="{.spec.ports[0].nodePort}" services prometheus-server)
+  export NODE_IP=$(kubectl get nodes --namespace observe -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+
+
+The Prometheus alertmanager can be accessed via port 9093 on the following DNS name from within your cluster:
+prometheus-alertmanager.observe.svc.cluster.local
+
+
+Get the Alertmanager URL by running these commands in the same shell:
+  export POD_NAME=$(kubectl get pods --namespace observe -l "app.kubernetes.io/name=alertmanager,app.kubernetes.io/instance=prometheus" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace observe port-forward $POD_NAME 9093
+#################################################################################
+######   WARNING: Pod Security Policy has been disabled by default since    #####
+######            it deprecated after k8s 1.25+. use                        #####
+######            (index .Values "prometheus-node-exporter" "rbac"          #####
+###### .          "pspEnabled") with (index .Values                         #####
+######            "prometheus-node-exporter" "rbac" "pspAnnotations")       #####
+######            in case you still need it.                                #####
+#################################################################################
+
+
+The Prometheus PushGateway can be accessed via port 9091 on the following DNS name from within your cluster:
+prometheus-prometheus-pushgateway.observe.svc.cluster.local
+
+
+Get the PushGateway URL by running these commands in the same shell:
+  export POD_NAME=$(kubectl get pods --namespace observe -l "app=prometheus-pushgateway,component=pushgateway" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace observe port-forward $POD_NAME 9091
+
+For more information on running Prometheus, visit:
+https://prometheus.io/ - helm.py:install:72
+2026-10-11 10:31:06 - INFO - all.sregym.conductor - [DEPLOY] Deploying Jaeger… - conductor.py:deploy_app:1452
+2026-10-11 10:31:07 - INFO - all.sregym.jaeger - Jaeger deployed successfully. - jaeger.py:deploy:26
+2026-10-11 10:31:07 - INFO - all.sregym.conductor - [DEPLOY] Deploying OTel Collector… - conductor.py:deploy_app:1455
+2026-10-11 10:31:11 - INFO - all.sregym.otel_collector - OTel Collector deployed successfully. - otel_collector.py:deploy:29
+2026-10-11 10:31:11 - INFO - all.sregym.conductor - [DEPLOY] Skipping Loki deployment (external harness mode) - conductor.py:deploy_app:1462
+2026-10-11 10:31:11 - INFO - all.sregym.conductor - [DEPLOY] Deploying MCP server… - conductor.py:deploy_app:1464
+2026-10-11 10:31:14 - INFO - all.sregym.mcp_server - Port forwarding established at 9954. MCP_SERVER_PORT set. - mcp_server.py:start_port_forward:221
+2026-10-11 10:31:14 - INFO - all.sregym.mcp_server - MCP server deployment and access policy are ready. - mcp_server.py:deploy:91
+2026-10-11 10:31:14 - INFO - all.sregym.conductor - [ENV] Set up necessary components: metrics-server, OpenEBS, Prometheus, Jaeger, Loki - conductor.py:deploy_app:1467
+2026-10-11 10:31:14 - INFO - all.sregym.conductor - [DEPLOY] Deploying and starting workload - conductor.py:deploy_app:1484
+2026-10-11 10:31:14 - INFO - all.infra.kubectl - Namespace 'astronomy-shop' not found. Creating namespace. - kubectl.py:create_namespace_if_not_exist:808
+2026-10-11 10:31:14 - INFO - all.infra.kubectl - Namespace 'astronomy-shop' created successfully. - kubectl.py:create_namespace_if_not_exist:811
+2026-10-11 10:31:14 - INFO - all.infra.helm - Helm Repo Add: open-telemetry with url https://open-telemetry.github.io/opentelemetry-helm-charts - helm.py:add_repo:275
+2026-10-11 10:31:14 - INFO - all.infra.helm - Helm repo open-telemetry added successfully: "open-telemetry" already exists with the same configuration, skipping - helm.py:add_repo:288
+2026-10-11 10:31:14 - INFO - all.infra.helm - Helm Repo Add: jaegertracing with url https://jaegertracing.github.io/helm-charts - helm.py:add_repo:275
+2026-10-11 10:31:15 - INFO - all.infra.helm - Helm repo jaegertracing added successfully: "jaegertracing" already exists with the same configuration, skipping - helm.py:add_repo:288
+2026-10-11 10:31:15 - INFO - all.infra.helm - Helm Repo Add: prometheus-community with url https://prometheus-community.github.io/helm-charts - helm.py:add_repo:275
+2026-10-11 10:31:15 - INFO - all.infra.helm - Helm repo prometheus-community added successfully: "prometheus-community" already exists with the same configuration, skipping - helm.py:add_repo:288
+2026-10-11 10:31:15 - INFO - all.infra.helm - Helm Repo Add: grafana with url https://grafana.github.io/helm-charts - helm.py:add_repo:275
+2026-10-11 10:31:15 - INFO - all.infra.helm - Helm repo grafana added successfully: "grafana" already exists with the same configuration, skipping - helm.py:add_repo:288
+2026-10-11 10:31:15 - INFO - all.infra.helm - Helm Repo Add: opensearch with url https://opensearch-project.github.io/helm-charts/ - helm.py:add_repo:275
+2026-10-11 10:31:15 - INFO - all.infra.helm - Helm repo opensearch added successfully: "opensearch" already exists with the same configuration, skipping - helm.py:add_repo:288
+2026-10-11 10:31:15 - INFO - all.infra.helm - Helm Install: astronomy-shop in namespace astronomy-shop - helm.py:install:40
+2026-10-11 10:31:15 - DEBUG - all.infra.helm - Chart dependencies already satisfied for /home/runner/SREGym/SREGym-applications/astronomy-shop/charts/opentelemetry-demo; skipping update - helm.py:ensure_dependencies:106
+2026-10-11 10:31:18 - DEBUG - all.infra.helm - NAME: astronomy-shop
+LAST DEPLOYED: Sun Oct 11 10:31:15 2026
+NAMESPACE: astronomy-shop
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+=======================================================================================
+
+
+ ██████╗ ████████╗███████╗██╗         ██████╗ ███████╗███╗   ███╗ ██████╗
+██╔═══██╗╚══██╔══╝██╔════╝██║         ██╔══██╗██╔════╝████╗ ████║██╔═══██╗
+██║   ██║   ██║   █████╗  ██║         ██║  ██║█████╗  ██╔████╔██║██║   ██║
+██║   ██║   ██║   ██╔══╝  ██║         ██║  ██║██╔══╝  ██║╚██╔╝██║██║   ██║
+╚██████╔╝   ██║   ███████╗███████╗    ██████╔╝███████╗██║ ╚═╝ ██║╚██████╔╝
+ ╚═════╝    ╚═╝   ╚══════╝╚══════╝    ╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝
+
+
+- All services are available via the Frontend proxy: http://localhost:8080
+  by running these commands:
+     kubectl --namespace astronomy-shop port-forward svc/frontend-proxy 8080:8080
+
+  The following services are available at these paths after the frontend-proxy service is exposed with port forwarding:
+  Webstore             http://localhost:8080/
+  Jaeger UI            http://localhost:8080/jaeger/ui/
+  Grafana              http://localhost:8080/grafana/
+  Load Generator UI    http://localhost:8080/loadgen/
+  Feature Flags UI     http://localhost:8080/feature/ - helm.py:install:72
+2026-10-11 10:32:21 - INFO - all.sregym.conductor - [ENV] Deploy application: OpenTelemetry Demo Astronomy Shop - conductor.py:deploy_app:1486
+2026-10-11 10:32:21 - INFO - all.sregym.jaeger - Created ExternalName service 'jaeger' in namespace 'astronomy-shop' -> otel-collector.observe.svc.cluster.local - jaeger.py:create_external_name_service:85
+2026-10-11 10:32:22 - INFO - all.sregym.jaeger - Created ExternalName service 'jaeger-agent' in namespace 'astronomy-shop' -> otel-collector.observe.svc.cluster.local - jaeger.py:create_external_name_service:85
+2026-10-11 10:32:22 - INFO - all.sregym.jaeger - Created ExternalName service 'jaeger-collector' in namespace 'astronomy-shop' -> otel-collector.observe.svc.cluster.local - jaeger.py:create_external_name_service:85
+2026-10-11 10:32:22 - INFO - all.sregym.jaeger - Created ExternalName service 'jaeger-query' in namespace 'astronomy-shop' -> otel-collector.observe.svc.cluster.local - jaeger.py:create_external_name_service:85
+2026-10-11 10:32:22 - INFO - all.sregym.jaeger - Restarted otel-collector-agent DaemonSet in namespace 'astronomy-shop' - jaeger.py:create_external_name_service:92
+2026-10-11 10:32:22 - INFO - all.infra.workload - Start Workload with Locust - locust.py:start:182
+2026-10-11 10:32:22 - INFO - all.infra.workload - AstronomyShop has a built-in load generator. - locust.py:start:183
+2026-10-11 10:32:22 - INFO - all.infra.workload - Creating locust-fetcher pod... - locust.py:start:184
+2026-10-11 10:32:27 - DEBUG - all.infra.workload - Workload started - locust.py:start:186
+2026-10-11 10:32:27 - INFO - all.sregym.conductor - [ENV] Start workload - conductor.py:deploy_app:1494
