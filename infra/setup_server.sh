@@ -40,6 +40,7 @@ apt-mark hold docker-ce docker-ce-cli containerd.io docker-buildx-plugin >/dev/n
 cat > /etc/sysctl.d/99-sregym-kind.conf <<'EOF'
 fs.inotify.max_user_instances=1024
 fs.inotify.max_user_watches=1048576
+net.ipv4.ip_forward=1
 EOF
 sysctl --system >/dev/null
 mkdir -p /run/udev
