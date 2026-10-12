@@ -138,17 +138,21 @@ class LedgerTest(unittest.TestCase):
     def test_build_scores_operators(self):
         with tempfile.TemporaryDirectory() as tmp:
             runs = Path(tmp)
-            for op, pid, result in (("SCALE0", "p1", self.result(False, "--", False)),
-                                    ("SCALE0", "p2", self.result(True, "++", False)),
-                                    ("RESTART", "p1", {**self.result(True, "++", True), "noop": {"profile": "-++"}})):
-                d = runs / op / pid / "attempt-1"
+            for op, pid, attempt, result in (
+                    ("SCALE0", "p1", 1, self.result(False, "--", False)),
+                    ("SCALE0", "p2", 1, self.result(True, "++", False)),
+                    ("SCALE0", "p2", 2, self.result(True, "++", False)),
+                    ("RESTART", "p1", 1, {**self.result(True, "++", True), "noop": {"profile": "-++"}})):
+                d = runs / op / pid / f"attempt-{attempt}"
                 d.mkdir(parents=True)
                 (d / "result.json").write_text(json.dumps(result))
             ledger = mutation_ledger.build(runs, Path(tmp) / "missing.csv")
         self.assertEqual(ledger["summary"]["by_operator"]["SCALE0"]["mutation_score"], 0.5)
+        self.assertEqual(ledger["summary"]["episodes"], 3)
+        self.assertEqual(ledger["summary"]["repeats"], {"episodes": 1, "labels": {"survived": 1}})
         self.assertEqual(ledger["summary"]["problems_with_survivor"], ["p2"])
         self.assertEqual(ledger["summary"]["noop_window_classes"], {"transient": 1})
-        self.assertEqual(ledger["summary"]["confirmed_survivors"], [])
+        self.assertEqual(ledger["summary"]["confirmed_survivors"], ["p2:SCALE0"])
 
 
 class RunnerTest(unittest.TestCase):
