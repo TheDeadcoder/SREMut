@@ -56,7 +56,8 @@ def main():
         result_path = run_dir / "result.json"
         result = json.loads(result_path.read_text()) if result_path.exists() else {}
         verdict = (result.get("verdicts") or {}).get("alert_absent") or {}
-        print(f"done {scenario}: {record['status']} {result.get('status')} turns={(result.get('agent') or {}).get('turns')} "
+        print(f"done {scenario}: {record['status']} {result.get('status')} "
+              f"turns={(result.get('agent') or {}).get('turns')} "
               f"passed={verdict.get('passed')} relapsed={verdict.get('relapsed')} "
               f"healthy={(result.get('reference') or {}).get('healthy')}", flush=True)
         if record["status"] != "COMPLETED" or result.get("status") != "COMPLETED":

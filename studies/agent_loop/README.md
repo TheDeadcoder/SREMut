@@ -7,11 +7,11 @@ the SRE agent; its final state is graded by the benchmark's own verifier and by 
 
 ## Agent
 
-`agent.py` runs Claude Code headless, at the version and model pinned in `infra/PINS.md`, with a fresh configuration
-directory and an empty working directory for every episode. Bash is its only tool, in a mode that denies every command
-not on its list, kubectl and sleep (Claude Code also lets read-only filters such as grep run in a pipe), so it sees the
-cluster and nothing of this repository. It authenticates with a Claude plan token and
-has no API key in its environment. Each episode allows 20 minutes and 100 turns, and keeps the transcript as
+`agent.py` runs Claude Code headless, at the version and model pinned in `infra/PINS.md`, inside a container that
+`infra/setup_agent.sh` builds with the kubectl of the benchmark's cluster. Every episode gets a fresh container that
+mounts nothing but the cluster's kubeconfig, so the agent works the cluster through a shell, without permission
+prompts, and sees no file of the host or of this repository. It authenticates with a Claude plan token and has no
+API key in its environment. Each episode allows 20 minutes and 100 turns, and keeps the transcript as
 `agent.jsonl.gz`.
 
 ## AIOpsLab episode

@@ -20,12 +20,15 @@ STREAM = [
 
 
 class AgentTest(unittest.TestCase):
-    def test_command_allows_only_kubectl(self):
-        cmd = agent.command("mitigate")
+    def test_command_mounts_only_the_kubeconfig(self):
+        cmd = agent.command("mitigate", "sremut-agent:k8s-1.32", "sremut-agent-x")
+        self.assertEqual(cmd[:2], ["docker", "run"])
+        mounts = [cmd[i + 1] for i, arg in enumerate(cmd) if arg == "-v"]
+        self.assertEqual(mounts, [f"{agent.kubeconfig()}:/kube/config:ro"])
         self.assertEqual(cmd[cmd.index("--model") + 1], agent.MODEL)
         self.assertEqual(cmd[cmd.index("--tools") + 1], "Bash")
-        self.assertEqual(cmd[cmd.index("--permission-mode") + 1], "dontAsk")
-        self.assertEqual(cmd[cmd.index("--allowedTools") + 1:], ["Bash(kubectl:*)", "Bash(sleep:*)"])
+        self.assertIn("CLAUDE_CODE_OAUTH_TOKEN", cmd)
+        self.assertFalse(any("=" in arg and arg.startswith("CLAUDE_CODE_OAUTH_TOKEN") for arg in cmd))
 
     def test_summarize_reads_commands_and_result(self):
         summary = agent.summarize([json.dumps(m) for m in STREAM] + ["not json"])
@@ -40,7 +43,7 @@ class AgentTest(unittest.TestCase):
             token.write_text("CLAUDE_CODE_OAUTH_TOKEN=abc\n")
             original, agent.TOKEN_FILE = agent.TOKEN_FILE, token
             try:
-                env = agent.environment(tmp)
+                env = agent.environment()
             finally:
                 agent.TOKEN_FILE = original
         self.assertEqual(env["CLAUDE_CODE_OAUTH_TOKEN"], "abc")

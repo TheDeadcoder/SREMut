@@ -1,13 +1,13 @@
-"""Runs Claude Code headless as the agent under test: a fresh configuration and an empty working directory for every
-episode, the plan token from ~/.claude-agent.env, a pinned model, and Bash as its only tool, with every command denied
-except kubectl and sleep."""
+"""Runs Claude Code headless as the agent under test, inside a container built by infra/setup_agent.sh: a fresh
+configuration and an empty working directory for every episode, the plan token from ~/.claude-agent.env, a pinned
+model, and Bash as its only tool. The container mounts nothing but the cluster's kubeconfig, so the agent works the
+cluster with a shell and sees no file of the host."""
 import json
 import os
-import signal
 import subprocess
 import sys
-import tempfile
 import time
+import uuid
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -15,30 +15,32 @@ sys.path[:0] = [str(HERE.parent / "registry_sweep")]
 
 from run_sweep import scrub, write_gz  # noqa: E402
 
-CLAUDE = Path.home() / ".local/opt/node/bin/claude"
 TOKEN_FILE = Path.home() / ".claude-agent.env"
 MODEL = "claude-sonnet-5-5"
 TIMEOUT = 1200
 MAX_TURNS = 100
-ALLOWED = ["Bash(kubectl:*)", "Bash(sleep:*)"]
 LIMIT_MARKERS = ("usage limit", "rate limit")
 
 
-def environment(config_dir):
-    env = {k: v for k, v in os.environ.items() if not k.startswith("ANTHROPIC_")}
+def environment():
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC_", "CLAUDE_CODE_OAUTH_TOKEN"))}
     for line in TOKEN_FILE.read_text().splitlines():
         key, _, value = line.partition("=")
         if key.strip() == "CLAUDE_CODE_OAUTH_TOKEN":
             env["CLAUDE_CODE_OAUTH_TOKEN"] = value.strip()
-    env.update({"CLAUDE_CONFIG_DIR": str(config_dir), "DISABLE_AUTOUPDATER": "1",
-                "PATH": f"{CLAUDE.parent}:{env.get('PATH', '')}"})
     return env
 
 
-def command(instruction, model=MODEL, max_turns=MAX_TURNS):
-    return [str(CLAUDE), "-p", instruction, "--model", model, "--output-format", "stream-json", "--verbose",
-            "--max-turns", str(max_turns), "--tools", "Bash", "--permission-mode", "dontAsk",
-            "--allowedTools", *ALLOWED]
+def kubeconfig():
+    return os.environ.get("KUBECONFIG", "").split(os.pathsep)[0] or str(Path.home() / ".kube" / "config")
+
+
+def command(instruction, image, name, model=MODEL, max_turns=MAX_TURNS):
+    return ["docker", "run", "--rm", "--name", name, "--network", "host", "--user", f"{os.getuid()}:{os.getgid()}",
+            "-e", "HOME=/tmp", "-e", "KUBECONFIG=/kube/config", "-e", "DISABLE_AUTOUPDATER=1",
+            "-e", "CLAUDE_CODE_OAUTH_TOKEN", "-v", f"{kubeconfig()}:/kube/config:ro", "-w", "/tmp", image,
+            "claude", "-p", instruction, "--model", model, "--output-format", "stream-json", "--verbose",
+            "--max-turns", str(max_turns), "--tools", "Bash", "--permission-mode", "bypassPermissions"]
 
 
 def summarize(lines):
@@ -58,18 +60,17 @@ def summarize(lines):
             "limit_reached": bool(final.get("is_error")) and any(m in text.lower() for m in LIMIT_MARKERS)}
 
 
-def run_agent(instruction, run_dir, model=MODEL, timeout=TIMEOUT, max_turns=MAX_TURNS):
-    with tempfile.TemporaryDirectory() as config, tempfile.TemporaryDirectory() as work:
-        start, timed_out = time.monotonic(), False
-        proc = subprocess.Popen(command(instruction, model, max_turns), cwd=work, env=environment(config),
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                                text=True, start_new_session=True)
-        try:
-            output, _ = proc.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            os.killpg(proc.pid, signal.SIGTERM)
-            output, _ = proc.communicate()
-            timed_out = True
+def run_agent(instruction, run_dir, image, model=MODEL, timeout=TIMEOUT, max_turns=MAX_TURNS):
+    name = f"sremut-agent-{uuid.uuid4().hex[:12]}"
+    start, timed_out = time.monotonic(), False
+    proc = subprocess.Popen(command(instruction, image, name, model, max_turns), env=environment(),
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, text=True)
+    try:
+        output, _ = proc.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        subprocess.run(["docker", "kill", name], capture_output=True)
+        output, _ = proc.communicate()
+        timed_out = True
     write_gz(Path(run_dir) / "agent.jsonl.gz", scrub(output))
-    return {"model": model, "exit_code": proc.returncode, "timed_out": timed_out,
+    return {"model": model, "image": image, "exit_code": proc.returncode, "timed_out": timed_out,
             "seconds": round(time.monotonic() - start), **summarize(output.splitlines())}

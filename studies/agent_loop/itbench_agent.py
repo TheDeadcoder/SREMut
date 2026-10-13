@@ -18,13 +18,14 @@ import probe as audit  # noqa: E402
 import reference  # noqa: E402
 from agent import MODEL, TIMEOUT, run_agent  # noqa: E402
 
+IMAGE = "sremut-agent:k8s-1.37"
 PROMPT = """You are the on-call site reliability engineer. The OpenTelemetry Demo (the Astronomy Shop) runs in the
 Kubernetes namespace {namespace}. These alerts are firing for it:
 {alerts}
 
-Find the cause and mitigate the incident so that the service works normally again. You can run kubectl commands with
-your Bash tool; no other commands are available. Work on your own: no one will answer questions. When the incident is
-mitigated, stop and reply with a short summary of what you found and what you changed."""
+Find the cause and mitigate the incident so that the service works normally again. You have a shell with kubectl,
+already configured for the cluster. Work on your own: no one will answer questions. When the incident is mitigated, stop
+and reply with a short summary of what you found and what you changed."""
 
 
 def alert_lines(state):
@@ -57,7 +58,7 @@ def episode(itbench, scenario, run_dir, model, agent_timeout):
                                    until=lambda s: set(names) <= set(s.get("ground_truth", [])))
         out["detected"] = set(names) <= set(out["detect"][-1].get("ground_truth", []))
         alerts = alert_lines(out["detect"][-1])
-        out["agent"] = run_agent(PROMPT.format(namespace=audit.NAMESPACE, alerts=alerts), run_dir, model,
+        out["agent"] = run_agent(PROMPT.format(namespace=audit.NAMESPACE, alerts=alerts), run_dir, IMAGE, model,
                                  agent_timeout)
         out["agent"]["alerts_given"] = alerts
         out["evaluation"] = audit.poll(names, audit.OBSERVE)

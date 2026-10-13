@@ -24,12 +24,13 @@ from mutation_probe import footprint_left  # noqa: E402
 from triage_probe import evaluate, profile, snapshot  # noqa: E402
 
 FIXED = Path.home() / "AIOpsLab-fix"
+IMAGE = "sremut-agent:k8s-1.32"
 WINDOW = 120
 POLL = 15
 INSTRUCTIONS = """
 
-You can run kubectl commands with your Bash tool; no other commands are available. Work on your own: no one will answer
-questions. When the anomaly is mitigated, stop and reply with a short summary of what you found and what you changed."""
+You have a shell with kubectl, already configured for the cluster. Work on your own: no one will answer questions. When
+the anomaly is mitigated, stop and reply with a short summary of what you found and what you changed."""
 FIXED_EVAL = """import json, sys
 from aiopslab.orchestrator.problems.registry import ProblemRegistry
 problem = ProblemRegistry().get_problem_instance(sys.argv[1])
@@ -99,7 +100,8 @@ def run(problem_id, run_dir, model, agent_timeout):
         problem.inject_fault()
         problem.start_workload()
         faulted_state = snapshot(namespace)
-        out["agent"] = run_agent(problem.get_task_description() + INSTRUCTIONS, run_dir, model, agent_timeout)
+        out["agent"] = run_agent(problem.get_task_description() + INSTRUCTIONS, run_dir, IMAGE, model,
+                                 agent_timeout)
         out["settled"] = operators.settle(namespace)
         out["verdicts"] = window(oracles)
         out["reference"] = reference.judge(healthy, reference.capture(namespace, wrk))

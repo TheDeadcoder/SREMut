@@ -53,9 +53,10 @@ def main():
         result_path = runs / pid / f"attempt-{args.attempt}" / "result.json"
         result = json.loads(result_path.read_text()) if result_path.exists() else {}
         agent = result.get("agent") or {}
+        verdicts = result.get("verdicts") or {}
         print(f"done {pid}: {record['status']} {result.get('status')} turns={agent.get('turns')} "
-              f"seconds={agent.get('seconds')} original={(result.get('verdicts') or {}).get('original', {}).get('profile')} "
-              f"fixed={(result.get('verdicts') or {}).get('fixed', {}).get('profile')} "
+              f"seconds={agent.get('seconds')} original={verdicts.get('original', {}).get('profile')} "
+              f"fixed={verdicts.get('fixed', {}).get('profile')} "
               f"healthy={(result.get('reference') or {}).get('healthy')}", flush=True)
         if record["status"] != "COMPLETED" or result.get("status") != "COMPLETED":
             print("stop: inspect the episode before continuing", flush=True)
