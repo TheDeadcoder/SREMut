@@ -25,6 +25,16 @@ Host settings applied by the script: `fs.inotify.max_user_instances=1024`,
 `fs.inotify.max_user_watches=1048576`, `net.ipv4.ip_forward=1` (container networking needs it and some cloud
 images turn it off), automatic package upgrades disabled, Docker packages held.
 
+## SREGym HEAD
+
+The alert-baseline study is repeated on SREGym's HEAD in a second checkout, on a cluster made by
+that checkout's `kind/setup_kind_cluster.sh`, which also drops the host's DNS search domains from
+the nodes. SREGym-applications and the node image are the same as at the pin.
+
+| Component | Version |
+|---|---|
+| SREGym | `198986762d182bdea5dbf7b2a47381aa03e3c455` |
+
 ## AIOpsLab
 
 `setup_aiopslab.sh` installs the same toolchain (without SREGym), then AIOpsLab with its own kind
