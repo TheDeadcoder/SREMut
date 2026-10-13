@@ -54,7 +54,7 @@ def main():
                     help="where the episodes go, e.g. runs-patched for the checkout with workload_check.patch")
     args = ap.parse_args()
 
-    root = HERE / "pilot" if args.pilot else args.runs
+    root = HERE / "pilot" if args.pilot else args.runs.resolve()
     for operator in OPERATORS:
         (root / operator).mkdir(parents=True, exist_ok=True)
         mark_interrupted(root / operator, args.server)
@@ -76,6 +76,9 @@ def main():
         print(f"done {operator} {pid}: {record['status']} {result.get('status')} "
               f"applied={bool(result.get('applied'))} verdict={mutant.get('verdict')} "
               f"healthy={(mutant.get('reference') or {}).get('healthy')}", flush=True)
+        if record["status"] == "COMPLETED" and not result_path.exists():
+            print("stop: the probe wrote no result.json", flush=True)
+            return 3
         # AIOpsLab cannot recover a workload DELETE removed; the next reset deletes its namespace.
         if must_stop(record, result) and not (operator == "DELETE" and record["status"] == "COMPLETED"):
             print("stop: inspect the cluster before continuing", flush=True)
