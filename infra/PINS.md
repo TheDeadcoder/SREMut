@@ -37,3 +37,15 @@ cluster, on a separate host.
 | Kubernetes nodes | `jacksonarthurclark/aiopslab-kind-x86@sha256:d631857278d3f8ce5c36364c75ec25695ceb22e311ec6621a4ebf5506b86774d` (1 control plane, 1 worker, from AIOpsLab `kind/kind-config-x86.yaml`) |
 | Poetry | 2.4.1 (dependencies without the `clients` group) |
 
+
+## Agent study
+
+`setup_agent.sh` installs Claude Code for the run user. The agent authenticates with a Claude plan token in
+`~/.claude-agent.env` (`CLAUDE_CODE_OAUTH_TOKEN=...`); no API key is set.
+
+| Component | Version |
+|---|---|
+| Node.js | 22.23.3 |
+| Claude Code | 2.1.296 |
+| Model | `claude-sonnet-5-5` |
+| AIOpsLab with the proposed fix | `ccf08d0` with `studies/aiopslab_audit/workload_check.patch`, in a second checkout |
