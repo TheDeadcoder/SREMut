@@ -10,7 +10,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE.parent / "registry_sweep")]
 
-from agent import MODEL, TIMEOUT  # noqa: E402
+from agent import MODEL, TIMEOUT, set_aside, wait_for_plan  # noqa: E402
 from run_sweep import scrub, write_gz, write_json  # noqa: E402
 
 EPISODE = HERE / "itbench_agent.py"
@@ -32,10 +32,13 @@ def main():
     os.environ["PATH"] = f"{TOOLS}:{os.environ['PATH']}"
 
     runs = (args.runs / "itbench").resolve()
-    for scenario in args.scenarios:
+    queue = list(args.scenarios)
+    while queue:
+        scenario = queue[0]
         run_dir = runs / scenario / f"attempt-{args.attempt}"
         if run_dir.exists():
             print(f"skip {scenario}: attempt {args.attempt} already exists", flush=True)
+            queue.pop(0)
             continue
         run_dir.mkdir(parents=True)
         record = {"scenario": scenario, "attempt": args.attempt, "server": args.server, "status": "RUNNING"}
@@ -60,6 +63,10 @@ def main():
               f"turns={(result.get('agent') or {}).get('turns')} "
               f"passed={verdict.get('passed')} relapsed={verdict.get('relapsed')} "
               f"healthy={(result.get('reference') or {}).get('healthy')}", flush=True)
+        if result.get("status") == "AGENT_LIMIT":
+            print(f"limit: {scenario} set aside as {set_aside(run_dir).name}", flush=True)
+            wait_for_plan(args.model)
+            continue
         if record["status"] != "COMPLETED" or result.get("status") != "COMPLETED":
             print("stop: inspect the episode before continuing", flush=True)
             return 3

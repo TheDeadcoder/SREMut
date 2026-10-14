@@ -9,7 +9,7 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE.parent / "aiopslab_audit"), str(HERE.parent / "verifier_mutation"),
                 str(HERE.parent / "registry_sweep")]
 
-from agent import MODEL, TIMEOUT  # noqa: E402
+from agent import MODEL, TIMEOUT, set_aside, wait_for_plan  # noqa: E402
 from run_audit import SCHEDULE, reset_cluster  # noqa: E402
 from run_sweep import run_attempt  # noqa: E402
 
@@ -37,9 +37,12 @@ def main():
 
     runs = (args.runs / "aiopslab").resolve()
     runs.mkdir(parents=True, exist_ok=True)
-    for pid in problems(args.problems):
+    queue = problems(args.problems)
+    while queue:
+        pid = queue[0]
         if (runs / pid / f"attempt-{args.attempt}").exists():
             print(f"skip {pid}: attempt {args.attempt} already exists", flush=True)
+            queue.pop(0)
             continue
         reset, problem = reset_cluster()
         if problem:
@@ -58,6 +61,10 @@ def main():
               f"seconds={agent.get('seconds')} original={verdicts.get('original', {}).get('profile')} "
               f"fixed={verdicts.get('fixed', {}).get('profile')} "
               f"healthy={(result.get('reference') or {}).get('healthy')}", flush=True)
+        if result.get("status") == "AGENT_LIMIT":
+            print(f"limit: {pid} set aside as {set_aside(runs / pid / f'attempt-{args.attempt}').name}", flush=True)
+            wait_for_plan(args.model)
+            continue
         if record["status"] != "COMPLETED" or result.get("status") != "COMPLETED":
             print("stop: inspect the episode before continuing", flush=True)
             return 3

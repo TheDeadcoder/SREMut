@@ -7,7 +7,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE.parent / "registry_sweep")]
 
-from agent import MODEL, TIMEOUT  # noqa: E402
+from agent import MODEL, TIMEOUT, set_aside, wait_for_plan  # noqa: E402
 from run_sweep import mark_interrupted, reset_cluster, run_attempt  # noqa: E402
 
 EPISODE = HERE / "sregym_agent.py"
@@ -33,9 +33,12 @@ def main():
     runs = (args.runs / args.benchmark).resolve()
     runs.mkdir(parents=True, exist_ok=True)
     mark_interrupted(runs, args.server)
-    for pid in args.problems:
+    queue = list(args.problems)
+    while queue:
+        pid = queue[0]
         if (runs / pid / f"attempt-{args.attempt}").exists():
             print(f"skip {pid}: attempt {args.attempt} already exists", flush=True)
+            queue.pop(0)
             continue
         reset, problem = reset_cluster(args.sregym)
         if problem:
@@ -53,6 +56,10 @@ def main():
         print(f"done {pid}: {record['status']} {result.get('status')} turns={agent.get('turns')} "
               f"seconds={agent.get('seconds')} oracle={verdict.get('profile')} "
               f"healthy={(result.get('reference') or {}).get('healthy')}", flush=True)
+        if result.get("status") == "AGENT_LIMIT":
+            print(f"limit: {pid} set aside as {set_aside(runs / pid / f'attempt-{args.attempt}').name}", flush=True)
+            wait_for_plan(args.model)
+            continue
         if record["status"] != "COMPLETED" or result.get("status") != "COMPLETED":
             print("stop: inspect the episode before continuing", flush=True)
             return 3

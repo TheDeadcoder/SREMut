@@ -46,6 +46,17 @@ class AgentTest(unittest.TestCase):
         self.assertEqual((summary["turns"], summary["summary"], summary["limit_reached"]), (4, "Fixed it.", False))
         limit = {"type": "result", "is_error": True, "result": "Claude AI usage limit reached"}
         self.assertTrue(agent.summarize([json.dumps(limit)])["limit_reached"])
+        session = {"type": "result", "is_error": True, "api_error": "usage_limit_reached",
+                   "result": "You've hit your session limit"}
+        self.assertTrue(agent.summarize([json.dumps(session)])["limit_reached"])
+
+    def test_set_aside_keeps_earlier_episodes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            first = Path(tmp) / "attempt-1"
+            first.mkdir()
+            self.assertEqual(agent.set_aside(first).name, "limit-attempt-1")
+            first.mkdir()
+            self.assertEqual(agent.set_aside(first).name, "limit-attempt-1-1")
 
     def test_environment_drops_api_keys(self):
         with tempfile.TemporaryDirectory() as tmp:

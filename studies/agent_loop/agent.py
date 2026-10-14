@@ -19,7 +19,9 @@ TOKEN_FILE = Path.home() / ".claude-agent.env"
 MODEL = "claude-sonnet-5-5"
 TIMEOUT = 1200
 MAX_TURNS = 100
-LIMIT_MARKERS = ("usage limit", "rate limit")
+LIMIT_MARKERS = ("usage limit", "rate limit", "session limit")
+PLAN_IMAGE = "sremut-agent:k8s-1.32"
+PLAN_POLL = 600
 
 
 def environment():
@@ -55,9 +57,33 @@ def summarize(lines):
                 if isinstance(block, dict) and block.get("type") == "tool_use"]
     final = next((m for m in reversed(messages) if m.get("type") == "result"), {})
     text = str(final.get("result") or "")
+    limit = (final.get("api_error") == "usage_limit_reached" or final.get("api_error_status") == 429
+             or any(m in text.lower() for m in LIMIT_MARKERS))
     return {"turns": final.get("num_turns"), "is_error": final.get("is_error"), "usage": final.get("usage"),
-            "summary": text[-2000:], "commands": commands,
-            "limit_reached": bool(final.get("is_error")) and any(m in text.lower() for m in LIMIT_MARKERS)}
+            "summary": text[-2000:], "commands": commands, "limit_reached": bool(final.get("is_error")) and limit}
+
+
+def plan_answers(model=MODEL):
+    cmd = ["docker", "run", "--rm", "-e", "HOME=/tmp", "-e", "DISABLE_AUTOUPDATER=1", "-e", "CLAUDE_CODE_OAUTH_TOKEN",
+           PLAN_IMAGE, "claude", "-p", "Reply with OK.", "--model", model, "--max-turns", "1", "--output-format", "json"]
+    try:
+        proc = subprocess.run(cmd, env=environment(), capture_output=True, text=True, timeout=300)
+        return json.loads(proc.stdout.strip().splitlines()[-1]).get("is_error") is False
+    except (subprocess.SubprocessError, ValueError, IndexError):
+        return False
+
+
+def wait_for_plan(model=MODEL):
+    while not plan_answers(model):
+        time.sleep(PLAN_POLL)
+
+
+def set_aside(run_dir):
+    """Renames an episode that reached the plan's usage limit, so that the runner runs it again."""
+    target, n = run_dir.with_name(f"limit-{run_dir.name}"), 1
+    while target.exists():
+        target, n = run_dir.with_name(f"limit-{run_dir.name}-{n}"), n + 1
+    return run_dir.rename(target)
 
 
 def run_agent(instruction, run_dir, image, model=MODEL, timeout=TIMEOUT, max_turns=MAX_TURNS):

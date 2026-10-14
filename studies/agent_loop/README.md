@@ -130,4 +130,5 @@ The second agent uses the same runners with `--model claude-haiku-5-5 --runs stu
 `~/.claude-agent.env` holds one line, `CLAUDE_CODE_OAUTH_TOKEN=<token>`, with the token from `claude setup-token`.
 Each episode is written to `runs/<benchmark>/<problem_id or scenario>/attempt-<n>/`, with `sregym-head` for SREGym's
 HEAD: `record.json`, `result.json`, the transcript, the logs and, on AIOpsLab, `deployed_workloads.json`. The runners
-stop after any episode that did not complete, including one that reached the plan's usage limit.
+stop after any episode that did not complete. An episode in which the agent reached the plan's usage limit is renamed
+`limit-attempt-<n>`, and the runner waits until the plan answers again and runs it again.
