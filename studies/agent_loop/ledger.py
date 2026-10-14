@@ -74,16 +74,18 @@ def build(runs=RUNS):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--check", action="store_true", help="fail if ledger.json differs from the runs")
+    ap.add_argument("--check", action="store_true", help="fail if the ledger differs from the runs")
+    ap.add_argument("--runs", type=Path, default=RUNS, help="e.g. runs-haiku for the second agent")
+    ap.add_argument("--ledger", type=Path, default=LEDGER)
     args = ap.parse_args()
-    text = json.dumps(build(), indent=2, sort_keys=True) + "\n"
+    text = json.dumps(build(args.runs), indent=2, sort_keys=True) + "\n"
     if args.check:
-        if not LEDGER.exists() or LEDGER.read_text() != text:
-            print("ledger.json does not match the runs")
+        if not args.ledger.exists() or args.ledger.read_text() != text:
+            print(f"{args.ledger.name} does not match the runs")
             return 1
-        print("ledger.json matches the runs")
+        print(f"{args.ledger.name} matches the runs")
         return 0
-    LEDGER.write_text(text)
+    args.ledger.write_text(text)
     print(json.dumps(json.loads(text)["summary"], indent=2))
     return 0
 

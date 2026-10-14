@@ -104,7 +104,9 @@ def run(problem_id, run_dir, model, agent_timeout):
                                  agent_timeout)
         out["settled"] = operators.settle(namespace)
         out["verdicts"] = window(oracles)
-        out["reference"] = reference.judge(healthy, reference.capture(namespace, wrk))
+        final = reference.capture(namespace, wrk)
+        out["reference"] = reference.judge(healthy, final)
+        out["captures"] = {"healthy": healthy, "final": final}
         out["footprint_left"] = footprint_left(healthy_state, faulted_state, snapshot(namespace))
         out["status"] = "AGENT_LIMIT" if out["agent"]["limit_reached"] else "COMPLETED"
     except Exception as exc:  # noqa: BLE001

@@ -128,6 +128,14 @@ class SREGymEpisodeTest(unittest.TestCase):
         with unittest.mock.patch.object(subprocess, "run", return_value=SimpleNamespace(stdout="")):
             self.assertEqual(self.episode.flags("social-network"), {})
 
+    def test_judge_fails_a_flag_left_on(self):
+        state = {"workloads": {"deployments/ad": 1}, "services": {}, "traffic": None}
+        healthy = {"astronomy-shop": state}
+        judged = self.episode.judge(healthy, healthy, {"adFailure": "off"}, {"adFailure": "on"})
+        self.assertEqual((judged["flags_changed"], judged["healthy"]), (["adFailure"], False))
+        judged = self.episode.judge(healthy, healthy, {"adFailure": "off"}, {"adFailure": "off"})
+        self.assertTrue(judged["healthy"])
+
 
 if __name__ == "__main__":
     unittest.main()

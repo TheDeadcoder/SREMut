@@ -74,11 +74,9 @@ def capture(namespaces, wrk):
     return {ns: reference.capture(ns, wrk if ns == namespaces[0] else None) for ns in namespaces}
 
 
-def judge(healthy, namespaces, wrk, healthy_flags):
-    current = capture(namespaces, wrk)
-    by_namespace = {ns: reference.judge(healthy[ns], current[ns]) for ns in namespaces}
-    now = flags(namespaces[0])
-    changed = sorted(flag for flag, variant in healthy_flags.items() if now.get(flag) != variant)
+def judge(healthy, final, healthy_flags, final_flags):
+    by_namespace = {ns: reference.judge(healthy[ns], final[ns]) for ns in healthy}
+    changed = sorted(flag for flag, variant in healthy_flags.items() if final_flags.get(flag) != variant)
     return {"by_namespace": by_namespace, "flags_changed": changed,
             "healthy": all(j["healthy"] for j in by_namespace.values()) and not changed}
 
@@ -126,7 +124,9 @@ def run(problem_id, run_dir, model, agent_timeout):
         if alerts:
             out["alerts"]["after_verdict"] = alerts_firing(namespace)
         out["settled"] = {ns: operators.settle(ns) for ns in namespaces}
-        out["reference"] = judge(healthy, namespaces, wrk, healthy_flags)
+        final = capture(namespaces, wrk)
+        out["reference"] = judge(healthy, final, healthy_flags, flags(namespace))
+        out["captures"] = {"healthy": healthy, "final": final}
         out["footprint_left"] = footprint_left(healthy_state, faulted_state, snapshot(namespace))
         out["status"] = "AGENT_LIMIT" if out["agent"]["limit_reached"] else "COMPLETED"
     except Exception as exc:  # noqa: BLE001

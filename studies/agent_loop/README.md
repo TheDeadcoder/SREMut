@@ -12,7 +12,7 @@ the SRE agent; its final state is graded by the benchmark's own verifier and by 
 mounts nothing but the cluster's kubeconfig, so the agent works the cluster through a shell, without permission
 prompts, and sees no file of the host or of this repository. It authenticates with a Claude plan token and has no
 API key in its environment. Each episode allows 20 minutes and 100 turns, and keeps the transcript as
-`agent.jsonl.gz`.
+`agent.jsonl.gz` and the reference verifier's captures of the healthy and the final system.
 
 ## AIOpsLab episode
 
@@ -30,9 +30,10 @@ scenario's variables, captures the healthy system, injects the scenario's faults
 (at most 900 s). The agent is told which alerts are firing for the application, as an ITBench agent would see them.
 After the agent stops, the alerts are polled every 30 s for 600 s: ITBench's alert-absent check reads the first
 300 s, and a ground-truth alert that fires again later in the 600 s counts as a relapse. The reference verifier
-follows. `run_itbench.py` runs ten scenarios: four where the fault leaves a pod not ready or crash-looping (20, 49,
-59, 38), two where requests fail (30, 43), two whose ground-truth alert cannot or need not fire (102, 114), and two
-whose ground truth includes `NoRequestsReceived`, which the demo's idle services keep firing (58, 31).
+follows. `run_itbench.py` runs ten scenarios: three where the fault leaves a pod not ready or waiting (20, 49, 59), one
+with misconfigured autoscalers (38), two where requests fail (30, 43), two whose ground-truth alert cannot or need not
+fire (102, 114), and two whose ground truth includes `NoRequestsReceived`, which the demo's idle services keep firing
+(58, 31).
 
 ## SREGym episode
 
@@ -50,6 +51,15 @@ firing when the agent starts and after the verdict.
 any repair at the pin (`missing_service_astronomy_shop`, `missing_service_social_network`,
 `operator_wrong_operator_image`). The alert problems also run at SREGym's HEAD, from a second checkout with its own
 cluster (`infra/PINS.md`), where the CPU limits that made `ContainerCPUThrottling` fire were raised.
+
+## Second agent
+
+The same episodes also run with `claude-haiku-5-5`, a smaller model, kept under `runs-haiku/` with its own
+`ledger-haiku.json`: the SREGym alert problems and `operator_wrong_operator_image` at HEAD, the ten ITBench
+scenarios, the 14 AIOpsLab problems, and the two `missing_service` problems at the pin. A weaker agent leaves more
+faults unrepaired or repaired in part, which is where a verifier's errors change a score. The first agent also runs
+`operator_wrong_operator_image` at HEAD, ITBench scenario 38 a second time, and the five SREGym alert problems a
+second time at the pin.
 
 ## Labels
 
@@ -76,6 +86,12 @@ Fixed before the first SREGym episode:
   two workloads: their baseline, captured right after deploy, is empty.
 - At the pin, it passes the agent's final state on the three other problems, whether or not the reference verifier
   accepts it.
+
+Fixed before the first SREGym episode at HEAD and the first episode of the second agent, for both agents:
+
+- The AIOpsLab and ITBench predictions above hold.
+- At HEAD, in every alert problem whose fault fires no alert at HEAD in `studies/alert_baseline`, the mitigation
+  oracle passes a final state that leaves the fault's flag on, unless another alert fires.
 
 ## Running
 
@@ -107,6 +123,9 @@ python3 studies/agent_loop/run_sregym.py --server D --sregym ~/SREGym-head --ben
   astronomy_shop_ad_service_failure astronomy_shop_ad_service_high_cpu astronomy_shop_cart_service_failure \
   astronomy_shop_payment_service_failure astronomy_shop_product_catalog_service_failure
 ```
+
+The second agent uses the same runners with `--model claude-haiku-5-5 --runs studies/agent_loop/runs-haiku`, and
+`ledger.py --runs studies/agent_loop/runs-haiku --ledger studies/agent_loop/ledger-haiku.json` builds its ledger.
 
 `~/.claude-agent.env` holds one line, `CLAUDE_CODE_OAUTH_TOKEN=<token>`, with the token from `claude setup-token`.
 Each episode is written to `runs/<benchmark>/<problem_id or scenario>/attempt-<n>/`, with `sregym-head` for SREGym's

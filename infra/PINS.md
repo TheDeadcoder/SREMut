@@ -49,6 +49,7 @@ kubectl of each benchmark's cluster. The agent authenticates with a Claude plan 
 | Node.js | 22.23.3 |
 | Claude Code | 2.1.296 |
 | Model | `claude-sonnet-5-5` |
+| Second agent model | `claude-haiku-5-5` |
 | Agent image base | `node:22.23.3-bookworm-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392` |
 | kubectl in the agent images | v1.32.1 (`sremut-agent:k8s-1.32`, AIOpsLab and SREGym), v1.37.0 (`sremut-agent:k8s-1.37`, ITBench) |
 | AIOpsLab with the proposed fix | `ccf08d0` with `studies/aiopslab_audit/workload_check.patch`, in a second checkout |

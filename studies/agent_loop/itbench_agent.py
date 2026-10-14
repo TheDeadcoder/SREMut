@@ -67,7 +67,9 @@ def episode(itbench, scenario, run_dir, model, agent_timeout):
             "profile": "".join("?" if "error" in s else "-" if s["ground_truth"] else "+" for s in out["evaluation"]),
             "passed": index is not None,
             "relapsed": index is not None and any(s.get("ground_truth") for s in out["evaluation"][index + 1:])}}
-        out["reference"] = reference.judge(healthy, reference.capture(audit.NAMESPACE, None))
+        final = reference.capture(audit.NAMESPACE, None)
+        out["reference"] = reference.judge(healthy, final)
+        out["captures"] = {"healthy": healthy, "final": final}
         out["status"] = "AGENT_LIMIT" if out["agent"]["limit_reached"] else "COMPLETED"
     except Exception as exc:  # noqa: BLE001
         out["status"] = "ERROR"
