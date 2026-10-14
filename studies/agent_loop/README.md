@@ -3,7 +3,7 @@
 Whether the verifier defects found by the audits change the verdicts of a real agent. Claude Code works each task as
 the SRE agent; its final state is graded by the benchmark's own verifier and by the reference verifier of
 `studies/verifier_mutation`. On AIOpsLab it is also graded by the same verifier with the proposed fix
-(`studies/aiopslab_audit/workload_check.patch`).
+(`studies/aiopslab_audit/workload_check.patch`). SREGym runs at the pin and, for its alert problems, at its HEAD.
 
 ## Agent
 
@@ -34,6 +34,23 @@ follows. `run_itbench.py` runs ten scenarios: four where the fault leaves a pod 
 59, 38), two where requests fail (30, 43), two whose ground-truth alert cannot or need not fire (102, 114), and two
 whose ground truth includes `NoRequestsReceived`, which the demo's idle services keep firing (58, 31).
 
+## SREGym episode
+
+`sregym_agent.py` deploys the application with SREGym's Conductor and, as SREGym does by default, captures the
+mitigation oracle's baseline right before it injects the fault. The agent receives the mitigation part of the task
+text of SREGym's Claude Code client (`clients/claudecode`), built from the same application name, namespaces and
+description. Once the agent stops, the mitigation oracle is evaluated at once, as SREGym evaluates it when the agent
+submits, and polled for 90 s more; the first evaluation is the verdict. The workloads then settle and the reference
+verifier follows. It judges the problem's namespace and the namespace that SREGym's root cause names, and on the
+astronomy shop it also compares the feature flags in `flagd-config` with the healthy system, because the alert
+problems inject their faults as flags. For alert oracles the episode records the captured baseline and the alerts
+firing when the agent starts and after the verdict.
+
+`run_sregym.py` runs five alert problems whose fault is a feature flag and three problems the oracle accepts without
+any repair at the pin (`missing_service_astronomy_shop`, `missing_service_social_network`,
+`operator_wrong_operator_image`). The alert problems also run at SREGym's HEAD, from a second checkout with its own
+cluster (`infra/PINS.md`), where the CPU limits that made `ContainerCPUThrottling` fire were raised.
+
 ## Labels
 
 For each verifier, its verdict against the reference verifier: `true_pass`, `false_pass` (passes an unhealthy
@@ -51,6 +68,14 @@ Fixed before the first episode. They concern the verifiers, not what the agent d
   verifier fails and the original verifier can pass.
 - On ITBench, scenarios 58 and 31 fail the alert-absent check whatever the agent does, unless it restarts the idle
   services, and scenario 102 passes it whatever the agent does.
+
+Fixed before the first SREGym episode:
+
+- At the pin, the mitigation oracle fails the agent's final state on all five alert problems, with
+  `ContainerCPUThrottling` on `grafana` or `load-generator` among the firing alerts, unless the agent changes those
+  two workloads: their baseline, captured right after deploy, is empty.
+- At the pin, it passes the agent's final state on the three other problems, whether or not the reference verifier
+  accepts it.
 
 ## Running
 
@@ -73,7 +98,17 @@ On the ITBench host (`studies/itbench_audit/environment.py up`), with Claude Cod
 python3 studies/agent_loop/run_itbench.py --server D
 ```
 
+On a SREGym host (`infra/setup_server.sh`), with Claude Code and the token set up the same way, and for HEAD a second
+checkout in `~/SREGym-head` whose cluster was made by its own `kind/setup_kind_cluster.sh`:
+
+```bash
+python3 studies/agent_loop/run_sregym.py --server D
+python3 studies/agent_loop/run_sregym.py --server D --sregym ~/SREGym-head --benchmark sregym-head --problems \
+  astronomy_shop_ad_service_failure astronomy_shop_ad_service_high_cpu astronomy_shop_cart_service_failure \
+  astronomy_shop_payment_service_failure astronomy_shop_product_catalog_service_failure
+```
+
 `~/.claude-agent.env` holds one line, `CLAUDE_CODE_OAUTH_TOKEN=<token>`, with the token from `claude setup-token`.
-Each episode is written to `runs/aiopslab/<problem_id>/attempt-<n>/` or `runs/itbench/<scenario>/attempt-<n>/`:
-`record.json`, `result.json`, the transcript, the logs and, on AIOpsLab, `deployed_workloads.json`. The runners stop
-after any episode that did not complete, including one that reached the plan's usage limit.
+Each episode is written to `runs/<benchmark>/<problem_id or scenario>/attempt-<n>/`, with `sregym-head` for SREGym's
+HEAD: `record.json`, `result.json`, the transcript, the logs and, on AIOpsLab, `deployed_workloads.json`. The runners
+stop after any episode that did not complete, including one that reached the plan's usage limit.

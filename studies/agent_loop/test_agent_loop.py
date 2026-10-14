@@ -1,14 +1,24 @@
+import importlib
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
+from types import SimpleNamespace
 
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent / "registry_sweep")]
 
 import agent  # noqa: E402
 import ledger  # noqa: E402
+
+def fresh(module):
+    for name in ("probe", module):
+        sys.modules.pop(name, None)
+    return importlib.import_module(module)
+
 
 STREAM = [
     {"type": "system", "subtype": "init"},
@@ -68,7 +78,8 @@ class LedgerTest(unittest.TestCase):
                 "agent": {"turns": 9, "seconds": 300, "timed_out": False},
                 "verdicts": {"original": {"profile": "-++"}, "fixed": {"profile": "---"}}}))
             built = ledger.build(runs)
-        self.assertEqual(built["summary"]["labels"], {"original": {"false_pass": 1}, "fixed": {"true_fail": 1}})
+        self.assertEqual(built["summary"]["labels"],
+                         {"aiopslab": {"original": {"false_pass": 1}, "fixed": {"true_fail": 1}}})
         self.assertEqual(built["summary"]["changed_by_fix"], ["revoke_auth_mongodb-mitigation-1:attempt-1"])
 
     def test_relapse_is_not_a_repair(self):
@@ -80,17 +91,42 @@ class LedgerTest(unittest.TestCase):
                 "status": "COMPLETED", "reference": {"healthy": True}, "agent": {},
                 "verdicts": {"alert_absent": {"profile": "-++--", "passed": True, "relapsed": True}}}))
             built = ledger.build(Path(tmp))
-        self.assertEqual(built["summary"]["labels"], {"alert_absent": {"false_pass": 1}})
+        self.assertEqual(built["summary"]["labels"], {"itbench": {"alert_absent": {"false_pass": 1}}})
         self.assertEqual(built["summary"]["relapsed"], ["itbench:20:attempt-1"])
 
 
 class ITBenchPromptTest(unittest.TestCase):
     def test_alert_lines(self):
-        import itbench_agent
-
+        itbench_agent = fresh("itbench_agent")
         state = {"in_namespace": ["KubePodNotReady/product-catalog-1", "InfoInhibitor/"]}
         self.assertEqual(itbench_agent.alert_lines(state), "- InfoInhibitor\n- KubePodNotReady (product-catalog-1)")
         self.assertEqual(itbench_agent.alert_lines({}), "- none")
+
+
+class SREGymEpisodeTest(unittest.TestCase):
+    def setUp(self):
+        self.episode = fresh("sregym_agent")
+
+    def test_instruction_has_no_submission_api(self):
+        app = SimpleNamespace(app_name="Social Network", namespace="social-network", description="Thrift RPCs.")
+        text = self.episode.instruction(app)
+        self.assertIn("Application: Social Network\nNamespace: social-network\n\nThrift RPCs.", text)
+        self.assertNotIn("submit", text.lower())
+
+    def test_judged_namespaces_add_the_root_cause_namespace(self):
+        problem = SimpleNamespace(namespace="tidb-cluster", root_cause=(
+            "[fault_spec] component=deployment/tidb-operator-controller-manager; namespace=tidb-operator || x"))
+        self.assertEqual(self.episode.judged_namespaces(problem), ["tidb-cluster", "tidb-operator"])
+        problem.root_cause = "[fault_spec] component=ad; namespace=tidb-cluster || x"
+        self.assertEqual(self.episode.judged_namespaces(problem), ["tidb-cluster"])
+
+    def test_flags_reads_default_variants(self):
+        config = {"flags": {"adFailure": {"defaultVariant": "off"}, "cartFailure": {"defaultVariant": "on"}}}
+        found = json.dumps({"data": {"demo.flagd.json": json.dumps(config)}})
+        with unittest.mock.patch.object(subprocess, "run", return_value=SimpleNamespace(stdout=found)):
+            self.assertEqual(self.episode.flags("astronomy-shop"), {"adFailure": "off", "cartFailure": "on"})
+        with unittest.mock.patch.object(subprocess, "run", return_value=SimpleNamespace(stdout="")):
+            self.assertEqual(self.episode.flags("social-network"), {})
 
 
 if __name__ == "__main__":

@@ -41,20 +41,31 @@ def row(path):
     return out
 
 
+def verdicts(r):
+    return {name: value for name, value in r.items() if isinstance(value, dict) and "label" in value}
+
+
+def labels(rows):
+    counts = {}
+    for r in rows:
+        for name, verdict in verdicts(r).items():
+            counts.setdefault(r["benchmark"], {}).setdefault(name, Counter())[verdict["label"]] += 1
+    return {benchmark: {name: dict(c) for name, c in by_name.items()} for benchmark, by_name in counts.items()}
+
+
 def build(runs=RUNS):
     rows = [row(path) for path in sorted(runs.glob("*/*/attempt-*/record.json"))]
     done = [r for r in rows if r["status"] == "completed"]
-    names = sorted({name for r in done for name in r if isinstance(r[name], dict) and "label" in r[name]})
     summary = {
         "episodes": len(rows),
         "status": dict(Counter(r["status"] for r in rows)),
-        "labels": {name: dict(Counter(r[name]["label"] for r in done if name in r)) for name in names},
+        "labels": labels(done),
         "changed_by_fix": sorted(f"{r['task']}:{r['attempt']}" for r in done
                                  if "original" in r and "fixed" in r
                                  and None not in (r["original"]["passed"], r["fixed"]["passed"])
                                  and r["original"]["passed"] != r["fixed"]["passed"]),
         "passed_with_fault_left": sorted(f"{r['benchmark']}:{r['task']}:{r['attempt']}" for r in done
-                                         if any(r[n]["passed"] for n in names if n in r) and r["footprint_left"]),
+                                         if any(v["passed"] for v in verdicts(r).values()) and r["footprint_left"]),
         "relapsed": sorted(f"{r['benchmark']}:{r['task']}:{r['attempt']}" for r in done if r["relapsed"]),
         "agent_timed_out": sum(bool(r["timed_out"]) for r in done),
     }
