@@ -79,6 +79,11 @@ class RunnerTest(unittest.TestCase):
         self.assertIn("memcache.go:265] failed", out)
         self.assertIn("10.244.1.15:80", out)
 
+    def test_scrub_removes_clock_times_with_a_zone(self):
+        text = "a restart at 07:06:35Z. State at 20:09 UTC, then 06:55Z; port 8080:80 stays"
+        self.assertEqual(run_sweep.scrub_inline(text),
+                         "a restart at <time>. State at <time>, then <time>; port 8080:80 stays")
+
     def test_scrub_value_keeps_json_valid(self):
         value = {"t": 1791527325.5, "ms": 1791527325132, "n": 3, "ok": True, "s": "at 2026-10-09",
                  "l": [1791527325, None], "06:55:58": 1}
