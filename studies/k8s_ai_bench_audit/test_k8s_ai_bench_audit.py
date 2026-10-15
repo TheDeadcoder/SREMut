@@ -11,6 +11,7 @@ sys.path[:0] = [str(HERE), str(HERE.parent / "verifier_mutation"), str(HERE.pare
 import ledger  # noqa: E402
 import probe  # noqa: E402
 import published  # noqa: E402
+import rescore  # noqa: E402
 import run_audit  # noqa: E402
 from actions import ACTIONS  # noqa: E402
 
@@ -71,6 +72,26 @@ class PublishedTest(unittest.TestCase):
 class ProbeTest(unittest.TestCase):
     def test_null_action_needs_no_cluster(self):
         self.assertEqual(probe.act("NULL", Path("tasks/create-pod"), set()), {"applied": True})
+
+
+class RescoreTest(unittest.TestCase):
+    def test_rejected_correct_solutions_move_the_ranking(self):
+        def run(model, result, message=""):
+            failures = [{"message": message}] if message else []
+            return json.dumps({"name": "create-pod", "llmConfig": {"model": model}, "result": result,
+                               "failures": failures, "error": ""})
+        lines = [run("a", "success"), run("a", "success"), run("a", "failure", "Pod is using incorrect image: nginx:latest"),
+                 run("b", "success"), run("b", "success"), run("b", "failure", "something else"),
+                 run("b", "success")]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "results.jsonl"
+            path.write_text("\n".join(lines) + "\n")
+            built = rescore.build(path)
+        self.assertEqual(built["published_ranking"], ["b", "a"])
+        self.assertEqual(built["excluded_runs"], 1)
+        self.assertEqual(built["comparisons"]["credit_correct_rejected"]["ranking"], ["a", "b"])
+        self.assertEqual(built["models"]["a"]["rates"]["without_benchmark_failures"], 1.0)
+        self.assertEqual(rescore.kendall_tau(["a", "b", "c"], ["c", "b", "a"]), -1.0)
 
 
 if __name__ == "__main__":

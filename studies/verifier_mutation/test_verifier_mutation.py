@@ -13,6 +13,7 @@ import mutation_ledger  # noqa: E402
 import mutation_probe  # noqa: E402
 import operators  # noqa: E402
 import reference  # noqa: E402
+import reference_check  # noqa: E402
 import run_mutation  # noqa: E402
 
 
@@ -75,6 +76,18 @@ class ReferenceTest(unittest.TestCase):
         no_traffic = {**HEALTHY, "traffic": None}
         self.assertIsNone(reference.judge(no_traffic, no_traffic)["function"])
         self.assertTrue(reference.judge(no_traffic, no_traffic)["healthy"])
+
+
+class ReferenceCheckTest(unittest.TestCase):
+    def test_variants_change_only_the_user_request_check(self):
+        base = {"rounds": 2, "requests": 200, "failed_rounds": 0}
+        one_failed = {"capacity": [], "routing": [], "traffic": {"rounds": 2, "requests": 200, "failed_rounds": 1}}
+        self.assertFalse(reference_check.healthy(one_failed, base, (0.5, 0)))
+        self.assertTrue(reference_check.healthy(one_failed, base, (0.5, 1)))
+        self.assertTrue(reference_check.healthy(one_failed, base, None))
+        scaled = {"capacity": ["deployments/geo"], "routing": [], "traffic": base}
+        self.assertFalse(reference_check.healthy(scaled, base, None))
+        self.assertEqual(reference_check.failing({**one_failed, "function": False}), ["user requests"])
 
 
 class ProbeTest(unittest.TestCase):
