@@ -40,6 +40,24 @@ Fixed before the first episode:
 - With the later baseline, it accepts SREGym's recovery, unless the fault or the recovery replaces a
   throttled pod: the baseline matches alerts by all their labels, including the pod name.
 
+## SREGym HEAD
+
+SREGym's HEAD (`infra/PINS.md`) captures the baseline at the same point and leaves `AlertOracle`
+unchanged, but raises the CPU limits of the `grafana` sidecar (100m to 1000m) and of the
+`load-generator` sidecar (50m to 500m) in `astronomy-shop-fixes.yaml`, citing SREGym#745. The
+same episode runs there on the 12 problems HEAD still registers (it retires
+`astronomy_shop_payment_service_unreachable`), on a cluster made by HEAD's own setup script, and is
+kept under `runs-head/` with its own `ledger-head.json`.
+
+Predictions, fixed before the first HEAD episode:
+
+- `ContainerCPUThrottling` does not fire for `grafana` or `load-generator` in any episode.
+- With the baseline captured right after deploy, the oracle accepts the healthy system in every
+  episode.
+- With that baseline, it accepts SREGym's recovery wherever the later baseline accepted it at the
+  pin, and also on `kubelet_crash` and `loadgenerator_flood_homepage`, whose recovery only
+  throttling on those two workloads rejected there.
+
 ## Running
 
 On a server provisioned with `infra/setup_server.sh`, from the repository root:
@@ -49,6 +67,21 @@ python3 studies/alert_baseline/run_alert_baseline.py --server B --pilot
 python3 studies/alert_baseline/run_alert_baseline.py --server B
 python3 studies/alert_baseline/ledger.py
 python3 studies/alert_baseline/ledger.py --check
+```
+
+On SREGym's HEAD, with a checkout in `~/SREGym-head` whose cluster was made by its own
+`kind/setup_kind_cluster.sh`:
+
+```bash
+python3 studies/alert_baseline/run_alert_baseline.py --server D --sregym ~/SREGym-head \
+  --runs studies/alert_baseline/runs-head --ids astronomy_shop_ad_service_failure \
+  astronomy_shop_ad_service_high_cpu astronomy_shop_ad_service_image_slow_load \
+  astronomy_shop_ad_service_manual_gc astronomy_shop_cart_service_failure \
+  astronomy_shop_failed_readiness_probe astronomy_shop_payment_service_failure \
+  astronomy_shop_product_catalog_service_failure kafka_queue_problems kubelet_crash \
+  loadgenerator_flood_homepage valkey_memory_disruption
+python3 studies/alert_baseline/ledger.py --runs studies/alert_baseline/runs-head \
+  --ledger studies/alert_baseline/ledger-head.json
 ```
 
 Each episode is written to `runs/<problem_id>/attempt-<n>/` (or `pilot/`): `record.json`,
