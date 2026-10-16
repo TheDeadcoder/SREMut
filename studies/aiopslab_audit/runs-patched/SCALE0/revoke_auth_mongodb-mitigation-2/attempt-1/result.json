@@ -1,0 +1,83 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/rate"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 58,
+      "rounds": 1
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      }
+    ],
+    "profile": "---------",
+    "reference": {
+      "capacity": [
+        "deployments/rate"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "rate"
+      ],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 58,
+        "rounds": 1
+      }
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "revoke_auth_mongodb-mitigation-2",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/rate"
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods -n astronomy-shop; kubectl get events -n astronomy-shop --sort-by=.lastTimestamp | tail -20",
+      "cd /tmp; kubectl get cm -n astronomy-shop | grep -i flag; kubectl get cm flagd-config -n astronomy-shop -o yaml | grep -B2 -A8 '\"defaultVariant\"' | grep -E 'defaultVariant|^\\s+\"[a-zA-Z]+\": \\{' | head -60; kubectl logs -n astronomy-shop deploy/ad --previous --tail=20",
+      "cd /tmp; kubectl get cm flagd-config -n astronomy-shop -o json | python3 -I -c '\nimport json,sys\ncm=json.load(sys.stdin)\nk=list(cm[\"data\"])[0]\nd=json.loads(cm[\"data\"][k])\nprint(k,d[\"flags\"][\"kafkaQueueProblems\"][\"variants\"])\nd[\"flags\"][\"kafkaQueueProblems\"][\"defaultVariant\"]=\"off\"\ncm[\"data\"][k]=json.dumps(d,indent=2)\njson.dump(cm,open(\"/tmp/cm.json\",\"w\"))'\nkubectl apply -f /tmp/cm.json && kubectl rollout restart deploy/flagd -n astronomy-shop",
+      "cd /tmp; kubectl get cm flagd-config -n astronomy-shop -o yaml | grep -n -A12 '\"kafkaQueueProblems\"'",
+      "cd /tmp; kubectl get cm flagd-config -n astronomy-shop -o yaml > /tmp/cm.yaml; sed -i '122s/\"on\"/\"off\"/' /tmp/cm.yaml; kubectl apply -f /tmp/cm.yaml && kubectl rollout restart deploy/flagd -n astronomy-shop; kubectl get cm flagd-config -n astronomy-shop -o yaml | sed -n 121,123p"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 17,
+    "summary": "The anomaly was a feature flag, `kafkaQueueProblems`, set to `on` in the `flagd-config` ConfigMap. That flag overloads the Kafka queue and adds a consumer-side delay, which causes a lag spike. I did not check Kafka lag or the checkout path afterwards, so I haven't confirmed the lag has cleared.\n\nI changed its `defaultVariant` to `off`, applied the ConfigMap, and restarted the `flagd` deployment so it picks up the change. I confirmed the ConfigMap now shows `off`. I did not check that the new `flagd` pod came up cleanly.\n\nAll other flags were already `off`. Pods had only just started when I looked. The `ad` pod had restarted once, and its logs didn't show a clear cause. I didn't investigate it further.\n\n`kubectl apply` warned that the ConfigMap lacked the last-applied annotation and patched it automatically. That is harmless.",
+    "timed_out": false,
+    "turns": 6,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 6261,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 6261,
+      "cache_read_input_tokens": 41621,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 12,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 433,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 433,
+          "cache_read_input_tokens": 9361,
+          "input_tokens": 2,
+          "output_tokens": 313,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1239,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup_errors": [],
+  "footprint_left": [
+    "configmaps/flagd-config"
+  ],
+  "healthy": {
+    "fixed": {
+      "success": true
+    },
+    "original": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "model": "claude-sonnet-5-5",
+  "problem_id": "astronomy_shop_kafka_queue_problems-mitigation-1",
+  "reference": {
+    "capacity": [],
+    "function": true,
+    "healthy": true,
+    "routing": [],
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "verdicts": {
+    "fixed": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": false
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "+-++++++"
+    },
+    "original": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    }
+  }
+}

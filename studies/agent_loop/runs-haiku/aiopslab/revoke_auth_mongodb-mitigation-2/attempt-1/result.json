@@ -1,0 +1,833 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods,deploy,svc -n test-hotel-reservation -o wide 2>&1 | head -100",
+      "kubectl get events -n test-hotel-reservation --sort-by=.lastTimestamp 2>&1 | tail -50",
+      "kubectl logs -n test-hotel-reservation deploy/rate --previous 2>&1 | tail -40; echo ---; kubectl logs -n test-hotel-reservation deploy/rate 2>&1 | tail -40; echo ---; kubectl describe pod -n test-hotel-reservation -l io.kompose.service=rate 2>&1 | tail -40",
+      "kubectl get deploy rate -n test-hotel-reservation -o yaml 2>&1; echo ---; kubectl get deploy memcached-rate -n test-hotel-reservation -o yaml 2>&1",
+      "kubectl get deploy mongodb-rate -n test-hotel-reservation -o yaml 2>&1 | sed -n '/spec:/,$p' | head -80; echo ---; kubectl get deploy mongodb-profile profile -n test-hotel-reservation -o jsonpath='{range .items[*]}{.metadata.name}{\"\\n\"}{.spec.template.spec.containers[*].env}{\"\\n\"}{.spec.template.spec.containers[*].command}{\"\\n\"}{end}' 2>&1; echo ---; kubectl get deploy mongodb-rate -n test-hotel-reservation -o jsonpath='{.spec.template.spec.containers[0].command} {.spec.template.spec.containers[0].args} {.spec.template.spec.containers[0].env}' 2>&1; echo; echo ---; kubectl get secrets,configmaps -n test-hotel-reservation 2>&1",
+      "kubectl get configmap mongo-rate-script failure-admin-rate -n test-hotel-reservation -o yaml 2>&1",
+      "kubectl get jobs,cronjobs -n test-hotel-reservation 2>&1; echo ---; POD=$(kubectl get pod -n test-hotel-reservation -l io.kompose.service=mongodb-rate -o jsonpath='{.items[0].metadata.name}'); echo $POD; kubectl exec -n test-hotel-reservation $POD -- mongo admin -u admin -p admin --authenticationDatabase admin --quiet --eval \"printjson(db.getUser('admin'))\" 2>&1 | head -40; echo ---; kubectl exec -n test-hotel-reservation $POD -- mongo admin -u root -p root --authenticationDatabase admin --quiet --eval \"printjson(db.getUser('root'))\" 2>&1 | head -40",
+      "POD=$(kubectl get pod -n test-hotel-reservation -l io.kompose.service=mongodb-rate -o jsonpath='{.items[0].metadata.name}'); kubectl exec -n test-hotel-reservation $POD -- mongo admin -u root -p root --authenticationDatabase admin --quiet --eval \"db.grantRolesToUser('admin', [{role: 'readWrite', db: 'rate-db'}]); printjson(db.getUser('admin').roles)\" 2>&1",
+      "kubectl delete pod -n test-hotel-reservation -l io.kompose.service=rate --wait=false 2>&1; kubectl rollout status deploy/rate -n test-hotel-reservation --timeout=180s 2>&1; kubectl get pods -n test-hotel-reservation -l io.kompose.service=rate 2>&1; kubectl logs -n test-hotel-reservation deploy/rate 2>&1 | tail -8",
+      "kubectl logs -n test-hotel-reservation deploy/rate 2>&1 | grep -Ei \"FTL|not authorized|error\" | head; echo \"errors-count: $(kubectl logs -n test-hotel-reservation deploy/rate 2>&1 | grep -Eci 'FTL|not authorized')\"; kubectl get pods -n test-hotel-reservation --no-headers 2>&1 | awk '{print $1, $2, $3}'"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-haiku-5-5",
+    "seconds": 29,
+    "summary": "The `rate` service was crash-looping, and it's now running and Ready. All 19 pods in `test-hotel-reservation` are Running and Ready.\n\n**What I found**\n- The `rate` pod exited on startup with `not authorized on rate-db`.\n- The `admin` user on `mongodb-rate` had lost its `readWrite` role on `rate-db`. It only kept `userAdminAnyDatabase`. The `root` user still had its grant.\n- The namespace has a `failure-admin-rate` ConfigMap containing a `revoke-admin-rate-mongo.sh` script that removes exactly that grant, and a matching restore script. I found no Job or CronJob that would re-run the revoke, so the fault was a one-time change.\n\n**What I changed**\n- Granted `admin` the `readWrite` role on `rate-db` on `mongodb-rate`, using the same command as the restore script, run as `root`. This restores the role the service depends on and is not a new privilege.\n- Deleted the crash-looping `rate` pod so the replacement started fresh. The new pod connected to the database, registered with Consul, and logged no authorization errors.\n\n**Not done**\n- I didn't change the ConfigMaps or the MongoDB deployment. The revoke script and the `failure-admin-rate` ConfigMap are still there, so if something re-runs the revoke, the outage will come back. I'd suggest finding out what applied it.\n- The `admin` and `root` passwords are still the defaults (`admin`/`root`) in the ConfigMaps. That's a separate security issue.",
+    "timed_out": false,
+    "turns": 11,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 20899,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 20899,
+      "cache_read_input_tokens": 155004,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 18,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 876,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 876,
+          "cache_read_input_tokens": 25254,
+          "input_tokens": 2,
+          "output_tokens": 518,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4226,
+      "output_tokens_details": {
+        "thinking_tokens": 930
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "captures": {
+    "final": {
+      "services": {
+        "consul": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8300,
+              "8300",
+              "TCP"
+            ],
+            [
+              8400,
+              "8400",
+              "TCP"
+            ],
+            [
+              8500,
+              "8500",
+              "TCP"
+            ],
+            [
+              8600,
+              "53",
+              "UDP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "consul"
+          }
+        },
+        "frontend": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5000,
+              "5000",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "frontend"
+          }
+        },
+        "geo": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8083,
+              "8083",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "geo"
+          }
+        },
+        "jaeger": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5775,
+              "5775",
+              "UDP"
+            ],
+            [
+              5778,
+              "5778",
+              "TCP"
+            ],
+            [
+              6831,
+              "6831",
+              "UDP"
+            ],
+            [
+              6832,
+              "6832",
+              "UDP"
+            ],
+            [
+              14267,
+              "14267",
+              "TCP"
+            ],
+            [
+              14268,
+              "14268",
+              "TCP"
+            ],
+            [
+              14269,
+              "14269",
+              "TCP"
+            ],
+            [
+              16686,
+              "16686",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "jaeger"
+          }
+        },
+        "jaeger-out": {
+          "endpoints": 1,
+          "ports": [
+            [
+              16686,
+              "16686",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "jaeger"
+          }
+        },
+        "memcached-profile": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "memcached-profile"
+          }
+        },
+        "memcached-rate": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "memcached-rate"
+          }
+        },
+        "memcached-reserve": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "memcached-reserve"
+          }
+        },
+        "mongodb-geo": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-geo"
+          }
+        },
+        "mongodb-profile": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-profile"
+          }
+        },
+        "mongodb-rate": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-rate"
+          }
+        },
+        "mongodb-recommendation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-recommendation"
+          }
+        },
+        "mongodb-reservation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-reservation"
+          }
+        },
+        "mongodb-user": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-user"
+          }
+        },
+        "profile": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8081,
+              "8081",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "profile"
+          }
+        },
+        "rate": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8084,
+              "8084",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "rate"
+          }
+        },
+        "recommendation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8085,
+              "8085",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "recommendation"
+          }
+        },
+        "reservation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8087,
+              "8087",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "reservation"
+          }
+        },
+        "search": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8082,
+              "8082",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "search"
+          }
+        },
+        "user": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8086,
+              "8086",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "user"
+          }
+        }
+      },
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 58,
+        "rounds": 1
+      },
+      "workloads": {
+        "deployments/consul": 1,
+        "deployments/frontend": 1,
+        "deployments/geo": 1,
+        "deployments/jaeger": 1,
+        "deployments/memcached-profile": 1,
+        "deployments/memcached-rate": 1,
+        "deployments/memcached-reserve": 1,
+        "deployments/mongodb-geo": 1,
+        "deployments/mongodb-profile": 1,
+        "deployments/mongodb-rate": 1,
+        "deployments/mongodb-recommendation": 1,
+        "deployments/mongodb-reservation": 1,
+        "deployments/mongodb-user": 1,
+        "deployments/profile": 1,
+        "deployments/rate": 1,
+        "deployments/recommendation": 1,
+        "deployments/reservation": 1,
+        "deployments/search": 1,
+        "deployments/user": 1
+      }
+    },
+    "healthy": {
+      "services": {
+        "consul": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8300,
+              "8300",
+              "TCP"
+            ],
+            [
+              8400,
+              "8400",
+              "TCP"
+            ],
+            [
+              8500,
+              "8500",
+              "TCP"
+            ],
+            [
+              8600,
+              "53",
+              "UDP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "consul"
+          }
+        },
+        "frontend": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5000,
+              "5000",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "frontend"
+          }
+        },
+        "geo": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8083,
+              "8083",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "geo"
+          }
+        },
+        "jaeger": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5775,
+              "5775",
+              "UDP"
+            ],
+            [
+              5778,
+              "5778",
+              "TCP"
+            ],
+            [
+              6831,
+              "6831",
+              "UDP"
+            ],
+            [
+              6832,
+              "6832",
+              "UDP"
+            ],
+            [
+              14267,
+              "14267",
+              "TCP"
+            ],
+            [
+              14268,
+              "14268",
+              "TCP"
+            ],
+            [
+              14269,
+              "14269",
+              "TCP"
+            ],
+            [
+              16686,
+              "16686",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "jaeger"
+          }
+        },
+        "jaeger-out": {
+          "endpoints": 1,
+          "ports": [
+            [
+              16686,
+              "16686",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "jaeger"
+          }
+        },
+        "memcached-profile": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "memcached-profile"
+          }
+        },
+        "memcached-rate": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "memcached-rate"
+          }
+        },
+        "memcached-reserve": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "memcached-reserve"
+          }
+        },
+        "mongodb-geo": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-geo"
+          }
+        },
+        "mongodb-profile": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-profile"
+          }
+        },
+        "mongodb-rate": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-rate"
+          }
+        },
+        "mongodb-recommendation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-recommendation"
+          }
+        },
+        "mongodb-reservation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-reservation"
+          }
+        },
+        "mongodb-user": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "mongodb-user"
+          }
+        },
+        "profile": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8081,
+              "8081",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "profile"
+          }
+        },
+        "rate": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8084,
+              "8084",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "rate"
+          }
+        },
+        "recommendation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8085,
+              "8085",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "recommendation"
+          }
+        },
+        "reservation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8087,
+              "8087",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "reservation"
+          }
+        },
+        "search": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8082,
+              "8082",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "search"
+          }
+        },
+        "user": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8086,
+              "8086",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "io.kompose.service": "user"
+          }
+        }
+      },
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 58,
+        "rounds": 1
+      },
+      "workloads": {
+        "deployments/consul": 1,
+        "deployments/frontend": 1,
+        "deployments/geo": 1,
+        "deployments/jaeger": 1,
+        "deployments/memcached-profile": 1,
+        "deployments/memcached-rate": 1,
+        "deployments/memcached-reserve": 1,
+        "deployments/mongodb-geo": 1,
+        "deployments/mongodb-profile": 1,
+        "deployments/mongodb-rate": 1,
+        "deployments/mongodb-recommendation": 1,
+        "deployments/mongodb-reservation": 1,
+        "deployments/mongodb-user": 1,
+        "deployments/profile": 1,
+        "deployments/rate": 1,
+        "deployments/recommendation": 1,
+        "deployments/reservation": 1,
+        "deployments/search": 1,
+        "deployments/user": 1
+      }
+    }
+  },
+  "cleanup_errors": [],
+  "footprint_left": [],
+  "healthy": {
+    "fixed": {
+      "success": true
+    },
+    "original": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 58,
+      "rounds": 1
+    }
+  },
+  "model": "claude-haiku-5-5",
+  "problem_id": "revoke_auth_mongodb-mitigation-2",
+  "reference": {
+    "capacity": [],
+    "function": true,
+    "healthy": true,
+    "routing": [],
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 58,
+      "rounds": 1
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "verdicts": {
+    "fixed": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    },
+    "original": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    }
+  }
+}

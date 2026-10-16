@@ -1,0 +1,77 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/geo"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 0,
+      "rounds": 0
+    }
+  },
+  "mutant": {
+    "footprint_left": [],
+    "oracle_window": [
+      {
+        "success": false
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "-++++++",
+    "reference": {
+      "capacity": [
+        "deployments/geo"
+      ],
+      "function": null,
+      "healthy": false,
+      "routing": [
+        "geo"
+      ],
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 0,
+        "rounds": 0
+      }
+    },
+    "verdict": false
+  },
+  "operator": "SCALE0",
+  "problem_id": "revoke_auth_mongodb-mitigation-1",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/geo"
+  ]
+}

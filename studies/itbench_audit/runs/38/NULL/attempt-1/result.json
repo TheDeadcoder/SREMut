@@ -1,0 +1,417 @@
+{
+  "action": "NULL",
+  "action_result": {
+    "applied": true
+  },
+  "alert_absent": false,
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "changed: [localhost] => (item=deployment/email)\nchanged: [localhost] => (item=deployment/flagd)\nchanged: [localhost] => (item=deployment/fraud-detection)\nchanged: [localhost] => (item=deployment/frontend)\nchanged: [localhost] => (item=deployment/frontend-proxy)\nchanged: [localhost] => (item=deployment/image-provider)\nchanged: [localhost] => (item=deployment/kafka)\nchanged: [localhost] => (item=deployment/mcp)\nchanged: [localhost] => (item=deployment/opamp-server)\nchanged: [localhost] => (item=deployment/otel-collector)\nchanged: [localhost] => (item=deployment/payment)\nchanged: [localhost] => (item=deployment/product-catalog)\nchanged: [localhost] => (item=deployment/quote)\nchanged: [localhost] => (item=deployment/recommendation)\nchanged: [localhost] => (item=deployment/shipping)\nchanged: [localhost] => (item=deployment/telemetry-docs)\nchanged: [localhost] => (item=deployment/valkey-cart)\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=41   changed=5    unreachable=0    failed=0    skipped=34   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "detect": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 91,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 121,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 151,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/agent"
+      ]
+    },
+    {
+      "after": 182,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/agent"
+      ]
+    },
+    {
+      "after": 212,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/agent"
+      ]
+    },
+    {
+      "after": 242,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/agent"
+      ]
+    },
+    {
+      "after": 272,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/agent",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    }
+  ],
+  "detected": true,
+  "evaluation": [
+    {
+      "after": 0,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/agent",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 121,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 151,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 181,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/ad",
+        "HighRequestErrorRate/agent",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 212,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 242,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv"
+      ]
+    },
+    {
+      "after": 272,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 302,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 332,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 362,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 392,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 422,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 452,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 483,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestErrorRate/fraud-detection",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 513,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/fraud-detection",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 543,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/fraud-detection",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 573,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/fraud-detection",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 603,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighKafkaConsumerLag/otel-collector-847fb8fc48-6q85b",
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-5mphv",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/fraud-detection",
+        "NoRequestsReceived/mcp"
+      ]
+    }
+  ],
+  "ground_truth": [
+    "KubeHpaMaxedOut"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 0,
+      "tail": "TASK [faults : Retrieve container from image-provider] *************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes workload container environmental variable not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Retrieve port from image-provider] ******************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes service port not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Update autoscaler metrics] **************************************\nchanged: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nTASK [waiters : Include wait tasks] ********************************************\nskipping: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=30   changed=3    unreachable=0    failed=0    skipped=34   rescued=0    ignored=0   \n"
+    }
+  ],
+  "reference": {
+    "capacity": [],
+    "function": null,
+    "healthy": true,
+    "routing": [],
+    "traffic": null
+  },
+  "scenario": 38,
+  "status": "COMPLETED"
+}
