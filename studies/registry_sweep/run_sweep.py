@@ -33,9 +33,9 @@ TIME_PATTERNS = [re.compile(p) for p in (
     r"\d{1,2}/" + MONTH + r"/\d{4}:" + CLOCK + r"(?: [+-]\d{4})?",
     r"\b[IWEF]\d{4} " + CLOCK,
     r"\b1[6-9]\d{8}(?:\d{3})?(?:\.\d+)?\b",
-    r"\b" + CLOCK + r"Z?\b",
-    r"\b\d{1,2}:\d{2}(?:Z| ?(?:UTC|GMT))\b",
-    r"\b(?:\d{4}[-/]\d{2}[-/]\d{2}|\d{2}/\d{2}/\d{2,4})\b",
+    r"(?<![\d:.])" + CLOCK + r"Z?(?![\d:])",
+    r"(?<![\d:.])\d{1,2}:\d{2}(?:Z| ?(?:UTC|GMT))\b",
+    r"(?<![\d/.-])(?:\d{4}[-/]\d{2}[-/]\d{2}|\d{2}/\d{2}/\d{2,4})(?![\d/])",
 )]
 EPOCH_RANGES = ((1.6e9, 2e9), (1.6e12, 2e12))
 DEPLOYED = re.compile(r"(LAST DEPLOYED:).*")
