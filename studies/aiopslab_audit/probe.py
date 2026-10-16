@@ -97,6 +97,8 @@ def run(problem_id, operator):
             setup_infrastructure(KubeCtl(), Prometheus)
         problem.app.delete()
         problem.app.deploy()
+        if hasattr(problem, "record_deployed_workloads"):
+            problem.record_deployed_workloads()
         oracle, namespace, wrk = EvalOracle(problem), problem.namespace, OneShotWorkload(problem)
         healthy_state = snapshot(namespace)
         healthy = reference.capture(namespace, wrk)
