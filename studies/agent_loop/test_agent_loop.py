@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent / "registry_sweep")]
 
 import agent  # noqa: E402
+import codex_agent  # noqa: E402
 import ledger  # noqa: E402
 
 def fresh(module):
@@ -27,6 +28,52 @@ STREAM = [
     {"type": "assistant", "message": {"content": [{"type": "text", "text": "Rolling back."}]}},
     {"type": "result", "num_turns": 4, "is_error": False, "usage": {"output_tokens": 10}, "result": "Fixed it."},
 ]
+
+CODEX_EVENTS = [
+    {"type": "thread.started", "thread_id": "t"},
+    {"type": "turn.started"},
+    {"type": "item.started", "item": {"id": "item_1", "type": "command_execution",
+                                      "command": "bash -lc 'kubectl get pods -A'", "status": "in_progress"}},
+    {"type": "item.completed", "item": {"id": "item_1", "type": "command_execution",
+                                        "command": "bash -lc 'kubectl get pods -A'", "exit_code": 0}},
+    {"type": "item.completed", "item": {"id": "item_2", "type": "agent_message", "text": "Fixed it."}},
+    {"type": "turn.completed", "usage": {"input_tokens": 10, "output_tokens": 2}},
+]
+
+
+class CodexTest(unittest.TestCase):
+    def test_summarize_reads_each_command_once_and_the_last_message(self):
+        out = codex_agent.summarize([json.dumps(e) for e in CODEX_EVENTS] + ["not json"])
+        self.assertEqual(out["commands"], ["kubectl get pods -A"])
+        self.assertEqual((out["summary"], out["turns"], out["is_error"], out["limit_reached"]),
+                         ("Fixed it.", 1, False, False))
+        self.assertEqual(out["usage"], {"input_tokens": 10, "output_tokens": 2})
+
+    def test_usage_limit(self):
+        lines = [json.dumps({"type": "turn.started"}),
+                 json.dumps({"type": "error", "message": "You\u2019ve hit your usage limit. Try again later."}),
+                 json.dumps({"type": "turn.failed", "error": {"message": "You\u2019ve hit your usage limit."}})]
+        out = codex_agent.summarize(lines)
+        self.assertTrue(out["is_error"] and out["limit_reached"])
+
+    def test_model_selects_codex_and_its_image(self):
+        self.assertTrue(codex_agent.serves("gpt-6.1-sol"))
+        self.assertFalse(codex_agent.serves(agent.MODEL))
+        self.assertEqual(codex_agent.image("sremut-agent:k8s-1.37"), "sremut-codex:k8s-1.37")
+        cmd = codex_agent.command("mitigate", "sremut-codex:k8s-1.32", "n", Path("/h"), "/k")
+        self.assertEqual([cmd[i + 1] for i, arg in enumerate(cmd) if arg == "-v"], ["/k:/kube/config:ro", "/h:/codex"])
+        self.assertIn("--dangerously-bypass-approvals-and-sandbox", cmd)
+        self.assertEqual(cmd[-1], "mitigate")
+
+    def test_home_turns_off_web_search_and_keeps_a_refreshed_sign_in(self):
+        with tempfile.TemporaryDirectory() as store, unittest.mock.patch.object(codex_agent, "STORE", Path(store)):
+            (Path(store) / "auth.json").write_text("{}")
+            home = codex_agent.new_home()
+            self.assertIn('web_search = "disabled"', (home / "config.toml").read_text())
+            (home / "auth.json").write_text('{"refreshed": 1}')
+            codex_agent.keep_sign_in(home)
+            self.assertEqual((Path(store) / "auth.json").read_text(), '{"refreshed": 1}')
+            self.assertFalse(home.exists())
 
 
 class AgentTest(unittest.TestCase):

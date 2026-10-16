@@ -50,9 +50,10 @@ cluster, on a separate host.
 
 ## Agent study
 
-`setup_agent.sh` installs Claude Code for the run user and builds the agent images, which run Claude Code with the
-kubectl of each benchmark's cluster. The agent authenticates with a Claude plan token in `~/.claude-agent.env`
-(`CLAUDE_CODE_OAUTH_TOKEN=...`); no API key is set.
+`setup_agent.sh` installs Claude Code and Codex for the run user and builds the agent images, which run each agent
+with the kubectl of each benchmark's cluster. Claude Code authenticates with a Claude plan token in
+`~/.claude-agent.env` (`CLAUDE_CODE_OAUTH_TOKEN=...`), and Codex with a ChatGPT plan sign-in kept in `~/.codex-agent`
+(`codex login --device-auth`); no API key is set.
 
 | Component | Version |
 |---|---|
@@ -60,6 +61,8 @@ kubectl of each benchmark's cluster. The agent authenticates with a Claude plan 
 | Claude Code | 2.1.296 |
 | Model | `claude-sonnet-5-5` |
 | Second agent model | `claude-haiku-5-5` |
+| Codex CLI | 0.163.0 |
+| Third agent model | `gpt-6.1-sol` (Codex, web search off) |
 | Agent image base | `node:22.23.3-bookworm-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392` |
-| kubectl in the agent images | v1.32.1 (`sremut-agent:k8s-1.32`, AIOpsLab and SREGym), v1.37.0 (`sremut-agent:k8s-1.37`, ITBench) |
+| kubectl in the agent images | v1.32.1 (`sremut-agent:k8s-1.32`, AIOpsLab and SREGym), v1.37.0 (`sremut-agent:k8s-1.37`, ITBench); the same in `sremut-codex` |
 | AIOpsLab with the proposed fix | `ccf08d0` with `studies/aiopslab_audit/workload_check.patch`, in a second checkout |
