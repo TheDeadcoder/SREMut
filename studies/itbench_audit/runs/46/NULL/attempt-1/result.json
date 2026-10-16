@@ -1,0 +1,57 @@
+{
+  "action": "NULL",
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "skipping: [localhost] => (item=deployment/flagd) \nskipping: [localhost] => (item=deployment/fraud-detection) \nskipping: [localhost] => (item=deployment/frontend) \nskipping: [localhost] => (item=deployment/frontend-proxy) \nskipping: [localhost] => (item=deployment/image-provider) \nskipping: [localhost] => (item=deployment/kafka) \nskipping: [localhost] => (item=deployment/mcp) \nskipping: [localhost] => (item=deployment/opamp-server) \nskipping: [localhost] => (item=deployment/otel-collector) \nskipping: [localhost] => (item=deployment/payment) \nskipping: [localhost] => (item=deployment/product-catalog) \nskipping: [localhost] => (item=deployment/quote) \nskipping: [localhost] => (item=deployment/recommendation) \nskipping: [localhost] => (item=deployment/shipping) \nskipping: [localhost] => (item=deployment/telemetry-docs) \nskipping: [localhost] => (item=deployment/valkey-cart) \nskipping: [localhost]\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=40   changed=4    unreachable=0    failed=0    skipped=35   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "ground_truth": [
+    "KubePodCrashLooping"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [
+        "KubePodCrashLooping"
+      ],
+      "in_namespace": [
+        "KubePodCrashLooping/valkey-cart-66fcb8fc9f-c4vk2"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [
+        "KubePodCrashLooping"
+      ],
+      "in_namespace": [
+        "KubePodCrashLooping/valkey-cart-66fcb8fc9f-c4vk2"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [
+        "KubePodCrashLooping"
+      ],
+      "in_namespace": [
+        "KubePodCrashLooping/valkey-cart-66fcb8fc9f-c4vk2"
+      ]
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 2,
+      "tail": "24         - faults_args_kubernetes_object.resources | ansible.builtin.length != 1\n25\n26     - name: Extract object information from output\n         ^ column 7\n\n<<< caused by >>>\n\nFinalization of task args for 'ansible.builtin.set_fact' failed.\nOrigin: /home/runner/ITBench/scenarios/sre/project/roles/faults/tasks/validate_fault_arguments.yaml:27:7\n\n25\n26     - name: Extract object information from output\n27       ansible.builtin.set_fact:\n         ^ column 7\n\n<<< caused by >>>\n\nError while resolving value for 'faults_kubernetes_object': No first item, sequence was empty.\nOrigin: /home/runner/ITBench/scenarios/sre/project/roles/faults/tasks/validate_fault_arguments.yaml:28:35\n\n26     - name: Extract object information from output\n27       ansible.builtin.set_fact:\n28         faults_kubernetes_object: \"{{ faults_args_kubernetes_object.resources | ansible.builtin.first }}\"\n                                     ^ column 35\n\nfatal: [localhost]: FAILED! => {\"changed\": false, \"msg\": \"Task failed: Finalization of task args for 'ansible.builtin.set_fact' failed: Error while resolving value for 'faults_kubernetes_object': No first item, sequence was empty.\"}\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=17   changed=0    unreachable=0    failed=1    skipped=4    rescued=0    ignored=0   \n"
+    }
+  ],
+  "scenario": 46,
+  "status": "INJECT_FAILED"
+}

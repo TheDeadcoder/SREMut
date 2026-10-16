@@ -1,0 +1,341 @@
+{
+  "agent": {
+    "alerts_given": "- HighRequestErrorRate (frontend-proxy)",
+    "commands": [
+      "kubectl -n otel-demo get pods; kubectl -n otel-demo logs deploy/frontend-proxy --tail=30",
+      "cd /tmp; kubectl -n otel-demo get deploy frontend -o yaml | grep -v '^\\s*f:' | head -90; kubectl -n otel-demo logs deploy/frontend --tail=20; kubectl -n otel-demo get svc frontend; kubectl -n otel-demo get endpoints frontend",
+      "kubectl -n otel-demo get svc | head -40; kubectl -n kube-system get pods; kubectl -n otel-demo get networkpolicy; kubectl -n otel-demo rollout history deploy/frontend; kubectl -n otel-demo get deploy frontend -o jsonpath='{.spec.template.spec.dnsPolicy}{\"\\n\"}{.spec.template.spec.dnsConfig}{\"\\n\"}'",
+      "cd /tmp; kubectl -n otel-demo get deploy frontend -o jsonpath='{.spec.template.spec}' | python3 -c \"import sys,json;d=json.load(sys.stdin);d['containers'][0].pop('env');print(json.dumps(d,indent=1))\"; kubectl -n otel-demo get pod -l opentelemetry.io/name=frontend -o jsonpath='{.items[0].spec.dnsPolicy}'; kubectl -n kube-system get cm coredns -o yaml | head -40",
+      "kubectl -n otel-demo patch deploy frontend --type=json -p '[{\"op\":\"replace\",\"path\":\"/spec/template/spec/dnsPolicy\",\"value\":\"ClusterFirst\"}]'; kubectl -n otel-demo rollout status deploy/frontend --timeout=120s; sleep 20; kubectl -n otel-demo logs deploy/frontend --tail=5 | cut -c1-200; kubectl -n otel-demo logs deploy/frontend-proxy --tail=5 | cut -c1-200",
+      "kubectl -n otel-demo logs deploy/frontend --tail=200 | grep -c '\"level\":50'; kubectl -n otel-demo logs deploy/frontend --tail=5 | grep -o 'status_code\":[0-9]*'"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.37",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 42,
+    "summary": "The incident is mitigated. The new frontend pod is serving HTTP 200s and logging no errors.\n\n**Cause:** The `frontend` deployment's latest revision (revision 2, rolled out about 3 minutes after the stack came up) had `dnsPolicy: Default` on its pod spec. That makes the pod use the node's DNS instead of CoreDNS, so it couldn't resolve cluster service names. Its logs showed `14 UNAVAILABLE: Name resolution failed for target dns:cart:8080`, and the same for `product-catalog`. Every call from the frontend to its backends failed with a 500, which `frontend-proxy` passed on and which triggered the HighRequestErrorRate alert. CoreDNS, the services and their endpoints were all healthy.\n\n**Change:** I patched `deploy/frontend` to set `dnsPolicy: ClusterFirst`. The rollout completed, and the new pod's recent logs showed no errors.\n\n**Follow-up:** The deployment is managed by Helm, and I changed it directly. The Helm values or chart that set `dnsPolicy: Default` need correcting. Otherwise the next `helm upgrade` will bring the problem back.",
+    "timed_out": false,
+    "turns": 7,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 10908,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 10908,
+      "cache_read_input_tokens": 65910,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 14,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 188,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 188,
+          "cache_read_input_tokens": 14253,
+          "input_tokens": 2,
+          "output_tokens": 400,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1601,
+      "output_tokens_details": {
+        "thinking_tokens": 132
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "skipping: [localhost] => (item=deployment/flagd) \nskipping: [localhost] => (item=deployment/fraud-detection) \nskipping: [localhost] => (item=deployment/frontend) \nskipping: [localhost] => (item=deployment/frontend-proxy) \nskipping: [localhost] => (item=deployment/image-provider) \nskipping: [localhost] => (item=deployment/kafka) \nskipping: [localhost] => (item=deployment/mcp) \nskipping: [localhost] => (item=deployment/opamp-server) \nskipping: [localhost] => (item=deployment/otel-collector) \nskipping: [localhost] => (item=deployment/payment) \nskipping: [localhost] => (item=deployment/product-catalog) \nskipping: [localhost] => (item=deployment/quote) \nskipping: [localhost] => (item=deployment/recommendation) \nskipping: [localhost] => (item=deployment/shipping) \nskipping: [localhost] => (item=deployment/telemetry-docs) \nskipping: [localhost] => (item=deployment/valkey-cart) \nskipping: [localhost]\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=40   changed=4    unreachable=0    failed=0    skipped=35   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "detect": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend-proxy"
+      ]
+    }
+  ],
+  "detected": true,
+  "evaluation": [
+    {
+      "after": 0,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend-proxy"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend-proxy"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend-proxy"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend-proxy"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 210,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 391,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 421,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 451,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 481,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 511,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 541,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 571,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 601,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    }
+  ],
+  "ground_truth": [
+    "HighRequestErrorRate"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": []
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 0,
+      "tail": "TASK [faults : Fail playbook due to `kubernetes workload container environmental variable not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Retrieve port from frontend] ************************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes service port not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Update workload dns policy] *************************************\nchanged: [localhost]\n\nTASK [faults : Wait for workload to update] ************************************\nok: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nTASK [waiters : Include wait tasks] ********************************************\nskipping: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=21   changed=1    unreachable=0    failed=0    skipped=14   rescued=0    ignored=0   \n"
+    }
+  ],
+  "model": "claude-sonnet-5-5",
+  "reference": {
+    "capacity": [],
+    "function": null,
+    "healthy": true,
+    "routing": [],
+    "traffic": null
+  },
+  "scenario": 43,
+  "status": "COMPLETED",
+  "verdicts": {
+    "alert_absent": {
+      "passed": true,
+      "profile": "----+++++++++++++++++",
+      "relapsed": false
+    }
+  }
+}

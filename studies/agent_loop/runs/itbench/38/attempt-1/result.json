@@ -1,0 +1,397 @@
+{
+  "agent": {
+    "alerts_given": "- HighRequestLatency (accounting)\n- KubeHpaMaxedOut (prometheus-kube-state-metrics-66c87dfc4b-md2ts)",
+    "commands": [
+      "kubectl -n otel-demo get pods,hpa 2>&1 | head -60",
+      "kubectl get hpa -A; kubectl -n otel-demo logs deploy/accounting --tail=30; kubectl -n otel-demo get deploy accounting -o yaml | grep -A30 'env:'",
+      "cd /tmp; kubectl -n otel-demo get deploy kafka fraud-detection ad -o custom-columns=N:.metadata.name,R:.spec.replicas,REQ:.spec.template.spec.containers[0].resources; kubectl -n otel-demo describe pod kafka-7bcb7cbd97-6xvqw | grep -A8 'Last State'; kubectl -n otel-demo get cm -o name | grep -i flag; kubectl -n otel-demo get events --sort-by=.lastTimestamp | tail -15; kubectl -n otel-demo get hpa kafka fraud-detection -o yaml | grep -B3 -A12 'metrics:'",
+      "cd /tmp; kubectl -n otel-demo logs kafka-7bcb7cbd97-6xvqw --previous --tail=15 | cut -c1-300; kubectl -n otel-demo get cm flagd-config -o yaml | grep -B2 -A8 '\"defaultVariant\": \"on\"'; kubectl -n otel-demo get deploy kafka -o jsonpath='{.spec.template.spec.containers[0].env}'; kubectl -n otel-demo get hpa kafka -o jsonpath='{.metadata.annotations}{.metadata.managedFields[*].manager}'",
+      "cd /tmp; kubectl -n otel-demo patch hpa kafka --type merge -p '{\"spec\":{\"maxReplicas\":1}}'; kubectl -n otel-demo scale deploy kafka --replicas=1; kubectl -n otel-demo patch hpa fraud-detection --type merge -p '{\"spec\":{\"metrics\":[{\"type\":\"Resource\",\"resource\":{\"name\":\"memory\",\"target\":{\"type\":\"Utilization\",\"averageUtilization\":80}}}]}}'; kubectl -n otel-demo patch hpa frontend --type merge -p '{\"spec\":{\"metrics\":[{\"type\":\"Resource\",\"resource\":{\"name\":\"memory\",\"target\":{\"type\":\"Utilization\",\"averageUtilization\":80}}}]}}'; sleep 60; kubectl -n otel-demo get hpa | awk '$6>1'; kubectl -n otel-demo get pods | grep -E 'kafka|accounting'",
+      "cd /tmp; for h in ad fraud-detection; do kubectl -n otel-demo patch hpa $h --type merge -p '{\"spec\":{\"metrics\":[{\"type\":\"Resource\",\"resource\":{\"name\":\"memory\",\"target\":{\"type\":\"Utilization\",\"averageUtilization\":180}}}],\"maxReplicas\":3}}'; kubectl -n otel-demo scale deploy $h --replicas=1; done; sleep 45; kubectl -n otel-demo get hpa ad fraud-detection kafka; kubectl -n otel-demo get pods | grep -E 'kafka|accounting|fraud|^ad'; kubectl -n otel-demo logs deploy/accounting --tail=3 | cut -c1-150"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.37",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 139,
+    "summary": "t scale. I mitigated it, but I didn't confirm that the `HighRequestLatency` alert on accounting has cleared.\n\n**What I found**\n- Several HPAs had memory targets that these workloads exceed at idle.\n  - `fraud-detection` had a 30% memory target. Its pods run at about 100% of their memory request, so it scaled to the maximum of 10.\n  - `ad` (80% target, about 104% usage) also sat at 10 replicas.\n  - `frontend` had a 30% memory target and was at 5 replicas.\n  - `kafka` (80% target, about 99% usage) scaled to 8 replicas.\n- Kafka is a single-node KRaft broker, with node ID 1 and the quorum voter set to `kafka:9093`. The extra replicas were not a real cluster. They behaved as conflicting brokers behind the same service.\n- Several of those Kafka pods restarted repeatedly with exit code 1. That disrupted the broker accounting consumes orders from, which is the likely source of the accounting latency.\n- The `KubeHpaMaxedOut` alert is a side effect of the same HPA problem.\n\n**What I changed** (all in namespace `otel-demo`)\n- **`kafka`:** I set the HPA `maxReplicas` to 1 and scaled the deployment to 1 replica.\n- **`ad` and `fraud-detection`:** I changed the memory target to 180%, set `maxReplicas` to 3, and scaled both to 1 replica. They now sit at about 125% and 101% of request against that 180% target.\n- **`frontend` and `fraud-detection`:** I removed their 20% CPU targets. Those pods have no CPU request, so the CPU metric was always `<unknown>`. I changed the `frontend` memory target from 30% to 80%.\n\n**Current state**\n- Kafka is a single healthy pod, and accounting is running and consuming orders.\n- None of the HPAs is at its maximum now.\n\n**Still open**\n- Most other HPAs also show a CPU target of `<unknown>` because their pods have no CPU requests. This is harmless but should be fixed.\n- Kafka's memory sits at about 99% of its request. Its HPA is pinned at 1 replica, so it can't scale again.\n- The HPA changes were made live, so a Helm or GitOps redeploy would revert them.",
+    "timed_out": false,
+    "turns": 7,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 17944,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 17944,
+      "cache_read_input_tokens": 83210,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 14,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 1133,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 1133,
+          "cache_read_input_tokens": 20344,
+          "input_tokens": 2,
+          "output_tokens": 800,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 2957,
+      "output_tokens_details": {
+        "thinking_tokens": 708
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "changed: [localhost] => (item=deployment/email)\nchanged: [localhost] => (item=deployment/flagd)\nchanged: [localhost] => (item=deployment/fraud-detection)\nchanged: [localhost] => (item=deployment/frontend)\nchanged: [localhost] => (item=deployment/frontend-proxy)\nchanged: [localhost] => (item=deployment/image-provider)\nchanged: [localhost] => (item=deployment/kafka)\nchanged: [localhost] => (item=deployment/mcp)\nchanged: [localhost] => (item=deployment/opamp-server)\nchanged: [localhost] => (item=deployment/otel-collector)\nchanged: [localhost] => (item=deployment/payment)\nchanged: [localhost] => (item=deployment/product-catalog)\nchanged: [localhost] => (item=deployment/quote)\nchanged: [localhost] => (item=deployment/recommendation)\nchanged: [localhost] => (item=deployment/shipping)\nchanged: [localhost] => (item=deployment/telemetry-docs)\nchanged: [localhost] => (item=deployment/valkey-cart)\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=41   changed=5    unreachable=0    failed=0    skipped=34   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "detect": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 91,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 121,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 151,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 181,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 211,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [
+        "KubeHpaMaxedOut"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubeHpaMaxedOut/prometheus-kube-state-metrics-66c87dfc4b-md2ts"
+      ]
+    }
+  ],
+  "detected": true,
+  "evaluation": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/checkout",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/checkout",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/checkout",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/checkout",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 391,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/checkout",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 421,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "HighRequestLatency/checkout",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 451,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 481,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 511,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 541,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 571,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 601,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    }
+  ],
+  "ground_truth": [
+    "KubeHpaMaxedOut"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 0,
+      "tail": "TASK [faults : Retrieve container from image-provider] *************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes workload container environmental variable not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Retrieve port from image-provider] ******************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes service port not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Update autoscaler metrics] **************************************\nchanged: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nTASK [waiters : Include wait tasks] ********************************************\nskipping: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=30   changed=3    unreachable=0    failed=0    skipped=34   rescued=0    ignored=0   \n"
+    }
+  ],
+  "model": "claude-sonnet-5-5",
+  "reference": {
+    "capacity": [
+      "deployments/ad",
+      "deployments/fraud-detection",
+      "deployments/kafka"
+    ],
+    "function": null,
+    "healthy": false,
+    "routing": [],
+    "traffic": null
+  },
+  "scenario": 38,
+  "status": "COMPLETED",
+  "verdicts": {
+    "alert_absent": {
+      "passed": true,
+      "profile": "+++++++++++++++++++++",
+      "relapsed": false
+    }
+  }
+}

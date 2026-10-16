@@ -1,0 +1,36 @@
+{
+  "attempt": 2,
+  "duration_seconds": 298,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "test-social-network"
+  ],
+  "problem_id": "k8s_target_port-misconfig-mitigation-1",
+  "reset": {
+    "configmaps -n default": [
+      "configmap/wrk2-payload-script"
+    ],
+    "failed_pods_deleted": 3,
+    "jobs -n default": [
+      "job.batch/wrk2-job"
+    ],
+    "namespaces": [
+      "namespace/observe",
+      "namespace/openebs",
+      "namespace/test-social-network"
+    ],
+    "persistentvolumes": [
+      "persistentvolume/pvc-152a457b-da33-4ca1-98fe-67f97b634dae"
+    ]
+  },
+  "server": "D",
+  "status": "COMPLETED"
+}

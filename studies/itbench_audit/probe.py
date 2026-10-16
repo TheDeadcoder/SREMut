@@ -20,7 +20,6 @@ import operators  # noqa: E402
 import reference  # noqa: E402
 
 NAMESPACE = "otel-demo"
-ENABLE_DEMO = ["-e", '{"applications_opentelemetry_demo_enabled": true}']
 ALERTS = ("/api/v1/namespaces/prometheus/services/http:prometheus-kube-prometheus-prometheus:9090"
           "/proxy/prometheus/api/v1/alerts")
 POLL = 30
@@ -110,10 +109,11 @@ def act(action):
 
 def episode(itbench, scenario, action):
     names = ground_truth(itbench, scenario)
+    variables = ["-e", f"@{itbench / 'library' / 'scenarios' / str(scenario) / 'extra_variables.yaml'}"]
     out = {"scenario": scenario, "action": action, "ground_truth": names}
     try:
         out["deploy"] = playbook(itbench, "project/manage_applications.yaml", "--tags", "install_applications",
-                                 *ENABLE_DEMO)
+                                 *variables)
         if out["deploy"]["exit_code"] != 0:
             out["status"] = "DEPLOY_FAILED"
             return out
@@ -138,7 +138,7 @@ def episode(itbench, scenario, action):
     finally:
         out["cleanup"] = [playbook(itbench, "project/manage_faults.yaml", "--tags", "remove_faults"),
                           playbook(itbench, "project/manage_applications.yaml", "--tags", "uninstall_applications",
-                                   *ENABLE_DEMO)]
+                                   *variables)]
         subprocess.run(["kubectl", "wait", "--for=delete", f"namespace/{NAMESPACE}", "--timeout=600s"],
                        capture_output=True, text=True)
     return out

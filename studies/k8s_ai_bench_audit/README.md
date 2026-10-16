@@ -59,6 +59,19 @@ image check, the verifier that runs before `db-0` is scheduled, the namespace th
 harness failures. One variant counts the runs that the exact image check rejected as passes; another also leaves out
 the timed-out runs. Each ranking is compared with the published one by Kendall's tau.
 
+## Cross-task check
+
+With its defaults (`--cluster-provider kind`, `--concurrency 0`), k8s-ai-bench runs every task of a run at the same
+time on one shared cluster; no task asks for a cluster of its own. `create-canary-deployment/setup.sh` deletes the
+namespace `limits-test`, in which `create-pod-resources-limits` is graded. `interference.py` tests whether that
+changes the other task's verdict: on a fresh kind cluster it runs the setup of `create-pod-resources-limits`, a
+correct fix and its verifier, then the setup of `create-canary-deployment` (or nothing, as the control) and the
+verifier again. Runs go to `interference/<victim>/<other task or none>/`:
+
+```bash
+python3 studies/k8s_ai_bench_audit/interference.py
+```
+
 ## Running
 
 On a host provisioned with `infra/setup_server.sh`, from the repository root:
@@ -67,6 +80,7 @@ On a host provisioned with `infra/setup_server.sh`, from the repository root:
 bash infra/setup_k8s_ai_bench.sh
 python3 studies/k8s_ai_bench_audit/run_audit.py --server D --pilot
 python3 studies/k8s_ai_bench_audit/run_audit.py --server D
+python3 studies/k8s_ai_bench_audit/run_audit.py --server D --attempt 2 --episodes <task>:<action> ...
 python3 studies/k8s_ai_bench_audit/ledger.py
 python3 studies/k8s_ai_bench_audit/published.py
 python3 studies/k8s_ai_bench_audit/rescore.py

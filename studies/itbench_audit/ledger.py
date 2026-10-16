@@ -48,7 +48,8 @@ def build(runs=RUNS, schedule=SCHEDULE):
                                                             for a in s.get("ground_truth", [])}),
                      "evaluation_profile": "".join("?" if "error" in s else "-" if s["ground_truth"] else "+"
                                                    for s in result.get("evaluation", []))})
-    judged = [r for r in rows if r["predicted"] in ("pass", "fail") and r["alert_absent"] is not None]
+    judged = [r for r in rows if r["predicted"] in ("pass", "fail") and r["alert_absent"] is not None
+              and r["label"] != "not_applicable"]
     summary = {
         "episodes": len(rows),
         "labels": dict(Counter(r["label"] for r in rows)),

@@ -25,6 +25,16 @@ Host settings applied by the script: `fs.inotify.max_user_instances=1024`,
 `fs.inotify.max_user_watches=1048576`, `net.ipv4.ip_forward=1` (container networking needs it and some cloud
 images turn it off), automatic package upgrades disabled, Docker packages held.
 
+## SREGym HEAD
+
+The alert-baseline study is repeated on SREGym's HEAD in a second checkout, on a cluster made by
+that checkout's `kind/setup_kind_cluster.sh`, which also drops the host's DNS search domains from
+the nodes. SREGym-applications and the node image are the same as at the pin.
+
+| Component | Version |
+|---|---|
+| SREGym | `198986762d182bdea5dbf7b2a47381aa03e3c455` |
+
 ## AIOpsLab
 
 `setup_aiopslab.sh` installs the same toolchain (without SREGym), then AIOpsLab with its own kind
@@ -37,3 +47,19 @@ cluster, on a separate host.
 | Kubernetes nodes | `jacksonarthurclark/aiopslab-kind-x86@sha256:d631857278d3f8ce5c36364c75ec25695ceb22e311ec6621a4ebf5506b86774d` (1 control plane, 1 worker, from AIOpsLab `kind/kind-config-x86.yaml`) |
 | Poetry | 2.4.1 (dependencies without the `clients` group) |
 
+
+## Agent study
+
+`setup_agent.sh` installs Claude Code for the run user and builds the agent images, which run Claude Code with the
+kubectl of each benchmark's cluster. The agent authenticates with a Claude plan token in `~/.claude-agent.env`
+(`CLAUDE_CODE_OAUTH_TOKEN=...`); no API key is set.
+
+| Component | Version |
+|---|---|
+| Node.js | 22.23.3 |
+| Claude Code | 2.1.296 |
+| Model | `claude-sonnet-5-5` |
+| Second agent model | `claude-haiku-5-5` |
+| Agent image base | `node:22.23.3-bookworm-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392` |
+| kubectl in the agent images | v1.32.1 (`sremut-agent:k8s-1.32`, AIOpsLab and SREGym), v1.37.0 (`sremut-agent:k8s-1.37`, ITBench) |
+| AIOpsLab with the proposed fix | `ccf08d0` with `studies/aiopslab_audit/workload_check.patch`, in a second checkout |

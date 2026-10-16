@@ -1,0 +1,35 @@
+{
+  "attempt": 1,
+  "duration_seconds": 276,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs"
+  ],
+  "problem_id": "revoke_auth_mongodb-mitigation-1",
+  "reset": {
+    "configmaps -n default": [
+      "configmap/wrk2-payload-script"
+    ],
+    "failed_pods_deleted": 3,
+    "jobs -n default": [
+      "job.batch/wrk2-job"
+    ],
+    "namespaces": [
+      "namespace/observe",
+      "namespace/openebs",
+      "namespace/test-social-network"
+    ],
+    "persistentvolumes": [
+      "persistentvolume/pvc-cc94b220-363c-4ee2-a0fd-e6e804ce9603"
+    ]
+  },
+  "server": "D",
+  "status": "COMPLETED"
+}

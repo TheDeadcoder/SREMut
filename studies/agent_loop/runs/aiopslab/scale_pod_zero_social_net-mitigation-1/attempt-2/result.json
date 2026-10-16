@@ -1,0 +1,144 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods,svc -n test-social-network -o wide | head -60",
+      "kubectl get deploy -n test-social-network | grep -i user; kubectl get events -n test-social-network | grep -i user-service | tail",
+      "kubectl scale deploy user-service -n test-social-network --replicas=1; kubectl rollout status deploy/user-service -n test-social-network --timeout=90s"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 11,
+    "summary": "**Finding:** The `user-service` deployment in `test-social-network` had been scaled to 0 replicas. It had run for about 40 seconds and was then scaled down. No pod was left behind the `user-service` Service, so anything that needed it (register/login, user lookups) would fail. Every other pod was running.\n\n**Change:** I ran `kubectl scale deploy user-service --replicas=1`. The rollout finished and the deployment reports its replica available.\n\nI only checked the rollout status. I didn't test login or registration, and I didn't look for what scaled it down.",
+    "timed_out": false,
+    "turns": 4,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4088,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4088,
+      "cache_read_input_tokens": 24949,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 8,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 195,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 195,
+          "cache_read_input_tokens": 8373,
+          "input_tokens": 2,
+          "output_tokens": 185,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 476,
+      "output_tokens_details": {
+        "thinking_tokens": 26
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup_errors": [],
+  "footprint_left": [],
+  "healthy": {
+    "fixed": {
+      "success": true
+    },
+    "original": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "model": "claude-sonnet-5-5",
+  "problem_id": "scale_pod_zero_social_net-mitigation-1",
+  "reference": {
+    "capacity": [],
+    "function": true,
+    "healthy": true,
+    "routing": [],
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "verdicts": {
+    "fixed": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    },
+    "original": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    }
+  }
+}

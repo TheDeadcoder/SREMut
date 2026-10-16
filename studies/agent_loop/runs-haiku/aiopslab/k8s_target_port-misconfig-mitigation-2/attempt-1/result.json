@@ -1,0 +1,990 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods,deploy,svc -n test-social-network -o wide 2>&1 | head -100",
+      "kubectl get events -n test-social-network --sort-by=.lastTimestamp 2>&1 | tail -50",
+      "kubectl get events -n test-social-network --field-selector type=Warning 2>&1 | tail -30; echo ---; kubectl get configmap -n test-social-network 2>&1; echo ---; kubectl get deploy -n test-social-network -o jsonpath='{range .items[*]}{.metadata.name}{\"\\t\"}{.spec.template.spec.containers[0].env}{\"\\n\"}{end}' 2>&1 | head -60",
+      "cd /tmp; for d in compose-post-service home-timeline-service post-storage-service social-graph-service text-service unique-id-service user-service user-timeline-service url-shorten-service user-mention-service media-service nginx-thrift; do echo \"=== $d\"; kubectl logs -n test-social-network deploy/$d --tail=15 2>&1; done",
+      "kubectl get svc text-service -n test-social-network -o yaml 2>&1; echo ---; kubectl get endpoints text-service -n test-social-network -o yaml 2>&1; echo ---; kubectl get deploy text-service -n test-social-network -o yaml 2>&1 | sed -n '/containers:/,/volumes:/p'; echo ---; kubectl get configmap text-service -n test-social-network -o yaml 2>&1 | head -5; echo ---; kubectl logs -n test-social-network deploy/text-service --tail=50 2>&1",
+      "kubectl get svc -n test-social-network -o jsonpath='{range .items[*]}{.metadata.name}{\"\\t\"}{range .spec.ports[*]}{.port}->{.targetPort}{\" \"}{end}{\"\\n\"}{end}' 2>&1; echo ---; kubectl get configmap text-service -n test-social-network -o jsonpath='{.data.service-config\\.json}' 2>&1; echo; echo ---; kubectl get configmap compose-post-service -n test-social-network -o jsonpath='{.data.service-config\\.json}' 2>&1 | head -40",
+      "kubectl patch svc text-service -n test-social-network --type=json -p='[{\"op\":\"replace\",\"path\":\"/spec/ports/0/targetPort\",\"value\":9090}]' 2>&1; sleep 5; kubectl get endpoints text-service -n test-social-network -o jsonpath='{.subsets[0].ports[0].port}{\"\\n\"}' 2>&1; kubectl run -n test-social-network tmp-probe --rm -i --restart=Never --image=busybox:1.36 -- sh -c 'nc -zv -w 3 text-service 9090' 2>&1 | tail -3",
+      "kubectl logs -n test-social-network deploy/compose-post-service --since=60s 2>&1 | tail -5; echo ---; kubectl logs -n test-social-network deploy/nginx-thrift --since=60s 2>&1 | grep -c error; echo ---; kubectl get pods -n test-social-network 2>&1 | grep -v Running | grep -v NAME; echo \"non-running check done\"",
+      "date -u; kubectl logs -n test-social-network deploy/compose-post-service --since=2m 2>&1 | grep -c \"Connection refused\"; kubectl logs -n test-social-network deploy/compose-post-service --since=2m 2>&1 | tail -3"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-haiku-5-5",
+    "seconds": 35,
+    "summary": "The anomaly was a bad `targetPort` on the `text-service` Service, which broke post composition. I changed it from 9999 to 9090 and the port now answers.\n\n**What I found**\n- All pods were Running with zero restarts, so the failure wasn't a crash.\n- `compose-post-service` and `nginx-thrift` logged repeated `Connection refused` errors connecting to `text-service:9090`, so every compose-post request failed.\n- `text-service` was up and logging that it had started. Its Service had `port: 9090` but `targetPort: 9999`, while the container listens on 9090. The Endpoints object was routing to 9999, so nothing was listening there.\n- Every other Service maps 9090\u21929090 (media-frontend is the only other non-identity mapping, 8081\u21928080, and it's consistent with its container). text-service was the only outlier.\n\n**What I changed**\n- `kubectl patch svc text-service`: `targetPort` 9999 \u2192 9090. The Endpoints now show port 9090. A test pod connected to `text-service:9090` successfully.\n\n**Verification and caveats**\n- No new \"Connection refused\" errors appeared in compose-post logs after the patch. The last one was at <time>, and the check ran at <time>. I did not send a real compose request, because that would write a post into the namespace. So the end-to-end fix is verified by the port check and the log silence, not by a successful post.\n- The Service is managed by Helm (`meta.helm.sh/release-name: social-network`). A `helm upgrade` or re-sync from the chart could reset `targetPort` to 9999. The fix should also go into the chart values/template.\n- Separately, `user-service`, `user-timeline-service`, and `url-shorten-service` logged failed MongoDB index creation at startup, because their databases weren't ready yet. They retried and started. They're worth a look if you see user- or URL-related failures later.",
+    "timed_out": false,
+    "turns": 10,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 22106,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 22106,
+      "cache_read_input_tokens": 144122,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 16,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 606,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 606,
+          "cache_read_input_tokens": 26757,
+          "input_tokens": 2,
+          "output_tokens": 758,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 3721,
+      "output_tokens_details": {
+        "thinking_tokens": 798
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "captures": {
+    "final": {
+      "services": {
+        "compose-post-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "compose-post-service"
+          }
+        },
+        "home-timeline-redis": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "home-timeline-redis"
+          }
+        },
+        "home-timeline-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "home-timeline-service"
+          }
+        },
+        "jaeger": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5775,
+              "5775",
+              "UDP"
+            ],
+            [
+              5778,
+              "5778",
+              "TCP"
+            ],
+            [
+              6831,
+              "6831",
+              "UDP"
+            ],
+            [
+              6832,
+              "6832",
+              "UDP"
+            ],
+            [
+              9411,
+              "9411",
+              "TCP"
+            ],
+            [
+              14268,
+              "14268",
+              "TCP"
+            ],
+            [
+              16686,
+              "16686",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "jaeger"
+          }
+        },
+        "media-frontend": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8081,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "media-frontend"
+          }
+        },
+        "media-memcached": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "media-memcached"
+          }
+        },
+        "media-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "media-mongodb"
+          }
+        },
+        "media-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "media-service"
+          }
+        },
+        "nginx-thrift": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "nginx-thrift"
+          }
+        },
+        "post-storage-memcached": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "post-storage-memcached"
+          }
+        },
+        "post-storage-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "post-storage-mongodb"
+          }
+        },
+        "post-storage-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "post-storage-service"
+          }
+        },
+        "social-graph-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "social-graph-mongodb"
+          }
+        },
+        "social-graph-redis": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "social-graph-redis"
+          }
+        },
+        "social-graph-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "social-graph-service"
+          }
+        },
+        "text-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "text-service"
+          }
+        },
+        "unique-id-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "unique-id-service"
+          }
+        },
+        "url-shorten-memcached": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "url-shorten-memcached"
+          }
+        },
+        "url-shorten-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "url-shorten-mongodb"
+          }
+        },
+        "url-shorten-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "url-shorten-service"
+          }
+        },
+        "user-memcached": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-memcached"
+          }
+        },
+        "user-mention-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-mention-service"
+          }
+        },
+        "user-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-mongodb"
+          }
+        },
+        "user-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-service"
+          }
+        },
+        "user-timeline-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-timeline-mongodb"
+          }
+        },
+        "user-timeline-redis": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-timeline-redis"
+          }
+        },
+        "user-timeline-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-timeline-service"
+          }
+        }
+      },
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 117,
+        "rounds": 1
+      },
+      "workloads": {
+        "deployments/compose-post-service": 1,
+        "deployments/home-timeline-redis": 1,
+        "deployments/home-timeline-service": 1,
+        "deployments/jaeger": 1,
+        "deployments/media-frontend": 1,
+        "deployments/media-memcached": 1,
+        "deployments/media-mongodb": 1,
+        "deployments/media-service": 1,
+        "deployments/nginx-thrift": 1,
+        "deployments/post-storage-memcached": 1,
+        "deployments/post-storage-mongodb": 1,
+        "deployments/post-storage-service": 1,
+        "deployments/social-graph-mongodb": 1,
+        "deployments/social-graph-redis": 1,
+        "deployments/social-graph-service": 1,
+        "deployments/text-service": 1,
+        "deployments/unique-id-service": 1,
+        "deployments/url-shorten-memcached": 1,
+        "deployments/url-shorten-mongodb": 1,
+        "deployments/url-shorten-service": 1,
+        "deployments/user-memcached": 1,
+        "deployments/user-mention-service": 1,
+        "deployments/user-mongodb": 1,
+        "deployments/user-service": 1,
+        "deployments/user-timeline-mongodb": 1,
+        "deployments/user-timeline-redis": 1,
+        "deployments/user-timeline-service": 1
+      }
+    },
+    "healthy": {
+      "services": {
+        "compose-post-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "compose-post-service"
+          }
+        },
+        "home-timeline-redis": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "home-timeline-redis"
+          }
+        },
+        "home-timeline-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "home-timeline-service"
+          }
+        },
+        "jaeger": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5775,
+              "5775",
+              "UDP"
+            ],
+            [
+              5778,
+              "5778",
+              "TCP"
+            ],
+            [
+              6831,
+              "6831",
+              "UDP"
+            ],
+            [
+              6832,
+              "6832",
+              "UDP"
+            ],
+            [
+              9411,
+              "9411",
+              "TCP"
+            ],
+            [
+              14268,
+              "14268",
+              "TCP"
+            ],
+            [
+              16686,
+              "16686",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "jaeger"
+          }
+        },
+        "media-frontend": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8081,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "media-frontend"
+          }
+        },
+        "media-memcached": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "media-memcached"
+          }
+        },
+        "media-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "media-mongodb"
+          }
+        },
+        "media-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "media-service"
+          }
+        },
+        "nginx-thrift": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "nginx-thrift"
+          }
+        },
+        "post-storage-memcached": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "post-storage-memcached"
+          }
+        },
+        "post-storage-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "post-storage-mongodb"
+          }
+        },
+        "post-storage-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "post-storage-service"
+          }
+        },
+        "social-graph-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "social-graph-mongodb"
+          }
+        },
+        "social-graph-redis": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "social-graph-redis"
+          }
+        },
+        "social-graph-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "social-graph-service"
+          }
+        },
+        "text-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "text-service"
+          }
+        },
+        "unique-id-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "unique-id-service"
+          }
+        },
+        "url-shorten-memcached": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "url-shorten-memcached"
+          }
+        },
+        "url-shorten-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "url-shorten-mongodb"
+          }
+        },
+        "url-shorten-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "url-shorten-service"
+          }
+        },
+        "user-memcached": {
+          "endpoints": 1,
+          "ports": [
+            [
+              11211,
+              "11211",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-memcached"
+          }
+        },
+        "user-mention-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-mention-service"
+          }
+        },
+        "user-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-mongodb"
+          }
+        },
+        "user-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-service"
+          }
+        },
+        "user-timeline-mongodb": {
+          "endpoints": 1,
+          "ports": [
+            [
+              27017,
+              "27017",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-timeline-mongodb"
+          }
+        },
+        "user-timeline-redis": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-timeline-redis"
+          }
+        },
+        "user-timeline-service": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9090,
+              "9090",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "service": "user-timeline-service"
+          }
+        }
+      },
+      "traffic": {
+        "failed_rounds": 0,
+        "requests": 117,
+        "rounds": 1
+      },
+      "workloads": {
+        "deployments/compose-post-service": 1,
+        "deployments/home-timeline-redis": 1,
+        "deployments/home-timeline-service": 1,
+        "deployments/jaeger": 1,
+        "deployments/media-frontend": 1,
+        "deployments/media-memcached": 1,
+        "deployments/media-mongodb": 1,
+        "deployments/media-service": 1,
+        "deployments/nginx-thrift": 1,
+        "deployments/post-storage-memcached": 1,
+        "deployments/post-storage-mongodb": 1,
+        "deployments/post-storage-service": 1,
+        "deployments/social-graph-mongodb": 1,
+        "deployments/social-graph-redis": 1,
+        "deployments/social-graph-service": 1,
+        "deployments/text-service": 1,
+        "deployments/unique-id-service": 1,
+        "deployments/url-shorten-memcached": 1,
+        "deployments/url-shorten-mongodb": 1,
+        "deployments/url-shorten-service": 1,
+        "deployments/user-memcached": 1,
+        "deployments/user-mention-service": 1,
+        "deployments/user-mongodb": 1,
+        "deployments/user-service": 1,
+        "deployments/user-timeline-mongodb": 1,
+        "deployments/user-timeline-redis": 1,
+        "deployments/user-timeline-service": 1
+      }
+    }
+  },
+  "cleanup_errors": [],
+  "footprint_left": [],
+  "healthy": {
+    "fixed": {
+      "success": true
+    },
+    "original": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "model": "claude-haiku-5-5",
+  "problem_id": "k8s_target_port-misconfig-mitigation-2",
+  "reference": {
+    "capacity": [],
+    "function": true,
+    "healthy": true,
+    "routing": [],
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "verdicts": {
+    "fixed": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    },
+    "original": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    }
+  }
+}

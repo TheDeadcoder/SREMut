@@ -39,10 +39,12 @@ def main():
     ap.add_argument("--ids", nargs="+", help="explicit problem ids, e.g. for repeats")
     ap.add_argument("--timeout", type=int, default=5400)
     ap.add_argument("--sregym", type=Path, default=Path.home() / "SREGym")
+    ap.add_argument("--runs", type=Path, default=HERE / "runs",
+                    help="where the episodes go, e.g. runs-head for a checkout of SREGym's HEAD")
     args = ap.parse_args()
 
-    root = HERE / ("pilot" if args.pilot else "runs")
-    root.mkdir(exist_ok=True)
+    root = HERE / "pilot" if args.pilot else args.runs.resolve()
+    root.mkdir(parents=True, exist_ok=True)
     mark_interrupted(root, args.server)
     for pid in args.ids or (PILOT if args.pilot else PROBLEMS):
         run_dir = root / pid / f"attempt-{args.attempt}"

@@ -1,0 +1,1239 @@
+{
+  "agent": {
+    "alerts_given": "- HighRequestLatency (accounting)\n- KubePodNotReady (frontend-779d87fb6-dfqr2)",
+    "commands": [
+      "kubectl -n otel-demo get pods -o wide 2>&1; echo \"---EVENTS---\"; kubectl -n otel-demo get events --sort-by=.lastTimestamp 2>&1 | tail -40",
+      "kubectl -n otel-demo describe pod frontend-779d87fb6-dfqr2 2>&1 | tail -60",
+      "cd /tmp; kubectl -n otel-demo get deploy frontend -o yaml 2>&1 | sed -n '1,200p' | grep -n -A12 -E 'ports:|readinessProbe|livenessProbe|image:|env:' | head -120; echo \"---RS---\"; kubectl -n otel-demo get rs -l opentelemetry.io/name=frontend -o wide 2>&1; kubectl -n otel-demo get deploy frontend -o jsonpath='{.metadata.annotations}' 2>&1; echo; kubectl -n otel-demo rollout history deploy/frontend 2>&1",
+      "kubectl -n otel-demo get deploy accounting -o yaml 2>&1 | grep -n -B2 -A25 'env:' | head -80; echo \"---LOGS---\"; kubectl -n otel-demo logs deploy/accounting --tail=60 2>&1",
+      "cd /tmp; diff <(kubectl -n otel-demo get rs frontend-ffb4447db -o yaml | grep -v -E 'pod-template-hash|revision|uid|resourceVersion|creationTimestamp|generation|selfLink' ) <(kubectl -n otel-demo get rs frontend-779d87fb6 -o yaml | grep -v -E 'pod-template-hash|revision|uid|resourceVersion|creationTimestamp|generation|selfLink') 2>&1 | head -80",
+      "cd /tmp; kubectl -n otel-demo get deploy accounting -o jsonpath='{.spec.template.spec.containers[0].resources}{\"\\n\"}{.spec.template.spec.initContainers}{\"\\n\"}' 2>&1; echo \"---DB---\"; kubectl -n otel-demo logs deploy/astronomy-db --tail=20 2>&1; echo \"---KAFKA---\"; kubectl -n otel-demo logs deploy/kafka --tail=20 2>&1; echo \"---TOP---\"; kubectl -n otel-demo top pods 2>&1 | head -40",
+      "cd /tmp; echo \"---ACC ERR/WARN---\"; kubectl -n otel-demo logs deploy/accounting --since=30m 2>&1 | grep -i -E 'warn|error|fail|exception|timeout|retry' | sort | uniq -c | sort -rn | head -20; echo \"---ACC LINE COUNT / RECENT---\"; kubectl -n otel-demo logs deploy/accounting --since=30m 2>&1 | wc -l; kubectl -n otel-demo logs deploy/accounting --since=5m 2>&1 | grep -v 'Order details' | tail -20; echo \"---SVC---\"; kubectl -n otel-demo get svc astronomy-db accounting kafka -o wide 2>&1; kubectl -n otel-demo get endpoints astronomy-db kafka 2>&1",
+      "cd /tmp; K=\"kubectl -n otel-demo exec deploy/kafka --\"; $K sh -c 'ls /opt/kafka/bin 2>/dev/null | head -50; which kafka-topics.sh kafka-topics 2>/dev/null' 2>&1 | head -60",
+      "cd /tmp; K=\"kubectl -n otel-demo exec deploy/kafka --\"; $K /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list 2>&1; echo \"---DESC---\"; $K /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic orders 2>&1; echo \"---GROUPS---\"; $K /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --all-groups 2>&1 | head -40",
+      "cd /tmp; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -c \"select pid, usename, state, wait_event_type, wait_event, now()-query_start as dur, left(query,120) q from pg_stat_activity where datname='astronomy_db' order by query_start;\" 2>&1; echo \"---LOCKS---\"; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -c \"select locktype, mode, granted, count(*) from pg_locks group by 1,2,3;\" 2>&1; echo \"---ROLLOUT---\"; kubectl -n otel-demo rollout history deploy/accounting 2>&1; kubectl -n otel-demo get deploy accounting -o jsonpath='{.metadata.annotations}{\"\\n\"}' 2>&1",
+      "cd /tmp; kubectl get prometheusrules -A 2>&1 | head; kubectl get configmap -A -o name 2>/dev/null | grep -i -E 'alert|prom' | head; kubectl get all -A 2>&1 | grep -i -E 'prometheus|alertmanager' | head; echo \"---GREP---\"; kubectl get prometheusrules,configmaps -A -o yaml 2>/dev/null | grep -n -B3 -A10 'HighRequestLatency' | head -60",
+      "cd /tmp; kubectl -n otel-demo get prometheusrule otel-demo-alerting-rules -o jsonpath='{.spec.groups[?(@.name==\"opentelemetrydemo.backend.goldensignal\")].rules[?(@.alert==\"HighRequestLatency\")]}' 2>&1 | python3 -c 'import sys,json; r=json.load(sys.stdin); print(r[\"expr\"]); print(r.get(\"for\")); print(r.get(\"labels\"))' 2>&1 || kubectl -n otel-demo get prometheusrule otel-demo-alerting-rules -o yaml | sed -n '185,215p'",
+      "cd /tmp; kubectl -n otel-demo get prometheusrule otel-demo-alerting-rules -o yaml | sed -n '185,215p'; echo \"---PROM QUERY---\"; kubectl -n prometheus exec prometheus-prometheus-kube-prometheus-prometheus-0 -c prometheus -- wget -qO- 'http://localhost:9090/api/v1/query?query=histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\"accounting\"}[5m]))by(le,service_name))' 2>&1 | head -c 1500",
+      "cd /tmp; kubectl get --raw '/api/v1/namespaces/prometheus/services/prometheus-kube-prometheus-prometheus:9090/proxy/api/v1/query?query=histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\"accounting\"}[5m]))by(le,service_name))' 2>&1 | head -c 1500; echo; echo \"---ALL SERVICES p95 (ms)---\"; kubectl get --raw '/api/v1/namespaces/prometheus/services/prometheus-kube-prometheus-prometheus:9090/proxy/api/v1/query?query=histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket[5m]))by(le,service_name))' 2>&1 | head -c 3000; echo; echo \"---ALERTS---\"; kubectl get --raw '/api/v1/namespaces/prometheus/services/prometheus-kube-prometheus-prometheus:9090/proxy/api/v1/alerts' 2>&1 | head -c 2000",
+      "cd /tmp; kubectl -n prometheus get svc 2>&1; kubectl -n prometheus get pod prometheus-prometheus-kube-prometheus-prometheus-0 -o jsonpath='{.spec.containers[*].name}{\"\\n\"}' 2>&1",
+      "cd /tmp; B='/api/v1/namespaces/prometheus/services/prometheus-kube-prometheus-prometheus:9090/proxy/api/v1'; kubectl get --raw \"$B/query?query=histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"accounting\\\"}[5m]))by(le,service_name))\" 2>&1 | head -c 1500; echo; echo \"---ALL p95 ms---\"; kubectl get --raw \"$B/query?query=histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket[5m]))by(le,service_name))\" 2>&1 | head -c 3000; echo; echo \"---ALERTS---\"; kubectl get --raw \"$B/alerts\" 2>&1 | head -c 2500",
+      "cd /tmp; B='/api/v1/namespaces/prometheus/services/http:prometheus-kube-prometheus-prometheus:9090/proxy/api/v1'; kubectl get --raw \"$B/query?query=histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\\\"accounting\\\"}[5m]))by(le,service_name))\" 2>&1 | head -c 1500; echo; echo \"---ALL p95 ms---\"; kubectl get --raw \"$B/query?query=histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket[5m]))by(le,service_name))\" 2>&1 | head -c 3000; echo; echo \"---ALERTS---\"; kubectl get --raw \"$B/alerts\" 2>&1 | head -c 2500",
+      "cd /tmp; kubectl -n otel-demo logs deploy/accounting --timestamps --tail=400 2>&1 | grep -v 'Order details' | grep -v -E '^info: Accounting.Consumer' | tail -30; echo \"---COLLECTOR ERR---\"; kubectl -n otel-demo logs deploy/otel-collector --since=15m 2>&1 | grep -i -E 'error|warn|drop|refus|timeout' | cut -c1-300 | sort | uniq -c | sort -rn | head -20",
+      "cd /tmp; kubectl -n otel-demo get configmap -o name 2>&1; echo \"---FLAGD---\"; kubectl -n otel-demo get configmap flagd-config -o jsonpath='{.data}' 2>/dev/null | head -c 4000",
+      "cd /tmp; kubectl -n otel-demo get configmap flagd-config -o jsonpath='{.data.demo\\.flagd\\.json}' > /tmp/flagd-demo.json 2>&1; grep -n -B3 '\"defaultVariant\": \"[^o]' /tmp/flagd-demo.json | grep -v -E 'defaultVariant\": \"off\"' ; echo \"---ALL FLAGS WITH NON-OFF DEFAULT---\"; awk '/\"[a-zA-Z]+\": \\{/{name=$1} /defaultVariant/{ if ($0 !~ /\"off\"/) print name, $0}' /tmp/flagd-demo.json; echo \"---FLAG STATE---\"; grep -n '\"state\"' /tmp/flagd-demo.json | sort | uniq -c | head",
+      "cd /tmp; wc -l /tmp/flagd-demo.json; grep -c defaultVariant /tmp/flagd-demo.json; grep defaultVariant /tmp/flagd-demo.json | sort | uniq -c; echo \"---KAFKA FLAG---\"; grep -n -A10 '\"kafkaQueueProblems\"' /tmp/flagd-demo.json | head -14",
+      "cd /tmp; kubectl top nodes 2>&1; kubectl get nodes -o wide 2>&1; kubectl describe nodes 2>&1 | grep -E 'Name:|Taints|Unschedulable|Conditions|MemoryPressure|DiskPressure|PIDPressure|Ready ' | head -30; echo \"---ACC SPEC---\"; kubectl -n otel-demo get deploy accounting -o yaml 2>&1 | sed -n '1,42p;70,140p'",
+      "cd /tmp; kubectl -n otel-demo logs deploy/astronomy-db 2>&1 | grep -i -E 'error|fatal|duration|slow|deadlock|lock|too many|connection' | head -30; echo \"---ALL DB LOG LINES: $(kubectl -n otel-demo logs deploy/astronomy-db 2>&1 | wc -l)\"; echo \"---DB CONFIG---\"; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -At -c \"select name,setting from pg_settings where name in ('log_min_duration_statement','max_connections','shared_buffers','work_mem','statement_timeout','idle_in_transaction_session_timeout');\" 2>&1; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -At -c \"select count(*) from pg_stat_activity;\" 2>&1",
+      "cd /tmp; which curl >/dev/null && echo has_curl; (kubectl -n prometheus port-forward svc/prometheus-kube-prometheus-prometheus 19090:9090 >/tmp/pf.log 2>&1 &); sleep 4; curl -s 'http://localhost:19090/api/v1/query' --data-urlencode 'query=histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\"accounting\"}[5m]))by(le,service_name))' | head -c 800; echo; curl -s 'http://localhost:19090/api/v1/alerts' | head -c 3000; echo; cat /tmp/pf.log",
+      "cd /tmp; q(){ local p; p=$(printf '%s' \"$1\" | jq -sRr @uri 2>/dev/null); exec 3<>/dev/tcp/127.0.0.1/19090; printf 'GET /api/v1/%s HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' \"$2\" >&3; cat <&3 | sed '1,/^\\r$/d'; exec 3<&-; }; q 'histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\"accounting\"}[5m]))by(le,service_name))' 'query?query=' 2>&1 | head -c 600; echo; echo ---; which jq; ",
+      "cd /tmp; q(){ local e; e=$(printf '%s' \"$1\" | sed -e 's/\"/%22/g' -e 's/{/%7B/g' -e 's/}/%7D/g' -e 's/\\[/%5B/g' -e 's/\\]/%5D/g' -e 's/ /%20/g'); exec 3<>/dev/tcp/127.0.0.1/19090; printf 'GET /api/v1/%s HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' \"$2$e\" >&3; cat <&3 | sed '1,/^\\r$/d'; exec 3<&-; echo; }; q 'histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\"accounting\"}[5m]))by(le,service_name))' 'query?query=' | head -c 800; echo ---ALERTS---; exec 3<>/dev/tcp/127.0.0.1/19090; printf 'GET /api/v1/alerts HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3; cat <&3 | sed '1,/^\\r$/d' | grep -o '\"alertname\":\"[^\"]*\"\\|\"state\":\"[^\"]*\"\\|\"service_name\":\"[^\"]*\"\\|\"namespace\":\"[^\"]*\"' | paste - - - - | head -20; exec 3<&-",
+      "cd /tmp; cat /tmp/pf.log | tail -5; exec 3<>/dev/tcp/127.0.0.1/19090 && printf 'GET /-/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && cat <&3 | head -c 400; exec 3<&-",
+      "cd /tmp; kubectl get virtualservices,destinationrules,envoyfilters,serviceentries,networkpolicies,peerauthentications,sidecars -A 2>&1 | head -30; echo \"---CRDs istio---\"; kubectl get crd 2>&1 | grep -i -E 'istio|networking' | head",
+      "cd /tmp; kubectl -n otel-demo logs deploy/accounting --timestamps 2>&1 | grep 'Consumer\\[' -c; kubectl -n otel-demo logs deploy/accounting --timestamps 2>&1 | grep -E '^[0-9T:.-]+Z info: Accounting' | awk '{print substr($1,12,12)}' | awk -F: 'BEGIN{p=-1}{s=$1*3600+$2*60+$3; if(p>=0 && s-p>=5) print \"GAP\", s-p, \"s before\", $1\":\"$2\":\"$3; p=s; n++} END{print \"total\", n, \"first/last handled\"}' | tail -20; kubectl -n otel-demo logs deploy/accounting --timestamps 2>&1 | head -3 | cut -c1-80",
+      "cd /tmp; kubectl -n otel-demo get svc otel-collector -o jsonpath='{range .spec.ports[*]}{.name}:{.port} {end}{\"\\n\"}' 2>&1; kubectl get --raw '/api/v1/namespaces/otel-demo/services/otel-collector:8889/proxy/metrics' 2>&1 | grep -E '^traces_span_metrics_duration_milliseconds_(bucket|count)\\{.*service_name=\"accounting\"' | grep -v '_bucket.*le=\"+Inf\"' | awk '{print}' | tail -25",
+      "cd /tmp; kubectl get --raw '/api/v1/namespaces/otel-demo/services/otel-collector:8889/proxy/metrics' > /tmp/collector-metrics.txt 2>/tmp/collector-err.txt; wc -l /tmp/collector-metrics.txt; head -c 300 /tmp/collector-err.txt; echo; grep -c span /tmp/collector-metrics.txt; grep 'traces_span_metrics_duration' /tmp/collector-metrics.txt | grep 'accounting' | grep '_count' | head -10; echo ---; grep 'traces_span_metrics_duration' /tmp/collector-metrics.txt | grep -o 'service_name=\"[^\"]*\"' | sort | uniq -c",
+      "cd /tmp; grep -o '^[a-zA-Z_:]*' /tmp/collector-metrics.txt | sort -u | grep -i -E 'span|duration|latency|accounting|kafka' | head -40; echo ---; grep -i accounting /tmp/collector-metrics.txt | head -5",
+      "cd /tmp; grep -E '^otelcol_(exporter_(send|enqueue)_failed|receiver_(refused|failed)|processor_memory_limiter|exporter_sent_spans)' /tmp/collector-metrics.txt | grep -v ' 0$' | head -20; echo \"---CONFIG grep---\"; kubectl -n otel-demo get configmap otel-collector -o jsonpath='{.data}' 2>/dev/null | grep -o -i -E '.{0,120}(accounting|delay|sleep|latency|spanmetrics|transform|filter).{0,120}' | head -20",
+      "cd /tmp; kubectl -n otel-demo get configmap otel-collector -o jsonpath='{.data.relay}' 2>/dev/null | head -150; echo; echo \"---RESOURCES---\"; kubectl -n otel-demo get deploy otel-collector -o jsonpath='{.spec.template.spec.containers[0].resources}{\"\\n\"}' 2>&1; kubectl -n otel-demo get deploy otel-collector -o jsonpath='{.spec.template.spec.containers[0].env}{\"\\n\"}' 2>&1 | head -c 1500",
+      "cd /tmp; kubectl -n otel-demo exec frontend-779d87fb6-dfqr2 -- sh -c 'for u in /ready /; do echo \"GET $u -> $(wget -S -O /dev/null \"http://127.0.0.1:8080$u\" 2>&1 | grep -m1 \"HTTP/\")\"; done; echo \"port40 -> $(wget -S -O /dev/null http://127.0.0.1:40/ready 2>&1 | grep -m1 HTTP/ || echo refused)\"' 2>&1 | head -10",
+      "cd /tmp; (kubectl -n otel-demo port-forward pod/frontend-779d87fb6-dfqr2 18080:8080 >/tmp/pf2.log 2>&1 &); sleep 4; for u in /ready / ; do exec 3<>/dev/tcp/127.0.0.1/18080; printf \"GET $u HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; echo \"$u -> $(head -1 <&3)\"; exec 3<&-; done; cat /tmp/pf2.log | tail -2",
+      "cd /tmp; (kubectl -n otel-demo port-forward pod/frontend-ffb4447db-l4cff 18081:8080 >/tmp/pf3.log 2>&1 &); sleep 4; for u in /ready / ; do exec 3<>/dev/tcp/127.0.0.1/18081 2>/dev/null && { printf \"GET $u HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; echo \"working pod $u -> $(head -1 <&3)\"; exec 3<&-; } || echo \"working pod $u -> no connect\"; done; echo \"---NEW POD LOGS---\"; kubectl -n otel-demo logs frontend-779d87fb6-dfqr2 --tail=40 2>&1 | cut -c1-250; echo \"---WORKING POD LOGS---\"; kubectl -n otel-demo logs frontend-ffb4447db-l4cff --tail=5 2>&1 | cut -c1-200",
+      "cd /tmp; kubectl -n otel-demo exec deploy/load-generator -- python -c \"\nimport urllib.request\nfor url in ['http://10.244.2.38:8080/ready','http://10.244.2.38:8080/','http://10.244.2.38:40/ready']:\n    try:\n        r=urllib.request.urlopen(url,timeout=5); print(url, r.status)\n    except Exception as e: print(url, 'ERR', e)\n\" 2>&1 | tail -5",
+      "cd /tmp; kubectl -n otel-demo patch deploy frontend --type=json -p='[{\"op\":\"replace\",\"path\":\"/spec/template/spec/containers/0/readinessProbe/httpGet\",\"value\":{\"path\":\"/\",\"port\":8080,\"scheme\":\"HTTP\"}}]' 2>&1; kubectl -n otel-demo rollout status deploy/frontend --timeout=180s 2>&1; kubectl -n otel-demo get pods -l opentelemetry.io/name=frontend -o wide 2>&1",
+      "cd /tmp; sleep 15; kubectl -n otel-demo get pods -l opentelemetry.io/name=frontend 2>&1; kubectl -n otel-demo get deploy frontend 2>&1; kubectl -n otel-demo get events --field-selector involvedObject.name=frontend-676fc79d9f-lhvtk --sort-by=.lastTimestamp 2>&1 | tail -5; kubectl -n otel-demo get pods 2>&1 | grep -v -E ' 1/1 +Running| 2/2 +Running' ; echo \"(only non-ready pods listed above, if any)\"; kubectl get --raw '/api/v1/namespaces/otel-demo/services/frontend-proxy:8080/proxy/' 2>&1 | head -c 200; echo",
+      "cd /tmp; pkill -f 'port-forward' 2>/dev/null; sleep 1; (kubectl -n prometheus port-forward svc/prometheus-kube-prometheus-prometheus 19091:9090 >/tmp/pf4.log 2>&1 &); sleep 4; for p in /api/v1/status/buildinfo /prometheus/api/v1/status/buildinfo /-/healthy; do exec 3<>/dev/tcp/127.0.0.1/19091; printf \"GET $p HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; echo \"$p -> $(head -1 <&3)\"; exec 3<&-; done; tail -2 /tmp/pf4.log",
+      "cd /tmp; g(){ exec 3<>/dev/tcp/127.0.0.1/19091; printf \"GET /prometheus/api/v1/$1 HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; cat <&3 | sed '1,/^\\r$/d'; exec 3<&-; echo; }; Q='histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket{service_name=\"accounting\"}[5m]))by(le))'; E=$(printf '%s' \"$Q\" | sed -e 's/\"/%22/g' -e 's/{/%7B/g' -e 's/}/%7D/g' -e 's/\\[/%5B/g' -e 's/\\]/%5D/g' -e 's/ /%20/g' -e 's/(/%28/g' -e 's/)/%29/g'); echo \"accounting p95 (ms):\"; g \"query?query=$E\" | head -c 500; echo; echo \"ALERTS:\"; g \"alerts\" | grep -o '\"alertname\":\"[^\"]*\",\"alertstate\":\"[^\"]*\"\\|\"state\":\"[^\"]*\"' | head -20; echo; g \"alerts\" | head -c 300",
+      "cd /tmp; pkill -f 'tcp/127.0.0.1/19091' 2>/dev/null; cat /tmp/claude-1003/-tmp/884a6ff6-8b01-43b0-bbe2-02fade8401b0/tasks/bqriwyaf2.output 2>/dev/null | head -c 600; echo; timeout 20 bash -c 'exec 3<>/dev/tcp/127.0.0.1/19091; printf \"GET /prometheus/api/v1/alerts HTTP/1.0\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3; timeout 15 cat <&3' 2>&1 | grep -o '\"alertname\":\"[^\"]*\"\\|\"state\":\"[^\"]*\"' | paste - - | sort | uniq -c | head -30",
+      "cd /tmp; Q='histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket[5m]))by(le,service_name))'; E=$(printf '%s' \"$Q\" | sed -e 's/\"/%22/g' -e 's/{/%7B/g' -e 's/}/%7D/g' -e 's/\\[/%5B/g' -e 's/\\]/%5D/g' -e 's/ /%20/g' -e 's/(/%28/g' -e 's/)/%29/g' -e 's/,/%2C/g'); timeout 25 bash -c \"exec 3<>/dev/tcp/127.0.0.1/19091; printf 'GET /prometheus/api/v1/query?query=$E HTTP/1.0\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3; timeout 15 cat <&3\" 2>&1 | grep -o '\"metric\":{[^}]*}[^]]*\"value\":\\[[^]]*\\]' | sed -E 's/\"metric\":\\{\"service_name\":\"([^\"]*)\"\\}.*\"value\":\\[[^,]*,\"([^\"]*)\"\\]/\\1 \\2 ms/' | head -30",
+      "cd /tmp; Q='histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket[5m]))by(le,service_name))'; E=$(printf '%s' \"$Q\" | sed -e 's/\"/%22/g' -e 's/{/%7B/g' -e 's/}/%7D/g' -e 's/\\[/%5B/g' -e 's/\\]/%5D/g' -e 's/ /%20/g' -e 's/(/%28/g' -e 's/)/%29/g' -e 's/,/%2C/g'); timeout 25 bash -c \"exec 3<>/dev/tcp/127.0.0.1/19091; printf 'GET /prometheus/api/v1/query?query=$E HTTP/1.0\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3; timeout 15 cat <&3\" > /tmp/q.out 2>&1; head -c 300 /tmp/q.out; echo; echo SIZE $(wc -c </tmp/q.out)",
+      "cd /tmp; Q='histogram_quantile(0.95,sum(rate(traces_span_metrics_duration_milliseconds_bucket[5m]))by(le,service_name))'; E=$(printf '%s' \"$Q\" | sed -e 's/\"/%22/g' -e 's/{/%7B/g' -e 's/}/%7D/g' -e 's/\\[/%5B/g' -e 's/\\]/%5D/g' -e 's/ /%20/g' -e 's/(/%28/g' -e 's/)/%29/g' -e 's/,/%2C/g'); REQ=\"GET /prometheus/api/v1/query?query=$E HTTP/1.0\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\"; timeout 25 bash -c 'exec 3<>/dev/tcp/127.0.0.1/19091; printf \"%b\" \"$1\" >&3; timeout 15 cat <&3' _ \"$REQ\" > /tmp/q.out 2>&1; echo SIZE $(wc -c </tmp/q.out); grep -o '\"service_name\":\"[^\"]*\"},\"value\":\\[[^,]*,\"[^\"]*\"\\]' /tmp/q.out | sed -E 's/\"service_name\":\"([^\"]*)\"\\},\"value\":\\[[^,]*,\"([^\"]*)\"\\]/\\1 \\2/'",
+      "cd /tmp; REQ=\"GET /prometheus/api/v1/alerts HTTP/1.0\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\"; timeout 25 bash -c 'exec 3<>/dev/tcp/127.0.0.1/19091; printf \"%b\" \"$1\" >&3; timeout 15 cat <&3' _ \"$REQ\" > /tmp/a.out 2>&1; grep -o '{\"labels\":{[^}]*HighRequestLatency[^}]*}[^}]*}[^}]*}' /tmp/a.out | head -3; echo; grep -o '\"alertname\":\"HighRequestLatency\".\\{0,600\\}' /tmp/a.out | head -c 900",
+      "cd /tmp; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -c '\\dt' 2>&1 | head -30; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -c '\\timing on' -c 'select 1;' -c 'select count(*) from \"OrderItem\";' -c 'select count(*) from \"Order\";' 2>&1 | head -30",
+      "cd /tmp; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -At -c \"select table_schema, table_name from information_schema.tables where table_schema not in ('pg_catalog','information_schema') order by 1,2;\" 2>&1 | head -30; echo \"---DBS---\"; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -At -c \"select datname from pg_database;\" 2>&1; echo \"---INIT CM---\"; kubectl -n otel-demo get configmap postgresql-init -o jsonpath='{.data}' 2>&1 | head -c 1500",
+      "cd /tmp; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -c \"select calls, round(mean_exec_time::numeric,2) mean_ms, round(max_exec_time::numeric,1) max_ms, round(total_exec_time::numeric,0) total_ms, left(regexp_replace(query,'\\s+',' ','g'),140) q from pg_stat_statements where query ilike '%accounting%' or query ilike '%order%' order by total_exec_time desc limit 10;\" 2>&1 | head -30; echo \"---COUNTS---\"; kubectl -n otel-demo exec deploy/astronomy-db -- psql -U astronomy_user -d astronomy_db -At -c \"select (select count(*) from accounting.\\\"order\\\"), (select count(*) from accounting.orderitem), (select count(*) from accounting.shipping);\" 2>&1",
+      "cd /tmp; kubectl -n otel-demo get deploy kafka -o jsonpath='{range .spec.template.spec.containers[0].env[*]}{.name}={.value}{\"\\n\"}{end}' 2>&1 | head -40; echo \"---RES---\"; kubectl -n otel-demo get deploy kafka -o jsonpath='{.spec.template.spec.containers[0].resources}{\"\\n\"}' 2>&1; echo \"---BROKER CFG (non-default)---\"; kubectl -n otel-demo exec deploy/kafka -- /opt/kafka/bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --entity-default --describe 2>/dev/null | head -20; kubectl -n otel-demo exec deploy/kafka -- /opt/kafka/bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name orders --describe 2>/dev/null | head -5",
+      "cd /tmp; kubectl -n otel-demo get prometheusrule otel-demo-alerting-rules -o yaml > /tmp/rules.yaml; grep -n 'backend.goldensignal' /tmp/rules.yaml | head -2; L=$(grep -n 'opentelemetrydemo.backend.goldensignal' /tmp/rules.yaml | head -1 | cut -d: -f1); sed -n \"$((L)),$((L+30))p\" /tmp/rules.yaml",
+      "cd /tmp; kubectl -n kube-system get pods -l k8s-app=kube-dns -o wide 2>&1; kubectl -n kube-system logs -l k8s-app=kube-dns --tail=20 2>&1 | cut -c1-220; echo \"---DNS TEST FROM ACCOUNTING---\"; kubectl -n otel-demo exec deploy/accounting -- sh -c 'true' 2>&1 | head -2; kubectl -n otel-demo exec deploy/load-generator -- python -c \"\nimport socket,time\nfor h in ['astronomy-db','kafka','otel-collector']:\n    t=time.time()\n    try: socket.getaddrinfo(h,80); print(h, round((time.time()-t)*1000,1),'ms')\n    except Exception as e: print(h,'ERR',e)\n\" 2>&1 | tail -4",
+      "cd /tmp; pkill -f 'port-forward' 2>/dev/null; kubectl -n otel-demo logs deploy/accounting --timestamps 2>&1 | grep -n -B2 -A2 'Unknown topic' | cut -c1-200 | head -12; kubectl -n otel-demo get pods -l opentelemetry.io/name=accounting 2>&1",
+      "cd /tmp; pkill -f 'tcp/127.0.0.1/19091' 2>/dev/null; kubectl -n otel-demo get pods -l 'opentelemetry.io/name in (frontend,accounting)' 2>&1; kubectl -n otel-demo get deploy frontend -o jsonpath='{.spec.template.spec.containers[0].readinessProbe.httpGet}{\"\\n\"}' 2>&1"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.37",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-haiku-5-5",
+    "seconds": 530,
+    "summary": "lert is resolved. The accounting latency alert is still firing, and I have not found its root cause.\n\n**Frontend (KubePodNotReady): fixed**\n- **Cause:** the `frontend` Deployment's readiness probe targeted port 40 with path `/ready`. The app listens on 8080, so every probe was refused and the pod never became Ready.\n- **Change:** I patched the probe to `/` on port 8080. The old ReplicaSet had no probe, and `/ready` on 8080 returns 404, so I did not just fix the port.\n- **Verified:** the rollout completed. Pod `frontend-676fc79d9f-lhvtk` is 1/1 Running, and the home page is served through frontend-proxy.\n- **Caveat:** the Deployment is Helm-managed (release `otel-demo`). The next `helm upgrade` will revert this patch unless the chart values are also corrected.\n\n**Accounting (HighRequestLatency): firing, cause not found**\n- **Symptom:** Prometheus shows accounting's span p95 at about 3.6\u20134.1 s. The rule fires above 1500 ms for 3 minutes, and the alert has been active since <time>.\n- **Ruled out:**\n  - **Kafka:** healthy, consumer lag is 1.\n  - **Postgres:** no locks, and inserts average about 0.2 ms.\n  - **Resources and nodes:** no CPU or memory pressure, and nodes are healthy.\n  - **Feature flags:** all 18 default to off.\n  - **DNS and mesh:** CoreDNS resolves in about 1 ms, and there are no Istio or network policy objects.\n- **Hypothesis, not verified:** the span may include time spent waiting for messages on a low-traffic topic. Confirming this needs a span breakdown from the trace backend or the accounting consumer source, neither of which I could reach.\n- **Not done:** I did not restart accounting. Nothing I found points to a restart fixing it, and it would only cause a consumer rebalance.\n\n**Side notes, not related to either alert**\n- The collector exports to Jaeger, Firepit, and ClickHouse endpoints that do not exist in this cluster, so its export failures are noise.\n- The `HighRequestLatency` rule's description says 15000 ms, but the expression uses 1500 ms.",
+    "timed_out": false,
+    "turns": 2,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 2558,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 2558,
+      "cache_read_input_tokens": 184751,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 6,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 675,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 675,
+          "cache_read_input_tokens": 93317,
+          "input_tokens": 2,
+          "output_tokens": 783,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1315,
+      "output_tokens_details": {
+        "thinking_tokens": 242
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "captures": {
+    "final": {
+      "services": {
+        "ad": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ],
+            [
+              9465,
+              "9465",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "ad"
+          }
+        },
+        "agent": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8010,
+              "8010",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "agent"
+          }
+        },
+        "astronomy-db": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5432,
+              "5432",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "astronomy-db"
+          }
+        },
+        "cart": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "cart"
+          }
+        },
+        "chatbot": {
+          "endpoints": 1,
+          "ports": [
+            [
+              7860,
+              "7860",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "chatbot"
+          }
+        },
+        "checkout": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "checkout"
+          }
+        },
+        "currency": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "currency"
+          }
+        },
+        "email": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "email"
+          }
+        },
+        "flagd": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4000,
+              "4000",
+              "TCP"
+            ],
+            [
+              8013,
+              "8013",
+              "TCP"
+            ],
+            [
+              8016,
+              "8016",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "flagd"
+          }
+        },
+        "frontend": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "frontend"
+          }
+        },
+        "frontend-proxy": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "frontend-proxy"
+          }
+        },
+        "image-provider": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8081,
+              "8081",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "image-provider"
+          }
+        },
+        "kafka": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9092,
+              "9092",
+              "TCP"
+            ],
+            [
+              9093,
+              "9093",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "kafka"
+          }
+        },
+        "load-generator": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8089,
+              "8089",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "load-generator"
+          }
+        },
+        "mcp": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8011,
+              "8011",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "mcp"
+          }
+        },
+        "opamp-server": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4320,
+              "4320",
+              "TCP"
+            ],
+            [
+              4321,
+              "4321",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "opamp-server"
+          }
+        },
+        "otel-collector": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4317,
+              "4317",
+              "TCP"
+            ],
+            [
+              4318,
+              "4318",
+              "TCP"
+            ],
+            [
+              8888,
+              "8888",
+              "TCP"
+            ],
+            [
+              8889,
+              "8889",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "otel-demo",
+            "app.kubernetes.io/name": "opentelemetry-collector",
+            "component": "standalone-collector"
+          }
+        },
+        "payment": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "payment"
+          }
+        },
+        "product-catalog": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "product-catalog"
+          }
+        },
+        "quote": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "quote"
+          }
+        },
+        "recommendation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "recommendation"
+          }
+        },
+        "shipping": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "shipping"
+          }
+        },
+        "telemetry-docs": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8000,
+              "8000",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "telemetry-docs"
+          }
+        },
+        "valkey-cart": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "valkey-cart"
+          }
+        }
+      },
+      "traffic": null,
+      "workloads": {
+        "deployments/accounting": 1,
+        "deployments/ad": 1,
+        "deployments/agent": 1,
+        "deployments/astronomy-db": 1,
+        "deployments/cart": 1,
+        "deployments/chatbot": 1,
+        "deployments/checkout": 1,
+        "deployments/currency": 1,
+        "deployments/email": 1,
+        "deployments/flagd": 1,
+        "deployments/fraud-detection": 1,
+        "deployments/frontend": 1,
+        "deployments/frontend-proxy": 1,
+        "deployments/image-provider": 1,
+        "deployments/kafka": 1,
+        "deployments/load-generator": 1,
+        "deployments/mcp": 1,
+        "deployments/opamp-server": 1,
+        "deployments/otel-collector": 1,
+        "deployments/payment": 1,
+        "deployments/product-catalog": 1,
+        "deployments/quote": 1,
+        "deployments/recommendation": 1,
+        "deployments/shipping": 1,
+        "deployments/telemetry-docs": 1,
+        "deployments/valkey-cart": 1
+      }
+    },
+    "healthy": {
+      "services": {
+        "ad": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ],
+            [
+              9465,
+              "9465",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "ad"
+          }
+        },
+        "agent": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8010,
+              "8010",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "agent"
+          }
+        },
+        "astronomy-db": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5432,
+              "5432",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "astronomy-db"
+          }
+        },
+        "cart": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "cart"
+          }
+        },
+        "chatbot": {
+          "endpoints": 1,
+          "ports": [
+            [
+              7860,
+              "7860",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "chatbot"
+          }
+        },
+        "checkout": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "checkout"
+          }
+        },
+        "currency": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "currency"
+          }
+        },
+        "email": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "email"
+          }
+        },
+        "flagd": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4000,
+              "4000",
+              "TCP"
+            ],
+            [
+              8013,
+              "8013",
+              "TCP"
+            ],
+            [
+              8016,
+              "8016",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "flagd"
+          }
+        },
+        "frontend": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "frontend"
+          }
+        },
+        "frontend-proxy": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "frontend-proxy"
+          }
+        },
+        "image-provider": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8081,
+              "8081",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "image-provider"
+          }
+        },
+        "kafka": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9092,
+              "9092",
+              "TCP"
+            ],
+            [
+              9093,
+              "9093",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "kafka"
+          }
+        },
+        "load-generator": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8089,
+              "8089",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "load-generator"
+          }
+        },
+        "mcp": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8011,
+              "8011",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "mcp"
+          }
+        },
+        "opamp-server": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4320,
+              "4320",
+              "TCP"
+            ],
+            [
+              4321,
+              "4321",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "opamp-server"
+          }
+        },
+        "otel-collector": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4317,
+              "4317",
+              "TCP"
+            ],
+            [
+              4318,
+              "4318",
+              "TCP"
+            ],
+            [
+              8888,
+              "8888",
+              "TCP"
+            ],
+            [
+              8889,
+              "8889",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "otel-demo",
+            "app.kubernetes.io/name": "opentelemetry-collector",
+            "component": "standalone-collector"
+          }
+        },
+        "payment": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "payment"
+          }
+        },
+        "product-catalog": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "product-catalog"
+          }
+        },
+        "quote": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "quote"
+          }
+        },
+        "recommendation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "recommendation"
+          }
+        },
+        "shipping": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "shipping"
+          }
+        },
+        "telemetry-docs": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8000,
+              "8000",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "telemetry-docs"
+          }
+        },
+        "valkey-cart": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "valkey-cart"
+          }
+        }
+      },
+      "traffic": null,
+      "workloads": {
+        "deployments/accounting": 1,
+        "deployments/ad": 1,
+        "deployments/agent": 1,
+        "deployments/astronomy-db": 1,
+        "deployments/cart": 1,
+        "deployments/chatbot": 1,
+        "deployments/checkout": 1,
+        "deployments/currency": 1,
+        "deployments/email": 1,
+        "deployments/flagd": 1,
+        "deployments/fraud-detection": 1,
+        "deployments/frontend": 1,
+        "deployments/frontend-proxy": 1,
+        "deployments/image-provider": 1,
+        "deployments/kafka": 1,
+        "deployments/load-generator": 1,
+        "deployments/mcp": 1,
+        "deployments/opamp-server": 1,
+        "deployments/otel-collector": 1,
+        "deployments/payment": 1,
+        "deployments/product-catalog": 1,
+        "deployments/quote": 1,
+        "deployments/recommendation": 1,
+        "deployments/shipping": 1,
+        "deployments/telemetry-docs": 1,
+        "deployments/valkey-cart": 1
+      }
+    }
+  },
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "skipping: [localhost] => (item=deployment/flagd) \nskipping: [localhost] => (item=deployment/fraud-detection) \nskipping: [localhost] => (item=deployment/frontend) \nskipping: [localhost] => (item=deployment/frontend-proxy) \nskipping: [localhost] => (item=deployment/image-provider) \nskipping: [localhost] => (item=deployment/kafka) \nskipping: [localhost] => (item=deployment/mcp) \nskipping: [localhost] => (item=deployment/opamp-server) \nskipping: [localhost] => (item=deployment/otel-collector) \nskipping: [localhost] => (item=deployment/payment) \nskipping: [localhost] => (item=deployment/product-catalog) \nskipping: [localhost] => (item=deployment/quote) \nskipping: [localhost] => (item=deployment/recommendation) \nskipping: [localhost] => (item=deployment/shipping) \nskipping: [localhost] => (item=deployment/telemetry-docs) \nskipping: [localhost] => (item=deployment/valkey-cart) \nskipping: [localhost]\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=40   changed=4    unreachable=0    failed=0    skipped=35   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "detect": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 211,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/frontend-779d87fb6-dfqr2"
+      ]
+    }
+  ],
+  "detected": true,
+  "evaluation": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 391,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 421,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 451,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 481,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 511,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 541,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 571,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 601,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    }
+  ],
+  "ground_truth": [
+    "KubePodNotReady"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 0,
+      "tail": "TASK [faults : Retrieve container from frontend] *******************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes workload container environmental variable not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Retrieve port from frontend] ************************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes service port not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Update workload containers] *************************************\nchanged: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nTASK [waiters : Include wait tasks] ********************************************\nskipping: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=22   changed=1    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   \n"
+    }
+  ],
+  "model": "claude-haiku-5-5",
+  "reference": {
+    "capacity": [],
+    "function": null,
+    "healthy": true,
+    "routing": [],
+    "traffic": null
+  },
+  "scenario": 49,
+  "status": "COMPLETED",
+  "verdicts": {
+    "alert_absent": {
+      "passed": true,
+      "profile": "+++++++++++++++++++++",
+      "relapsed": false
+    }
+  }
+}

@@ -87,7 +87,9 @@ class ScheduleTest(unittest.TestCase):
     def test_schedule(self):
         with open(run_audit.SCHEDULE, newline="") as f:
             rows = list(csv.DictReader(f))
-        self.assertEqual(len(rows), 21)
+        self.assertEqual(len(rows), 61)
+        self.assertEqual(len({r["scenario"] for r in rows}), 25)
+        self.assertEqual(len({(r["scenario"], r["action"]) for r in rows}), len(rows))
         self.assertTrue(all(r["predicted"] in ("pass", "fail") for r in rows))
         self.assertTrue(all(r["action"] in ("NULL", "RESTART", "SCALE0", "SILENCE") for r in rows))
         self.assertLessEqual(set(run_audit.PILOT), {(r["scenario"], r["action"]) for r in rows})
