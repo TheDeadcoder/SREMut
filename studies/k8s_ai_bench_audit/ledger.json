@@ -91,8 +91,30 @@
     {
       "accepted": false,
       "accepted_settled": false,
+      "action": "match_expressions",
+      "attempt": "attempt-2",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "reject",
+      "settled_label": "false_reject",
+      "task": "create-network-policy"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": false,
       "action": "split_dns_rules",
       "attempt": "attempt-1",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "reject",
+      "settled_label": "false_reject",
+      "task": "create-network-policy"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": false,
+      "action": "split_dns_rules",
+      "attempt": "attempt-2",
       "kind": "correct",
       "label": "false_reject",
       "predicted": "reject",
@@ -135,8 +157,30 @@
     {
       "accepted": false,
       "accepted_settled": false,
+      "action": "latest_tag",
+      "attempt": "attempt-2",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "reject",
+      "settled_label": "false_reject",
+      "task": "create-pod"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": false,
       "action": "qualified_image",
       "attempt": "attempt-1",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "reject",
+      "settled_label": "false_reject",
+      "task": "create-pod"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": false,
+      "action": "qualified_image",
+      "attempt": "attempt-2",
       "kind": "correct",
       "label": "false_reject",
       "predicted": "reject",
@@ -278,8 +322,30 @@
     {
       "accepted": false,
       "accepted_settled": true,
+      "action": "remove_bad_command",
+      "attempt": "attempt-2",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "accept",
+      "settled_label": "accepted",
+      "task": "fix-crashloop"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": true,
       "action": "sleep_instead",
       "attempt": "attempt-1",
+      "kind": "wrong",
+      "label": "killed",
+      "predicted": "accept",
+      "settled_label": "survived",
+      "task": "fix-crashloop"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": true,
+      "action": "sleep_instead",
+      "attempt": "attempt-2",
       "kind": "wrong",
       "label": "killed",
       "predicted": "accept",
@@ -333,8 +399,30 @@
     {
       "accepted": true,
       "accepted_settled": true,
+      "action": "SCALE0",
+      "attempt": "attempt-2",
+      "kind": "generic",
+      "label": "survived",
+      "predicted": "accept",
+      "settled_label": "survived",
+      "task": "fix-image-pull"
+    },
+    {
+      "accepted": true,
+      "accepted_settled": true,
       "action": "other_image",
       "attempt": "attempt-1",
+      "kind": "wrong",
+      "label": "survived",
+      "predicted": "accept",
+      "settled_label": "survived",
+      "task": "fix-image-pull"
+    },
+    {
+      "accepted": true,
+      "accepted_settled": true,
+      "action": "other_image",
+      "attempt": "attempt-2",
       "kind": "wrong",
       "label": "survived",
       "predicted": "accept",
@@ -420,9 +508,31 @@
     },
     {
       "accepted": false,
+      "accepted_settled": false,
+      "action": "tcp_probes",
+      "attempt": "attempt-2",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "reject",
+      "settled_label": "false_reject",
+      "task": "fix-probes"
+    },
+    {
+      "accepted": false,
       "accepted_settled": true,
       "action": "valid_paths",
       "attempt": "attempt-1",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "accept",
+      "settled_label": "accepted",
+      "task": "fix-probes"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": true,
+      "action": "valid_paths",
+      "attempt": "attempt-2",
       "kind": "correct",
       "label": "false_reject",
       "predicted": "accept",
@@ -606,6 +716,17 @@
       "task": "resize-pvc"
     },
     {
+      "accepted": true,
+      "accepted_settled": true,
+      "action": "edit_volume_capacity",
+      "attempt": "attempt-2",
+      "kind": "wrong",
+      "label": "survived",
+      "predicted": "accept",
+      "settled_label": "survived",
+      "task": "resize-pvc"
+    },
+    {
       "accepted": false,
       "accepted_settled": false,
       "action": "expand_claim",
@@ -619,8 +740,30 @@
     {
       "accepted": false,
       "accepted_settled": false,
+      "action": "expand_claim",
+      "attempt": "attempt-2",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "reject",
+      "settled_label": "false_reject",
+      "task": "resize-pvc"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": false,
       "action": "recreate_claim",
       "attempt": "attempt-1",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "reject",
+      "settled_label": "false_reject",
+      "task": "resize-pvc"
+    },
+    {
+      "accepted": false,
+      "accepted_settled": false,
+      "action": "recreate_claim",
+      "attempt": "attempt-2",
       "kind": "correct",
       "label": "false_reject",
       "predicted": "reject",
@@ -676,6 +819,17 @@
       "accepted_settled": true,
       "action": "delete_and_recreate",
       "attempt": "attempt-1",
+      "kind": "wrong",
+      "label": "survived",
+      "predicted": "accept",
+      "settled_label": "survived",
+      "task": "rolling-update-deployment"
+    },
+    {
+      "accepted": true,
+      "accepted_settled": true,
+      "action": "delete_and_recreate",
+      "attempt": "attempt-2",
       "kind": "wrong",
       "label": "survived",
       "predicted": "accept",
@@ -826,6 +980,17 @@
       "task": "statefulset-lifecycle"
     },
     {
+      "accepted": false,
+      "accepted_settled": true,
+      "action": "recreate_with_one",
+      "attempt": "attempt-2",
+      "kind": "correct",
+      "label": "false_reject",
+      "predicted": "reject",
+      "settled_label": "accepted",
+      "task": "statefulset-lifecycle"
+    },
+    {
       "accepted": true,
       "accepted_settled": true,
       "action": "scale_down",
@@ -867,6 +1032,10 @@
     "prediction_agreement": {
       "agree": 59,
       "judged": 62
+    },
+    "repeats": {
+      "episodes": 15,
+      "same_labels_as_first": 15
     },
     "verdict_changed_after_settling": [
       "fix-crashloop:remove_bad_command",

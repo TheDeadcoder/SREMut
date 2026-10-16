@@ -1,0 +1,103 @@
+{
+  "applied": {
+    "replicas": 1,
+    "targets": [
+      "deployments/compose-post-service"
+    ]
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/url-shorten-mongodb"
+    ],
+    "oracle_window": [
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      }
+    ],
+    "profile": "---------",
+    "reference": {
+      "capacity": [
+        "deployments/compose-post-service"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "compose-post-service"
+      ],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 15,
+        "rounds": 1
+      }
+    },
+    "verdict": false
+  },
+  "operator": "COLLAT",
+  "problem_id": "auth_miss_mongodb-mitigation-1",
+  "recovered": {
+    "oracle_until_pass": [
+      {
+        "success": true
+      }
+    ],
+    "profile": "+",
+    "reference": {
+      "capacity": [],
+      "function": false,
+      "healthy": false,
+      "routing": [],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 117,
+        "rounds": 1
+      }
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": []
+}

@@ -1,0 +1,34 @@
+{
+  "attempt": 1,
+  "duration_seconds": 193,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs"
+  ],
+  "problem_id": "astronomy_shop_kafka_queue_problems-mitigation-1",
+  "reset": {
+    "configmaps -n default": [
+      "configmap/wrk2-payload-script"
+    ],
+    "failed_pods_deleted": 3,
+    "jobs -n default": [
+      "job.batch/wrk2-job"
+    ],
+    "namespaces": [
+      "namespace/observe",
+      "namespace/openebs"
+    ],
+    "persistentvolumes": [
+      "persistentvolume/pvc-3fa3a862-ab14-4934-a2f7-13de124765a4"
+    ]
+  },
+  "server": "D",
+  "status": "COMPLETED"
+}

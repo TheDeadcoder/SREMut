@@ -1,0 +1,87 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/geo"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "recover fault: ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': 'eed5d5be-79e5-44b5-905c-2d834557a67a', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': '10d7c308-d465-4f26-9e5c-b2592b0f9f22', 'X-Kubernetes-Pf-Prioritylevel-Uid': '36f2bb47-c140-4d66-99d3-117662fa147e', 'Date': '<time>', 'Content-Length': '208'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n"
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": false
+      }
+    ],
+    "profile": "-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/geo"
+    ],
+    "oracle_window": [
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      },
+      {
+        "success": false
+      }
+    ],
+    "profile": "---------",
+    "reference": {
+      "capacity": [
+        "deployments/geo"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "geo"
+      ],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 117,
+        "rounds": 1
+      }
+    },
+    "verdict": false
+  },
+  "operator": "DELETE",
+  "problem_id": "misconfig_app_hotel_res-mitigation-1",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/geo"
+  ]
+}

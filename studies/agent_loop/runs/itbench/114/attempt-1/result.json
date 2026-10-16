@@ -1,0 +1,358 @@
+{
+  "agent": {
+    "alerts_given": "- HighRequestErrorRate (frontend)\n- HighRequestErrorRate (frontend-proxy)\n- HighRequestLatency (accounting)\n- InfoInhibitor",
+    "commands": [
+      "kubectl get pods -n otel-demo -o wide; kubectl get events -n otel-demo --sort-by=.lastTimestamp | tail -20",
+      "cd /tmp; for d in frontend frontend-proxy accounting; do echo \"== $d\"; kubectl logs -n otel-demo deploy/$d --tail=15; done",
+      "cd /tmp; kubectl logs -n otel-demo deploy/frontend --tail=500 | grep -v '\"level\":30' | tail -5; kubectl logs -n otel-demo deploy/frontend-proxy --tail=300 | grep -E '\" (4|5)[0-9][0-9] ' | tail -5; kubectl get cm -n otel-demo; kubectl get cm -n otel-demo flagd-config -o yaml 2>/dev/null | grep -B2 -A8 -E '\"defaultVariant\": \"(on|[1-9])' | head -60",
+      "cd /tmp; kubectl get cm -n otel-demo flagd-config -o yaml | grep -n -E 'defaultVariant|^\\s+\"[a-zA-Z]+\": \\{' | head -60; kubectl get pods -n otel-demo --no-headers | awk '{print $4}' | sort | uniq -c",
+      "cd /tmp; kubectl get cm -n otel-demo flagd-config -o yaml | sed -n 160,185p; kubectl logs -n otel-demo deploy/frontend-proxy --tail=2000 | grep -c ' 5[0-9][0-9] '; kubectl logs -n otel-demo deploy/frontend --tail=2000 | grep -E '\"level\":(40|50)|status_code\":(4|5)' | tail -5; kubectl get svc,endpoints -n otel-demo | head -60",
+      "cd /tmp; kubectl logs -n otel-demo deploy/frontend --since=60s | grep -c '\"level\":50'; kubectl logs -n otel-demo deploy/frontend --since=60s | grep -c 'status_code\":200'; kubectl logs -n otel-demo deploy/ad --tail=15 | cut -c1-250; kubectl get deploy ad -n otel-demo -o jsonpath='{.spec.template.spec.containers[0].env}' | head -c 1500",
+      "cd /tmp; kubectl logs -n otel-demo deploy/otel-collector --tail=15 | cut -c1-300; kubectl top pods -n otel-demo 2>&1 | head -5; kubectl get deploy otel-collector -n otel-demo -o jsonpath='{.spec.template.spec.containers[0].resources}'",
+      "cd /tmp; kubectl logs -n otel-demo deploy/otel-collector --since=2m | grep -E 'error|warn' | cut -c1-300 | sort | uniq -c | sort -rn | head -8; kubectl top pod -n otel-demo otel-collector-847fb8fc48-hd9mr",
+      "cd /tmp; kubectl logs -n otel-demo deploy/otel-collector --since=2m | grep 'Exporting failed. Rejecting' | head -1 | grep -o '\"error\".*' | cut -c1-400; kubectl get cm otel-collector -n otel-demo -o yaml | grep -n -A12 'exporters:' | head -50"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.37",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 32,
+    "summary": "The user-facing errors have already stopped. I made no changes.\n\n- **Cause:** The frontend's 500s on `/api/data` were `ECONNREFUSED` to the `ad` service (10.96.59.66:8080). They happened while the pods were starting, about 5 minutes before I looked, and `ad` was not yet accepting connections.\n- **Current state:** `ad` now has an endpoint and is serving requests. In the last 60 seconds the frontend logged 576 requests with status 200 and no error-level logs. `frontend-proxy` shows no 5xx responses. Checkout works, and `accounting` is consuming orders normally. All 26 pods are Running with 0 restarts.\n- **Feature flags:** The flags in `flagd-config` are all `off`, so no fault injection is active.\n- **Alerts:** I expect `HighRequestErrorRate` (frontend and frontend-proxy) and `HighRequestLatency` (accounting) to clear as the error window ages out. I didn't check them. `InfoInhibitor` is an informational meta-alert, not a fault in the demo.\n- **Unresolved, not user-facing:** The `otel-collector` is dropping some telemetry with \"sending queue is full\". The collector's logs exporter points at `clickhouse-main.clickhouse.svc.cluster.local`, outside this namespace, and I did not confirm that is the one failing. This costs observability data only. I left it alone because it is outside the incident and the fix would be in that backend or the collector config. Someone should look at it.",
+    "timed_out": false,
+    "turns": 10,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 24025,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 24025,
+      "cache_read_input_tokens": 151672,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 20,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 713,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 713,
+          "cache_read_input_tokens": 26845,
+          "input_tokens": 2,
+          "output_tokens": 600,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 2400,
+      "output_tokens_details": {
+        "thinking_tokens": 328
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "skipping: [localhost] => (item=deployment/flagd) \nskipping: [localhost] => (item=deployment/fraud-detection) \nskipping: [localhost] => (item=deployment/frontend) \nskipping: [localhost] => (item=deployment/frontend-proxy) \nskipping: [localhost] => (item=deployment/image-provider) \nskipping: [localhost] => (item=deployment/kafka) \nskipping: [localhost] => (item=deployment/mcp) \nskipping: [localhost] => (item=deployment/opamp-server) \nskipping: [localhost] => (item=deployment/otel-collector) \nskipping: [localhost] => (item=deployment/payment) \nskipping: [localhost] => (item=deployment/product-catalog) \nskipping: [localhost] => (item=deployment/quote) \nskipping: [localhost] => (item=deployment/recommendation) \nskipping: [localhost] => (item=deployment/shipping) \nskipping: [localhost] => (item=deployment/telemetry-docs) \nskipping: [localhost] => (item=deployment/valkey-cart) \nskipping: [localhost]\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=40   changed=4    unreachable=0    failed=0    skipped=35   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "detect": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "InfoInhibitor/"
+      ]
+    }
+  ],
+  "detected": true,
+  "evaluation": [
+    {
+      "after": 0,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 391,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 421,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 451,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 481,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 511,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 541,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 571,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 601,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    }
+  ],
+  "ground_truth": [
+    "HighRequestErrorRate"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": []
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 0,
+      "tail": "TASK [faults : Retrieve container from product-catalog] ************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes workload container environmental variable not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Retrieve port from product-catalog] *****************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes service port not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Delete service] *************************************************\nchanged: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nTASK [waiters : Include wait tasks] ********************************************\nskipping: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=20   changed=1    unreachable=0    failed=0    skipped=14   rescued=0    ignored=0   \n"
+    }
+  ],
+  "model": "claude-sonnet-5-5",
+  "reference": {
+    "capacity": [],
+    "function": null,
+    "healthy": false,
+    "routing": [
+      "product-catalog"
+    ],
+    "traffic": null
+  },
+  "scenario": 114,
+  "status": "COMPLETED",
+  "verdicts": {
+    "alert_absent": {
+      "passed": true,
+      "profile": "--+++++++++++++++++++",
+      "relapsed": false
+    }
+  }
+}

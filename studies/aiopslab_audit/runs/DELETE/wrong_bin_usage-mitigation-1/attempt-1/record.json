@@ -1,0 +1,34 @@
+{
+  "attempt": 1,
+  "duration_seconds": 138,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs"
+  ],
+  "problem_id": "wrong_bin_usage-mitigation-1",
+  "reset": {
+    "configmaps -n default": [
+      "configmap/wrk2-payload-script"
+    ],
+    "failed_pods_deleted": 3,
+    "jobs -n default": [
+      "job.batch/wrk2-job"
+    ],
+    "namespaces": [
+      "namespace/observe",
+      "namespace/openebs"
+    ],
+    "persistentvolumes": [
+      "persistentvolume/pvc-9c55123d-29f2-4835-9de9-2e28c03af016"
+    ]
+  },
+  "server": "D",
+  "status": "COMPLETED"
+}

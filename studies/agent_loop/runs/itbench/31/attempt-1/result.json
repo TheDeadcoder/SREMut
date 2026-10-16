@@ -1,0 +1,589 @@
+{
+  "agent": {
+    "alerts_given": "- HighRequestLatency (accounting)\n- NoRequestsReceived (chatbot)\n- NoRequestsReceived (mcp)",
+    "commands": [
+      "kubectl -n otel-demo get pods -o wide | head -50; kubectl -n otel-demo get events --sort-by=.lastTimestamp | tail -20",
+      "cd /tmp; for d in accounting chatbot mcp; do echo \"== $d\"; kubectl -n otel-demo logs deploy/$d --tail=15; done; kubectl -n otel-demo get cm,deploy -o name | head -60",
+      "cd /tmp; kubectl -n otel-demo get cm flagd-config -o jsonpath='{.data}' | head -c 4000; echo; kubectl -n otel-demo logs deploy/agent --tail=20; kubectl -n otel-demo get svc,networkpolicy",
+      "cd /tmp; kubectl -n otel-demo get networkpolicy frontend-ingress -o yaml; kubectl -n otel-demo get cm flagd-config -o jsonpath='{.data.demo\\.flagd\\.json}' | grep -B1 -A0 defaultVariant | grep -v '\"off\"'; kubectl -n otel-demo logs deploy/load-generator --tail=10; kubectl -n otel-demo get pods --show-labels | grep -E 'frontend|chatbot|mcp'",
+      "cd /tmp; kubectl -n otel-demo get cm flagd-config -o jsonpath='{.data.demo\\.flagd\\.json}' | python3 -I -c \"\nimport json,sys\nfor k,v in json.load(sys.stdin)['flags'].items():\n  if v['defaultVariant']!='off': print(k,v['defaultVariant'])\"\nkubectl -n otel-demo get deploy chatbot mcp accounting kafka -o yaml | grep -E -A12 'env:|image:' | head -150",
+      "cd /tmp; kubectl -n otel-demo get cm flagd-config -o jsonpath='{.data.demo\\.flagd\\.json}' | tr -d '\\n ' | grep -oE '\"[A-Za-z]+\":\\{\"defaultVariant\":\"[^\"]+\"' | grep -v '\"off\"'; kubectl -n otel-demo get deploy agent load-generator -o yaml | grep -E -A2 'name: (CHATBOT|MCP|AGENT|LOCUST)[A-Z_]*'; kubectl -n otel-demo logs deploy/accounting --tail=3 -c accounting | cut -c1-150; kubectl -n otel-demo logs deploy/agent | grep -iE 'error|mcp|chatbot' | head",
+      "cd /tmp; kubectl -n otel-demo get rs -o custom-columns=N:.metadata.name,D:.spec.replicas,C:.metadata.creationTimestamp | grep -E 'agent|chatbot|mcp|account'; kubectl -n otel-demo get deploy agent -o yaml | grep -B2 -A3 -E 'MCP_ENABLED|managedFields' | head -20; kubectl -n otel-demo get deploy -o custom-columns=N:.metadata.name,G:.metadata.generation; kubectl -n otel-demo get cm agent-fixtures -o yaml | head -30",
+      "cd /tmp; kubectl -n otel-demo get cm flagd-config -o jsonpath='{.data.demo\\.flagd\\.json}' | grep -E '^    \"|defaultVariant' | paste - - | grep -v '\"off\"'; kubectl -n otel-demo get deploy frontend-proxy -o yaml | grep -iE -A1 'chatbot|mcp'; kubectl -n otel-demo get deploy agent -o yaml | grep -B1 -A1 -iE 'chatbot'; kubectl -n otel-demo logs deploy/frontend-proxy --tail=300 | grep -iE 'chatbot|mcp' | tail -5",
+      "cd /tmp; kubectl -n otel-demo top pods 2>&1 | head -30; kubectl -n otel-demo logs deploy/frontend --tail=15 | cut -c1-250; kubectl -n otel-demo logs deploy/kafka --tail=10 | cut -c1-200; kubectl -n otel-demo logs deploy/chatbot | grep -v httpx | tail",
+      "cd /tmp; kubectl -n otel-demo logs deploy/opamp-server --tail=30 | cut -c1-300; kubectl -n otel-demo get deploy opamp-server -o yaml | grep -A30 'containers:' | head -50",
+      "cd /tmp; kubectl -n otel-demo logs deploy/agent | head -30 | cut -c1-250; kubectl -n otel-demo logs deploy/agent | grep -c 500; kubectl -n otel-demo get deploy agent -o jsonpath='{.spec.template.spec.containers[0].env}' | tr '{' '\\n' | grep -E 'name' | cut -c1-150",
+      "cd /tmp; kubectl -n otel-demo set env deploy/agent MCP_ENABLED=True; kubectl -n otel-demo rollout status deploy/agent --timeout=120s; sleep 45; kubectl -n otel-demo logs deploy/mcp --tail=8 | cut -c1-200; kubectl -n otel-demo logs deploy/agent --tail=8 | cut -c1-200"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.37",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 95,
+    "summary": "I fixed the mcp symptom, but I only partly resolved the incident. I couldn't find a cause for the accounting latency or the chatbot alert.\n\n**What I found**\n- The `agent` deployment had `MCP_ENABLED=False`. The agent therefore never called the `mcp` service, which explains `NoRequestsReceived (mcp)`.\n- The pods were all Running with no restarts. All flagd feature flags were at their default (`off`).\n- Accounting is consuming Kafka orders normally, and its logs show no errors.\n- The chatbot is up and idle. I found nothing that sends it traffic. The load generator calls `agent`, not `chatbot`.\n- A `frontend-ingress` NetworkPolicy appeared about 2 minutes after the deploy. It allows all ingress, so I don't think it matters. I left it alone.\n\n**What I changed**\n- I ran `kubectl set env deploy/agent MCP_ENABLED=True`, which restarted the agent.\n- After the restart, `mcp` is receiving `/mcp` requests (ListTools and CallTool) and returning 200.\n- The agent logged one `Unexpected content type` error from the MCP client right after the restart. I didn't investigate it.\n\n**What I didn't verify**\n- I haven't confirmed that the `HighRequestLatency (accounting)` and `NoRequestsReceived (chatbot)` alerts have cleared.\n- I didn't dig into the accounting latency.\n- Before the change, about 89 of the agent's requests to the frontend `/api/data?contextKeys=binoculars` returned 500. That may be separate, and I didn't follow it up.\n\nTo undo the change, set `MCP_ENABLED` back to `False` on the agent.",
+    "timed_out": false,
+    "turns": 13,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 36904,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 36904,
+      "cache_read_input_tokens": 257928,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 26,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 1142,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 1142,
+          "cache_read_input_tokens": 39295,
+          "input_tokens": 2,
+          "output_tokens": 665,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4414,
+      "output_tokens_details": {
+        "thinking_tokens": 1456
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "skipping: [localhost] => (item=deployment/flagd) \nskipping: [localhost] => (item=deployment/fraud-detection) \nskipping: [localhost] => (item=deployment/frontend) \nskipping: [localhost] => (item=deployment/frontend-proxy) \nskipping: [localhost] => (item=deployment/image-provider) \nskipping: [localhost] => (item=deployment/kafka) \nskipping: [localhost] => (item=deployment/mcp) \nskipping: [localhost] => (item=deployment/opamp-server) \nskipping: [localhost] => (item=deployment/otel-collector) \nskipping: [localhost] => (item=deployment/payment) \nskipping: [localhost] => (item=deployment/product-catalog) \nskipping: [localhost] => (item=deployment/quote) \nskipping: [localhost] => (item=deployment/recommendation) \nskipping: [localhost] => (item=deployment/shipping) \nskipping: [localhost] => (item=deployment/telemetry-docs) \nskipping: [localhost] => (item=deployment/valkey-cart) \nskipping: [localhost]\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=40   changed=4    unreachable=0    failed=0    skipped=35   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "detect": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 391,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 421,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 451,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 481,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 511,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 541,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 571,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 601,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 631,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 661,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 692,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 722,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 752,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 782,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 812,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 842,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 872,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 902,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    }
+  ],
+  "detected": false,
+  "evaluation": [
+    {
+      "after": 0,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 391,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 421,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 451,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 481,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 511,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 541,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 571,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    },
+    {
+      "after": 601,
+      "ground_truth": [
+        "NoRequestsReceived"
+      ],
+      "in_namespace": [
+        "NoRequestsReceived/chatbot"
+      ]
+    }
+  ],
+  "ground_truth": [
+    "HighRequestErrorRate",
+    "NoRequestsReceived"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 0,
+      "tail": "TASK [faults : Retrieve container from frontend] *******************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes workload container environmental variable not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Retrieve port from frontend] ************************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes service port not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Create network policy for workload] *****************************\nchanged: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nTASK [waiters : Include wait tasks] ********************************************\nskipping: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=20   changed=1    unreachable=0    failed=0    skipped=14   rescued=0    ignored=0   \n"
+    }
+  ],
+  "model": "claude-sonnet-5-5",
+  "reference": {
+    "capacity": [],
+    "function": null,
+    "healthy": true,
+    "routing": [],
+    "traffic": null
+  },
+  "scenario": 31,
+  "status": "COMPLETED",
+  "verdicts": {
+    "alert_absent": {
+      "passed": false,
+      "profile": "---------------------",
+      "relapsed": false
+    }
+  }
+}

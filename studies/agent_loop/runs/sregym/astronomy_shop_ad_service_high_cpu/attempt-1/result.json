@@ -1,0 +1,156 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods -n astronomy-shop | grep -v Running; kubectl get events -n astronomy-shop --sort-by=.lastTimestamp | tail -15",
+      "sleep 30; kubectl get pods -n astronomy-shop; kubectl get deploy -n astronomy-shop -o wide | head -40; kubectl get cm flagd-config -n astronomy-shop -o yaml | grep -B2 -A6 '\"defaultVariant\": \"on\"'",
+      "kubectl get pods -n astronomy-shop; kubectl get cm flagd-config -n astronomy-shop -o yaml | grep -B3 -A3 '\"defaultVariant\"' | grep -v '\"off\"' | head -60",
+      "cd /tmp; kubectl get cm flagd-config -n astronomy-shop -o json | python3 -I -c \"\nimport json,sys\nd=json.load(sys.stdin)['data']\nfor k,v in d.items():\n  for n,f in json.loads(v)['flags'].items(): print(n,f['defaultVariant'])\"\nkubectl logs -n astronomy-shop deploy/product-catalog --previous --tail=15",
+      "kubectl get cm flagd-config -n astronomy-shop -o yaml | grep -E '^        \"[a-zA-Z]+\": \\{|defaultVariant'| paste - - ; kubectl logs -n astronomy-shop deploy/product-catalog --previous --tail=15",
+      "cd /tmp; kubectl get cm flagd-config -n astronomy-shop -o yaml > /tmp/cm-backup.yaml\nkubectl get cm flagd-config -n astronomy-shop -o json > /tmp/cm.json\n# edit: adHighCpu defaultVariant on -> off\nsed -E '/\"adHighCpu\"/,/\"adFailure\"/ s/\\\\\"defaultVariant\\\\\": \\\\\"on\\\\\"/\\\\\"defaultVariant\\\\\": \\\\\"off\\\\\"/' /tmp/cm.json > /tmp/cm2.json\ndiff /tmp/cm.json /tmp/cm2.json | head; ",
+      "cd /tmp; sed -E '/\"adHighCpu\"/,/\"adFailure\"/ s/\"defaultVariant\": \"on\"/\"defaultVariant\": \"off\"/' cm-backup.yaml > cm-new.yaml; diff cm-backup.yaml cm-new.yaml; kubectl apply -f cm-new.yaml && kubectl get cm flagd-config -n astronomy-shop -o yaml | grep -A12 '\"adHighCpu\"' | grep defaultVariant",
+      "kubectl rollout restart deploy/flagd deploy/ad -n astronomy-shop; kubectl rollout status deploy/ad -n astronomy-shop --timeout=120s; kubectl get pods -n astronomy-shop | grep -E 'ad-|flagd'"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 37,
+    "summary": "The root cause was the `adHighCpu` feature flag, which was set to `on` in the `flagd-config` ConfigMap. That made the ad service burn CPU. Every other flag in the ConfigMap was already `off`.\n\nI changed `adHighCpu` to `off` in the ConfigMap, then restarted `flagd` and `ad` so they picked it up. The `ad` rollout finished successfully. The new `flagd` pod was still starting when I last checked, and I didn't re-check afterward, so I haven't confirmed it reached Ready or that CPU on `ad` dropped.\n\n`product-catalog` had 3 restarts shortly after the pods started. I didn't find out why, and I didn't look at it again after the flag change. It was Running when I last checked.\n\nI saved the original ConfigMap to `/tmp/cm-backup.yaml`.",
+    "timed_out": false,
+    "turns": 9,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5012,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5012,
+      "cache_read_input_tokens": 61500,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 18,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 433,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 433,
+          "cache_read_input_tokens": 9091,
+          "input_tokens": 2,
+          "output_tokens": 282,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1740,
+      "output_tokens_details": {
+        "thinking_tokens": 105
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "alerts": {
+    "after_verdict": [
+      "ContainerCPUThrottling/load-generator-5d945c566-gr2m6"
+    ],
+    "agent_start": [],
+    "baseline": []
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "footprint_left": [
+    "configmaps/flagd-config"
+  ],
+  "healthy": {
+    "flags": {
+      "adFailure": "off",
+      "adHighCpu": "off",
+      "adManualGc": "off",
+      "cartFailure": "off",
+      "emailMemoryLeak": "off",
+      "failedReadinessProbe": "off",
+      "imageSlowLoad": "off",
+      "kafkaQueueProblems": "off",
+      "llmInaccurateResponse": "off",
+      "llmRateLimitError": "off",
+      "loadGeneratorFloodHomepage": "off",
+      "paymentFailure": "off",
+      "paymentUnreachable": "off",
+      "productCatalogFailure": "off",
+      "recommendationCacheFailure": "off"
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "judged_namespaces": [
+    "astronomy-shop"
+  ],
+  "model": "claude-sonnet-5-5",
+  "problem_id": "astronomy_shop_ad_service_high_cpu",
+  "reference": {
+    "by_namespace": {
+      "astronomy-shop": {
+        "capacity": [],
+        "function": null,
+        "healthy": true,
+        "routing": [],
+        "traffic": {
+          "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+        }
+      }
+    },
+    "flags_changed": [],
+    "healthy": true
+  },
+  "settled": {
+    "astronomy-shop": true
+  },
+  "status": "COMPLETED",
+  "verdicts": {
+    "mitigation_oracle": {
+      "oracle_window": [
+        {
+          "detail": {
+            "alerts": [
+              "ContainerCPUThrottling"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        },
+        {
+          "detail": {
+            "alerts": [
+              "ContainerCPUThrottling"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        },
+        {
+          "detail": {
+            "alerts": [
+              "ContainerCPUThrottling"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        }
+      ],
+      "passed": false,
+      "profile": "---"
+    }
+  }
+}

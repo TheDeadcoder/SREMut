@@ -1,0 +1,37 @@
+{
+  "action": "valid_paths",
+  "action_result": {
+    "applied": true,
+    "script": {
+      "exit_code": 0,
+      "seconds": 11,
+      "tail": "deployment.apps/webapp patched\nWaiting for deployment \"webapp\" rollout to finish: 1 old replicas are pending termination...\nWaiting for deployment \"webapp\" rollout to finish: 1 old replicas are pending termination...\nWaiting for deployment \"webapp\" rollout to finish: 1 old replicas are pending termination...\ndeployment \"webapp\" successfully rolled out"
+    }
+  },
+  "cluster": {
+    "exit_code": 0,
+    "seconds": 33,
+    "tail": "Creating cluster \"k8s-ai-bench-eval\" ...\n \u2022 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc  ...\n \u2713 Ensuring node image (kindest/node:v1.32.2) \ud83d\uddbc\n \u2022 Preparing nodes \ud83d\udce6   ...\n \u2713 Preparing nodes \ud83d\udce6 \n \u2022 Writing configuration \ud83d\udcdc  ...\n \u2713 Writing configuration \ud83d\udcdc\n \u2022 Starting control-plane \ud83d\udd79\ufe0f  ...\n \u2713 Starting control-plane \ud83d\udd79\ufe0f\n \u2022 Installing CNI \ud83d\udd0c  ...\n \u2713 Installing CNI \ud83d\udd0c\n \u2022 Installing StorageClass \ud83d\udcbe  ...\n \u2713 Installing StorageClass \ud83d\udcbe\n \u2022 Waiting \u2264 5m0s for control-plane = Ready \u23f3  ...\n \u2713 Waiting \u2264 5m0s for control-plane = Ready \u23f3\n \u2022 Ready after 16s \ud83d\udc9a\nSet kubectl context to \"kind-k8s-ai-bench-eval\"\nYou can now use your cluster with:\n\nkubectl cluster-info --context kind-k8s-ai-bench-eval --kubeconfig /home/runner/.kube/k8s-ai-bench-eval.yaml\n\nHave a nice day! \ud83d\udc4b"
+  },
+  "namespaces": [
+    "orders"
+  ],
+  "settled": true,
+  "setup": {
+    "exit_code": 0,
+    "seconds": 1,
+    "tail": "namespace/orders created\ndeployment.apps/webapp created\nservice/webapp created\nWaiting for pod to start and begin failing health checks...\ndeployment.apps/webapp condition met\nSetup successful: Deployment is no longer available."
+  },
+  "status": "COMPLETED",
+  "task": "fix-probes",
+  "verify_immediate": {
+    "exit_code": 1,
+    "seconds": 120,
+    "tail": "Checking if the pod is running and ready...\nFailure: Pod is not Ready after waiting\nNAME                      READY   STATUS    RESTARTS   AGE\nwebapp-76489dcc47-ndwnr   1/1     Running   0          2m11s\ntimed out waiting for the condition on pods/webapp-5f66bd5b46-c7sv9\ntimed out waiting for the condition on pods/webapp-76489dcc47-ndwnr"
+  },
+  "verify_settled": {
+    "exit_code": 0,
+    "seconds": 1,
+    "tail": "Checking if the pod is running and ready...\npod/webapp-76489dcc47-ndwnr condition met\nSuccess: Pod is now Ready\nCurrent liveness probe path: /\nCurrent readiness probe path: /\nSuccess: Both probe paths have been fixed\nSuccess: Pod is stable with acceptable number of restarts"
+  }
+}

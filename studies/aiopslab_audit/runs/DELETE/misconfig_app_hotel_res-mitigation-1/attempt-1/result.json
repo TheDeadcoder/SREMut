@@ -1,0 +1,96 @@
+{
+  "applied": {
+    "targets": [
+      "deployments/geo"
+    ]
+  },
+  "cleanup": "fail",
+  "cleanup_errors": [
+    "recover fault: ApiException: (404)\nReason: Not Found\nHTTP response headers: HTTPHeaderDict({'Audit-Id': '8d8b2a4e-719c-4d7c-8920-4a9a5db6d3c1', 'Cache-Control': 'no-cache, private', 'Content-Type': 'application/json', 'X-Kubernetes-Pf-Flowschema-Uid': '3d184170-e162-420c-8140-3ef04651f5b5', 'X-Kubernetes-Pf-Prioritylevel-Uid': 'd354d1f2-692e-4208-b30a-2813b5602eea', 'Date': '<time>', 'Content-Length': '208'})\nHTTP response body: {\"kind\":\"Status\",\"apiVersion\":\"v1\",\"metadata\":{},\"status\":\"Failure\",\"message\":\"deployments.apps \\\"geo\\\" not found\",\"reason\":\"NotFound\",\"details\":{\"name\":\"geo\",\"group\":\"apps\",\"kind\":\"deployments\"},\"code\":404}\n\n"
+  ],
+  "detect": {
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": false
+      }
+    ],
+    "profile": "+++-"
+  },
+  "healthy": {
+    "oracle": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "mutant": {
+    "footprint_left": [
+      "deployments/geo"
+    ],
+    "oracle_window": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "profile": "+++++++++",
+    "reference": {
+      "capacity": [
+        "deployments/geo"
+      ],
+      "function": false,
+      "healthy": false,
+      "routing": [
+        "geo"
+      ],
+      "traffic": {
+        "failed_rounds": 1,
+        "requests": 117,
+        "rounds": 1
+      }
+    },
+    "verdict": true
+  },
+  "operator": "DELETE",
+  "problem_id": "misconfig_app_hotel_res-mitigation-1",
+  "settled": true,
+  "status": "COMPLETED",
+  "unhealthy_after_fault": [
+    "deployments/geo"
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods -n test-social-network -o wide; kubectl get events -n test-social-network --sort-by=.lastTimestamp | tail -20",
+      "kubectl describe pod user-service-5b549cc8dc-p2gkx -n test-social-network | tail -15; kubectl get deploy user-service -n test-social-network -o yaml | grep -n -A8 -i -E \"nodeSelector|affinity|resources\"",
+      "kubectl patch deploy user-service -n test-social-network --type=json -p '[{\"op\":\"remove\",\"path\":\"/spec/template/spec/nodeSelector\"}]'; kubectl rollout status deploy/user-service -n test-social-network --timeout=90s"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 12,
+    "summary": "**Problem:** The `user-service` pod was stuck in `Pending`. Its deployment had a `nodeSelector` of `kubernetes.io/hostname=extra-node`, and the cluster has no node with that name. The only other node is the control plane, which has a taint. So the scheduler had nowhere to put the pod.\n\n**Fix:** I removed the `nodeSelector` from the `user-service` deployment with a JSON patch. The rollout finished successfully. I didn't check the pod's status or test the service after the rollout.\n\nThe patch only touched the live deployment. The deployment is Helm-managed (release `social-network`), so a later `helm upgrade` could bring the bad `nodeSelector` back unless it is also fixed in the chart or values.",
+    "timed_out": false,
+    "turns": 4,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5030,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5030,
+      "cache_read_input_tokens": 25355,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 8,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 306,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 306,
+          "cache_read_input_tokens": 9204,
+          "input_tokens": 2,
+          "output_tokens": 247,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 627,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup_errors": [],
+  "footprint_left": [],
+  "healthy": {
+    "fixed": {
+      "success": true
+    },
+    "original": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "model": "claude-sonnet-5-5",
+  "problem_id": "assign_to_non_existent_node_social_net-mitigation-1",
+  "reference": {
+    "capacity": [],
+    "function": true,
+    "healthy": true,
+    "routing": [],
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "verdicts": {
+    "fixed": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    },
+    "original": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    }
+  }
+}

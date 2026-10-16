@@ -1,0 +1,122 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods -n social-network; kubectl get svc -n social-network",
+      "cd /tmp; kubectl get endpoints -n social-network | awk '$2==\"<none>\"'; kubectl get svc -n social-network -o json | jq -r '.items[]|select(.spec.type==\"ClusterIP\")|\"\\(.metadata.name) \\(.spec.ports[0].port) -> \\(.spec.ports[0].targetPort)\"' | awk '$2!=$4'; for p in $(kubectl get pods -n social-network -o name | grep service); do echo == $p; kubectl logs -n social-network $p --tail=5; done 2>&1 | head -80",
+      "kubectl get endpoints -n social-network | awk '$2==\"<none>\"'; kubectl get svc,deploy -n social-network -o custom-columns=N:.metadata.name,P:.spec.ports[*].targetPort,C:.spec.template.spec.containers[*].ports[*].containerPort | grep -v none; kubectl logs -n social-network deploy/compose-post-service | grep -v Error\\] | tail",
+      "kubectl get deploy user-service -n social-network -o jsonpath='{.spec.selector} {.spec.template.metadata.labels} {.spec.template.spec.containers[0].ports}'; kubectl get svc user-timeline-service -n social-network -o yaml",
+      "kubectl apply -n social-network -f - <<E\napiVersion: v1\nkind: Service\nmetadata:\n  name: user-service\n  namespace: social-network\nspec:\n  ports:\n  - name: \"9090\"\n    port: 9090\n    protocol: TCP\n    targetPort: 9090\n  selector:\n    service: user-service\nE\nkubectl get endpoints user-service -n social-network"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 19,
+    "summary": "The root cause was a missing `user-service` Kubernetes Service. Without it, nothing could resolve the hostname `user-service`. compose-post-service logged \"Temporary failure in name resolution\" and \"Failed to connect user-service-client\" on every call to it.\n\nI created the Service on port 9090, with the selector `service: user-service`, matching the other services. It now has the user-service pod as its endpoint (`10.244.162.186:9090`). I didn't re-check the compose-post-service logs afterwards, so I haven't confirmed the errors have stopped.\n\nOther errors in the logs were not part of the failure:\n- **OTLP exporter errors:** the `otel-collector` DNS lookups fail. That only affects tracing, and I left it alone.\n- **MongoDB index errors:** several services logged index-creation errors at startup. They retried and started normally.",
+    "timed_out": false,
+    "turns": 6,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 10306,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 10306,
+      "cache_read_input_tokens": 53515,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 12,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 245,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 245,
+          "cache_read_input_tokens": 13594,
+          "input_tokens": 2,
+          "output_tokens": 281,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1180,
+      "output_tokens_details": {
+        "thinking_tokens": 62
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "footprint_left": [
+    "services/user-service"
+  ],
+  "healthy": {
+    "flags": {},
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 5120,
+      "rounds": 5
+    }
+  },
+  "judged_namespaces": [
+    "social-network"
+  ],
+  "model": "claude-sonnet-5-5",
+  "problem_id": "missing_service_social_network",
+  "reference": {
+    "by_namespace": {
+      "social-network": {
+        "capacity": [],
+        "function": true,
+        "healthy": true,
+        "routing": [],
+        "traffic": {
+          "failed_rounds": 0,
+          "requests": 5120,
+          "rounds": 5
+        }
+      }
+    },
+    "flags_changed": [],
+    "healthy": true
+  },
+  "settled": {
+    "social-network": true
+  },
+  "status": "COMPLETED",
+  "verdicts": {
+    "mitigation_oracle": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "+++++++"
+    }
+  }
+}

@@ -1,0 +1,377 @@
+{
+  "action": "RESTART",
+  "action_result": {
+    "applied": true,
+    "targets": [
+      "deployments/accounting",
+      "deployments/ad",
+      "deployments/agent",
+      "deployments/astronomy-db",
+      "deployments/cart",
+      "deployments/chatbot",
+      "deployments/checkout",
+      "deployments/currency",
+      "deployments/email",
+      "deployments/flagd",
+      "deployments/fraud-detection",
+      "deployments/frontend",
+      "deployments/frontend-proxy",
+      "deployments/image-provider",
+      "deployments/kafka",
+      "deployments/load-generator",
+      "deployments/mcp",
+      "deployments/opamp-server",
+      "deployments/otel-collector",
+      "deployments/payment",
+      "deployments/product-catalog",
+      "deployments/quote",
+      "deployments/recommendation",
+      "deployments/shipping",
+      "deployments/telemetry-docs",
+      "deployments/valkey-cart"
+    ]
+  },
+  "alert_absent": true,
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "skipping: [localhost] => (item=deployment/flagd) \nskipping: [localhost] => (item=deployment/fraud-detection) \nskipping: [localhost] => (item=deployment/frontend) \nskipping: [localhost] => (item=deployment/frontend-proxy) \nskipping: [localhost] => (item=deployment/image-provider) \nskipping: [localhost] => (item=deployment/kafka) \nskipping: [localhost] => (item=deployment/mcp) \nskipping: [localhost] => (item=deployment/opamp-server) \nskipping: [localhost] => (item=deployment/otel-collector) \nskipping: [localhost] => (item=deployment/payment) \nskipping: [localhost] => (item=deployment/product-catalog) \nskipping: [localhost] => (item=deployment/quote) \nskipping: [localhost] => (item=deployment/recommendation) \nskipping: [localhost] => (item=deployment/shipping) \nskipping: [localhost] => (item=deployment/telemetry-docs) \nskipping: [localhost] => (item=deployment/valkey-cart) \nskipping: [localhost]\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=40   changed=4    unreachable=0    failed=0    skipped=35   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "detect": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-w5g5p"
+      ]
+    }
+  ],
+  "detected": true,
+  "evaluation": [
+    {
+      "after": 0,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-w5g5p"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 181,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 211,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "InfoInhibitor/",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 391,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 421,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 451,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 481,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 511,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 541,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 571,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubeContainerWaiting/product-catalog-6687bdbb7d-pl4gp",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    },
+    {
+      "after": 601,
+      "ground_truth": [
+        "KubePodNotReady"
+      ],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "KubeContainerWaiting/product-catalog-6687bdbb7d-pl4gp",
+        "KubePodNotReady/product-catalog-6687bdbb7d-pl4gp"
+      ]
+    }
+  ],
+  "ground_truth": [
+    "KubePodNotReady"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 0,
+      "tail": "TASK [faults : Retrieve container from product-catalog] ************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes workload container environmental variable not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Retrieve port from product-catalog] *****************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes service port not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Update workload containers] *************************************\nchanged: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nTASK [waiters : Include wait tasks] ********************************************\nskipping: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=22   changed=1    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   \n"
+    }
+  ],
+  "reference": {
+    "capacity": [],
+    "function": null,
+    "healthy": true,
+    "routing": [],
+    "traffic": null
+  },
+  "scenario": 20,
+  "status": "COMPLETED"
+}

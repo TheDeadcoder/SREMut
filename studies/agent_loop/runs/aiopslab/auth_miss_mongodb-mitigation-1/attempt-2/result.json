@@ -1,0 +1,150 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods,svc -n test-social-network -o wide | head -60",
+      "cd /tmp; kubectl logs -n test-social-network url-shorten-mongodb-596f4d6899-rcz8w --tail=20; kubectl describe pod -n test-social-network url-shorten-mongodb-596f4d6899-rcz8w | tail -30; kubectl get deploy url-shorten-mongodb -n test-social-network -o yaml | sed -n 1,200p",
+      "cd /tmp; kubectl get secret mongodb-tls -n test-social-network -o json | python3 -c \"import json,sys;d=json.load(sys.stdin);print({k:len(v) for k,v in d['data'].items()});print(d['metadata'])\"; kubectl get secret mongodb-tls -n test-social-network -o jsonpath='{.data.tls\\.crt}' | base64 -d | openssl x509 -noout -dates -subject -issuer 2>&1; kubectl get cm url-shorten-mongodb -n test-social-network -o jsonpath='{.data.mongod\\.conf}'; kubectl get secret -n test-social-network",
+      "cd /tmp; kubectl get secret mongodb-tls -n test-social-network -o jsonpath='{.data}' | head -c 300; echo; kubectl get cm user-mongodb -n test-social-network -o jsonpath='{.data.mongod\\.conf}'; helm history social-network -n test-social-network 2>&1 | head",
+      "cd /tmp; kubectl get cm url-shorten-mongodb -n test-social-network -o yaml | head -20; kubectl get cm user-mongodb -n test-social-network -o jsonpath='{.data.mongod\\.conf}' | cat -A | head",
+      "cd /tmp; kubectl get cm url-shorten-service -n test-social-network -o yaml 2>&1| grep -i -n -B2 -A5 'ssl\\|tls' | head -20",
+      "cd /tmp; kubectl patch cm url-shorten-mongodb -n test-social-network --type merge -p '{\"data\":{\"mongod.conf\":\"net:\\n  tls:\\n    mode: disabled\\n\"}}' && kubectl rollout restart deploy/url-shorten-mongodb -n test-social-network && kubectl rollout status deploy/url-shorten-mongodb -n test-social-network --timeout=90s; kubectl get pods -n test-social-network | grep url-shorten"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-sonnet-5-5",
+    "seconds": 22,
+    "summary": "`url-shorten-mongodb` was crash-looping, and it's now running (1/1) after a rollout. I didn't test URL shortening end to end.\n\n**Cause:** its config required TLS (`mode: requireTLS`). The certificate in the `mongodb-tls` secret had expired, so mongod aborted at startup with \"The provided SSL certificate is expired or not yet valid.\"\n\n**Fix:** I patched the `url-shorten-mongodb` ConfigMap to `net.tls.mode: disabled` and restarted the deployment. This matches the other MongoDB instances, for example `user-mongodb`. `url-shorten-service` also has `ssl.enabled: false`, so it shouldn't need TLS to connect.\n\n**Not fixed:**\n- The expired certificate is still in the `mongodb-tls` secret. I couldn't regenerate it because `openssl` isn't installed here.\n- The ConfigMap is managed by Helm, so a later `helm upgrade` will put `requireTLS` back unless the chart is changed too.",
+    "timed_out": false,
+    "turns": 8,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 8159,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 8159,
+      "cache_read_input_tokens": 60414,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 14,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 599,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 599,
+          "cache_read_input_tokens": 12040,
+          "input_tokens": 2,
+          "output_tokens": 346,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1754,
+      "output_tokens_details": {
+        "thinking_tokens": 217
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "cleanup_errors": [],
+  "footprint_left": [
+    "deployments/url-shorten-mongodb"
+  ],
+  "healthy": {
+    "fixed": {
+      "success": true
+    },
+    "original": {
+      "success": true
+    },
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "model": "claude-sonnet-5-5",
+  "problem_id": "auth_miss_mongodb-mitigation-1",
+  "reference": {
+    "capacity": [],
+    "function": true,
+    "healthy": true,
+    "routing": [],
+    "traffic": {
+      "failed_rounds": 0,
+      "requests": 117,
+      "rounds": 1
+    }
+  },
+  "settled": true,
+  "status": "COMPLETED",
+  "verdicts": {
+    "fixed": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    },
+    "original": {
+      "oracle_window": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "++++++++"
+    }
+  }
+}
