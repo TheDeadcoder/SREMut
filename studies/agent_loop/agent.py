@@ -1,7 +1,8 @@
 """Runs Claude Code headless as the agent under test, inside a container built by infra/setup_agent.sh: a fresh
 configuration and an empty working directory for every episode, the plan token from ~/.claude-agent.env, a pinned
 model, and Bash as its only tool. The container mounts nothing but the cluster's kubeconfig, so the agent works the
-cluster with a shell and sees no file of the host."""
+cluster with a shell and sees no file of the host. A model whose name starts with gpt- runs Codex instead
+(codex_agent.py)."""
 import json
 import os
 import subprocess
@@ -14,6 +15,8 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE.parent / "registry_sweep")]
 
 from run_sweep import scrub, write_gz  # noqa: E402
+
+import codex_agent  # noqa: E402
 
 TOKEN_FILE = Path.home() / ".claude-agent.env"
 MODEL = "claude-sonnet-5-5"
@@ -74,7 +77,8 @@ def plan_answers(model=MODEL):
 
 
 def wait_for_plan(model=MODEL):
-    while not plan_answers(model):
+    answers = codex_agent.plan_answers if codex_agent.serves(model) else plan_answers
+    while not answers(model):
         time.sleep(PLAN_POLL)
 
 
@@ -87,6 +91,9 @@ def set_aside(run_dir):
 
 
 def run_agent(instruction, run_dir, image, model=MODEL, timeout=TIMEOUT, max_turns=MAX_TURNS):
+    if codex_agent.serves(model):
+        return codex_agent.run_agent(instruction, run_dir, codex_agent.image(image), model, timeout, max_turns,
+                                     kubeconfig())
     name = f"sremut-agent-{uuid.uuid4().hex[:12]}"
     start, timed_out = time.monotonic(), False
     proc = subprocess.Popen(command(instruction, image, name, model, max_turns), env=environment(),

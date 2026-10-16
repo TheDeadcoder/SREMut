@@ -66,6 +66,15 @@ second time at the pin.
 Where a finding rests on one run per model, both agents run the task twice more (attempts 2 and 3): the five SREGym
 alert problems and `operator_wrong_operator_image` at HEAD, and ITBench scenarios 114, 58 and 31.
 
+## Third agent
+
+Codex (`codex_agent.py`, model `gpt-6.1-sol`) is an agent from another model family, run the same way: the same
+container with only the kubeconfig, the same prompts, 20 minutes and 100 steps. Codex has no turn limit, so a step
+is a shell command it starts. It signs in with a ChatGPT plan, and its web search is off, so that, like Claude Code,
+it has only a shell. It runs once each task the first agent ran (the 14 AIOpsLab problems, the ten ITBench scenarios,
+the eight SREGym problems at the pin and the six at HEAD), and the repeats above, kept under `runs-codex/` with its own
+`ledger-codex.json`. The predictions below hold for it too, fixed before its first episode.
+
 ## Labels
 
 For each verifier, its verdict against the reference verifier: `true_pass`, `false_pass` (passes an unhealthy
@@ -149,6 +158,12 @@ python3 studies/agent_loop/run_itbench.py --server E --attempt 2 --scenarios 114
 
 The second agent uses the same runners with `--model claude-haiku-5-5 --runs studies/agent_loop/runs-haiku`, and
 `ledger.py --runs studies/agent_loop/runs-haiku --ledger studies/agent_loop/ledger-haiku.json` builds its ledger.
+The third agent uses them with `--model gpt-6.1-sol --runs studies/agent_loop/runs-codex`, after a one-time sign-in:
+
+```bash
+export PATH="$HOME/.local/opt/node/bin:$PATH"
+CODEX_HOME=~/.codex-agent codex login --device-auth
+```
 
 `~/.claude-agent.env` holds one line, `CLAUDE_CODE_OAUTH_TOKEN=<token>`, with the token from `claude setup-token`.
 Each episode is written to `runs/<benchmark>/<problem_id or scenario>/attempt-<n>/`, with `sregym-head` for SREGym's
