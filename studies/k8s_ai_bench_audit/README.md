@@ -54,6 +54,11 @@ after the action, because the verifier runs `kubectl exec` before `db-0` is sche
 `published.py` groups the failed runs of the published leaderboard (`site/combined_results.jsonl` in the pinned
 checkout: 10 model configurations, 24 tasks, 5 runs each) by the step that failed, from each failure's message.
 
+`rescore.py` scores each model again without the failed runs that come from the benchmark or its harness: the exact
+image check, the verifier that runs before `db-0` is scheduled, the namespace that setup does not create, and the two
+harness failures. One variant counts the runs that the exact image check rejected as passes; another also leaves out
+the timed-out runs. Each ranking is compared with the published one by Kendall's tau.
+
 ## Cross-task check
 
 With its defaults (`--cluster-provider kind`, `--concurrency 0`), k8s-ai-bench runs every task of a run at the same
@@ -78,6 +83,7 @@ python3 studies/k8s_ai_bench_audit/run_audit.py --server D
 python3 studies/k8s_ai_bench_audit/run_audit.py --server D --attempt 2 --episodes <task>:<action> ...
 python3 studies/k8s_ai_bench_audit/ledger.py
 python3 studies/k8s_ai_bench_audit/published.py
+python3 studies/k8s_ai_bench_audit/rescore.py
 ```
 
 Each episode is written to `runs/<task>/<action>/attempt-<n>/` (or `pilot/`): `record.json`, `result.json` with the

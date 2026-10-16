@@ -45,6 +45,11 @@ time before the reference verifier judges it.
 The system is healthy when all three hold. Separately, `footprint_left` lists objects the injection
 changed that still differ from the healthy state.
 
+`reference_check.py` judges every state of the first attempts again with other user-request thresholds
+(a quarter or three quarters of a healthy round, one failed round tolerated, or no user-request check),
+recomputes the labels, and breaks down the recoveries that the reference judges unhealthy by the check
+that fails.
+
 ## Labels
 
 | Label | Oracle | Reference verifier |
@@ -95,6 +100,7 @@ python3 studies/verifier_mutation/make_schedule.py
 python3 studies/verifier_mutation/run_mutation.py --server A
 python3 studies/verifier_mutation/mutation_ledger.py
 python3 studies/verifier_mutation/mutation_ledger.py --check
+python3 studies/verifier_mutation/reference_check.py
 ```
 
 Each episode is written to `runs/<operator>/<problem_id>/attempt-<n>/` (or `pilot/`): `record.json`,
