@@ -61,6 +61,11 @@ faults unrepaired or repaired in part, which is where a verifier's errors change
 `operator_wrong_operator_image` at HEAD, ITBench scenario 38 a second time, and the five SREGym alert problems a
 second time at the pin.
 
+## Repeats
+
+Where a finding rests on one run per model, both agents run the task twice more (attempts 2 and 3): the five SREGym
+alert problems and `operator_wrong_operator_image` at HEAD, and ITBench scenarios 114, 58 and 31.
+
 ## Labels
 
 For each verifier, its verdict against the reference verifier: `true_pass`, `false_pass` (passes an unhealthy
@@ -93,6 +98,15 @@ Fixed before the first SREGym episode at HEAD and the first episode of the secon
 - At HEAD, in every alert problem whose fault fires no alert at HEAD in `studies/alert_baseline`, the mitigation
   oracle passes a final state that leaves the fault's flag on, unless another alert fires.
 
+Fixed before the first repeat, for both agents:
+
+- At HEAD, the mitigation oracle passes `operator_wrong_operator_image` in every repeat, unless the agent breaks a
+  workload in `tidb-cluster`, whether or not the operator in `tidb-operator` is repaired.
+- ITBench's alert-absent check passes scenario 114 in every repeat, whether or not the `product-catalog` Service is
+  back, and fails 58 and 31 in every repeat unless the agent restarts the idle services.
+- At HEAD, wherever the reference verifier accepts an alert problem's final state and the mitigation oracle fails
+  it, `HighRequestErrorRate` is among the firing alerts.
+
 ## Running
 
 On the AIOpsLab host, from the repository root:
@@ -122,6 +136,15 @@ python3 studies/agent_loop/run_sregym.py --server D
 python3 studies/agent_loop/run_sregym.py --server D --sregym ~/SREGym-head --benchmark sregym-head --problems \
   astronomy_shop_ad_service_failure astronomy_shop_ad_service_high_cpu astronomy_shop_cart_service_failure \
   astronomy_shop_payment_service_failure astronomy_shop_product_catalog_service_failure
+```
+
+The repeats run with `--attempt 2` and then `--attempt 3`, for both agents:
+
+```bash
+python3 studies/agent_loop/run_sregym.py --server E --sregym ~/SREGym-head --benchmark sregym-head --attempt 2 \
+  --problems astronomy_shop_ad_service_failure astronomy_shop_ad_service_high_cpu astronomy_shop_cart_service_failure \
+  astronomy_shop_payment_service_failure astronomy_shop_product_catalog_service_failure operator_wrong_operator_image
+python3 studies/agent_loop/run_itbench.py --server E --attempt 2 --scenarios 114 58 31
 ```
 
 The second agent uses the same runners with `--model claude-haiku-5-5 --runs studies/agent_loop/runs-haiku`, and
