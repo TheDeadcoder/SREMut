@@ -11,6 +11,8 @@ sys.path[:0] = [str(HERE), str(HERE.parent / "registry_sweep"), str(HERE.parent 
 import ledger  # noqa: E402
 import probe  # noqa: E402
 import run_alert_baseline  # noqa: E402
+import settle_ledger  # noqa: E402
+import settle_probe  # noqa: E402
 
 GRAFANA = "ContainerCPUThrottling/grafana-5cb469bf99-wkl7g"
 LOADGEN = "ContainerCPUThrottling/load-generator-5d945c566-5xdr2"
@@ -89,6 +91,37 @@ class RunnerTest(unittest.TestCase):
     def test_pilot_problems_are_scheduled(self):
         self.assertEqual(len(set(run_alert_baseline.PROBLEMS)), 13)
         self.assertLessEqual(set(run_alert_baseline.PILOT), set(run_alert_baseline.PROBLEMS))
+
+
+def polls(*evaluations):
+    return [{"at": at, "took": took, "verdict": {"success": ok}} for at, took, ok in evaluations]
+
+
+class SettleTest(unittest.TestCase):
+    def test_waiting_oracle_accepts_at_the_end_of_the_first_passing_evaluation(self):
+        judged = settle_ledger.judged({"profile": "-+-", "polls": polls((0, 40, False), (70, 150, True),
+                                                                          (250, 40, False))})
+        self.assertEqual((judged["right_after"], judged["first_pass"], judged["fails_after_pass"]), (False, 220, True))
+        self.assertEqual(judged["waiting"], {"300": True, "600": True})
+
+    def test_no_pass_within_the_window(self):
+        judged = settle_ledger.judged({"profile": "--", "polls": polls((0, 40, False), (70, 40, False))})
+        self.assertEqual((judged["first_pass"], judged["waiting"]["600"], judged["fails_after_pass"]),
+                         (None, False, False))
+        self.assertIsNone(settle_ledger.judged(None))
+
+    def test_window_keeps_each_evaluation_with_its_timing(self):
+        with unittest.mock.patch.object(settle_probe, "evaluate", return_value={"success": True}), \
+                unittest.mock.patch.object(settle_probe, "alert_state", return_value={}), \
+                unittest.mock.patch.object(settle_probe.time, "sleep"):
+            out = settle_probe.window(None, "astronomy-shop", 0, {}, set(), seconds=0.01)
+        self.assertEqual(set(out["polls"][0]), {"at", "took", "verdict", "alerts"})
+        self.assertEqual(set(out["profile"]), {"+"})
+
+    def test_runner_prints_each_state(self):
+        result = {"none": {"profile": "--"}, "restart": {"profile": "-+"}, "repair": {"profile": "-+"}}
+        self.assertEqual(run_alert_baseline.verdicts(result), "none=-- restart=-+ repair=-+")
+
 
 
 if __name__ == "__main__":

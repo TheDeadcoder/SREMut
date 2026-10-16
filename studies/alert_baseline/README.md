@@ -58,6 +58,29 @@ Predictions, fixed before the first HEAD episode:
   pin, and also on `kubelet_crash` and `loadgenerator_flood_homepage`, whose recovery only
   throttling on those two workloads rejected there.
 
+## Waiting for alerts to clear
+
+On SREGym's HEAD, `AlertOracle` waits 30 s and then fails at the first firing alert, so it can fail a correct
+repair while the fault's own alerts are still clearing. `settle_probe.py` measures what an oracle that waits for
+them would decide, on the eight problems whose fault fires an alert at HEAD in `runs-head/`. Once the fault is
+detected, the unchanged oracle is judged again and again, 30 s apart, for 600 s after each of three states in turn:
+the fault with no repair, every pod of the namespace restarted with the fault in place (the `RESTART` operator of
+`studies/verifier_mutation`), and SREGym's recovery. Every evaluation keeps when it started and how long it took.
+For each state, `settle_ledger.py` reads the verdict right after it, as SREGym grades, and the verdict of an oracle
+that repeats the evaluation until one passes, for at most 300 s or 600 s. Episodes are kept under `runs-settle/`
+with `ledger-settle.json`.
+
+Predictions, fixed before the first episode:
+
+- Right after each state, the oracle fails the fault with no repair, the restart and SREGym's recovery on all eight
+  problems, as it failed the recovery at first in `runs-head/`.
+- Waiting up to 600 s, it accepts SREGym's recovery on seven of the eight, all but `kafka_queue_problems`; waiting
+  up to 300 s, on at least three.
+- Waiting accepts neither the fault with no repair nor the restart on the seven problems whose alert holds for one
+  minute before it fires (`HighRequestErrorRate`, `KubePodNotReady`, `DeploymentNotReady`): with the rules evaluated
+  every minute, the alert fires again within about two minutes, and the oracle needs two minutes without one. No
+  prediction for `kafka_queue_problems`, whose `MessageConsumerLag` holds for two minutes.
+
 ## Running
 
 On a server provisioned with `infra/setup_server.sh`, from the repository root:
@@ -82,6 +105,16 @@ python3 studies/alert_baseline/run_alert_baseline.py --server D --sregym ~/SREGy
   loadgenerator_flood_homepage valkey_memory_disruption
 python3 studies/alert_baseline/ledger.py --runs studies/alert_baseline/runs-head \
   --ledger studies/alert_baseline/ledger-head.json
+```
+
+The settle episodes, on the same checkout:
+
+```bash
+python3 studies/alert_baseline/run_alert_baseline.py --server E --sregym ~/SREGym-head --probe settle \
+  --runs studies/alert_baseline/runs-settle --ids astronomy_shop_ad_service_image_slow_load \
+  astronomy_shop_cart_service_failure astronomy_shop_failed_readiness_probe astronomy_shop_payment_service_failure \
+  astronomy_shop_product_catalog_service_failure kafka_queue_problems kubelet_crash valkey_memory_disruption
+python3 studies/alert_baseline/settle_ledger.py
 ```
 
 Each episode is written to `runs/<problem_id>/attempt-<n>/` (or `pilot/`): `record.json`,

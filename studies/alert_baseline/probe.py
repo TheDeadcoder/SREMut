@@ -128,25 +128,28 @@ def run(problem_id):
         out["status"] = "ERROR"
         out["error"] = f"{type(exc).__name__}: {exc}"
     finally:
-        actions = []
-        if conductor is not None and conductor.problem is not None:
-            if injected and not recovered:
-                actions.append(("recover fault", conductor.problem.recover_fault))
-            actions += [("remove application", conductor.problem.app.cleanup),
-                        ("wait for namespace deletion",
-                         lambda: conductor.kubectl.wait_for_namespace_deletion(conductor.problem.namespace))]
-        if conductor is not None:
-            actions += [("stop MCP port forward", conductor.mcp_server.stop_port_forward),
-                        ("stop Kubernetes proxy", conductor.stop_k8s_proxy)]
-        errors = []
-        for label, action in actions:
-            try:
-                action()
-            except Exception as exc:  # noqa: BLE001
-                errors.append(f"{label}: {type(exc).__name__}: {exc}")
-        out["cleanup"] = "fail" if errors else "pass"
-        out["cleanup_errors"] = errors
+        out.update(clean_up(conductor, injected, recovered))
     return out
+
+
+def clean_up(conductor, injected, recovered):
+    actions = []
+    if conductor is not None and conductor.problem is not None:
+        if injected and not recovered:
+            actions.append(("recover fault", conductor.problem.recover_fault))
+        actions += [("remove application", conductor.problem.app.cleanup),
+                    ("wait for namespace deletion",
+                     lambda: conductor.kubectl.wait_for_namespace_deletion(conductor.problem.namespace))]
+    if conductor is not None:
+        actions += [("stop MCP port forward", conductor.mcp_server.stop_port_forward),
+                    ("stop Kubernetes proxy", conductor.stop_k8s_proxy)]
+    errors = []
+    for label, action in actions:
+        try:
+            action()
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"{label}: {type(exc).__name__}: {exc}")
+    return {"cleanup": "fail" if errors else "pass", "cleanup_errors": errors}
 
 
 def main():
