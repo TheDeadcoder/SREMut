@@ -43,17 +43,23 @@ def build(runs=RUNS, schedule=SCHEDULE):
         rows.append({"task": task, "action": action, "attempt": attempt, "kind": plan.get("kind"),
                      "predicted": plan.get("predicted"), "label": label, "settled_label": settled,
                      "accepted": accepted(result, "immediate"), "accepted_settled": accepted(result, "settled")})
-    judged = [r for r in rows if r["predicted"] in ("accept", "reject") and r["accepted"] is not None]
+    first = [r for r in rows if r["attempt"] == "attempt-1"]
+    first_label = {(r["task"], r["action"]): (r["label"], r["settled_label"]) for r in first}
+    repeats = [r for r in rows if r["attempt"] != "attempt-1"]
+    judged = [r for r in first if r["predicted"] in ("accept", "reject") and r["accepted"] is not None]
     summary = {
-        "episodes": len(rows),
-        "labels": dict(Counter(r["label"] for r in rows)),
-        "by_kind": {kind: dict(Counter(r["label"] for r in rows if r["kind"] == kind))
-                    for kind in sorted({r["kind"] for r in rows if r["kind"]})},
-        "verdict_changed_after_settling": sorted(f"{r['task']}:{r['action']}" for r in rows
+        "episodes": len(first),
+        "labels": dict(Counter(r["label"] for r in first)),
+        "by_kind": {kind: dict(Counter(r["label"] for r in first if r["kind"] == kind))
+                    for kind in sorted({r["kind"] for r in first if r["kind"]})},
+        "verdict_changed_after_settling": sorted(f"{r['task']}:{r['action']}" for r in first
                                                  if None not in (r["accepted"], r["accepted_settled"])
                                                  and r["accepted"] != r["accepted_settled"]),
         "prediction_agreement": {"judged": len(judged),
                                  "agree": sum((r["predicted"] == "accept") == r["accepted"] for r in judged)},
+        "repeats": {"episodes": len(repeats),
+                    "same_labels_as_first": sum(first_label.get((r["task"], r["action"])) ==
+                                                (r["label"], r["settled_label"]) for r in repeats)},
     }
     return {"summary": summary, "episodes": rows}
 

@@ -19,7 +19,9 @@ PILOT = (("create-pod", "latest_tag"), ("fix-image-pull", "SCALE0"), ("statefuls
 CONTINUE = ("COMPLETED", "SETUP_FAILED")
 
 
-def episodes(pilot, schedule=SCHEDULE):
+def episodes(pilot, schedule=SCHEDULE, chosen=None):
+    if chosen:
+        return [tuple(episode.split(":")) for episode in chosen]
     if pilot:
         return list(PILOT)
     with open(schedule, newline="") as f:
@@ -35,12 +37,14 @@ def main():
     ap.add_argument("--server", required=True, choices=("A", "B", "C", "D"))
     ap.add_argument("--attempt", type=int, default=1)
     ap.add_argument("--pilot", action="store_true", help="only the pilot episodes, kept under pilot/")
+    ap.add_argument("--episodes", nargs="+", metavar="TASK:ACTION",
+                    help="run these episodes instead of the schedule, e.g. to repeat the verdicts that were not kills")
     ap.add_argument("--timeout", type=int, default=3600)
     ap.add_argument("--bench", type=Path, default=Path.home() / "k8s-ai-bench")
     args = ap.parse_args()
 
     root = HERE / ("pilot" if args.pilot else "runs")
-    for task, action in episodes(args.pilot):
+    for task, action in episodes(args.pilot, chosen=args.episodes):
         run_dir = root / task / action / f"attempt-{args.attempt}"
         if run_dir.exists():
             print(f"skip {task} {action}: attempt {args.attempt} already exists", flush=True)

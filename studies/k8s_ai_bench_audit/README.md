@@ -62,6 +62,7 @@ On a host provisioned with `infra/setup_server.sh`, from the repository root:
 bash infra/setup_k8s_ai_bench.sh
 python3 studies/k8s_ai_bench_audit/run_audit.py --server D --pilot
 python3 studies/k8s_ai_bench_audit/run_audit.py --server D
+python3 studies/k8s_ai_bench_audit/run_audit.py --server D --attempt 2 --episodes <task>:<action> ...
 python3 studies/k8s_ai_bench_audit/ledger.py
 python3 studies/k8s_ai_bench_audit/published.py
 ```
