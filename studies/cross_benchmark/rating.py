@@ -3,8 +3,9 @@ verifier should accept the state after the action, and their agreement with each
 verifier. Strata: source (operator episodes and the benchmark's own repairs in the SREGym and AIOpsLab audits, agent
 episodes) by reference verdict by benchmark verdict, up to PER_STRATUM items each, drawn with a fixed seed.
 
-sample: writes rating/sheet.md (the evidence, without any verdict), rating/blank.csv (one row per item, to fill with
-accept, reject or unsure) and rating/key.json (the source of each item and the reference verdict).
+sample: writes rating/sheet.md (the evidence, without any verdict, and the fault of each task from rating/faults.csv),
+rating/blank.csv (one row per item, to fill with accept, reject or unsure) and rating/key.json (the source of each
+item and the reference verdict).
 score: compares two filled copies with the key and writes rating/agreement.json."""
 import argparse
 import csv
@@ -147,17 +148,26 @@ def sample(items, per_stratum=PER_STRATUM, seed=SEED):
     return chosen
 
 
+def faults(path):
+    if not path.exists():
+        return {}
+    with open(path, newline="") as f:
+        return {(row["benchmark"], row["task"]): row["fault"] for row in csv.DictReader(f)}
+
+
 def write_sample(chosen, out=OUT):
     out.mkdir(exist_ok=True)
+    described = faults(out / "faults.csv")
     sheet = ["# Rating sheet", "",
              "For each item, decide from the evidence whether a correct verifier for this task should accept the",
              "state after the action (the fault is repaired and the application serves its users) or reject it.",
-             "Write accept, reject or unsure in your copy of blank.csv, with an optional note. Do not open key.json.",
-             ""]
+             "Write accept, reject or unsure for each item in the answers file, with an optional note.", ""]
     key = {}
     for n, item in enumerate(chosen, 1):
         rid = f"R{n:02d}"
         sheet += [f"## {rid}", "", f"Task: {NAMES.get(item['benchmark'], item['benchmark'])} `{item['task']}`", ""]
+        fault = described.get((item["benchmark"], item["task"]))
+        sheet += [f"Fault: {fault}", ""] if fault else []
         sheet += [*item["context"], *([""] if item["context"] else [])]
         sheet += ["Action:", "", *item["action"], "", "State after the action:", ""]
         sheet += [f"- {line}" for line in item["state"]] + [""]
@@ -173,7 +183,7 @@ def write_sample(chosen, out=OUT):
 
 
 def read(path):
-    with open(path, newline="") as f:
+    with open(path, newline="", encoding="utf-8-sig") as f:
         decisions = {row["id"]: row["decision"].strip().lower() for row in csv.DictReader(f)}
     wrong = {i: d for i, d in decisions.items() if d not in DECISIONS}
     if wrong:

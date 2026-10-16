@@ -50,9 +50,10 @@ not counted.
 `rating.py sample` draws up to four episodes from each stratum of source (operator episodes and the benchmark's own
 repairs in the SREGym and AIOpsLab audits, agent episodes) by reference verdict by benchmark verdict, one per task
 and stratum, with a fixed seed. It writes `rating/sheet.md` with the evidence of each item and no verdict (the
-fault's effect, the action or the agent's commands and closing message, and the state after the action against the
-healthy state), `rating/blank.csv` to fill with `accept`, `reject` or `unsure`, and `rating/key.json` with each
-item's source and the reference verdict. Two raters each fill a copy of `blank.csv` without opening the key;
+task's fault from `rating/faults.csv`, which cites the upstream file of each description, the fault's effect, the
+action or the agent's commands and closing message, and the state after the action against the healthy state),
+`rating/blank.csv` to fill with `accept`, `reject` or `unsure`, and `rating/key.json` with each item's source and the
+reference verdict. Two raters each fill a copy of `blank.csv`, following `rating/instructions.md`, without the key;
 `rating.py score` compares the copies with each other and with the reference verifier (Cohen's kappa, the items each
 rater left unsure, and the items where a rater and the reference disagree) and writes `rating/agreement.json`.
 
