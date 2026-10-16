@@ -8,6 +8,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent / "verifier_mutation"), str(HERE.parent / "registry_sweep")]
 
+import interference  # noqa: E402
 import ledger  # noqa: E402
 import probe  # noqa: E402
 import published  # noqa: E402
@@ -70,6 +71,14 @@ class PublishedTest(unittest.TestCase):
         self.assertEqual(published.cause(image), "verifier: image is not the exact string nginx")
         self.assertEqual(published.cause({"error": "task timed out after 10m0s"}), "task timed out")
         self.assertEqual(published.cause({"failures": [{"message": "Failed: specs don't match"}]}), published.OTHER)
+
+
+class InterferenceTest(unittest.TestCase):
+    def test_fix_meets_every_check_of_the_victim(self):
+        fix = interference.PAIRS[("create-pod-resources-limits", "create-canary-deployment")]
+        for value in ("limits-test", "resource-limits-pod", "my-container", "httpd:alpine", "cpu: 60m", "cpu: 600m",
+                      "memory: 62Mi"):
+            self.assertIn(value, fix)
 
 
 class ProbeTest(unittest.TestCase):

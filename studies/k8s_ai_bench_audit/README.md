@@ -54,6 +54,19 @@ after the action, because the verifier runs `kubectl exec` before `db-0` is sche
 `published.py` groups the failed runs of the published leaderboard (`site/combined_results.jsonl` in the pinned
 checkout: 10 model configurations, 24 tasks, 5 runs each) by the step that failed, from each failure's message.
 
+## Cross-task check
+
+With its defaults (`--cluster-provider kind`, `--concurrency 0`), k8s-ai-bench runs every task of a run at the same
+time on one shared cluster; no task asks for a cluster of its own. `create-canary-deployment/setup.sh` deletes the
+namespace `limits-test`, in which `create-pod-resources-limits` is graded. `interference.py` tests whether that
+changes the other task's verdict: on a fresh kind cluster it runs the setup of `create-pod-resources-limits`, a
+correct fix and its verifier, then the setup of `create-canary-deployment` (or nothing, as the control) and the
+verifier again. Runs go to `interference/<victim>/<other task or none>/`:
+
+```bash
+python3 studies/k8s_ai_bench_audit/interference.py
+```
+
 ## Running
 
 On a host provisioned with `infra/setup_server.sh`, from the repository root:
