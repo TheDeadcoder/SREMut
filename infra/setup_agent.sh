@@ -20,10 +20,10 @@ if [[ ! -d "node-v$NODE_VERSION-linux-x64" ]]; then
   rm -f "$archive"
 fi
 ln -sfn "node-v$NODE_VERSION-linux-x64" node
-PATH="$HOME/.local/opt/node/bin:$PATH" npm install -g --silent "@anthropic-ai/claude-code@$CLAUDE_CODE_VERSION" \
-  "@openai/codex@$CODEX_VERSION"
-"$HOME/.local/opt/node/bin/claude" --version
-"$HOME/.local/opt/node/bin/codex" --version
+export PATH="$HOME/.local/opt/node/bin:$PATH"
+npm install -g --silent "@anthropic-ai/claude-code@$CLAUDE_CODE_VERSION" "@openai/codex@$CODEX_VERSION"
+claude --version
+codex --version
 install -d -m 0700 ~/.codex-agent
 [[ -f ~/.codex-agent/config.toml ]] || echo 'cli_auth_credentials_store = "file"' > ~/.codex-agent/config.toml
 
