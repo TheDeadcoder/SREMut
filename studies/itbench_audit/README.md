@@ -4,7 +4,8 @@ Whether ITBench's mitigation criterion, that a scenario's ground-truth alerts ar
 plausible wrong repairs, measured live on the 25 active OpenTelemetry demo scenarios of its library (16 and 24 use
 a retired fault and have no ground-truth alerts; 37 injects no fault). ITBench is pinned
 at `333afa05c421b4e02a47b6c1b51686d20ce40cdd` (`infra/setup_itbench.sh`), with `itbench.patch` applied: it gives
-ITBench's span-metrics connector the name the pinned demo chart uses, `span_metrics`.
+ITBench's span-metrics connector the name the pinned demo chart uses, `span_metrics`, and pins the topology monitor
+chart, which ITBench's tool setup fetches from its own `main` branch, to the same commit.
 
 ## Verifier under test
 
