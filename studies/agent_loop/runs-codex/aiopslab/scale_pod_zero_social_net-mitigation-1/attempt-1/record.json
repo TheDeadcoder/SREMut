@@ -1,0 +1,35 @@
+{
+  "attempt": 1,
+  "duration_seconds": 366,
+  "exit_code": 0,
+  "inject_timeout": 300,
+  "namespaces_after": [
+    "default",
+    "kube-node-lease",
+    "kube-public",
+    "kube-system",
+    "local-path-storage",
+    "observe",
+    "openebs",
+    "test-social-network"
+  ],
+  "problem_id": "scale_pod_zero_social_net-mitigation-1",
+  "reset": {
+    "configmaps -n default": [
+      "configmap/wrk2-payload-script"
+    ],
+    "failed_pods_deleted": 3,
+    "jobs -n default": [
+      "job.batch/wrk2-job"
+    ],
+    "namespaces": [
+      "namespace/observe",
+      "namespace/openebs"
+    ],
+    "persistentvolumes": [
+      "persistentvolume/pvc-78bce4d4-a70a-4c6d-b297-17f074399fd8"
+    ]
+  },
+  "server": "E",
+  "status": "COMPLETED"
+}

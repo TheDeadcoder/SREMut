@@ -1,0 +1,1023 @@
+{
+  "agent": {
+    "commands": [
+      "kubectl get pods -n astronomy-shop -o wide 2>&1; echo \"---\"; kubectl get events -n astronomy-shop --sort-by=.lastTimestamp 2>&1 | tail -40",
+      "cd /tmp; kubectl get deploy -n astronomy-shop 2>&1; echo \"---rollout cart\"; kubectl rollout history deploy/cart -n astronomy-shop 2>&1; echo \"---rollout flagd\"; kubectl rollout history deploy/flagd -n astronomy-shop 2>&1; echo \"---cart rs\"; kubectl get rs -n astronomy-shop -l opentelemetry.io/name=cart 2>&1; kubectl get rs -n astronomy-shop 2>&1 | grep -E \"cart|flagd\"",
+      "cd /tmp; kubectl get deploy cart -n astronomy-shop -o yaml 2>&1 | head -150",
+      "cd /tmp; kubectl get cm -n astronomy-shop 2>&1; echo \"---flagd cm\"; kubectl get cm flagd-config -n astronomy-shop -o yaml 2>&1 | head -150",
+      "cd /tmp; kubectl rollout history deploy/cart -n astronomy-shop --revision=1 2>&1 | head -80; echo \"=====rev2\"; kubectl rollout history deploy/cart -n astronomy-shop --revision=2 2>&1 | head -80",
+      "cd /tmp; kubectl get deploy flagd -n astronomy-shop -o yaml 2>&1 | sed -n '1,200p'",
+      "cd /tmp; kubectl get cm flagd-config -n astronomy-shop -o jsonpath='{.data.demo\\.flagd\\.json}' 2>&1 | tail -n +150; echo; echo \"---cart logs\"; kubectl logs deploy/cart -n astronomy-shop --tail=30 2>&1; echo \"---failedReadinessProbe/cart describe\"; kubectl describe pod -l opentelemetry.io/name=cart -n astronomy-shop 2>&1 | tail -25",
+      "cd /tmp; kubectl get cm flagd-config -n astronomy-shop -o jsonpath='{.data.demo\\.flagd\\.json}' > /tmp/flagd-current.json 2>&1; python3 -I -c \"\nimport json\nd=json.load(open('/tmp/flagd-current.json'))\nfor k,v in d['flags'].items(): print(f\\\"{k:32} state={v.get('state')} default={v.get('defaultVariant')}\\\")\n\"",
+      "cd /tmp; grep -nE '^\\s{8}\"[A-Za-z0-9]+\": \\{|defaultVariant' /tmp/flagd-current.json",
+      "cd /tmp; sed -n '78,85p' /tmp/flagd-current.json; sed -i '83s/\"defaultVariant\": \"on\"/\"defaultVariant\": \"off\"/' /tmp/flagd-current.json; echo \"--- after\"; sed -n '78,85p' /tmp/flagd-current.json",
+      "cd /tmp; kubectl create configmap flagd-config -n astronomy-shop --from-file=demo.flagd.json=/tmp/flagd-current.json --dry-run=client -o yaml | kubectl apply -n astronomy-shop -f - 2>&1; kubectl rollout restart deploy/flagd -n astronomy-shop 2>&1; kubectl rollout status deploy/flagd -n astronomy-shop --timeout=180s 2>&1; kubectl get cm flagd-config -n astronomy-shop -o jsonpath='{.data.demo\\.flagd\\.json}' | grep -n -A6 '\"cartFailure\"'",
+      "cd /tmp; kubectl get cm flagd-config -n astronomy-shop -o jsonpath='{.data.demo\\.flagd\\.json}' | grep -A7 '\"cartFailure\"' | grep defaultVariant; echo \"--- flagd pod copy:\"; kubectl exec -n astronomy-shop deploy/flagd -c flagd -- cat /etc/flagd/demo.flagd.json 2>&1 | grep -A7 '\"cartFailure\"' | grep defaultVariant; echo \"--- pods:\"; kubectl get pods -n astronomy-shop 2>&1 | grep -vE \"Running\\s*$|1/1|2/2|4/4\" ; kubectl get pods -n astronomy-shop --no-headers 2>&1 | awk '{print $1, $2, $3, $4}' | column -t | head -40",
+      "cd /tmp; kubectl get pods -n astronomy-shop --no-headers 2>&1 | awk '{print $1, $2, $3, $4}'; echo \"--- flagd logs:\"; kubectl logs deploy/flagd -n astronomy-shop -c flagd --tail=8 2>&1; echo \"--- flagd copy check:\"; kubectl exec -n astronomy-shop deploy/flagd -c flagd -- grep -A7 '\"cartFailure\"' /etc/flagd/demo.flagd.json 2>&1 | head -12"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.32",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-haiku-5-5",
+    "seconds": 44,
+    "summary": "The fault was an enabled `cartFailure` flag. I set its default back to `off`, and the namespace is healthy again.\n\n**Root cause:** The `flagd-config` ConfigMap had `cartFailure` with `\"defaultVariant\": \"on\"`. Every other flag defaults to `off`, so this one was the only fault-injection flag switched on. The cart service's failure path was active, which breaks cart and checkout flows. The cart and flagd deployments were rolled out at <time> with a restart annotation, which is when the bad state went live.\n\n**What I changed:**\n- Set `cartFailure.defaultVariant` to `\"off\"` in the `flagd-config` ConfigMap. I changed nothing else in the file.\n- Ran `kubectl rollout restart deploy/flagd`. The flagd init container copies the flag file only at pod start, so it needed the restart to pick up the change.\n\n**Verification:**\n- The live ConfigMap shows `cartFailure` default `off`.\n- The new flagd pod (`flagd-8488c648d-5nl46`) is 2/2 Running, and its logs show it watching the flag file.\n- All 28 pods in `astronomy-shop` are Running with 0 restarts.\n\nI did not run an end-to-end checkout to confirm the storefront flow. I also could not read the flag file from inside the flagd pod, because that container has no `grep` or `cat`. Both checks rest on the ConfigMap and the restart logs.",
+    "timed_out": false,
+    "turns": 14,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 20422,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 20422,
+      "cache_read_input_tokens": 183196,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 22,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 1779,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 1779,
+          "cache_read_input_tokens": 23932,
+          "input_tokens": 2,
+          "output_tokens": 674,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 5848,
+      "output_tokens_details": {
+        "thinking_tokens": 2110
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "alerts": {
+    "after_verdict": [],
+    "agent_start": [],
+    "baseline": []
+  },
+  "captures": {
+    "final": {
+      "astronomy-shop": {
+        "services": {
+          "ad": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "ad"
+            }
+          },
+          "cart": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "cart"
+            }
+          },
+          "checkout": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "checkout"
+            }
+          },
+          "currency": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "currency"
+            }
+          },
+          "email": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "email"
+            }
+          },
+          "flagd": {
+            "endpoints": 1,
+            "ports": [
+              [
+                4000,
+                "4000",
+                "TCP"
+              ],
+              [
+                8013,
+                "8013",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "flagd"
+            }
+          },
+          "frontend": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "frontend"
+            }
+          },
+          "frontend-proxy": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "frontend-proxy"
+            }
+          },
+          "grafana": {
+            "endpoints": 1,
+            "ports": [
+              [
+                80,
+                "grafana",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "app.kubernetes.io/instance": "astronomy-shop",
+              "app.kubernetes.io/name": "grafana"
+            }
+          },
+          "image-provider": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8081,
+                "8081",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "image-provider"
+            }
+          },
+          "jaeger": {
+            "endpoints": 0,
+            "ports": [],
+            "selector": {
+              "app": "jaeger"
+            }
+          },
+          "jaeger-agent": {
+            "endpoints": 0,
+            "ports": [],
+            "selector": {
+              "app": "jaeger-agent"
+            }
+          },
+          "jaeger-collector": {
+            "endpoints": 0,
+            "ports": [],
+            "selector": {
+              "app": "jaeger-collector"
+            }
+          },
+          "jaeger-query": {
+            "endpoints": 0,
+            "ports": [],
+            "selector": {
+              "app": "jaeger-query"
+            }
+          },
+          "kafka": {
+            "endpoints": 1,
+            "ports": [
+              [
+                9092,
+                "9092",
+                "TCP"
+              ],
+              [
+                9093,
+                "9093",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "kafka"
+            }
+          },
+          "llm": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8000,
+                "8000",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "llm"
+            }
+          },
+          "load-generator": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8089,
+                "8089",
+                "TCP"
+              ],
+              [
+                9646,
+                "9646",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "load-generator"
+            }
+          },
+          "opensearch": {
+            "endpoints": 1,
+            "ports": [
+              [
+                9200,
+                "9200",
+                "TCP"
+              ],
+              [
+                9300,
+                "9300",
+                "TCP"
+              ],
+              [
+                9600,
+                "9600",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "app.kubernetes.io/instance": "astronomy-shop",
+              "app.kubernetes.io/name": "opensearch"
+            }
+          },
+          "opensearch-headless": {
+            "endpoints": 1,
+            "ports": [
+              [
+                9200,
+                "9200",
+                "TCP"
+              ],
+              [
+                9300,
+                "9300",
+                "TCP"
+              ],
+              [
+                9600,
+                "9600",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "app.kubernetes.io/instance": "astronomy-shop",
+              "app.kubernetes.io/name": "opensearch"
+            }
+          },
+          "otel-collector": {
+            "endpoints": 3,
+            "ports": [
+              [
+                4317,
+                "4317",
+                "TCP"
+              ],
+              [
+                4318,
+                "4318",
+                "TCP"
+              ],
+              [
+                6831,
+                "6831",
+                "UDP"
+              ],
+              [
+                8888,
+                "8888",
+                "TCP"
+              ],
+              [
+                9411,
+                "9411",
+                "TCP"
+              ],
+              [
+                14250,
+                "14250",
+                "TCP"
+              ],
+              [
+                14268,
+                "14268",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "app.kubernetes.io/instance": "astronomy-shop",
+              "app.kubernetes.io/name": "opentelemetry-collector",
+              "component": "agent-collector"
+            }
+          },
+          "payment": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "payment"
+            }
+          },
+          "postgresql": {
+            "endpoints": 1,
+            "ports": [
+              [
+                5432,
+                "5432",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "postgresql"
+            }
+          },
+          "product-catalog": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "product-catalog"
+            }
+          },
+          "product-reviews": {
+            "endpoints": 1,
+            "ports": [
+              [
+                3551,
+                "3551",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "product-reviews"
+            }
+          },
+          "quote": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "quote"
+            }
+          },
+          "recommendation": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "recommendation"
+            }
+          },
+          "shipping": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "shipping"
+            }
+          },
+          "valkey-cart": {
+            "endpoints": 1,
+            "ports": [
+              [
+                6379,
+                "6379",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "valkey-cart"
+            }
+          }
+        },
+        "traffic": {
+          "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+        },
+        "workloads": {
+          "deployments/accounting": 1,
+          "deployments/ad": 1,
+          "deployments/cart": 1,
+          "deployments/checkout": 1,
+          "deployments/currency": 1,
+          "deployments/email": 1,
+          "deployments/flagd": 1,
+          "deployments/fraud-detection": 1,
+          "deployments/frontend": 1,
+          "deployments/frontend-proxy": 1,
+          "deployments/grafana": 1,
+          "deployments/image-provider": 1,
+          "deployments/jaeger": 1,
+          "deployments/kafka": 1,
+          "deployments/llm": 1,
+          "deployments/load-generator": 1,
+          "deployments/payment": 1,
+          "deployments/postgresql": 1,
+          "deployments/product-catalog": 1,
+          "deployments/product-reviews": 1,
+          "deployments/quote": 1,
+          "deployments/recommendation": 1,
+          "deployments/shipping": 1,
+          "deployments/valkey-cart": 1,
+          "statefulsets/opensearch": 1
+        }
+      }
+    },
+    "healthy": {
+      "astronomy-shop": {
+        "services": {
+          "ad": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "ad"
+            }
+          },
+          "cart": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "cart"
+            }
+          },
+          "checkout": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "checkout"
+            }
+          },
+          "currency": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "currency"
+            }
+          },
+          "email": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "email"
+            }
+          },
+          "flagd": {
+            "endpoints": 1,
+            "ports": [
+              [
+                4000,
+                "4000",
+                "TCP"
+              ],
+              [
+                8013,
+                "8013",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "flagd"
+            }
+          },
+          "frontend": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "frontend"
+            }
+          },
+          "frontend-proxy": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "frontend-proxy"
+            }
+          },
+          "grafana": {
+            "endpoints": 1,
+            "ports": [
+              [
+                80,
+                "grafana",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "app.kubernetes.io/instance": "astronomy-shop",
+              "app.kubernetes.io/name": "grafana"
+            }
+          },
+          "image-provider": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8081,
+                "8081",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "image-provider"
+            }
+          },
+          "jaeger": {
+            "endpoints": 0,
+            "ports": [],
+            "selector": {
+              "app": "jaeger"
+            }
+          },
+          "jaeger-agent": {
+            "endpoints": 0,
+            "ports": [],
+            "selector": {
+              "app": "jaeger-agent"
+            }
+          },
+          "jaeger-collector": {
+            "endpoints": 0,
+            "ports": [],
+            "selector": {
+              "app": "jaeger-collector"
+            }
+          },
+          "jaeger-query": {
+            "endpoints": 0,
+            "ports": [],
+            "selector": {
+              "app": "jaeger-query"
+            }
+          },
+          "kafka": {
+            "endpoints": 1,
+            "ports": [
+              [
+                9092,
+                "9092",
+                "TCP"
+              ],
+              [
+                9093,
+                "9093",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "kafka"
+            }
+          },
+          "llm": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8000,
+                "8000",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "llm"
+            }
+          },
+          "load-generator": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8089,
+                "8089",
+                "TCP"
+              ],
+              [
+                9646,
+                "9646",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "load-generator"
+            }
+          },
+          "opensearch": {
+            "endpoints": 1,
+            "ports": [
+              [
+                9200,
+                "9200",
+                "TCP"
+              ],
+              [
+                9300,
+                "9300",
+                "TCP"
+              ],
+              [
+                9600,
+                "9600",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "app.kubernetes.io/instance": "astronomy-shop",
+              "app.kubernetes.io/name": "opensearch"
+            }
+          },
+          "opensearch-headless": {
+            "endpoints": 1,
+            "ports": [
+              [
+                9200,
+                "9200",
+                "TCP"
+              ],
+              [
+                9300,
+                "9300",
+                "TCP"
+              ],
+              [
+                9600,
+                "9600",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "app.kubernetes.io/instance": "astronomy-shop",
+              "app.kubernetes.io/name": "opensearch"
+            }
+          },
+          "otel-collector": {
+            "endpoints": 3,
+            "ports": [
+              [
+                4317,
+                "4317",
+                "TCP"
+              ],
+              [
+                4318,
+                "4318",
+                "TCP"
+              ],
+              [
+                6831,
+                "6831",
+                "UDP"
+              ],
+              [
+                8888,
+                "8888",
+                "TCP"
+              ],
+              [
+                9411,
+                "9411",
+                "TCP"
+              ],
+              [
+                14250,
+                "14250",
+                "TCP"
+              ],
+              [
+                14268,
+                "14268",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "app.kubernetes.io/instance": "astronomy-shop",
+              "app.kubernetes.io/name": "opentelemetry-collector",
+              "component": "agent-collector"
+            }
+          },
+          "payment": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "payment"
+            }
+          },
+          "postgresql": {
+            "endpoints": 1,
+            "ports": [
+              [
+                5432,
+                "5432",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "postgresql"
+            }
+          },
+          "product-catalog": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "product-catalog"
+            }
+          },
+          "product-reviews": {
+            "endpoints": 1,
+            "ports": [
+              [
+                3551,
+                "3551",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "product-reviews"
+            }
+          },
+          "quote": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "quote"
+            }
+          },
+          "recommendation": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "recommendation"
+            }
+          },
+          "shipping": {
+            "endpoints": 1,
+            "ports": [
+              [
+                8080,
+                "8080",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "shipping"
+            }
+          },
+          "valkey-cart": {
+            "endpoints": 1,
+            "ports": [
+              [
+                6379,
+                "6379",
+                "TCP"
+              ]
+            ],
+            "selector": {
+              "opentelemetry.io/name": "valkey-cart"
+            }
+          }
+        },
+        "traffic": {
+          "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+        },
+        "workloads": {
+          "deployments/accounting": 1,
+          "deployments/ad": 1,
+          "deployments/cart": 1,
+          "deployments/checkout": 1,
+          "deployments/currency": 1,
+          "deployments/email": 1,
+          "deployments/flagd": 1,
+          "deployments/fraud-detection": 1,
+          "deployments/frontend": 1,
+          "deployments/frontend-proxy": 1,
+          "deployments/grafana": 1,
+          "deployments/image-provider": 1,
+          "deployments/jaeger": 1,
+          "deployments/kafka": 1,
+          "deployments/llm": 1,
+          "deployments/load-generator": 1,
+          "deployments/payment": 1,
+          "deployments/postgresql": 1,
+          "deployments/product-catalog": 1,
+          "deployments/product-reviews": 1,
+          "deployments/quote": 1,
+          "deployments/recommendation": 1,
+          "deployments/shipping": 1,
+          "deployments/valkey-cart": 1,
+          "statefulsets/opensearch": 1
+        }
+      }
+    }
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "footprint_left": [
+    "configmaps/flagd-config"
+  ],
+  "healthy": {
+    "flags": {
+      "adFailure": "off",
+      "adHighCpu": "off",
+      "adManualGc": "off",
+      "cartFailure": "off",
+      "emailMemoryLeak": "off",
+      "failedReadinessProbe": "off",
+      "imageSlowLoad": "off",
+      "kafkaQueueProblems": "off",
+      "llmInaccurateResponse": "off",
+      "llmRateLimitError": "off",
+      "loadGeneratorFloodHomepage": "off",
+      "paymentFailure": "off",
+      "paymentUnreachable": "off",
+      "productCatalogFailure": "off",
+      "recommendationCacheFailure": "off"
+    },
+    "traffic": {
+      "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+    }
+  },
+  "judged_namespaces": [
+    "astronomy-shop"
+  ],
+  "model": "claude-haiku-5-5",
+  "problem_id": "astronomy_shop_cart_service_failure",
+  "reference": {
+    "by_namespace": {
+      "astronomy-shop": {
+        "capacity": [],
+        "function": null,
+        "healthy": true,
+        "routing": [],
+        "traffic": {
+          "error": "TimeoutError: Workload generator did not collect enough data within the timeout period."
+        }
+      }
+    },
+    "flags_changed": [],
+    "healthy": true
+  },
+  "settled": {
+    "astronomy-shop": true
+  },
+  "status": "COMPLETED",
+  "verdicts": {
+    "mitigation_oracle": {
+      "oracle_window": [
+        {
+          "success": true
+        }
+      ],
+      "passed": true,
+      "profile": "+"
+    }
+  }
+}
