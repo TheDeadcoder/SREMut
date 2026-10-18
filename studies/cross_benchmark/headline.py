@@ -1,11 +1,14 @@
 """Intervals and exact tests for the headline counts: a Wilson 95% interval for each rate, McNemar's exact test for the
-paired comparisons (AIOpsLab before and after its fix, SREGym's alert oracle at the pin and at HEAD, the two agent
-models on the same tasks), and agreement with Cohen's kappa between first attempts and their repeats. Reads
-conformance.json and the studies' ledgers; writes headline.json, --check verifies the committed copy."""
+paired comparisons (AIOpsLab before and after its fix, SREGym's alert oracle at the pin and at HEAD, each pair of
+agent models on the same tasks), agreement with Cohen's kappa between first attempts and their repeats, the share of
+repeated agent tasks with the same label in every attempt, the settle study's acceptance rates, and the agent episodes
+that wrote the monitoring objects alert-based verifiers read. Reads conformance.json, agent_actions.json and the
+studies' ledgers; writes headline.json, --check verifies the committed copy."""
 import argparse
 import json
 import sys
 from collections import Counter, defaultdict
+from itertools import combinations
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -48,6 +51,14 @@ def agreement(episodes, key, label):
             "kappa": round(kappa, 3) if kappa is not None else None}
 
 
+def same_in_every_attempt(rows):
+    attempts = defaultdict(list)
+    for r in rows:
+        attempts[(r["model"], r["benchmark"], r["task"])].append(r["label"])
+    repeated = [labels for labels in attempts.values() if len(labels) > 1]
+    return stats.rate(sum(len(set(labels)) == 1 for labels in repeated), len(repeated))
+
+
 def agent_rows(specs):
     for spec in specs:
         model, path = spec.split("=", 1)
@@ -70,8 +81,23 @@ def agents(rows):
         if r["attempt"] == "attempt-1":
             first[r["model"]][(r["benchmark"], r["task"])] = r["label"] in WRONG
     return {"verdicts": verdicts,
-            "wrong_by_model_on_shared_tasks": paired(**dict(sorted(first.items()))) if len(first) == 2 else None,
-            "repeats": agreement(rows, lambda r: (r["model"], r["benchmark"], r["task"]), lambda r: r["label"])}
+            "wrong_by_model_on_shared_tasks": {f"{a}_vs_{b}": paired(**{a: first[a], b: first[b]})
+                                               for a, b in combinations(sorted(first), 2)},
+            "repeats": {**agreement(rows, lambda r: (r["model"], r["benchmark"], r["task"]), lambda r: r["label"]),
+                        "same_in_every_attempt": {m: same_in_every_attempt(group) for m, group in by_model.items()}}}
+
+
+def settle(ledger):
+    summary = ledger["summary"]
+    return {state: {key.replace("accepted_", ""): stats.rate(value, summary[state]["judged"])
+                    for key, value in sorted(summary[state].items()) if key.startswith("accepted_")}
+            for state in ("none", "restart", "repair")}
+
+
+def monitoring_writes(actions):
+    return {group: {"wrote_monitoring": stats.rate(counts["wrote_monitoring"], counts["episodes"]),
+                    "passed_after_writing_monitoring": counts["passed_after_writing_monitoring"]}
+            for group, counts in sorted(actions["summary"].items()) if counts["wrote_monitoring"]}
 
 
 def aiopslab_fix(before, after):
@@ -113,6 +139,8 @@ def build(args):
         "aiopslab_fix": aiopslab_fix(aiopslab, load(args.aiopslab_patched)),
         "alert_baseline": alert_baseline(load(args.alert_pin), load(args.alert_head)),
         "agents": agents(list(agent_rows(args.agents))),
+        "agents_writing_monitoring": monitoring_writes(load(args.actions)),
+        "settle": settle(load(args.settle)),
         "repeats": {
             "sregym": agreement(mutation["episodes"], lambda e: (e["problem_id"], e["operator"]), lambda e: e["label"]),
             "aiopslab": agreement(aiopslab["episodes"], lambda e: (e["problem_id"], e["operator"]),
@@ -133,9 +161,12 @@ def main():
     ap.add_argument("--itbench", type=Path, default=STUDIES / "itbench_audit" / "ledger.json")
     ap.add_argument("--alert-pin", type=Path, default=STUDIES / "alert_baseline" / "ledger.json")
     ap.add_argument("--alert-head", type=Path, default=STUDIES / "alert_baseline" / "ledger-head.json")
+    ap.add_argument("--settle", type=Path, default=STUDIES / "alert_baseline" / "ledger-settle.json")
+    ap.add_argument("--actions", type=Path, default=HERE / "agent_actions.json")
     ap.add_argument("--agents", nargs="+", metavar="MODEL=LEDGER",
                     default=[f"sonnet={STUDIES / 'agent_loop' / 'ledger.json'}",
-                             f"haiku={STUDIES / 'agent_loop' / 'ledger-haiku.json'}"])
+                             f"haiku={STUDIES / 'agent_loop' / 'ledger-haiku.json'}",
+                             f"codex={STUDIES / 'agent_loop' / 'ledger-codex.json'}"])
     ap.add_argument("--check", action="store_true", help="fail if headline.json differs from the inputs")
     args = ap.parse_args()
     text = json.dumps(build(args), indent=2, sort_keys=True) + "\n"

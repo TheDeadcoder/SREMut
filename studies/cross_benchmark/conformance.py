@@ -333,9 +333,9 @@ def main():
     ap.add_argument("--published", type=Path, default=STUDIES / "k8s_ai_bench_audit" / "published.json")
     ap.add_argument("--itbench", type=Path, default=STUDIES / "itbench_audit" / "ledger.json")
     ap.add_argument("--agents", type=Path, nargs="+",
-                    default=[STUDIES / "agent_loop" / "ledger.json", STUDIES / "agent_loop" / "ledger-haiku.json"])
+                    default=[STUDIES / "agent_loop" / f"ledger{suffix}.json" for suffix in ("", "-haiku", "-codex")])
     ap.add_argument("--agent-runs", type=Path, nargs="+",
-                    default=[STUDIES / "agent_loop" / "runs", STUDIES / "agent_loop" / "runs-haiku"])
+                    default=[STUDIES / "agent_loop" / f"runs{suffix}" for suffix in ("", "-haiku", "-codex")])
     ap.add_argument("--check", action="store_true", help="fail if conformance.json differs from the inputs")
     args = ap.parse_args()
     text = json.dumps(build(args), indent=2, sort_keys=True) + "\n"

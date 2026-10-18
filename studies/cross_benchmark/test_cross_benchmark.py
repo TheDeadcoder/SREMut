@@ -1,6 +1,10 @@
+import contextlib
+import io
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE)]
@@ -72,6 +76,25 @@ class HeadlineTest(unittest.TestCase):
         report = headline.agreement(episodes, lambda e: e["id"], lambda e: e["label"])
         self.assertEqual((report["agreement"]["k"], report["agreement"]["n"]), (1, 2))
 
+    def test_agents_compares_each_pair_of_models(self):
+        rows = [{"model": m, "benchmark": "b", "task": t, "attempt": a, "label": label}
+                for m in ("sonnet", "haiku", "codex") for t, label in (("x", "true_pass"), ("y", "false_fail"))
+                for a in ("attempt-1", "attempt-2")]
+        rows[0]["label"] = "false_pass"
+        report = headline.agents(rows)
+        self.assertEqual(sorted(report["wrong_by_model_on_shared_tasks"]),
+                         ["codex_vs_haiku", "codex_vs_sonnet", "haiku_vs_sonnet"])
+        self.assertEqual(report["wrong_by_model_on_shared_tasks"]["codex_vs_sonnet"]["only_sonnet"], 1)
+        same = report["repeats"]["same_in_every_attempt"]
+        self.assertEqual((same["sonnet"]["k"], same["sonnet"]["n"], same["all"]["k"]), (1, 2, 5))
+
+    def test_settle(self):
+        summary = {state: {"judged": 8, "accepted_right_after": 0, "accepted_waiting_300": 3,
+                           "accepted_waiting_600": 8, "fails_after_pass": 1} for state in ("none", "restart", "repair")}
+        report = headline.settle({"summary": summary})
+        self.assertEqual(sorted(report["repair"]), ["right_after", "waiting_300", "waiting_600"])
+        self.assertEqual(report["repair"]["waiting_600"]["rate"], 1.0)
+
 
 class AgentActionsTest(unittest.TestCase):
     def test_classify(self):
@@ -92,6 +115,16 @@ class AgentActionsTest(unittest.TestCase):
         for command, expected in cases.items():
             self.assertEqual(agent_actions.classify(command), expected, command)
 
+    def test_objects_written_to_verifier_inputs(self):
+        transcript = ('{"stdout":"x\\nconfigmap/otel-collector patched\\nservice/a created (dry run)\\n'
+                      'prometheusrule.monitoring.coreos.com \\"rules\\" deleted\\ndeployment.apps/b configured"}')
+        written = agent_actions.written(transcript)
+        self.assertEqual(written, ["configmap/otel-collector", "deployment.apps/b",
+                                   "prometheusrule.monitoring.coreos.com/rules"])
+        self.assertEqual(agent_actions.verifier_inputs(written),
+                         {"monitoring": ["prometheusrule.monitoring.coreos.com/rules"],
+                          "telemetry": ["configmap/otel-collector"]})
+
 
 class RatingTest(unittest.TestCase):
     def test_sample_takes_distinct_tasks_per_stratum(self):
@@ -99,6 +132,14 @@ class RatingTest(unittest.TestCase):
                   "reference": True, "verdict": True} for task in ("x", "y") for attempt in ("attempt-1", "attempt-2")]
         self.assertEqual(sorted(i["task"] for i in rating.sample(items, per_stratum=4)), ["x", "y"])
         self.assertEqual(len(rating.sample(items, per_stratum=1)), 1)
+
+    def test_sample_keeps_the_raters_sheet(self):
+        with tempfile.TemporaryDirectory() as out:
+            (Path(out) / "sheet.md").write_text("drawn")
+            with mock.patch.object(rating, "OUT", Path(out)), mock.patch.object(sys, "argv", ["rating.py", "sample"]), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(rating.main(), 1)
+            self.assertEqual(sorted(p.name for p in Path(out).iterdir()), ["sheet.md"])
 
     def test_score(self):
         key = {"R1": {"reference": "accept", "stratum": "s"}, "R2": {"reference": "reject", "stratum": "s"}}
