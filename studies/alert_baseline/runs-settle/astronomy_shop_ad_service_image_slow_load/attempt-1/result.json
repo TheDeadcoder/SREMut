@@ -1,0 +1,301 @@
+{
+  "alert_oracles": 1,
+  "baseline": {
+    "after_deploy": 0,
+    "baseline": []
+  },
+  "cleanup": "pass",
+  "cleanup_errors": [],
+  "detect": {
+    "alerts": [
+      {
+        "after_deploy": 75,
+        "firing": [
+          "HighRequestErrorRate/"
+        ],
+        "outside_immediate": [
+          "HighRequestErrorRate/"
+        ]
+      }
+    ],
+    "profile": "-",
+    "verdicts": [
+      {
+        "detail": {
+          "alerts": [
+            "HighRequestErrorRate"
+          ],
+          "namespace": "astronomy-shop"
+        },
+        "failure_class": "agent_error",
+        "reason": "alerts_still_firing",
+        "success": false
+      }
+    ]
+  },
+  "detected": true,
+  "none": {
+    "polls": [
+      {
+        "alerts": {
+          "after_deploy": 105,
+          "firing": [
+            "HighRequestErrorRate/"
+          ],
+          "outside_immediate": [
+            "HighRequestErrorRate/"
+          ]
+        },
+        "at": 0,
+        "took": 30,
+        "verdict": {
+          "detail": {
+            "alerts": [
+              "HighRequestErrorRate"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 287,
+          "firing": [],
+          "outside_immediate": []
+        },
+        "at": 60,
+        "took": 152,
+        "verdict": {
+          "success": true
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 469,
+          "firing": [],
+          "outside_immediate": []
+        },
+        "at": 242,
+        "took": 152,
+        "verdict": {
+          "success": true
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 650,
+          "firing": [],
+          "outside_immediate": []
+        },
+        "at": 424,
+        "took": 152,
+        "verdict": {
+          "success": true
+        }
+      }
+    ],
+    "profile": "-+++"
+  },
+  "problem_id": "astronomy_shop_ad_service_image_slow_load",
+  "repair": {
+    "polls": [
+      {
+        "alerts": {
+          "after_deploy": 1392,
+          "firing": [
+            "HighRequestErrorRate/"
+          ],
+          "outside_immediate": [
+            "HighRequestErrorRate/"
+          ]
+        },
+        "at": 0,
+        "took": 81,
+        "verdict": {
+          "detail": {
+            "alerts": [
+              "HighRequestErrorRate"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 1574,
+          "firing": [],
+          "outside_immediate": []
+        },
+        "at": 111,
+        "took": 151,
+        "verdict": {
+          "success": true
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 1756,
+          "firing": [],
+          "outside_immediate": []
+        },
+        "at": 293,
+        "took": 151,
+        "verdict": {
+          "success": true
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 1937,
+          "firing": [],
+          "outside_immediate": []
+        },
+        "at": 474,
+        "took": 151,
+        "verdict": {
+          "success": true
+        }
+      }
+    ],
+    "profile": "-+++"
+  },
+  "restart": {
+    "applied": {
+      "targets": [
+        "deployments/accounting",
+        "deployments/ad",
+        "deployments/cart",
+        "deployments/checkout",
+        "deployments/currency",
+        "deployments/email",
+        "deployments/flagd",
+        "deployments/fraud-detection",
+        "deployments/frontend",
+        "deployments/frontend-proxy",
+        "deployments/grafana",
+        "deployments/image-provider",
+        "deployments/jaeger",
+        "deployments/kafka",
+        "deployments/llm",
+        "deployments/load-generator",
+        "deployments/payment",
+        "deployments/postgresql",
+        "deployments/product-catalog",
+        "deployments/product-reviews",
+        "deployments/quote",
+        "deployments/recommendation",
+        "deployments/shipping",
+        "deployments/valkey-cart",
+        "statefulsets/opensearch"
+      ]
+    },
+    "polls": [
+      {
+        "alerts": {
+          "after_deploy": 794,
+          "firing": [
+            "HighRequestErrorRate/"
+          ],
+          "outside_immediate": [
+            "HighRequestErrorRate/"
+          ]
+        },
+        "at": 0,
+        "took": 111,
+        "verdict": {
+          "detail": {
+            "alerts": [
+              "HighRequestErrorRate"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 854,
+          "firing": [
+            "HighRequestErrorRate/",
+            "HighRequestErrorRate/frontend-proxy"
+          ],
+          "outside_immediate": [
+            "HighRequestErrorRate/",
+            "HighRequestErrorRate/frontend-proxy"
+          ]
+        },
+        "at": 142,
+        "took": 30,
+        "verdict": {
+          "detail": {
+            "alerts": [
+              "HighRequestErrorRate"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 915,
+          "firing": [
+            "HighRequestErrorRate/"
+          ],
+          "outside_immediate": [
+            "HighRequestErrorRate/"
+          ]
+        },
+        "at": 202,
+        "took": 30,
+        "verdict": {
+          "detail": {
+            "alerts": [
+              "HighRequestErrorRate"
+            ],
+            "namespace": "astronomy-shop"
+          },
+          "failure_class": "agent_error",
+          "reason": "alerts_still_firing",
+          "success": false
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 1096,
+          "firing": [],
+          "outside_immediate": []
+        },
+        "at": 262,
+        "took": 152,
+        "verdict": {
+          "success": true
+        }
+      },
+      {
+        "alerts": {
+          "after_deploy": 1278,
+          "firing": [],
+          "outside_immediate": []
+        },
+        "at": 444,
+        "took": 152,
+        "verdict": {
+          "success": true
+        }
+      }
+    ],
+    "profile": "---++"
+  },
+  "status": "COMPLETED"
+}

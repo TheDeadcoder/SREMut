@@ -89,6 +89,12 @@ class RunnerTest(unittest.TestCase):
         self.assertEqual(run_sweep.scrub_inline(text),
                          r'{"output": "ready\n<time> [info] Read state\n<time> started, port 8080:80"}')
 
+    def test_scrub_removes_java_log_times(self):
+        text = r'{"output": "details.\nOct 17, 2026 8:38:39 PM io.grpc.netty and 9:05:01 AM, on Mar 3, 2026"}'
+        self.assertEqual(run_sweep.scrub_inline(text),
+                         r'{"output": "details.\n<time> io.grpc.netty and <time>, on <time>"}')
+        self.assertEqual(run_sweep.scrub_inline(r"1:C 15 Oct 2026 07:01:02.5 # Redis"), "1:C <time> <time> # Redis")
+
     def test_scrub_value_keeps_json_valid(self):
         value = {"t": 1791527325.5, "ms": 1791527325132, "n": 3, "ok": True, "s": "at 2026-10-09",
                  "l": [1791527325, None], "06:55:58": 1}

@@ -1,0 +1,1137 @@
+{
+  "agent": {
+    "alerts_given": "- HighRequestErrorRate (frontend)\n- HighRequestErrorRate (frontend-proxy)\n- InfoInhibitor",
+    "commands": [
+      "kubectl -n otel-demo get pods -o wide; echo ---; kubectl -n otel-demo get events --sort-by=.lastTimestamp | tail -40",
+      "kubectl -n otel-demo get deploy,svc,configmap,ingress 2>&1 | head -80",
+      "kubectl -n otel-demo get configmap flagd-config -o yaml; echo ---; kubectl -n otel-demo logs deploy/frontend --tail=40 2>&1; echo ---; kubectl -n otel-demo logs deploy/frontend-proxy --tail=40 2>&1",
+      "cd /tmp; kubectl -n otel-demo logs deploy/frontend --since=30m 2>&1 | grep -E '\"http.response.status_code\":(5|4)[0-9]{2}|\"level\":(40|50)' | tail -20; echo \"--- frontend error count:\"; kubectl -n otel-demo logs deploy/frontend --since=30m 2>&1 | grep -cE '\"http.response.status_code\":5'; echo ---; kubectl -n otel-demo logs deploy/frontend-proxy --since=30m 2>&1 | grep -E 'response_code|\" 5[0-9][0-9] |\\\\\" 5[0-9][0-9]|upstream|503|502|500' | tail -20; echo ---; kubectl -n otel-demo get configmap product-catalog-product-catalog-otel-config -o yaml | head -5 >/dev/null; kubectl -n otel-demo get configmap -o name",
+      "cd /tmp; kubectl -n otel-demo get svc ad -o yaml; echo ---; kubectl -n otel-demo get endpoints ad -o yaml; echo ---; kubectl -n otel-demo get deploy frontend -o jsonpath='{range .spec.template.spec.containers[0].env[*]}{.name}={.value}{\"\\n\"}{end}' | grep -i _ADDR; echo ---; kubectl -n otel-demo get deploy ad -o jsonpath='{.spec.template.spec.containers[0].ports}{\"\\n\"}{.spec.template.spec.containers[0].env}{\"\\n\"}'; echo ---; kubectl -n otel-demo logs deploy/ad --tail=20 2>&1",
+      "cd /tmp; F=/tmp/.claude/projects/-tmp/b77c63ee-1158-4b57-a105-7f8e6d2abf8d/tool-results/b9h37atve.txt; grep -o 'Last error: [^\"]*' $F | cut -c1-140 | sort | uniq -c | sort -rn | head; echo ---; kubectl -n otel-demo logs deploy/frontend --since=30m 2>&1 | grep -oE '\"http.response.status_code\":5[0-9]{2}' | sort | uniq -c; echo ---; kubectl -n otel-demo logs deploy/frontend-proxy --since=30m 2>&1 | grep -v '^\\[20' | tail -15; echo ---; kubectl -n otel-demo logs deploy/frontend-proxy --since=30m 2>&1 | grep -E '\\[(warning|error|critical)\\]' | tail -10",
+      "cd /tmp; kubectl -n otel-demo logs deploy/frontend --since=30m 2>&1 > /tmp/fe.log; grep -E '\"http.response.status_code\":500' /tmp/fe.log | grep -oE '\"url.path\":\"[^\"]*\"' | sort | uniq -c; echo ---; grep -E '\"level\":50' /tmp/fe.log | grep -oE '\"err\":\\{\"type\":\"[^\"]*\",\"message\":\"[^\"]{0,160}' | sort | uniq -c | sort -rn | head -15; echo ---; grep -E '\"level\":50' /tmp/fe.log | head -1 | cut -c1-400",
+      "cd /tmp; kubectl -n otel-demo get svc product-catalog 2>&1; kubectl -n otel-demo get svc -o custom-columns=NAME:.metadata.name,IP:.spec.clusterIP,PORTS:.spec.ports[*].port,SELECTOR:.spec.selector 2>&1; echo ---; kubectl -n otel-demo get endpoints -o custom-columns=NAME:.metadata.name,ADDR:.subsets[*].addresses[*].ip,PORTS:.subsets[*].ports[*].port 2>&1 | grep -v Warning; echo ---; kubectl -n otel-demo get deploy product-catalog -o jsonpath='{.metadata.labels}{\"\\n\"}{.spec.template.metadata.labels}{\"\\n\"}'; kubectl -n otel-demo get pod -l opentelemetry.io/name=product-catalog --show-labels 2>&1 | head -3; echo ---; kubectl -n otel-demo get deploy product-catalog -o jsonpath='{.spec.template.spec.containers[0].ports}{\"\\n\"}'; echo ---; kubectl -n otel-demo get deploy frontend -o jsonpath='{.spec.template.spec.containers[0].env}' | tr ',' '\\n' | grep -iE 'PRODUCT|checkout|cart' ",
+      "cd /tmp; kubectl -n otel-demo logs deploy/frontend --since=2m 2>&1 | grep -oE 'ECONNREFUSED [0-9.:]+' | sort | uniq -c; kubectl -n otel-demo logs deploy/frontend --since=2m 2>&1 | grep -c '\"http.response.status_code\":500'; echo ---; which helm && helm -n otel-demo list 2>&1 | head; echo ---; helm -n otel-demo get manifest otel-demo 2>/dev/null | grep -n -A30 '^kind: Service' | grep -B2 -A25 'name: product-catalog$' | head -45",
+      "cd /tmp; kubectl -n otel-demo exec deploy/frontend -- node -e \"\nconst net=require('net');const dns=require('dns');\ndns.lookup('ad',(e,a)=>console.log('ad resolves to',e?e.message:a));\nfor (const h of ['ad','10.244.1.213','10.96.59.44','checkout','10.96.17.141']) {\n const s=net.connect({host:h,port:8080,timeout:3000},()=>{console.log(h,'connected');s.end()});\n s.on('error',e=>console.log(h,'error',e.code));\n s.on('timeout',()=>{console.log(h,'timeout');s.destroy()});\n}\" 2>&1; echo ---; kubectl -n otel-demo get networkpolicy,authorizationpolicy,peerauthentication 2>&1; echo ---; kubectl -n otel-demo get pods -l opentelemetry.io/name=ad -o jsonpath='{.items[0].status.podIP} {.items[0].status.containerStatuses[0].ready}{\"\\n\"}'",
+      "cd /tmp; kubectl -n otel-demo run nettest --rm -i --restart=Never --image=busybox:latest --command -- sh -c 'for t in ad:8080 10.244.1.213:8080 10.96.59.44:8080 checkout:8080 10.96.106.91:8080 product-catalog:8080; do if nc -z -w 3 ${t%%:*} ${t##*:} 2>/dev/null; then echo \"$t OK\"; else echo \"$t FAIL\"; fi; done' 2>&1 | tail -15",
+      "cd /tmp; kubectl -n otel-demo get svc currency quote -o yaml | grep -E 'name: |port|targetPort|protocol|app.kubernetes|opentelemetry.io|component' ",
+      "cd /tmp; cat <<'EOF' | kubectl -n otel-demo apply -f - 2>&1\napiVersion: v1\nkind: Service\nmetadata:\n  name: product-catalog\n  namespace: otel-demo\n  labels:\n    app.kubernetes.io/component: product-catalog\n    app.kubernetes.io/managed-by: Helm\n    app.kubernetes.io/name: product-catalog\n    app.kubernetes.io/part-of: opentelemetry-demo\n    app.kubernetes.io/version: 3.1.0\n    helm.sh/chart: opentelemetry-demo-0.42.3\n    opentelemetry.io/name: product-catalog\n  annotations:\n    meta.helm.sh/release-name: otel-demo\n    meta.helm.sh/release-namespace: otel-demo\nspec:\n  type: ClusterIP\n  selector:\n    opentelemetry.io/name: product-catalog\n  ports:\n  - name: tcp-service\n    port: 8080\n    protocol: TCP\n    targetPort: 8080\nEOF\nsleep 3; kubectl -n otel-demo get svc product-catalog; kubectl -n otel-demo get endpoints product-catalog -o jsonpath='{.subsets[*].addresses[*].ip}{\"\\n\"}' 2>/dev/null",
+      "cd /tmp; sleep 45; kubectl -n otel-demo logs deploy/frontend --since=60s 2>&1 > /tmp/fe2.log; echo \"5xx in last 60s: $(grep -c '\"http.response.status_code\":500' /tmp/fe2.log)\"; echo \"200s in last 60s: $(grep -c '\"http.response.status_code\":200' /tmp/fe2.log)\"; grep -oE 'ECONNREFUSED [0-9.:]+' /tmp/fe2.log | sort | uniq -c",
+      "cd /tmp; kubectl -n otel-demo run probe --rm -i --restart=Never --image=busybox:latest --command -- sh -c 'for p in / /api/products /api/data /api/recommendations /api/cart /api/currency; do echo \"$p $(wget -q -S -O /dev/null http://frontend-proxy:8080$p 2>&1 | grep -m1 HTTP/ )\"; done' 2>&1 | grep -v -E 'attach|pod \"probe\"|If you|All commands' ; kubectl -n otel-demo logs deploy/frontend-proxy --since=2m 2>&1 | grep -cE '\" 5[0-9][0-9] '",
+      "cd /tmp; kubectl -n otel-demo run probe2 --rm -i --restart=Never --image=busybox:latest --command -- sh -c 'for p in /api/products /api/data /api/products/OLJCESPC7Z; do echo \"$p => $(wget -q -S -O - http://frontend-proxy:8080$p 2>&1 | grep -m1 -E \"HTTP/|ERROR|error\" )\"; done' 2>&1 | grep '=>'; echo ---; kubectl -n otel-demo logs deploy/frontend --since=60s 2>&1 | grep -oE '\"url.path\":\"/api/(products|data)[^\"]*\",\"http.response.status_code\":[0-9]+' | sort | uniq -c | head"
+    ],
+    "exit_code": 0,
+    "image": "sremut-agent:k8s-1.37",
+    "is_error": false,
+    "limit_reached": false,
+    "model": "claude-haiku-5-5",
+    "seconds": 134,
+    "summary": "The incident is mitigated: the frontend is back to 200s and the proxy routes respond normally.\n\n**Root cause:** The `product-catalog` Service was missing from the `otel-demo` namespace. Its Deployment and pod were healthy, but nothing routed to them. The frontend still resolved `product-catalog` to a dead ClusterIP (`10.96.106.91`), so every product lookup failed. Frontend requests to `/api/data`, `/api/products/*`, `/api/recommendations`, and `/api/checkout` returned HTTP 500 as a result, and frontend-proxy surfaced those errors. I saw 336 frontend 500s in the 30 minutes before the fix.\n\n**What I changed:** I recreated the `product-catalog` Service in `otel-demo`, with port 8080, selector `opentelemetry.io/name: product-catalog`, and Helm labels and annotations matching the sibling Services. It now has endpoint 10.244.1.206. I did not change any other resource.\n\n**Verification:**\n- In the 60 seconds after the fix, the frontend logged 540 HTTP 200s, zero 500s, and zero `ECONNREFUSED`. The ad and checkout refusals that were also in the logs stopped too.\n- Through frontend-proxy, `/`, `/api/products`, `/api/recommendations`, `/api/cart`, and `/api/currency` returned 200. The proxy logged zero 5xx in the 2 minutes after the fix.\n- All pods are Running with no restarts.\n\n**Not verified or left open:**\n- I did not confirm the restored Service is byte-for-byte the chart's version. Helm isn't installed here, so I matched the pattern of the sibling Services. Running `helm upgrade` or `helm get manifest` on a machine with Helm would confirm it and bring the release back in sync.\n- I did not find out what deleted the Service. I did not check audit logs.\n- InfoInhibitor is an inhibitor alert, so it should clear once the two HighRequestErrorRate alerts resolve. I don't have Alertmanager or Prometheus access from here, so I haven't confirmed that it cleared.\n- The flagd flags are all in their default `off` state, so nothing there needed changing.",
+    "timed_out": false,
+    "turns": 17,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 40014,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 40014,
+      "cache_read_input_tokens": 462342,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 32,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 825,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 825,
+          "cache_read_input_tokens": 41211,
+          "input_tokens": 2,
+          "output_tokens": 1123,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 11559,
+      "output_tokens_details": {
+        "thinking_tokens": 4703
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "captures": {
+    "final": {
+      "services": {
+        "ad": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ],
+            [
+              9465,
+              "9465",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "ad"
+          }
+        },
+        "agent": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8010,
+              "8010",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "agent"
+          }
+        },
+        "astronomy-db": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5432,
+              "5432",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "astronomy-db"
+          }
+        },
+        "cart": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "cart"
+          }
+        },
+        "chatbot": {
+          "endpoints": 1,
+          "ports": [
+            [
+              7860,
+              "7860",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "chatbot"
+          }
+        },
+        "checkout": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "checkout"
+          }
+        },
+        "currency": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "currency"
+          }
+        },
+        "email": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "email"
+          }
+        },
+        "flagd": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4000,
+              "4000",
+              "TCP"
+            ],
+            [
+              8013,
+              "8013",
+              "TCP"
+            ],
+            [
+              8016,
+              "8016",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "flagd"
+          }
+        },
+        "frontend": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "frontend"
+          }
+        },
+        "frontend-proxy": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "frontend-proxy"
+          }
+        },
+        "image-provider": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8081,
+              "8081",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "image-provider"
+          }
+        },
+        "kafka": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9092,
+              "9092",
+              "TCP"
+            ],
+            [
+              9093,
+              "9093",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "kafka"
+          }
+        },
+        "load-generator": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8089,
+              "8089",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "load-generator"
+          }
+        },
+        "mcp": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8011,
+              "8011",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "mcp"
+          }
+        },
+        "opamp-server": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4320,
+              "4320",
+              "TCP"
+            ],
+            [
+              4321,
+              "4321",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "opamp-server"
+          }
+        },
+        "otel-collector": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4317,
+              "4317",
+              "TCP"
+            ],
+            [
+              4318,
+              "4318",
+              "TCP"
+            ],
+            [
+              8888,
+              "8888",
+              "TCP"
+            ],
+            [
+              8889,
+              "8889",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "otel-demo",
+            "app.kubernetes.io/name": "opentelemetry-collector",
+            "component": "standalone-collector"
+          }
+        },
+        "payment": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "payment"
+          }
+        },
+        "product-catalog": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "product-catalog"
+          }
+        },
+        "quote": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "quote"
+          }
+        },
+        "recommendation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "recommendation"
+          }
+        },
+        "shipping": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "shipping"
+          }
+        },
+        "telemetry-docs": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8000,
+              "8000",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "telemetry-docs"
+          }
+        },
+        "valkey-cart": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "valkey-cart"
+          }
+        }
+      },
+      "traffic": null,
+      "workloads": {
+        "deployments/accounting": 1,
+        "deployments/ad": 1,
+        "deployments/agent": 1,
+        "deployments/astronomy-db": 1,
+        "deployments/cart": 1,
+        "deployments/chatbot": 1,
+        "deployments/checkout": 1,
+        "deployments/currency": 1,
+        "deployments/email": 1,
+        "deployments/flagd": 1,
+        "deployments/fraud-detection": 1,
+        "deployments/frontend": 1,
+        "deployments/frontend-proxy": 1,
+        "deployments/image-provider": 1,
+        "deployments/kafka": 1,
+        "deployments/load-generator": 1,
+        "deployments/mcp": 1,
+        "deployments/opamp-server": 1,
+        "deployments/otel-collector": 1,
+        "deployments/payment": 1,
+        "deployments/product-catalog": 1,
+        "deployments/quote": 1,
+        "deployments/recommendation": 1,
+        "deployments/shipping": 1,
+        "deployments/telemetry-docs": 1,
+        "deployments/valkey-cart": 1
+      }
+    },
+    "healthy": {
+      "services": {
+        "ad": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ],
+            [
+              9465,
+              "9465",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "ad"
+          }
+        },
+        "agent": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8010,
+              "8010",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "agent"
+          }
+        },
+        "astronomy-db": {
+          "endpoints": 1,
+          "ports": [
+            [
+              5432,
+              "5432",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "astronomy-db"
+          }
+        },
+        "cart": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "cart"
+          }
+        },
+        "chatbot": {
+          "endpoints": 1,
+          "ports": [
+            [
+              7860,
+              "7860",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "chatbot"
+          }
+        },
+        "checkout": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "checkout"
+          }
+        },
+        "currency": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "currency"
+          }
+        },
+        "email": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "email"
+          }
+        },
+        "flagd": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4000,
+              "4000",
+              "TCP"
+            ],
+            [
+              8013,
+              "8013",
+              "TCP"
+            ],
+            [
+              8016,
+              "8016",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "flagd"
+          }
+        },
+        "frontend": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "frontend"
+          }
+        },
+        "frontend-proxy": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "frontend-proxy"
+          }
+        },
+        "image-provider": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8081,
+              "8081",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "image-provider"
+          }
+        },
+        "kafka": {
+          "endpoints": 1,
+          "ports": [
+            [
+              9092,
+              "9092",
+              "TCP"
+            ],
+            [
+              9093,
+              "9093",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "kafka"
+          }
+        },
+        "load-generator": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8089,
+              "8089",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "load-generator"
+          }
+        },
+        "mcp": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8011,
+              "8011",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "mcp"
+          }
+        },
+        "opamp-server": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4320,
+              "4320",
+              "TCP"
+            ],
+            [
+              4321,
+              "4321",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "opamp-server"
+          }
+        },
+        "otel-collector": {
+          "endpoints": 1,
+          "ports": [
+            [
+              4317,
+              "4317",
+              "TCP"
+            ],
+            [
+              4318,
+              "4318",
+              "TCP"
+            ],
+            [
+              8888,
+              "8888",
+              "TCP"
+            ],
+            [
+              8889,
+              "8889",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "app.kubernetes.io/instance": "otel-demo",
+            "app.kubernetes.io/name": "opentelemetry-collector",
+            "component": "standalone-collector"
+          }
+        },
+        "payment": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "payment"
+          }
+        },
+        "product-catalog": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "product-catalog"
+          }
+        },
+        "quote": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "quote"
+          }
+        },
+        "recommendation": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "recommendation"
+          }
+        },
+        "shipping": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8080,
+              "8080",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "shipping"
+          }
+        },
+        "telemetry-docs": {
+          "endpoints": 1,
+          "ports": [
+            [
+              8000,
+              "8000",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "telemetry-docs"
+          }
+        },
+        "valkey-cart": {
+          "endpoints": 1,
+          "ports": [
+            [
+              6379,
+              "6379",
+              "TCP"
+            ]
+          ],
+          "selector": {
+            "opentelemetry.io/name": "valkey-cart"
+          }
+        }
+      },
+      "traffic": null,
+      "workloads": {
+        "deployments/accounting": 1,
+        "deployments/ad": 1,
+        "deployments/agent": 1,
+        "deployments/astronomy-db": 1,
+        "deployments/cart": 1,
+        "deployments/chatbot": 1,
+        "deployments/checkout": 1,
+        "deployments/currency": 1,
+        "deployments/email": 1,
+        "deployments/flagd": 1,
+        "deployments/fraud-detection": 1,
+        "deployments/frontend": 1,
+        "deployments/frontend-proxy": 1,
+        "deployments/image-provider": 1,
+        "deployments/kafka": 1,
+        "deployments/load-generator": 1,
+        "deployments/mcp": 1,
+        "deployments/opamp-server": 1,
+        "deployments/otel-collector": 1,
+        "deployments/payment": 1,
+        "deployments/product-catalog": 1,
+        "deployments/quote": 1,
+        "deployments/recommendation": 1,
+        "deployments/shipping": 1,
+        "deployments/telemetry-docs": 1,
+        "deployments/valkey-cart": 1
+      }
+    }
+  },
+  "cleanup": [
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [faults : Delete associated scheduled experiment(s)] **********************\nskipping: [localhost]\n\nTASK [faults : Delete Chaos Mesh schedules] ************************************\nskipping: [localhost]\n\nTASK [faults : Delete all fault related ClusterRoleBinding] ********************\nok: [localhost]\n\nTASK [faults : Delete all fault related ClusterRole] ***************************\nok: [localhost]\n\nTASK [faults : Delete all fault related PriorityClass] *************************\nok: [localhost]\n\nTASK [faults : Retrieve worker nodes] ******************************************\nok: [localhost]\n\nTASK [faults : Uncordon all disabled nodes] ************************************\nskipping: [localhost] => (item=node/kind-dev-worker) \nskipping: [localhost] => (item=node/kind-dev-worker2) \nskipping: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=14   changed=0    unreachable=0    failed=0    skipped=9    rescued=0    ignored=0   \n"
+    },
+    {
+      "exit_code": 0,
+      "tail": "\nTASK [cluster : Validate that version information was retrieved] ***************\nskipping: [localhost]\n\nTASK [cluster : Parse openshift cluster version string] ************************\nskipping: [localhost]\n\nTASK [cluster : Fail playbook due to `wrong openshift version` error] **********\nskipping: [localhost]\n\nTASK [cluster : Display openshift cluster information] *************************\nskipping: [localhost]\n\nTASK [applications : Validating arguments against arg spec 'main'] *************\nok: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nok: [localhost]\n\nTASK [applications : Uninstall OpenTelemetry Demo (Astronomy Shop)] ************\nchanged: [localhost]\n\nTASK [applications : Delete Namespace] *****************************************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=18   changed=2    unreachable=0    failed=0    skipped=15   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0."
+    }
+  ],
+  "deploy": {
+    "exit_code": 0,
+    "tail": "skipping: [localhost] => (item=deployment/flagd) \nskipping: [localhost] => (item=deployment/fraud-detection) \nskipping: [localhost] => (item=deployment/frontend) \nskipping: [localhost] => (item=deployment/frontend-proxy) \nskipping: [localhost] => (item=deployment/image-provider) \nskipping: [localhost] => (item=deployment/kafka) \nskipping: [localhost] => (item=deployment/mcp) \nskipping: [localhost] => (item=deployment/opamp-server) \nskipping: [localhost] => (item=deployment/otel-collector) \nskipping: [localhost] => (item=deployment/payment) \nskipping: [localhost] => (item=deployment/product-catalog) \nskipping: [localhost] => (item=deployment/quote) \nskipping: [localhost] => (item=deployment/recommendation) \nskipping: [localhost] => (item=deployment/shipping) \nskipping: [localhost] => (item=deployment/telemetry-docs) \nskipping: [localhost] => (item=deployment/valkey-cart) \nskipping: [localhost]\n\nTASK [applications : Create Common PrometheusRules] ****************************\nchanged: [localhost]\n\nTASK [applications : Create OpenTelemetry Demo PrometheusRules] ****************\nchanged: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=40   changed=4    unreachable=0    failed=0    skipped=35   rescued=0    ignored=0   \n\n[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.\n[DEPRECATION WARNING]: The 'status.values' return value is deprecated and will be removed in version 8.0.0. Use 'status.release_values' instead. This feature will be removed from collection 'kubernetes.core' version 8.0.0.\n[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`."
+  },
+  "detect": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    },
+    {
+      "after": 211,
+      "ground_truth": [
+        "HighRequestErrorRate"
+      ],
+      "in_namespace": [
+        "HighRequestErrorRate/frontend",
+        "HighRequestErrorRate/frontend-proxy",
+        "InfoInhibitor/"
+      ]
+    }
+  ],
+  "detected": true,
+  "evaluation": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 90,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 120,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 150,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 180,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 210,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 241,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting"
+      ]
+    },
+    {
+      "after": 271,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 301,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 331,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 361,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 391,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 421,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 451,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 481,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 511,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 541,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 571,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    },
+    {
+      "after": 601,
+      "ground_truth": [],
+      "in_namespace": [
+        "HighRequestLatency/accounting",
+        "NoRequestsReceived/chatbot",
+        "NoRequestsReceived/mcp"
+      ]
+    }
+  ],
+  "ground_truth": [
+    "HighRequestErrorRate"
+  ],
+  "healthy_alerts": [
+    {
+      "after": 0,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 30,
+      "ground_truth": [],
+      "in_namespace": []
+    },
+    {
+      "after": 60,
+      "ground_truth": [],
+      "in_namespace": [
+        "InfoInhibitor/"
+      ]
+    }
+  ],
+  "inject": [
+    {
+      "exit_code": 0,
+      "tail": "TASK [faults : Retrieve container from product-catalog] ************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes workload container environmental variable not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Retrieve port from product-catalog] *****************************\nskipping: [localhost]\n\nTASK [faults : Fail playbook due to `kubernetes service port not found` error] ***\nskipping: [localhost]\n\nTASK [faults : Extract object information from output] *************************\nskipping: [localhost]\n\nTASK [faults : Delete service] *************************************************\nchanged: [localhost]\n\nTASK [waiters : Validating arguments against arg spec 'main'] ******************\nok: [localhost]\n\nTASK [waiters : Include wait tasks] ********************************************\nskipping: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=20   changed=1    unreachable=0    failed=0    skipped=14   rescued=0    ignored=0   \n"
+    }
+  ],
+  "model": "claude-haiku-5-5",
+  "reference": {
+    "capacity": [],
+    "function": null,
+    "healthy": true,
+    "routing": [],
+    "traffic": null
+  },
+  "scenario": 114,
+  "status": "COMPLETED",
+  "verdicts": {
+    "alert_absent": {
+      "passed": true,
+      "profile": "+++++++++++++++++++++",
+      "relapsed": false
+    }
+  }
+}
