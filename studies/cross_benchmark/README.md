@@ -33,7 +33,11 @@ episode against the observed outcome.
 `agent_actions.py` classes every `kubectl` call in the agent episodes as a read, a pod restart, a scale (to zero
 or not), a deletion, a configuration change, an exec into a pod (and whether it ran one of the mitigation scripts
 that AIOpsLab leaves in its pods), or a test pod, and counts per benchmark and model the episodes with each action,
-those that changed nothing and those that only restarted pods.
+those that changed nothing and those that only restarted pods. From kubectl's confirmations in each transcript (such
+as `prometheusrule.monitoring.coreos.com/<name> patched`), it also lists the objects the agent wrote that alert-based
+verifiers read: Prometheus Operator objects, such as alert rules, and the OpenTelemetry collector's configuration. It
+counts the episodes with such a write and those the benchmark's verifier passed after a write to the monitoring
+objects.
 
 ## Headline numbers
 
@@ -41,9 +45,11 @@ those that changed nothing and those that only restarted pods.
 scores, agent verdicts that disagree with the reference, code reading, defects beyond prior practice), McNemar's
 exact test for the paired comparisons (AIOpsLab's default verdict before and after the fix of
 `studies/aiopslab_audit`, SREGym's alert oracle on healthy systems at the pin and at HEAD, and verdicts that
-disagree with the reference for the two agent models on the tasks both ran), and agreement with Cohen's kappa
-between first attempts and their repeats. Agent episodes on the tasks in `REFERENCE_BLIND` of `conformance.py` are
-not counted.
+disagree with the reference for each pair of agent models on the tasks both ran), agreement with Cohen's kappa
+between first attempts and their repeats, and the share of repeated agent tasks with the same label in every
+attempt. It also gives the acceptance rates of the settle study of `studies/alert_baseline`, and the share of agent
+episodes that wrote the monitoring objects, per benchmark and model. Agent episodes on the tasks in
+`REFERENCE_BLIND` of `conformance.py` are not counted.
 
 ## Rating sample
 
@@ -56,6 +62,8 @@ action or the agent's commands and closing message, and the state after the acti
 reference verdict. Two raters each fill a copy of `blank.csv`, following `rating/instructions.md`, without the key;
 `rating.py score` compares the copies with each other and with the reference verifier (Cohen's kappa, the items each
 rater left unsure, and the items where a rater and the reference disagree) and writes `rating/agreement.json`.
+`sample` keeps an existing `rating/sheet.md`, since the raters work from it; `--force` draws a new sample from the
+current runs.
 
 ## Running
 

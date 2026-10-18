@@ -2,34 +2,111 @@
   "agents": {
     "repeats": {
       "agreement": {
-        "k": 16,
-        "n": 19,
-        "rate": 0.842,
+        "k": 31,
+        "n": 46,
+        "rate": 0.674,
         "wilson95": [
-          0.624,
-          0.945
+          0.53,
+          0.791
         ]
       },
-      "kappa": 0.352
+      "kappa": 0.446,
+      "same_in_every_attempt": {
+        "all": {
+          "k": 29,
+          "n": 46,
+          "rate": 0.63,
+          "wilson95": [
+            0.486,
+            0.755
+          ]
+        },
+        "codex": {
+          "k": 6,
+          "n": 9,
+          "rate": 0.667,
+          "wilson95": [
+            0.354,
+            0.879
+          ]
+        },
+        "haiku": {
+          "k": 2,
+          "n": 9,
+          "rate": 0.222,
+          "wilson95": [
+            0.063,
+            0.547
+          ]
+        },
+        "sonnet": {
+          "k": 21,
+          "n": 28,
+          "rate": 0.75,
+          "wilson95": [
+            0.566,
+            0.873
+          ]
+        }
+      }
     },
     "verdicts": {
       "all": {
-        "false_fail": 11,
+        "false_fail": 46,
+        "false_pass": 22,
+        "wrong": {
+          "k": 68,
+          "n": 178,
+          "rate": 0.382,
+          "wilson95": [
+            0.314,
+            0.455
+          ]
+        }
+      },
+      "codex": {
+        "false_fail": 15,
         "false_pass": 7,
         "wrong": {
-          "k": 18,
-          "n": 87,
-          "rate": 0.207,
+          "k": 22,
+          "n": 55,
+          "rate": 0.4,
           "wilson95": [
-            0.135,
-            0.304
+            0.281,
+            0.532
           ]
         }
       },
       "haiku": {
-        "false_fail": 4,
-        "false_pass": 2,
+        "false_fail": 12,
+        "false_pass": 6,
         "wrong": {
+          "k": 18,
+          "n": 49,
+          "rate": 0.367,
+          "wilson95": [
+            0.247,
+            0.507
+          ]
+        }
+      },
+      "sonnet": {
+        "false_fail": 19,
+        "false_pass": 9,
+        "wrong": {
+          "k": 28,
+          "n": 74,
+          "rate": 0.378,
+          "wilson95": [
+            0.276,
+            0.492
+          ]
+        }
+      }
+    },
+    "wrong_by_model_on_shared_tasks": {
+      "codex_vs_haiku": {
+        "codex": {
           "k": 6,
           "n": 31,
           "rate": 0.194,
@@ -37,43 +114,81 @@
             0.092,
             0.363
           ]
+        },
+        "haiku": {
+          "k": 6,
+          "n": 31,
+          "rate": 0.194,
+          "wilson95": [
+            0.092,
+            0.363
+          ]
+        },
+        "mcnemar_p": 1.0,
+        "only_codex": 1,
+        "only_haiku": 1,
+        "pairs": 31
+      },
+      "codex_vs_sonnet": {
+        "codex": {
+          "k": 10,
+          "n": 37,
+          "rate": 0.27,
+          "wilson95": [
+            0.154,
+            0.43
+          ]
+        },
+        "mcnemar_p": 1.0,
+        "only_codex": 5,
+        "only_sonnet": 6,
+        "pairs": 37,
+        "sonnet": {
+          "k": 11,
+          "n": 37,
+          "rate": 0.297,
+          "wilson95": [
+            0.175,
+            0.458
+          ]
         }
       },
-      "sonnet": {
-        "false_fail": 7,
-        "false_pass": 5,
-        "wrong": {
-          "k": 12,
-          "n": 56,
-          "rate": 0.214,
+      "haiku_vs_sonnet": {
+        "haiku": {
+          "k": 6,
+          "n": 31,
+          "rate": 0.194,
           "wilson95": [
-            0.127,
-            0.338
+            0.092,
+            0.363
+          ]
+        },
+        "mcnemar_p": 1.0,
+        "only_haiku": 2,
+        "only_sonnet": 3,
+        "pairs": 31,
+        "sonnet": {
+          "k": 7,
+          "n": 31,
+          "rate": 0.226,
+          "wilson95": [
+            0.114,
+            0.398
           ]
         }
       }
-    },
-    "wrong_by_model_on_shared_tasks": {
-      "haiku": {
-        "k": 6,
-        "n": 31,
-        "rate": 0.194,
+    }
+  },
+  "agents_writing_monitoring": {
+    "itbench:codex": {
+      "passed_after_writing_monitoring": 9,
+      "wrote_monitoring": {
+        "k": 9,
+        "n": 16,
+        "rate": 0.562,
         "wilson95": [
-          0.092,
-          0.363
-        ]
-      },
-      "mcnemar_p": 1.0,
-      "only_haiku": 2,
-      "only_sonnet": 3,
-      "pairs": 31,
-      "sonnet": {
-        "k": 7,
-        "n": 31,
-        "rate": 0.226,
-        "wilson95": [
-          0.114,
-          0.398
+          0.332,
+          0.769
         ]
       }
     }
@@ -328,20 +443,20 @@
       },
       "P3": {
         "k": 2,
-        "n": 8,
-        "rate": 0.25,
+        "n": 9,
+        "rate": 0.222,
         "wilson95": [
-          0.071,
-          0.591
+          0.063,
+          0.547
         ]
       },
       "P4": {
-        "k": 6,
+        "k": 7,
         "n": 23,
-        "rate": 0.261,
+        "rate": 0.304,
         "wilson95": [
-          0.125,
-          0.465
+          0.156,
+          0.509
         ]
       },
       "P5": {
@@ -551,6 +666,95 @@
         ]
       },
       "kappa": 0.782
+    }
+  },
+  "settle": {
+    "none": {
+      "right_after": {
+        "k": 0,
+        "n": 8,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.324
+        ]
+      },
+      "waiting_300": {
+        "k": 1,
+        "n": 8,
+        "rate": 0.125,
+        "wilson95": [
+          0.022,
+          0.471
+        ]
+      },
+      "waiting_600": {
+        "k": 1,
+        "n": 8,
+        "rate": 0.125,
+        "wilson95": [
+          0.022,
+          0.471
+        ]
+      }
+    },
+    "repair": {
+      "right_after": {
+        "k": 0,
+        "n": 8,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.324
+        ]
+      },
+      "waiting_300": {
+        "k": 3,
+        "n": 8,
+        "rate": 0.375,
+        "wilson95": [
+          0.137,
+          0.694
+        ]
+      },
+      "waiting_600": {
+        "k": 8,
+        "n": 8,
+        "rate": 1.0,
+        "wilson95": [
+          0.676,
+          1.0
+        ]
+      }
+    },
+    "restart": {
+      "right_after": {
+        "k": 0,
+        "n": 8,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.324
+        ]
+      },
+      "waiting_300": {
+        "k": 0,
+        "n": 8,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.324
+        ]
+      },
+      "waiting_600": {
+        "k": 1,
+        "n": 8,
+        "rate": 0.125,
+        "wilson95": [
+          0.022,
+          0.471
+        ]
+      }
     }
   },
   "sregym_mutation_score": {

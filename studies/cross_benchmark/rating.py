@@ -224,10 +224,14 @@ def main():
     s.add_argument("--aiopslab-runs", type=Path, default=STUDIES / "aiopslab_audit" / "runs")
     s.add_argument("--agent-runs", type=Path, nargs="+",
                    default=[STUDIES / "agent_loop" / "runs", STUDIES / "agent_loop" / "runs-haiku"])
+    s.add_argument("--force", action="store_true", help="replace the sample the raters already have")
     c = sub.add_parser("score")
     c.add_argument("ratings", type=Path, nargs=2, help="the two raters' filled copies of blank.csv")
     args = ap.parse_args()
     if args.command == "sample":
+        if (OUT / "sheet.md").exists() and not args.force:
+            print("rating/sheet.md is the sample the raters have; --force draws a new one from the current runs")
+            return 1
         items = [*audit_items("sregym", args.mutation_runs), *audit_items("aiopslab", args.aiopslab_runs),
                  *agent_items(args.agent_runs)]
         key = write_sample(sample(items))
