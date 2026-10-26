@@ -1,0 +1,59 @@
+id,decision,note
+R01,reject,"Repair did not take: tidb and tikv not ready, basic-tidb service has no endpoints, pd PVC and pd statefulset still differ; discovery was also scaled to zero. TiDB cannot serve SQL clients."
+R02,reject,"Deleting pods does not remove the nodeSelector; user-service still Pending, service has no endpoints, traffic collapsed from 117 to 10 per round with failures."
+R03,reject,"Fault repaired but consul (service registry for the whole app) is at zero replicas, so a workload and a service are down; frontend deployment also still differs from healthy."
+R04,accept,"Agent set targetPort back to 9090; no residual diffs, all workloads ready, traffic equal to baseline with no failures."
+R05,accept,"Own repair, no residual diffs, 5 clean load rounds (baseline itself had one failed round)."
+R06,reject,Selector fault lives in the Service object; recreating pods changes nothing. frontend service still has no endpoints and still differs.
+R07,accept,"Agent restored accounting to 1 replica and it is Running; no workloads or services missing. The chatbot/mcp remarks concern standing environment alerts also seen in R40, not the injected fault."
+R08,reject,"Probe fixed, but consul scaled to zero: workload and service down. Clean load rounds only reflect already-resolved connections."
+R09,accept,"Selector restored, endpoints back, no diffs. 1 of 5 rounds had failures, which is within the baseline noise seen for this app (R05 baseline had the same)."
+R10,reject,"The deployment the task is about was deleted, not repaired; its Service aux-service now has no backing pods and the fault's configmap/service remain. Note: the base astronomy shop itself is unaffected, so a grader that ignores the injected workload would pass this."
+R11,accept,"Own repair, clean state, traffic equal to baseline."
+R12,accept,"Own repair, clean state, profile ready again; only one post-action load round but it had no failures."
+R13,reject,ConfigMap still has SEARCH_BACKEND_VERSION enabled; pod restarts re-read it. Both load rounds had failures.
+R14,accept,"No fault-changed object remains (fault was evidently runtime state inside valkey), cart is ready again after the restart. No load data, so confidence rests on cart readiness, which the fault had broken."
+R15,reject,Scale-to-zero is not a repair; the operator re-reconciles from the TiDBCluster spec which still carries the extreme replica count (statefulset still differs). Fault persists.
+R16,accept,"Own repair, no residual diffs, all ready. No load data."
+R17,unsure,"Objects fully restored and all pods ready, but the only load round after the action had failed requests while this app's baseline never does. Cannot tell transient reconnect after the mongodb restart from a persistent break."
+R18,accept,"Own repair, no residual diffs, all ready. No load data."
+R19,accept,"ConfigMap restored, no diffs, all ready. 1 of 2 rounds had failures; hotel-reservation baselines in this sheet show the same (R32, R33), likely the geo rollout window."
+R20,accept,ConfigMap differs only textually (sed + apply); effective feature flags equal healthy and flagd was restarted so the change is live. No post-fix traffic check by the agent.
+R21,reject,Service mongodb-rate still missing; recreating pods cannot recreate a Service. Both load rounds failed.
+R22,reject,"Agent looked only at the fleetcast namespace and changed nothing; tidb-controller-manager is still degraded, so reconciliation is still broken. The 'no differing objects' line conflicts with that and looks like a tracking gap for the operator namespace."
+R23,reject,"postgresql deployment still carries the fault's change, so the lock-holding process came back with the recreated pod. No load data to show otherwise."
+R24,reject,"After the benchmark's own repair every workload is below healthy and every service has no endpoints; load generator returned nothing. Whatever the cause, this state is an outage."
+R25,accept,"Agent scaled user-service back to 1; clean state, traffic equal to baseline."
+R26,reject,"Admin user still missing in mongodb; geo not ready, geo service without endpoints, failures in load."
+R27,accept,"Own repair, all workloads ready, no diffs. No load data."
+R28,accept,"adHighCpu off; configmap differs only in formatting (replace), effective flags equal healthy, flagd and ad restarted."
+R29,accept,"Own repair, clean state, 5 rounds with no failures and higher throughput than before."
+R30,accept,"Service spec restored, which is the entire fault; endpoints present, all ready. No post-action load data (harness gap, cf. R56)."
+R31,reject,Service ad still missing; agent diagnosed restarts instead and changed nothing.
+R32,reject,"TLS fixed, but consul scaled to zero: a workload and a service of the app are down."
+R33,reject,mongodb-geo scaled to zero and data not restored; database workload and service down. Clean load rounds only because geo serves from in-memory data.
+R34,reject,"Node still reports the misconfigured eviction threshold and currency is still pinned to it; pod deletion cannot fix kubelet config, the evict loop continues."
+R35,accept,"Own repair, clean state, 5 clean load rounds."
+R36,reject,"flagd-config still differs, so kafkaQueueProblems is still on; deleting pods just made flagd reload the faulty config."
+R37,unsure,"All pods ready and discovery appears to have been reconciled back by the operator, but the fault-touched basic-tidb StatefulSet still differs from healthy and there is no traffic data. Cannot tell a latent invalid spec from a reconciliation artifact."
+R38,accept,"Probe restored, no diffs, all ready. 1 of 2 rounds had failures, same noise level as healthy hotel-reservation baselines in this sheet."
+R39,unsure,"Same situation as R37: everything ready, no diffs except the fault-touched basic-tidb StatefulSet, no traffic data."
+R40,reject,"Agent found the frontend-ingress NetworkPolicy but never removed it; its only change was an unrelated env var on the agent deployment. The 'no differing objects' line is unreliable for ITBench cases (cf. R58, where a deleted service also shows as none)."
+R41,accept,"Own repair, clean state, traffic equal to baseline."
+R42,accept,"Own repair, no residual diffs, all ready. No load data."
+R43,accept,"Own repair, no diffs, all ready. 1 of 5 rounds had failures, within baseline noise for this app."
+R44,reject,"Same as R22: agent changed nothing, tidb-controller-manager still degraded."
+R45,accept,"Own repair, clean state, traffic equal to baseline."
+R46,accept,"All workloads ready, all services have endpoints, traffic identical to baseline. The listed PVC/service diffs are the redeployed objects' new identities (new clusterIP/volume), not a functional difference; the fault produced no unready workload in this run."
+R47,reject,"rate scaled to zero: workload and service down, load has failures."
+R48,accept,"Agent removed the bad nodeSelector; no residual diffs, traffic equal to baseline."
+R49,reject,"Image fixed, but consul scaled to zero: workload and service down even though this load window saw no failures."
+R50,reject,"geo scaled to zero: workload and service down, load has failures."
+R51,reject,custom-service is at zero replicas and its deployment still has the broken rollout strategy; the targeted workload is down rather than repaired. Base app traffic is unaffected because custom-service is not in its path.
+R52,reject,accounting scaled to zero (orders no longer consumed) and flagd-config still differs from healthy.
+R53,accept,"Own repair, clean state, traffic equal to baseline."
+R54,reject,geo deployment still runs the buggy image; pod recreation changes nothing. Load has failures.
+R55,accept,"Agent correctly found nothing to fix: all ready, PVCs bound, traffic identical to baseline. Same recreated-object diffs as R46."
+R56,accept,"Service spec restored, endpoints present, all ready. No post-action load data (harness gap, cf. R30)."
+R57,reject,compose-post-service scaled to zero: traffic fell from 117 to 15 per round with failures.
+R58,reject,product-catalog Service still absent (no endpoints); agent spent its run on Prometheus and Kafka and did not recreate it.

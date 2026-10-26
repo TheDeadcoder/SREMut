@@ -1,0 +1,59 @@
+id,decision,note
+R01,reject,"basic-tidb and basic-tikv have reduced readiness, and TiDB services lack healthy routing."
+R02,reject,"user-service remains unavailable, the node-placement change persists, and requests fail."
+R03,reject,Consul is down with no ready endpoints. Successful sampled requests do not restore this dependency.
+R04,accept,"The target port is corrected, all workloads and services match baseline, and measured requests succeed."
+R05,accept,"The conflicting sidecar configuration is repaired, readiness and endpoints are restored, and all measured requests succeed."
+R06,reject,The incorrect frontend Service selector persists. Restarting pods did not restore service routing.
+R07,accept,"Accounting was restored to one replica, with no remaining baseline readiness, service, or fault-object regression."
+R08,reject,"Consul was scaled to zero and has no ready endpoints, leaving a healthy application dependency down."
+R09,reject,"Requests still fail in 1 of 5 post-action rounds versus none before, despite restored configuration and endpoints."
+R10,unsure,"aux-service was deleted, yet no workload or endpoint deficit relative to healthy is reported. Its necessity to user-facing behavior is unclear, and no requests were measured."
+R11,accept,"user-service and its endpoints are restored, the fault change is gone, and measured requests succeed."
+R12,accept,The repair restores baseline readiness and endpoints with no remaining fault changes or measured request failures.
+R13,reject,The faulty frontend configuration persists and both post-action request rounds have failures.
+R14,accept,"Restarting pods restores cart readiness and service endpoints, with no remaining fault-object differences or observed regression."
+R15,reject,"Only the managed StatefulSet was scaled. No correction to the TiDBCluster's excessive replica setting is shown, and the StatefulSet still differs from healthy."
+R16,accept,The fault configuration is restored and there are no baseline workload or service regressions.
+R17,reject,The post-action request round has failures despite restored Kubernetes objects; full application recovery is not achieved.
+R18,accept,The fault configuration is restored with no remaining workload or service regression.
+R19,reject,"Requests still fail in 1 of 2 post-action rounds versus none before, despite restored configuration."
+R20,accept,paymentFailure matches its healthy value and flagd was restarted. The remaining ConfigMap difference is not a feature-flag difference.
+R21,reject,"mongodb-rate Service remains missing or unroutable, and both post-action request rounds fail."
+R22,reject,tidb-controller-manager remains below healthy readiness. The agent did not repair the affected operator.
+R23,accept,Restarting PostgreSQL terminates the blocking database session and releases its lock. No readiness or endpoint regression remains.
+R24,reject,"The application's workloads and services are broadly unavailable after the repair, and user traffic is no longer measured."
+R25,accept,"user-service is scaled back up with restored readiness and endpoints, and measured requests succeed."
+R26,reject,"geo remains unavailable with no ready service endpoints, and requests fail. Restarting pods did not restore database access."
+R27,accept,Workloads and service endpoints have recovered to baseline with no remaining fault-object differences.
+R28,accept,adHighCpu matches its healthy value and flagd/ad were restarted. No workload or service regression remains.
+R29,accept,"The fault changes are gone, workloads and services are healthy, and all five request rounds succeed."
+R30,accept,"The wrong target-port configuration is restored to baseline, with healthy workloads and service routing."
+R31,reject,The ad Service remains missing or unroutable. The agent made no repair to it.
+R32,reject,"Consul is down with no ready endpoints after the action, even though sampled requests succeed."
+R33,reject,mongodb-geo is scaled to zero and has no ready endpoints. Scaling down does not restore corrupted database data.
+R34,reject,Restarting pods does not correct the node's kubelet eviction configuration. The node and pinned currency deployment still differ.
+R35,accept,"The fault configuration is restored, all workloads and services are healthy, and measured requests succeed."
+R36,reject,Restarting pods does not disable the persistent kafkaQueueProblems feature flag; flagd-config still differs from healthy.
+R37,unsure,"No final readiness or endpoint deficit is reported despite the basic-discovery scale-down. The remaining TiDB StatefulSet changes are unspecified, and functionality was not measured."
+R38,reject,"Requests still fail in 1 of 2 post-action rounds versus none before, despite restored liveness configuration."
+R39,unsure,"The scale-down alone does not establish a final outage: no readiness or endpoint deficit is reported. The remaining TiDB StatefulSet difference is unexplained, with no functional measurements."
+R40,unsure,"The listed actions do not repair frontend ingress policy, yet the fault-object diff is empty. No request measurements or connectivity results establish whether frontend access recovered."
+R41,accept,"Database privileges and application availability are restored, and measured requests succeed at baseline volume."
+R42,accept,The payment fault configuration is restored with no remaining workload or service regression.
+R43,reject,"Requests still fail in 1 of 5 post-action rounds versus none before, despite restored placement configuration."
+R44,reject,tidb-controller-manager remains below healthy readiness. Healthy application pods do not repair the failed operator.
+R45,accept,"Database privileges and application availability are restored, and measured requests succeed at baseline volume."
+R46,accept,"Workloads, service routing, and measured requests match healthy behavior. Recreated PVC and Service differences alone do not establish a remaining fault."
+R47,reject,"rate is scaled to zero with no ready endpoints, and requests fail. Database privileges were not repaired."
+R48,accept,"The invalid node selector is removed, readiness and endpoints are restored, and measured requests succeed."
+R49,reject,"Consul is scaled to zero with no ready endpoints, leaving an application dependency unavailable."
+R50,reject,"geo is scaled to zero with no ready endpoints, and requests fail. Database privileges were not repaired."
+R51,reject,custom-service is scaled to zero while its rollout/init-container fault remains unresolved. Successful sampled requests do not restore that workload.
+R52,reject,"Accounting is below healthy readiness after being scaled to zero, leaving the application without its accounting worker."
+R53,accept,"Database access and application availability are restored, and measured requests succeed at baseline volume."
+R54,reject,The buggy geo deployment configuration persists and the post-action request round has failures.
+R55,accept,"Bound PVCs, recovered workloads and endpoints, and successful traffic support recovery. Recreated object differences alone are not a failure."
+R56,accept,"The wrong target-port configuration is restored to baseline, with healthy workloads and service routing."
+R57,reject,"compose-post-service is scaled to zero with no ready endpoints, and user requests fail."
+R58,reject,product-catalog Service remains missing or unroutable. Healthy pods and an empty fault-object diff do not restore it.

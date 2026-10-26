@@ -1,4 +1,6 @@
-"""Labels every verifier-mutation episode and writes ledger.json; --check verifies the committed copy."""
+"""Labels every verifier-mutation episode and writes ledger.json; --check verifies the committed copy.
+UNSEEN_FOOTPRINT lists the episodes whose fault persists where the snapshot cannot see: in another namespace, in a
+custom resource, or in a workload that only the injection creates."""
 import argparse
 import csv
 import json
@@ -10,6 +12,15 @@ HERE = Path(__file__).resolve().parent
 RUNS = HERE / "runs"
 SCHEDULE = HERE / "schedule.csv"
 LEDGER = HERE / "ledger.json"
+UNSEEN_FOOTPRINT = {("RESTART", "operator_wrong_update_strategy_fault"),
+                    ("RESTART", "service_dns_resolution_failure_astronomy_shop"),
+                    ("DELETE", "rolling_update_misconfigured_hotel_reservation"),
+                    ("DELETE", "rolling_update_misconfigured_social_network")}
+
+
+def fault_left(result):
+    unseen = (result.get("operator"), result.get("problem_id")) in UNSEEN_FOOTPRINT
+    return bool(result["mutant"].get("footprint_left")) or unseen
 
 
 def label(result):
@@ -25,7 +36,7 @@ def label(result):
     if mutant["reference"]["healthy"]:
         if mutant["verdict"]:
             return "equivalent"
-        return "rejected_fault_present" if mutant.get("footprint_left") else "false_reject"
+        return "rejected_fault_present" if fault_left(result) else "false_reject"
     return "survived" if mutant["verdict"] else "killed"
 
 
