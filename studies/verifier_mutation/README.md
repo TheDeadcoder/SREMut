@@ -43,7 +43,10 @@ time before the reference verifier judges it.
   no workload).
 
 The system is healthy when all three hold. Separately, `footprint_left` lists objects the injection
-changed that still differ from the healthy state.
+changed that still differ from the healthy state. The comparison covers built-in objects in the problem's
+namespace, and the nodes. `UNSEEN_FOOTPRINT` in `mutation_ledger.py` lists the episodes whose fault persists
+where it cannot see: in another namespace, in a custom resource, or in a workload that only the injection
+creates.
 
 `reference_check.py` judges every state of the first attempts again with other user-request thresholds
 (a quarter or three quarters of a healthy round, one failed round tolerated, or no user-request check),
@@ -58,7 +61,7 @@ that fails.
 | `survived` | accepts | unhealthy |
 | `equivalent` | accepts | healthy: the generic action repaired the system |
 | `false_reject` | rejects | healthy, and nothing the injection changed is left |
-| `rejected_fault_present` | rejects | healthy, but an object the injection changed is still in place |
+| `rejected_fault_present` | rejects | healthy, but an object the injection changed is still in place, or the episode is in `UNSEEN_FOOTPRINT` |
 | `unknown` | changes its verdict within the 90 s | - |
 
 The mutation score of a problem or operator is killed / (killed + survived) over first attempts. A survivor counts as

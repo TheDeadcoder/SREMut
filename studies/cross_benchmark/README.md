@@ -21,7 +21,8 @@ property and instrument, and counts the tasks measured for each property.
 | T | the task itself is valid: its fault injects, takes effect, and its answer is not left in the environment |
 
 Instruments: `noop` (a no-op agent), `golden` (the benchmark's own repair), `healthy` (the system before
-injection), `operators` (generic and task-specific wrong or alternative repairs), `scope` (an untouched workload
+injection, except for the tasks in `HEALTHY_NOT_APPLICABLE` of `conformance.py`, whose correct end state by the
+benchmark's own repair differs from it), `operators` (generic and task-specific wrong or alternative repairs), `scope` (an untouched workload
 scaled to zero), `window` (verdicts over time), `repeats`, `isolation`, `durability`, `reference` (the reference
 verifier), `published` (published results), `agents` and `static` (code reading). Prior audit practice is the no-op
 agent and the benchmark's own repair; the comparison counts the tasks with a defect that only the other instruments
@@ -62,6 +63,7 @@ action or the agent's commands and closing message, and the state after the acti
 reference verdict. Two raters each fill a copy of `blank.csv`, following `rating/instructions.md`, without the key;
 `rating.py score` compares the copies with each other and with the reference verifier (Cohen's kappa, the items each
 rater left unsure, and the items where a rater and the reference disagree) and writes `rating/agreement.json`.
+The two raters' filled copies are `rating/rater-1.csv` and `rating/rater-2.csv`.
 `sample` keeps an existing `rating/sheet.md`, since the raters work from it; `--force` draws a new sample from the
 current runs.
 
@@ -74,7 +76,8 @@ python3 studies/cross_benchmark/conformance.py
 python3 studies/cross_benchmark/agent_actions.py
 python3 studies/cross_benchmark/headline.py
 python3 studies/cross_benchmark/rating.py sample
-python3 studies/cross_benchmark/rating.py score rater-1.csv rater-2.csv
+python3 studies/cross_benchmark/rating.py score studies/cross_benchmark/rating/rater-1.csv \
+    studies/cross_benchmark/rating/rater-2.csv
 ```
 
 `--check` on the first three verifies the committed output against its inputs.

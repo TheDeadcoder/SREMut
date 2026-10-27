@@ -7835,7 +7835,7 @@
       },
       "attempt": "attempt-1",
       "footprint_left": [],
-      "label": "false_reject",
+      "label": "rejected_fault_present",
       "operator": "DELETE",
       "predicted": "survived",
       "problem_id": "rolling_update_misconfigured_hotel_reservation",
@@ -7860,7 +7860,7 @@
       },
       "attempt": "attempt-1",
       "footprint_left": [],
-      "label": "false_reject",
+      "label": "rejected_fault_present",
       "operator": "DELETE",
       "predicted": "survived",
       "problem_id": "rolling_update_misconfigured_social_network",
@@ -12855,7 +12855,7 @@
       },
       "attempt": "attempt-1",
       "footprint_left": [],
-      "label": "false_reject",
+      "label": "rejected_fault_present",
       "noop_window": {
         "class": "persistent",
         "profile": "---------------------"
@@ -14171,7 +14171,7 @@
       },
       "attempt": "attempt-1",
       "footprint_left": [],
-      "label": "false_reject",
+      "label": "rejected_fault_present",
       "noop_window": {
         "class": "persistent",
         "profile": "-----------------"
@@ -19226,8 +19226,8 @@
     "operator_wrong_update_strategy_fault": {
       "labels": {
         "equivalent": 1,
-        "false_reject": 1,
-        "not_applicable": 2
+        "not_applicable": 2,
+        "rejected_fault_present": 1
       },
       "mutation_score": null
     },
@@ -19332,16 +19332,14 @@
     },
     "rolling_update_misconfigured_hotel_reservation": {
       "labels": {
-        "false_reject": 1,
-        "rejected_fault_present": 2,
+        "rejected_fault_present": 3,
         "survived": 1
       },
       "mutation_score": 0.0
     },
     "rolling_update_misconfigured_social_network": {
       "labels": {
-        "false_reject": 1,
-        "rejected_fault_present": 2,
+        "rejected_fault_present": 3,
         "survived": 1
       },
       "mutation_score": 0.0
@@ -19370,8 +19368,8 @@
     },
     "service_dns_resolution_failure_astronomy_shop": {
       "labels": {
-        "false_reject": 1,
         "not_applicable": 2,
+        "rejected_fault_present": 1,
         "survived": 1
       },
       "mutation_score": 0.0
@@ -19597,10 +19595,11 @@
       "DELETE": {
         "labels": {
           "error": 2,
-          "false_reject": 3,
+          "false_reject": 1,
           "killed": 44,
           "not_applicable": 58,
           "oracle_error": 5,
+          "rejected_fault_present": 2,
           "survived": 1,
           "unknown": 5
         },
@@ -19610,9 +19609,8 @@
         "labels": {
           "equivalent": 2,
           "error": 1,
-          "false_reject": 2,
           "killed": 64,
-          "rejected_fault_present": 42,
+          "rejected_fault_present": 44,
           "survived": 1,
           "unknown": 6
         },
@@ -19684,11 +19682,11 @@
     "labels": {
       "equivalent": 6,
       "error": 5,
-      "false_reject": 5,
+      "false_reject": 1,
       "killed": 207,
       "not_applicable": 128,
       "oracle_error": 5,
-      "rejected_fault_present": 47,
+      "rejected_fault_present": 51,
       "survived": 51,
       "unknown": 20
     },

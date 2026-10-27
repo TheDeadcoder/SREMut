@@ -5,7 +5,8 @@ studies' ledgers and runs; writes conformance.json with a property matrix and a 
 Properties: P1 rejects the unrepaired system, P2 accepts the healthy system, P3 accepts a correct repair, P4 rejects
 wrong repairs, P5 gives a stable verdict, P6 does not depend on other tasks, P7 accepts only repairs that last, T the
 task itself is valid (its fault injects, takes effect, and its answer is not left in the environment).
-Instruments: noop (a no-op agent), golden (the benchmark's own repair), healthy (the system before injection),
+Instruments: noop (a no-op agent), golden (the benchmark's own repair), healthy (the system before injection, except
+for the tasks in HEALTHY_NOT_APPLICABLE, whose correct end state, by the benchmark's own repair, differs from it),
 operators (generic and task-specific wrong or alternative repairs), scope (an untouched workload scaled to zero),
 window (verdicts over time), repeats, isolation, durability, reference (our reference verifier), published (published
 results), agents, static (code reading).
@@ -25,6 +26,14 @@ DISPUTABLE = ("static", "scope", "isolation")
 HARNESS_NAMESPACES = {"default", "kube-node-lease", "kube-public", "kube-system", "local-path-storage", "observe",
                       "openebs", "sregym", "chaos-mesh"}
 REFERENCE_BLIND = {("itbench", "38")}
+HEALTHY_NOT_APPLICABLE = {
+    "calico_route_reflector_label_drift_hotel_reservation", "configmap_drift_hotel_reservation",
+    "cronjob_sidecar_blocks_completion_hotel_reservation", "cumulative_admission_webhook_timeout_hotel_reservation",
+    "finalizer_deadlock_controller_hotel_reservation", "hpa_missing_effective_cpu_request_hotel_reservation",
+    "ingress_misroute", "integer_overflow_primary_key_astronomy_shop", "kafka_poison_pill_hol_block",
+    "priority_preemption_cascade_hotel_reservation", "rolling_update_misconfigured_hotel_reservation",
+    "rolling_update_misconfigured_social_network", "search_rate_retry_collapse_hotel_reservation",
+    "secret_rotation_stale_env_credentials_astronomy_shop"}
 DOCUMENTED = (
     ("aiopslab", "redeploy_without_PV-mitigation-1", "T", "reference"),
     ("itbench", "31", "T", "static"),
@@ -109,7 +118,8 @@ def sregym(f, sweep, mutation, mutation_runs, ladder, agents):
             f.add(b, t, "P5", "repeats")
     healthy = defaultdict(set)
     for path in Path(mutation_runs).glob("*/*/attempt-1/result.json"):
-        healthy[path.parts[-3]].add((((load(path).get("healthy") or {}).get("oracle")) or {}).get("success"))
+        if path.parts[-3] not in HEALTHY_NOT_APPLICABLE:
+            healthy[path.parts[-3]].add((((load(path).get("healthy") or {}).get("oracle")) or {}).get("success"))
     for t, verdicts in healthy.items():
         if verdicts == {False}:
             f.add(b, t, "P2", "healthy")

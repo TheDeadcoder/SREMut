@@ -134,6 +134,9 @@ class LedgerTest(unittest.TestCase):
         fault_left = self.result(False, "---", True)
         fault_left["mutant"]["footprint_left"] = ["configmaps/x"]
         self.assertEqual(mutation_ledger.label(fault_left), "rejected_fault_present")
+        unseen = {**self.result(False, "---", True), "operator": "RESTART",
+                  "problem_id": "service_dns_resolution_failure_astronomy_shop"}
+        self.assertEqual(mutation_ledger.label(unseen), "rejected_fault_present")
         self.assertEqual(mutation_ledger.label(self.result(True, "+-+", False)), "unknown")
         self.assertEqual(mutation_ledger.label(self.result(None, "?", False)), "oracle_error")
         self.assertEqual(mutation_ledger.label({"status": "COMPLETED", "applied": None}), "not_applicable")

@@ -76,15 +76,15 @@
     },
     "sregym": {
       "agents": 7,
-      "beyond_prior_practice_without_scope_or_isolation": 37,
+      "beyond_prior_practice_without_scope_or_isolation": 22,
       "by_instrument": {
         "agents": 7,
         "durability": 1,
         "golden": 11,
-        "healthy": 28,
+        "healthy": 14,
         "isolation": 14,
         "noop": 3,
-        "operators": 7,
+        "operators": 3,
         "repeats": 14,
         "scope": 49,
         "window": 20
@@ -98,10 +98,10 @@
         "recall": 0.944
       },
       "noop": 3,
-      "only_beyond_prior_practice": 79,
+      "only_beyond_prior_practice": 74,
       "prior_practice": 14,
-      "tasks_with_findings": 93,
-      "tasks_with_findings_without_scope_or_isolation": 51
+      "tasks_with_findings": 88,
+      "tasks_with_findings_without_scope_or_isolation": 36
     }
   },
   "findings": {
@@ -357,21 +357,15 @@
         "P5:window"
       ],
       "calico_route_reflector_label_drift_hotel_reservation": [
-        "P2:healthy",
         "P6:isolation"
       ],
       "capacity_decrease_rpc_retry_storm": [
         "P6:isolation"
       ],
       "configmap_drift_hotel_reservation": [
-        "P2:healthy",
         "P4:scope"
       ],
-      "cronjob_sidecar_blocks_completion_hotel_reservation": [
-        "P2:healthy"
-      ],
       "cumulative_admission_webhook_timeout_hotel_reservation": [
-        "P2:healthy",
         "P4:scope",
         "P6:isolation"
       ],
@@ -405,15 +399,11 @@
       "faulty_image_correlated": [
         "P4:scope"
       ],
-      "finalizer_deadlock_controller_hotel_reservation": [
-        "P2:healthy"
-      ],
       "gc_capacity_degradation": [
         "P5:repeats",
         "P5:window"
       ],
       "hpa_missing_effective_cpu_request_hotel_reservation": [
-        "P2:healthy",
         "P4:scope"
       ],
       "incorrect_image": [
@@ -423,12 +413,8 @@
         "P4:scope"
       ],
       "ingress_misroute": [
-        "P2:healthy",
         "P4:scope",
         "P6:isolation"
-      ],
-      "integer_overflow_primary_key_astronomy_shop": [
-        "P2:healthy"
       ],
       "internal_traffic_policy_local_astronomy_shop": [
         "P4:scope"
@@ -437,7 +423,6 @@
         "P5:window"
       ],
       "kafka_poison_pill_hol_block": [
-        "P2:healthy",
         "P4:scope"
       ],
       "kafka_queue_problems": [
@@ -531,15 +516,11 @@
         "T:agents"
       ],
       "operator_wrong_update_strategy_fault": [
-        "P3:operators",
         "P6:isolation"
       ],
       "postgres_lock_contention_product_catalog": [
         "P4:scope",
         "P6:isolation"
-      ],
-      "priority_preemption_cascade_hotel_reservation": [
-        "P2:healthy"
       ],
       "psa_restricted_blocks_recreation_hotel_reservation": [
         "P4:scope"
@@ -557,29 +538,20 @@
         "P5:window"
       ],
       "rolling_update_misconfigured_hotel_reservation": [
-        "P2:healthy",
-        "P3:operators",
         "P4:scope"
       ],
       "rolling_update_misconfigured_social_network": [
-        "P2:healthy",
-        "P3:operators",
         "P4:scope"
       ],
       "scale_pod_zero_social_net": [
         "P5:window"
       ],
-      "search_rate_retry_collapse_hotel_reservation": [
-        "P2:healthy"
-      ],
       "secret_rotation_stale_env_credentials_astronomy_shop": [
-        "P2:healthy",
         "P4:scope",
         "P5:repeats",
         "P5:window"
       ],
       "service_dns_resolution_failure_astronomy_shop": [
-        "P3:operators",
         "P4:scope"
       ],
       "service_dns_resolution_failure_social_network": [
@@ -855,7 +827,7 @@
         ]
       },
       "P2": {
-        "measured": 119,
+        "measured": 105,
         "violated": [
           "astronomy_shop_ad_service_failure",
           "astronomy_shop_ad_service_high_cpu",
@@ -866,24 +838,10 @@
           "astronomy_shop_payment_service_failure",
           "astronomy_shop_payment_service_unreachable",
           "astronomy_shop_product_catalog_service_failure",
-          "calico_route_reflector_label_drift_hotel_reservation",
-          "configmap_drift_hotel_reservation",
-          "cronjob_sidecar_blocks_completion_hotel_reservation",
-          "cumulative_admission_webhook_timeout_hotel_reservation",
           "dev_shm_exhaustion_hotel_reservation",
-          "finalizer_deadlock_controller_hotel_reservation",
-          "hpa_missing_effective_cpu_request_hotel_reservation",
-          "ingress_misroute",
-          "integer_overflow_primary_key_astronomy_shop",
-          "kafka_poison_pill_hol_block",
           "kafka_queue_problems",
           "kubelet_crash",
           "loadgenerator_flood_homepage",
-          "priority_preemption_cascade_hotel_reservation",
-          "rolling_update_misconfigured_hotel_reservation",
-          "rolling_update_misconfigured_social_network",
-          "search_rate_retry_collapse_hotel_reservation",
-          "secret_rotation_stale_env_credentials_astronomy_shop",
           "valkey_memory_disruption"
         ]
       },
@@ -902,10 +860,6 @@
           "kafka_queue_problems",
           "kubelet_crash",
           "loadgenerator_flood_homepage",
-          "operator_wrong_update_strategy_fault",
-          "rolling_update_misconfigured_hotel_reservation",
-          "rolling_update_misconfigured_social_network",
-          "service_dns_resolution_failure_astronomy_shop",
           "valkey_memory_disruption"
         ]
       },
@@ -1035,7 +989,7 @@
   },
   "totals": {
     "agents": 15,
-    "beyond_prior_practice_without_scope_or_isolation": 74,
+    "beyond_prior_practice_without_scope_or_isolation": 59,
     "code_reading": {
       "episodes": 525,
       "found_not_predicted": 7,
@@ -1045,9 +999,9 @@
       "recall": 0.941
     },
     "noop": 11,
-    "only_beyond_prior_practice": 118,
+    "only_beyond_prior_practice": 113,
     "prior_practice": 22,
-    "tasks_with_findings": 140,
-    "tasks_with_findings_without_scope_or_isolation": 96
+    "tasks_with_findings": 135,
+    "tasks_with_findings_without_scope_or_isolation": 81
   }
 }
