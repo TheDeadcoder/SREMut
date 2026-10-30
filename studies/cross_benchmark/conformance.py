@@ -3,8 +3,11 @@ studies' ledgers and runs; writes conformance.json with a property matrix and a 
 --check verifies the committed copy.
 
 Properties: P1 rejects the unrepaired system, P2 accepts the healthy system, P3 accepts a correct repair, P4 rejects
-wrong repairs, P5 gives a stable verdict, P6 does not depend on other tasks, P7 accepts only repairs that last, T the
-task itself is valid (its fault injects, takes effect, and its answer is not left in the environment).
+wrong repairs, P5 gives the same verdict for the same repair, P6 leaves no state behind and does not depend on other
+tasks, P7 accepts only repairs that last, T the task itself is valid (its setup takes effect, its text points at it,
+and neither its answer nor its verdict is in the agent's reach: on an ITBench scenario where the check passed only in
+the agent episodes that wrote what it reads, and failed every other, the agents set the verdict). A fault that the
+oracle cannot see counts against P1, not T.
 Instruments: noop (a no-op agent), golden (the benchmark's own repair), healthy (the system before injection, except
 for the tasks in HEALTHY_NOT_APPLICABLE, whose correct end state, by the benchmark's own repair, differs from it),
 operators (generic and task-specific wrong or alternative repairs), scope (an untouched workload scaled to zero),
@@ -35,10 +38,8 @@ HEALTHY_NOT_APPLICABLE = {
     "rolling_update_misconfigured_social_network", "search_rate_retry_collapse_hotel_reservation",
     "secret_rotation_stale_env_credentials_astronomy_shop"}
 DOCUMENTED = (
-    ("aiopslab", "redeploy_without_PV-mitigation-1", "T", "reference"),
     ("itbench", "31", "T", "static"),
     ("itbench", "31", "T", "agents"),
-    ("itbench", "102", "T", "static"),
     ("sregym", "operator_wrong_operator_image", "T", "agents"),
 )
 SURVIVAL_OUTCOMES = ("survived", "killed", "equivalent", "rejected_fault_present", "false_reject")
@@ -243,17 +244,31 @@ def k8s(f, audit, interference, published):
                 f.add(b, task, prop, "published")
 
 
-def itbench(f, audit, agents):
+def verdict_set_by_writes(actions, benchmark):
+    episodes = defaultdict(list)
+    for e in actions["episodes"]:
+        if e["benchmark"] == benchmark:
+            passed = next((p for p in e["verdicts"].values() if p is not None), None)
+            episodes[e["task"]].append((bool(e["wrote_monitoring"] or e["wrote_telemetry"]), passed))
+    return {t for t, rows in episodes.items()
+            if any(p for _, p in rows) and all(w for w, p in rows if p) and any(p is False for w, p in rows if not w)}
+
+
+def itbench(f, audit, agents, actions):
     b = "itbench"
     first = [e for e in audit["episodes"] if e["attempt"] == "attempt-1"]
     tasks = {e["scenario"] for e in first}
     injected = {e["scenario"] for e in first if e["label"] != "inject_failed"}
     f.measure(b, "T", tasks)
-    f.measure(b, "P1", {e["scenario"] for e in first if e["action"] == "NULL" and e["label"] != "inject_failed"})
+    f.measure(b, "P1", {e["scenario"] for e in first if e["action"] == "NULL"
+                        and e["label"] not in ("inject_failed", "inert")})
     f.measure(b, "P2", injected)
     f.measure(b, "P4", {e["scenario"] for e in first if e["action"] != "NULL"
-                        and e["label"] not in ("inject_failed", "not_applicable")})
-    f.measure(b, "P7", {e["scenario"] for e in first if e["action"] == "RESTART" and e["label"] != "inject_failed"})
+                        and e["label"] not in ("inject_failed", "not_applicable", "inert")})
+    f.measure(b, "P7", {e["scenario"] for e in first if e["action"] == "RESTART"
+                        and e["label"] not in ("inject_failed", "inert")})
+    for t in verdict_set_by_writes(actions, b):
+        f.add(b, t, "T", "agents")
     f.measure(b, "P5", {e["scenario"] for e in audit["episodes"] if e["attempt"] == "attempt-2"})
     for e in first:
         t, label = e["scenario"], e["label"]
@@ -327,7 +342,7 @@ def build(args):
     sregym(f, load(args.sweep), load(args.mutation), args.mutation_runs, load(args.ladder), agents)
     aiopslab(f, load(args.aiopslab), agents, args.agent_runs)
     k8s(f, load(args.k8s), args.interference, load(args.published))
-    itbench(f, load(args.itbench), agents)
+    itbench(f, load(args.itbench), agents, load(args.actions))
     return summarize(f)
 
 
@@ -346,6 +361,7 @@ def main():
                     default=[STUDIES / "agent_loop" / f"ledger{suffix}.json" for suffix in ("", "-haiku", "-codex")])
     ap.add_argument("--agent-runs", type=Path, nargs="+",
                     default=[STUDIES / "agent_loop" / f"runs{suffix}" for suffix in ("", "-haiku", "-codex")])
+    ap.add_argument("--actions", type=Path, default=HERE / "agent_actions.json")
     ap.add_argument("--check", action="store_true", help="fail if conformance.json differs from the inputs")
     args = ap.parse_args()
     text = json.dumps(build(args), indent=2, sort_keys=True) + "\n"

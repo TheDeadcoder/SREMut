@@ -1,4 +1,6 @@
-"""Labels every ITBench audit episode and writes ledger.json; --check verifies the committed copy."""
+"""Labels every ITBench audit episode and writes ledger.json; --check verifies the committed copy. On a scenario whose
+injected fault cannot act (INERT_FAULTS), the no-op and a restart leave a healthy system, so their episodes are inert
+and say nothing about how the check treats the fault."""
 import argparse
 import csv
 import json
@@ -14,6 +16,7 @@ from probe import passed_at  # noqa: E402
 RUNS = HERE / "runs"
 SCHEDULE = HERE / "schedule.csv"
 LEDGER = HERE / "ledger.json"
+INERT_FAULTS = {"31"}
 
 
 def label(record, result):
@@ -22,6 +25,8 @@ def label(record, result):
         return (status or "error").lower()
     if not result["action_result"]["applied"]:
         return "not_applicable"
+    if str(result.get("scenario")) in INERT_FAULTS and result["action"] in ("NULL", "RESTART"):
+        return "inert"
     index = passed_at(result["evaluation"])
     if index is None:
         return "killed"
@@ -49,7 +54,7 @@ def build(runs=RUNS, schedule=SCHEDULE):
                      "evaluation_profile": "".join("?" if "error" in s else "-" if s["ground_truth"] else "+"
                                                    for s in result.get("evaluation", []))})
     judged = [r for r in rows if r["predicted"] in ("pass", "fail") and r["alert_absent"] is not None
-              and r["label"] != "not_applicable"]
+              and r["label"] not in ("not_applicable", "inert")]
     summary = {
         "episodes": len(rows),
         "labels": dict(Counter(r["label"] for r in rows)),

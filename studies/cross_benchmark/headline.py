@@ -64,7 +64,7 @@ def agent_rows(specs):
         model, path = spec.split("=", 1)
         for e in load(path)["episodes"]:
             verdict = next((e[v] for v in VERDICTS if v in e), None)
-            if verdict and (e["benchmark"], e["task"]) not in REFERENCE_BLIND:
+            if verdict and verdict["label"] != "undecided" and (e["benchmark"], e["task"]) not in REFERENCE_BLIND:
                 yield {"model": model, "benchmark": e["benchmark"], "task": e["task"], "attempt": e["attempt"],
                        "label": verdict["label"]}
 

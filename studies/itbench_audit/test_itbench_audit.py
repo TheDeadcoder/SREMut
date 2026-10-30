@@ -70,6 +70,11 @@ class LedgerTest(unittest.TestCase):
         self.assertEqual(ledger.label({}, self.result("SCALE0", "-++", False, applied=False)), "not_applicable")
         self.assertEqual(ledger.label({"status": "TIMED_OUT"}, {}), "timed_out")
 
+    def test_no_op_and_restart_on_an_inert_fault_are_inert(self):
+        for action, label in (("NULL", "inert"), ("RESTART", "inert"), ("SILENCE", "killed")):
+            result = {**self.result(action, "-----", True), "scenario": 31}
+            self.assertEqual(ledger.label({}, result), label)
+
     def test_build(self):
         with tempfile.TemporaryDirectory() as tmp:
             runs = Path(tmp)
