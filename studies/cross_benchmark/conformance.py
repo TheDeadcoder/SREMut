@@ -7,7 +7,9 @@ wrong repairs, P5 gives the same verdict for the same repair, P6 leaves no state
 tasks, P7 accepts only repairs that last, T the task itself is valid (its setup takes effect, its text points at it,
 and neither its answer nor its verdict is in the agent's reach: on an ITBench scenario where the check passed only in
 the agent episodes that wrote what it reads, and failed every other, the agents set the verdict). A fault that the
-oracle cannot see counts against P1, not T.
+oracle cannot see counts against P1, not T. AIOpsLab's verdicts follow its own rule (the audit ledger's default
+label), and a no-op window that rejects and then accepts again counts against P5 only where each poll is a whole
+verdict (no_settle). An ITBench restart that passes before the fault's alert fires again counts against P4 and P7.
 Instruments: noop (a no-op agent), golden (the benchmark's own repair), healthy (the system before injection, except
 for the tasks in HEALTHY_NOT_APPLICABLE, whose correct end state, by the benchmark's own repair, differs from it),
 operators (generic and task-specific wrong or alternative repairs), scope (an untouched workload scaled to zero),
@@ -185,7 +187,7 @@ def aiopslab(f, audit, agents, agent_runs):
             f.add(b, t, "P1", "noop")
         if e.get("default_label") == "survived":
             f.add(b, t, "P4", "scope" if e["operator"] == "COLLAT" else "operators")
-        if e.get("label") == "unknown":
+        if e.get("default_label") == "unknown" or (window.get("class") == "transient" and t in audit["no_settle"]):
             f.add(b, t, "P5", "window")
         recovery = e.get("recovery") or {}
         if recovery.get("profile") is not None:
@@ -279,6 +281,7 @@ def itbench(f, audit, agents, actions):
         if label == "survived":
             f.add(b, t, "P4", "operators")
         if label == "transient_pass":
+            f.add(b, t, "P4", "durability")
             f.add(b, t, "P7", "durability")
         if e.get("healthy_ground_truth_firing"):
             f.add(b, t, "P2", "healthy")

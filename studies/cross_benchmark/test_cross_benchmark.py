@@ -50,6 +50,25 @@ class ConformanceTest(unittest.TestCase):
         self.assertEqual(report["only_beyond_prior_practice"], 2)
         self.assertEqual(report["beyond_prior_practice_without_scope_or_isolation"], 1)
 
+    def test_aiopslab_window_follows_its_own_rule(self):
+        f = conformance.Findings()
+        episode = {"attempt": "attempt-1", "operator": "RESTART", "label": "unknown", "predicted": ""}
+        audit = {"no_settle": ["once"], "episodes": [
+            {**episode, "problem_id": "polls", "default_label": "survived",
+             "noop_window": {"class": "transient"}},
+            {**episode, "problem_id": "once", "default_label": "killed", "noop_window": {"class": "transient"}},
+            {**episode, "problem_id": "flips", "default_label": "unknown"}]}
+        conformance.aiopslab(f, audit, [], [])
+        self.assertEqual({t for t, s in f.found["aiopslab"].items() if ("P5", "window") in s}, {"once", "flips"})
+        self.assertEqual(f.found["aiopslab"]["polls"], {("P1", "noop"), ("P4", "operators")})
+
+    def test_itbench_transient_pass_is_a_wrong_repair_that_does_not_last(self):
+        f = conformance.Findings()
+        audit = {"episodes": [{"scenario": "s", "action": "RESTART", "attempt": "attempt-1",
+                               "label": "transient_pass"}]}
+        conformance.itbench(f, audit, [], {"episodes": []})
+        self.assertEqual(f.found["itbench"]["s"], {("P4", "durability"), ("P7", "durability")})
+
     def test_agent_verdicts(self):
         f = conformance.Findings()
         episodes = [{"benchmark": "x", "task": "a", "healthy": True, "v": {"label": "false_fail"}},

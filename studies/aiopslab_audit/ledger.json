@@ -677,7 +677,7 @@
         ]
       },
       "attempt": "attempt-1",
-      "default_label": "survived",
+      "default_label": "unknown",
       "footprint_left": [],
       "label": "unknown",
       "operator": "COLLAT",
@@ -713,7 +713,7 @@
         ]
       },
       "attempt": "attempt-2",
-      "default_label": "survived",
+      "default_label": "unknown",
       "footprint_left": [],
       "label": "unknown",
       "operator": "COLLAT",
@@ -2001,7 +2001,7 @@
         ]
       },
       "attempt": "attempt-1",
-      "default_label": "equivalent",
+      "default_label": "unknown",
       "footprint_left": [
         "persistentvolumeclaims/geo-pvc",
         "persistentvolumeclaims/profile-pvc",
@@ -2879,6 +2879,12 @@
       "verdict_profile": null
     }
   ],
+  "no_settle": [
+    "misconfig_app_hotel_res-mitigation-1",
+    "redeploy_without_PV-mitigation-1",
+    "scale_pod_zero_social_net-mitigation-1",
+    "wrong_bin_usage-mitigation-1"
+  ],
   "problems": {
     "assign_to_non_existent_node_social_net-mitigation-1": {
       "labels": {
@@ -3032,7 +3038,8 @@
       "COLLAT": {
         "labels": {
           "not_applicable": 1,
-          "survived": 13
+          "survived": 12,
+          "unknown": 1
         },
         "mutation_score": 0.0
       },
@@ -3046,9 +3053,10 @@
       },
       "RESTART": {
         "labels": {
-          "equivalent": 2,
+          "equivalent": 1,
           "killed": 10,
-          "survived": 2
+          "survived": 2,
+          "unknown": 1
         },
         "mutation_score": 0.833
       },
