@@ -8,11 +8,17 @@ and reference verifier of `studies/verifier_mutation`. AIOpsLab and its environm
 ## Verifier under test
 
 Each problem's own `eval()`. Most require every pod in the application namespace to be healthy; some
-first check one setting (a Service's `targetPort`, a replica count, a container command). AIOpsLab
-waits up to `AIOPSLAB_MITIGATION_SETTLE_SECONDS` (120 s by default) and accepts the first healthy
-poll. The probe sets it to 0 and polls itself, with 15 s between evaluations, for 120 s after each
-operator. The ledger labels every episode twice: by the first poll, as in `studies/verifier_mutation`,
-and by AIOpsLab's default, which accepts when any poll in those 120 s accepts.
+first check one setting (a Service's `targetPort`, a replica count, a container command). On ten
+problems, AIOpsLab waits up to `AIOPSLAB_MITIGATION_SETTLE_SECONDS` (120 s by default) and accepts the
+first healthy poll. The probe sets it to 0 and polls itself, with 15 s between evaluations, for 120 s
+after each operator. The other four (`NO_SETTLE` in `ledger.py`) do not use the setting:
+`redeploy_without_PV-mitigation-1`, `scale_pod_zero_social_net-mitigation-1` and
+`wrong_bin_usage-mitigation-1` judge once, and `misconfig_app_hotel_res-mitigation-1` waits up to 60 s
+for every pod to be ready. The ledger labels every episode twice: by the first poll, as in
+`studies/verifier_mutation`, and by AIOpsLab's default (`default_label`). On the ten, the default
+accepts when any poll in those 120 s accepts. On the four, each poll is a whole verdict, so the default
+is the first-poll label, `unknown` when the polls differ. With the proposed fix every problem uses the
+setting, and `--patched` labels its runs by any poll.
 
 ## Episode
 
@@ -76,7 +82,7 @@ With the proposed fix applied to the same checkout:
 git -C ~/AIOpsLab apply "$PWD/studies/aiopslab_audit/workload_check.patch"
 python3 studies/aiopslab_audit/run_audit.py --server D --runs studies/aiopslab_audit/runs-patched
 git -C ~/AIOpsLab apply -R "$PWD/studies/aiopslab_audit/workload_check.patch"
-python3 studies/aiopslab_audit/ledger.py --runs studies/aiopslab_audit/runs-patched --ledger studies/aiopslab_audit/ledger-patched.json
+python3 studies/aiopslab_audit/ledger.py --patched --runs studies/aiopslab_audit/runs-patched --ledger studies/aiopslab_audit/ledger-patched.json
 ```
 
 Each episode is written to `runs/<operator>/<problem_id>/attempt-<n>/` (or `pilot/`, `runs-patched/`) in the

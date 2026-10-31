@@ -29,6 +29,9 @@ agent and the benchmark's own repair; the comparison counts the tasks with a def
 find, with and without `scope`, `isolation` and `static`. The code-reading predictions of each study are scored per
 episode against the observed outcome. On an ITBench scenario where the check passed only in the agent episodes that
 wrote what it reads (`agent_actions.json`) and failed every other, the agents set the verdict, a violation of T.
+AIOpsLab's verdicts follow its own rule, the default label of `studies/aiopslab_audit`, and a no-op window that rejects
+and then accepts again counts against P5 only on the problems where each poll is a whole verdict (`no_settle` in that
+ledger). An ITBench restart that passes before the fault's alert fires again counts against both P4 and P7.
 
 ## Agent actions
 

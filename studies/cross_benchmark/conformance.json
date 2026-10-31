@@ -2,27 +2,28 @@
   "comparison": {
     "aiopslab": {
       "agents": 5,
-      "beyond_prior_practice_without_scope_or_isolation": 9,
+      "beyond_prior_practice_without_scope_or_isolation": 6,
       "by_instrument": {
         "agents": 5,
         "noop": 4,
         "operators": 6,
-        "scope": 13,
-        "window": 12
+        "repeats": 1,
+        "scope": 12,
+        "window": 3
       },
       "code_reading": {
-        "episodes": 38,
+        "episodes": 37,
         "found_not_predicted": 1,
-        "precision": 0.923,
-        "predicted_and_found": 24,
+        "precision": 0.92,
+        "predicted_and_found": 23,
         "predicted_not_found": 2,
-        "recall": 0.96
+        "recall": 0.958
       },
       "noop": 4,
       "only_beyond_prior_practice": 10,
       "prior_practice": 4,
       "tasks_with_findings": 14,
-      "tasks_with_findings_without_scope_or_isolation": 13
+      "tasks_with_findings_without_scope_or_isolation": 10
     },
     "itbench": {
       "agents": 3,
@@ -108,66 +109,57 @@
       "assign_to_non_existent_node_social_net-mitigation-1": [
         "P1:noop",
         "P4:operators",
-        "P4:scope",
-        "P5:window"
+        "P4:scope"
       ],
       "astronomy_shop_kafka_queue_problems-mitigation-1": [
         "P1:noop",
-        "P4:scope",
-        "P5:window"
+        "P4:scope"
       ],
       "auth_miss_mongodb-mitigation-1": [
-        "P4:scope",
-        "P5:window"
+        "P4:scope"
       ],
       "k8s_target_port-misconfig-mitigation-1": [
-        "P4:scope",
-        "P5:window"
+        "P4:scope"
       ],
       "k8s_target_port-misconfig-mitigation-2": [
         "P4:agents",
-        "P4:scope",
-        "P5:window"
+        "P4:scope"
       ],
       "k8s_target_port-misconfig-mitigation-3": [
-        "P4:scope",
-        "P5:window"
+        "P4:scope"
       ],
       "misconfig_app_hotel_res-mitigation-1": [
         "P1:noop",
         "P4:operators",
-        "P4:scope"
+        "P4:scope",
+        "P5:window"
       ],
       "redeploy_without_PV-mitigation-1": [
         "P1:noop",
+        "P5:repeats",
         "P5:window"
       ],
       "revoke_auth_mongodb-mitigation-1": [
         "P4:operators",
         "P4:scope",
-        "P5:window",
         "T:agents"
       ],
       "revoke_auth_mongodb-mitigation-2": [
         "P4:operators",
         "P4:scope",
-        "P5:window",
         "T:agents"
       ],
       "scale_pod_zero_social_net-mitigation-1": [
-        "P4:scope",
         "P5:window"
       ],
       "user_unregistered_mongodb-mitigation-1": [
         "P4:operators",
         "P4:scope",
-        "P5:window",
         "T:agents"
       ],
       "user_unregistered_mongodb-mitigation-2": [
         "P4:operators",
         "P4:scope",
-        "P5:window",
         "T:agents"
       ],
       "wrong_bin_usage-mitigation-1": [
@@ -186,19 +178,24 @@
       "114": [
         "P1:noop",
         "P4:agents",
+        "P4:durability",
         "P4:operators",
         "P7:durability"
       ],
       "116": [
+        "P4:durability",
         "P7:durability"
       ],
       "20": [
+        "P4:durability",
         "P7:durability"
       ],
       "23": [
+        "P4:durability",
         "P7:durability"
       ],
       "30": [
+        "P4:durability",
         "P4:operators",
         "P7:durability"
       ],
@@ -208,12 +205,14 @@
         "T:static"
       ],
       "33": [
+        "P4:durability",
         "P7:durability"
       ],
       "34": [
         "P4:operators"
       ],
       "39": [
+        "P4:durability",
         "P7:durability"
       ],
       "40": [
@@ -221,13 +220,16 @@
         "P4:operators"
       ],
       "43": [
+        "P4:durability",
         "P4:operators",
         "P7:durability"
       ],
       "44": [
+        "P4:durability",
         "P7:durability"
       ],
       "45": [
+        "P4:durability",
         "P7:durability"
       ],
       "46": [
@@ -235,12 +237,15 @@
         "T:noop"
       ],
       "49": [
+        "P4:durability",
         "P7:durability"
       ],
       "56": [
+        "P4:durability",
         "P7:durability"
       ],
       "57": [
+        "P4:durability",
         "P7:durability"
       ],
       "58": [
@@ -248,9 +253,11 @@
         "T:agents"
       ],
       "59": [
+        "P4:durability",
         "P7:durability"
       ],
       "60": [
+        "P4:durability",
         "P7:durability"
       ],
       "63": [
@@ -642,7 +649,6 @@
           "misconfig_app_hotel_res-mitigation-1",
           "revoke_auth_mongodb-mitigation-1",
           "revoke_auth_mongodb-mitigation-2",
-          "scale_pod_zero_social_net-mitigation-1",
           "user_unregistered_mongodb-mitigation-1",
           "user_unregistered_mongodb-mitigation-2",
           "wrong_bin_usage-mitigation-1"
@@ -651,18 +657,9 @@
       "P5": {
         "measured": 14,
         "violated": [
-          "assign_to_non_existent_node_social_net-mitigation-1",
-          "astronomy_shop_kafka_queue_problems-mitigation-1",
-          "auth_miss_mongodb-mitigation-1",
-          "k8s_target_port-misconfig-mitigation-1",
-          "k8s_target_port-misconfig-mitigation-2",
-          "k8s_target_port-misconfig-mitigation-3",
+          "misconfig_app_hotel_res-mitigation-1",
           "redeploy_without_PV-mitigation-1",
-          "revoke_auth_mongodb-mitigation-1",
-          "revoke_auth_mongodb-mitigation-2",
-          "scale_pod_zero_social_net-mitigation-1",
-          "user_unregistered_mongodb-mitigation-1",
-          "user_unregistered_mongodb-mitigation-2"
+          "scale_pod_zero_social_net-mitigation-1"
         ]
       },
       "P6": {
@@ -711,10 +708,22 @@
         "violated": [
           "102",
           "114",
+          "116",
+          "20",
+          "23",
           "30",
+          "33",
           "34",
+          "39",
           "40",
-          "43"
+          "43",
+          "44",
+          "45",
+          "49",
+          "56",
+          "57",
+          "59",
+          "60"
         ]
       },
       "P5": {
@@ -982,12 +991,12 @@
   },
   "totals": {
     "agents": 15,
-    "beyond_prior_practice_without_scope_or_isolation": 59,
+    "beyond_prior_practice_without_scope_or_isolation": 56,
     "code_reading": {
-      "episodes": 523,
+      "episodes": 522,
       "found_not_predicted": 7,
-      "precision": 0.561,
-      "predicted_and_found": 110,
+      "precision": 0.559,
+      "predicted_and_found": 109,
       "predicted_not_found": 86,
       "recall": 0.94
     },
@@ -995,6 +1004,6 @@
     "only_beyond_prior_practice": 113,
     "prior_practice": 22,
     "tasks_with_findings": 135,
-    "tasks_with_findings_without_scope_or_isolation": 81
+    "tasks_with_findings_without_scope_or_isolation": 78
   }
 }

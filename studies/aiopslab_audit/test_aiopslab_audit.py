@@ -46,6 +46,11 @@ class LedgerTest(unittest.TestCase):
                          "rejected_fault_present")
         self.assertEqual(ledger.default_label({"label": "not_applicable"}), "not_applicable")
 
+    def test_default_label_without_settle_window_is_the_first_poll_label(self):
+        self.assertEqual(ledger.default_label(self.row("unknown", "++-+", False), settles=False), "unknown")
+        self.assertEqual(ledger.default_label(self.row("survived", "++++", False), settles=False), "survived")
+        self.assertEqual(ledger.default_label(self.row("unknown", "--++", True), settles=False), "unknown")
+
 
 class ResetTest(unittest.TestCase):
     def test_extras_lists_only_added_objects(self):
