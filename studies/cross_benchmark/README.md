@@ -15,10 +15,10 @@ property and instrument, and counts the tasks measured for each property.
 | P2 | accepts the healthy system |
 | P3 | accepts a correct repair |
 | P4 | rejects wrong repairs |
-| P5 | gives the same verdict when nothing changes |
-| P6 | does not depend on other tasks |
+| P5 | gives the same verdict for the same repair |
+| P6 | leaves no state behind and does not depend on other tasks |
 | P7 | accepts only repairs that last |
-| T | the task itself is valid: its fault injects, takes effect, and its answer is not left in the environment |
+| T | the task itself is valid: its setup takes effect, its text points at it, and neither its answer nor its verdict is in the agent's reach (a fault the verifier cannot see counts against P1) |
 
 Instruments: `noop` (a no-op agent), `golden` (the benchmark's own repair), `healthy` (the system before
 injection, except for the tasks in `HEALTHY_NOT_APPLICABLE` of `conformance.py`, whose correct end state by the
@@ -27,7 +27,8 @@ scaled to zero), `window` (verdicts over time), `repeats`, `isolation`, `durabil
 verifier), `published` (published results), `agents` and `static` (code reading). Prior audit practice is the no-op
 agent and the benchmark's own repair; the comparison counts the tasks with a defect that only the other instruments
 find, with and without `scope`, `isolation` and `static`. The code-reading predictions of each study are scored per
-episode against the observed outcome.
+episode against the observed outcome. On an ITBench scenario where the check passed only in the agent episodes that
+wrote what it reads (`agent_actions.json`) and failed every other, the agents set the verdict, a violation of T.
 
 ## Agent actions
 
@@ -50,7 +51,7 @@ disagree with the reference for each pair of agent models on the tasks both ran)
 between first attempts and their repeats, and the share of repeated agent tasks with the same label in every
 attempt. It also gives the acceptance rates of the settle study of `studies/alert_baseline`, and the share of agent
 episodes that wrote the monitoring objects, per benchmark and model. Agent episodes on the tasks in
-`REFERENCE_BLIND` of `conformance.py` are not counted.
+`REFERENCE_BLIND` of `conformance.py`, and undecided ones, are not counted.
 
 ## Rating sample
 
@@ -72,8 +73,8 @@ current runs.
 From the repository root, once the studies' ledgers and runs are in place:
 
 ```bash
-python3 studies/cross_benchmark/conformance.py
 python3 studies/cross_benchmark/agent_actions.py
+python3 studies/cross_benchmark/conformance.py
 python3 studies/cross_benchmark/headline.py
 python3 studies/cross_benchmark/rating.py sample
 python3 studies/cross_benchmark/rating.py score studies/cross_benchmark/rating/rater-1.csv \

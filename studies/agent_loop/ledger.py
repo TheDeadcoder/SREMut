@@ -1,5 +1,6 @@
 """Labels every agent episode under each benchmark oracle against the reference verifier and writes ledger.json;
---check verifies the committed copy."""
+--check verifies the committed copy. On a task whose injected fault cannot act (INERT_FAULTS), an alert after a pass
+cannot be read as a relapse, so such an episode is undecided."""
 import argparse
 import json
 import sys
@@ -9,6 +10,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RUNS = HERE / "runs"
 LEDGER = HERE / "ledger.json"
+INERT_FAULTS = {("itbench", "31")}
 
 
 def label(passed, healthy):
@@ -29,7 +31,8 @@ def row(path):
     verdicts = result.get("verdicts") or {}
     relapsed = any(v.get("relapsed") for v in verdicts.values())
     reference_healthy = (result.get("reference") or {}).get("healthy")
-    healthy = None if reference_healthy is None else reference_healthy and not relapsed
+    undecided = reference_healthy is None or (relapsed and (benchmark, task) in INERT_FAULTS)
+    healthy = None if undecided else reference_healthy and not relapsed
     agent = result.get("agent") or {}
     out.update({"status": "completed", "healthy": healthy, "relapsed": relapsed,
                 "footprint_left": result.get("footprint_left") or [], "turns": agent.get("turns"),

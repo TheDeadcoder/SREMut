@@ -49,6 +49,11 @@ Actions: `NULL` (nothing), `RESTART`, `SCALE0` (the operators of `studies/verifi
 | passes | stays absent | unhealthy | `survived` |
 | passes | stays absent | healthy | `equivalent` |
 
+Scenario 31 injects a NetworkPolicy whose only ingress rule is empty, so it admits all traffic and the fault cannot
+act. Its `NULL` and `RESTART` episodes leave a healthy system and are labelled `inert` (`INERT_FAULTS` in `ledger.py`):
+they count toward no property, and their predictions are not scored. `SILENCE` breaks the demo by itself and is
+labelled as above.
+
 ## Predictions
 
 Fixed before the first episode, in `schedule.csv` (`predicted`: whether the alert-absent check passes):

@@ -152,6 +152,18 @@ class LedgerTest(unittest.TestCase):
         self.assertEqual(built["summary"]["labels"], {"itbench": {"alert_absent": {"false_pass": 1}}})
         self.assertEqual(built["summary"]["relapsed"], ["itbench:20:attempt-1"])
 
+    def test_alert_after_a_pass_on_an_inert_fault_is_undecided(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            run_dir = Path(tmp) / "itbench" / "31" / "attempt-1"
+            run_dir.mkdir(parents=True)
+            (run_dir / "record.json").write_text(json.dumps({"status": "COMPLETED"}))
+            (run_dir / "result.json").write_text(json.dumps({
+                "status": "COMPLETED", "reference": {"healthy": True}, "agent": {},
+                "verdicts": {"alert_absent": {"profile": "-++--", "passed": True, "relapsed": True}}}))
+            built = ledger.build(Path(tmp))
+        self.assertEqual(built["summary"]["labels"], {"itbench": {"alert_absent": {"undecided": 1}}})
+        self.assertIsNone(built["episodes"][0]["healthy"])
+
 
 class ITBenchPromptTest(unittest.TestCase):
     def test_alert_lines(self):

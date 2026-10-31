@@ -60,10 +60,11 @@ Predictions, fixed before the first HEAD episode:
 
 ## Waiting for alerts to clear
 
-On SREGym's HEAD, `AlertOracle` waits 30 s and then fails at the first firing alert, so it can fail a correct
-repair while the fault's own alerts are still clearing. `settle_probe.py` measures what an oracle that waits for
-them would decide, on the eight problems whose fault fires an alert at HEAD in `runs-head/`. Once the fault is
-detected, the unchanged oracle is judged again and again, 30 s apart, for 600 s after each of three states in turn:
+On SREGym's HEAD, `AlertOracle` waits 30 s, then watches the alerts for 120 s and fails at the first one that fires,
+so it can fail a correct repair while the fault's own alerts are still clearing. `settle_probe.py` measures what an
+oracle that waits for them would decide, on the eight problems whose fault fires an alert at HEAD in `runs-head/`.
+Once the fault is detected, the unchanged oracle is judged again and again, with a 30 s pause after each judgment,
+for 600 s after each of three states in turn:
 the fault with no repair, every pod of the namespace restarted with the fault in place (the `RESTART` operator of
 `studies/verifier_mutation`), and SREGym's recovery. Every evaluation keeps when it started and how long it took.
 For each state, `settle_ledger.py` reads the verdict right after it, as SREGym grades, and the verdict of an oracle

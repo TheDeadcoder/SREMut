@@ -7,7 +7,6 @@
         "agents": 5,
         "noop": 4,
         "operators": 6,
-        "reference": 1,
         "scope": 13,
         "window": 12
       },
@@ -30,20 +29,20 @@
       "beyond_prior_practice_without_scope_or_isolation": 19,
       "by_instrument": {
         "agents": 3,
-        "durability": 16,
+        "durability": 15,
         "healthy": 3,
         "noop": 4,
         "operators": 6,
         "repeats": 1,
-        "static": 2
+        "static": 1
       },
       "code_reading": {
-        "episodes": 52,
+        "episodes": 50,
         "found_not_predicted": 1,
-        "precision": 0.8,
-        "predicted_and_found": 24,
+        "precision": 0.793,
+        "predicted_and_found": 23,
         "predicted_not_found": 6,
-        "recall": 0.96
+        "recall": 0.958
       },
       "noop": 4,
       "only_beyond_prior_practice": 19,
@@ -141,8 +140,7 @@
       ],
       "redeploy_without_PV-mitigation-1": [
         "P1:noop",
-        "P5:window",
-        "T:reference"
+        "P5:window"
       ],
       "revoke_auth_mongodb-mitigation-1": [
         "P4:operators",
@@ -179,8 +177,7 @@
     "itbench": {
       "102": [
         "P1:noop",
-        "P4:operators",
-        "T:static"
+        "P4:operators"
       ],
       "105": [
         "P2:healthy",
@@ -207,8 +204,6 @@
       ],
       "31": [
         "P3:agents",
-        "P4:agents",
-        "P7:durability",
         "T:agents",
         "T:static"
       ],
@@ -249,7 +244,8 @@
         "P7:durability"
       ],
       "58": [
-        "P3:agents"
+        "P3:agents",
+        "T:agents"
       ],
       "59": [
         "P7:durability"
@@ -680,7 +676,6 @@
       "T": {
         "measured": 14,
         "violated": [
-          "redeploy_without_PV-mitigation-1",
           "revoke_auth_mongodb-mitigation-1",
           "revoke_auth_mongodb-mitigation-2",
           "user_unregistered_mongodb-mitigation-1",
@@ -690,7 +685,7 @@
     },
     "itbench": {
       "P1": {
-        "measured": 23,
+        "measured": 22,
         "violated": [
           "102",
           "114"
@@ -717,7 +712,6 @@
           "102",
           "114",
           "30",
-          "31",
           "34",
           "40",
           "43"
@@ -734,14 +728,13 @@
         "violated": []
       },
       "P7": {
-        "measured": 23,
+        "measured": 22,
         "violated": [
           "114",
           "116",
           "20",
           "23",
           "30",
-          "31",
           "33",
           "39",
           "43",
@@ -757,9 +750,9 @@
       "T": {
         "measured": 25,
         "violated": [
-          "102",
           "31",
           "46",
+          "58",
           "63"
         ]
       }
@@ -991,12 +984,12 @@
     "agents": 15,
     "beyond_prior_practice_without_scope_or_isolation": 59,
     "code_reading": {
-      "episodes": 525,
+      "episodes": 523,
       "found_not_predicted": 7,
-      "precision": 0.563,
-      "predicted_and_found": 111,
+      "precision": 0.561,
+      "predicted_and_found": 110,
       "predicted_not_found": 86,
-      "recall": 0.941
+      "recall": 0.94
     },
     "noop": 11,
     "only_beyond_prior_practice": 113,

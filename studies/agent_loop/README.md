@@ -78,7 +78,9 @@ the eight SREGym problems at the pin and the six at HEAD), and the repeats above
 ## Labels
 
 For each verifier, its verdict against the reference verifier: `true_pass`, `false_pass` (passes an unhealthy
-system), `true_fail`, `false_fail` (fails a healthy system). On ITBench a relapse also counts as unhealthy. The
+system), `true_fail`, `false_fail` (fails a healthy system). On ITBench a relapse also counts as unhealthy, except on
+scenario 31, whose fault cannot act (`INERT_FAULTS` in `ledger.py`): there an alert after a pass is no relapse, and
+the episode is `undecided`, counted in neither direction. The
 ledger also lists the episodes whose verdict the fix changes, and passes that leave the injected change in place,
 which the reference verifier cannot see for a feature flag or lost data.
 
